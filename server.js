@@ -26,9 +26,28 @@ app.get('/', (req, res) => {
     body { margin: 0; padding: 16px; background: var(--bg); color: var(--text); font-family: sans-serif; }
     .container { max-width: 720px; margin: 0 auto; background: var(--card); border-radius: 20px; padding: 24px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
     header { text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 18px; }
+    
+    .official-logo {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 16px;
+      margin: 0 auto 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+      border: 2px solid #ffffff;
+    }
+    .official-logo svg {
+      width: 36px;
+      height: 36px;
+      fill: #ffffff;
+    }
+
     h1 { margin: 0 0 4px; font-size: 24px; }
     .subtitle { color: var(--accent); font-size: 13px; font-weight: 600; }
-    .top-controls { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
+    .top-controls { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
     .btn-ctrl { background: #1f2937; border: 1px solid var(--border); color: #fff; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; }
     .nav-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 18px; }
     .tab-btn { background: #1f2937; border: 1px solid var(--border); padding: 10px; border-radius: 10px; color: var(--muted); cursor: pointer; font-weight: bold; text-align: center; font-size: 12px; }
@@ -41,9 +60,12 @@ app.get('/', (req, res) => {
     label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 13px; color: var(--muted); }
     input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 12px; background: #111827; color: var(--text); font-size: 14px; }
     input:focus, select:focus { border-color: var(--accent); outline: none; }
-    .otp-container { display: flex; justify-content: space-between; gap: 4px; direction: ltr; margin-bottom: 14px; }
-    .otp-input { width: 42px; height: 50px; text-align: center; font-size: 20px; font-weight: bold; border: 2px solid var(--border); border-radius: 8px; background: #111827; color: var(--accent); font-family: monospace; }
+    
+    /* ضبط خانات الأكواد لتتلاءم بدقة مع الشاشة (8 خانات) */
+    .otp-container { display: flex; justify-content: space-between; gap: 4px; direction: ltr; margin-bottom: 14px; width: 100%; }
+    .otp-input { flex: 1; max-width: 40px; height: 48px; text-align: center; font-size: 18px; font-weight: bold; border: 2px solid var(--border); border-radius: 8px; background: #111827; color: var(--accent); font-family: monospace; }
     .otp-input:focus { border-color: var(--accent); box-shadow: 0 0 8px rgba(56,189,248,0.4); }
+
     .btn-submit { width: 100%; padding: 13px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
     .btn-submit:hover { background: #115e59; }
     .list-item { background: #111827; border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
@@ -54,6 +76,11 @@ app.get('/', (req, res) => {
 <body>
   <div class="container">
     <header>
+      <div class="official-logo">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2C9.5 2 7.5 4 7.5 6.5C7.5 7.8 8.1 9 9 9.8C7.2 10.5 5.5 12 4.5 14C3.5 16 3.5 18 4.5 20C5.5 22 7.5 22 9.5 22C11.5 22 13 21 14 19.5C15 21 16.5 22 18.5 22C20.5 22 22.5 20 23.5 18C24.5 16 24.5 14 23.5 12C22.5 10 20.8 8.5 19 7.8C19.9 9 20.5 10.2 20.5 11.5C20.5 14 18.5 16 16 16C15.2 16 14.5 15.8 13.9 15.4C14.3 14.4 14.5 13.3 14.5 12.2C14.5 9 12.5 6.5 12 6.5Z"/>
+        </svg>
+      </div>
       <h1 id="txtTitle">برنامج سند</h1>
       <p class="subtitle" id="txtSub">المنصة السيادية الدولية عابرة الحدود</p>
       <div class="top-controls">
@@ -118,7 +145,7 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    <div class="footer-note">SANAD SOVEREIGN PROTOCOL v5.0</div>
+    <div class="footer-note">SANAD SOVEREIGN PROTOCOL v5.2</div>
   </div>
 
   <script>

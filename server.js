@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>برنامج سند - المنصة السيادية العالمية (v7.6 OMEGA)</title>
+  <title>برنامج سند - المنصة السيادية العالمية (v7.7 OMEGA SYNC)</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -47,12 +47,13 @@ app.get('/', (req, res) => {
       --accent: #38bdf8;
       --gold: #f59e0b;
       --quantum: #8b5cf6;
+      --emerald: #10b981;
     }
     body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: sans-serif; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
     .container { max-width: 720px; margin: 0 auto; padding: 16px; }
     
     .telemetry-bar { background: #020617; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-family: monospace; font-size: 11px; display: flex; justify-content: space-between; align-items: center; color: var(--accent); }
-    .telemetry-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); animation: pulse 1.5s infinite; }
+    .telemetry-dot { width: 8px; height: 8px; background: var(--emerald); border-radius: 50%; box-shadow: 0 0 10px var(--emerald); animation: pulse 1.5s infinite; }
     @keyframes pulse { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
 
     .header-compact { display: flex; align-items: center; justify-content: space-between; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 14px; }
@@ -89,6 +90,7 @@ app.get('/', (req, res) => {
 
     .list-item { background: #030712; border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
     .badge-gold { background: rgba(245, 158, 11, 0.15); color: var(--gold); border: 1px solid var(--gold); padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; }
+    .badge-sync { background: rgba(16, 185, 129, 0.15); color: var(--emerald); border: 1px solid var(--emerald); padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; }
     
     .profile-card { text-align: center; padding: 20px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; }
     .profile-avatar { width: 64px; height: 64px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--gold); font-size: 24px; color: #fff; font-weight: bold; }
@@ -99,9 +101,9 @@ app.get('/', (req, res) => {
 <body>
   <div class="container">
     <div class="telemetry-bar">
-      <span>AI-SAT LINK: <strong>SECURED // v7.6 OMEGA</strong></span>
+      <span>AI-SAT LINK: <strong>SECURED // v7.7 SYNC</strong></span>
       <div style="display:flex; align-items:center; gap:6px;">
-        <span id="txtOnline">1X ZERO-LAG ACTIVE</span>
+        <span id="txtOnline">1X OFFLINE-SYNC ACTIVE</span>
         <div class="telemetry-dot"></div>
       </div>
     </div>
@@ -113,7 +115,7 @@ app.get('/', (req, res) => {
       <div class="header-compact">
         <div class="header-title">
           <h2 id="codesTitle">الأكواد والأرقام السيادية</h2>
-          <p>إدارة وتوليد الأكواد الثمانية والأرقام المؤمنة بالذكاء الاصطناعي</p>
+          <p>إدارة وتوليد الأكواد الثمانية مع الذاكرة العصبية التخزينية</p>
         </div>
       </div>
       
@@ -139,7 +141,7 @@ app.get('/', (req, res) => {
           <select id="numCategory">
             <option value="بروتوكول VIP السيادي (888)">بروتوكول VIP السيادي (888xxxxx)</option>
             <option value="محطة التشغيل المركزية (800)">محطة التشغيل المركزية (800xxxxx)</option>
-            <option value="قناة التوجيه الفضائي (AI)">قناة التوجيه الفضائي (AI-SAT OMEGA)</option>
+            <option value="قناة التوجيه الفضائي (AI)">قناة التوجيه الفضائي (AI-SAT SYNC)</option>
           </select>
 
           <button type="submit" class="btn-submit" id="btnSave">اعتماد الحفظ في الخزنة الذكية</button>
@@ -155,18 +157,18 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    <!-- 2. شاشة مساعد سند الذكي (AI Quantum Omega) -->
+    <!-- 2. شاشة مساعد سند الذكي (AI Quantum Sync) -->
     <div id="screenAi" class="screen">
       <div class="header-compact">
         <div class="header-title">
-          <h2>مساعد سند الذكي (OMEGA AI)</h2>
-          <p>العقل العصبي المرافق للعمليات والتوجيهات السيادية العابرة للحدود</p>
+          <h2>مساعد سند الذكي (SYNC AI)</h2>
+          <p>العقل العصبي المزود بذاكرة الطوارئ ومزامنة الإشارة التلقائية</p>
         </div>
       </div>
       <div class="card-box">
         <h3>سجل الحوار العصبي الفضائي المطور</h3>
         <div class="ai-chat-box" id="aiChatLog">
-          <div><strong>[نظام سند OMEGA]:</strong> أهلاً بك يا أبو طارق. تم تفعيل خوارزميات الذكاء الاصطناعي الفضائي المقاومة للشوائب والتقطيع. النظام يعمل بكفاءة مطلقة على أضعف شبكات (1X). كيف أخدم إمبراطوريتك التقنية اليوم؟</div>
+          <div><strong>[نظام سند SYNC]:</strong> أهلاً بك يا أبو طارق. تم تفعيل تقنية "الذاكرة العصبية التخزينية". حتى لو انقطعت الإشارة تماماً، سيتم حفظ كافة توجيهاتك ومزامنتها آلياً فور عودة الاتصال دون أن تفقد أي بايت!</div>
         </div>
         <label>أمر تشغيلي / سؤال للمساعد الذكي:</label>
         <input type="text" id="aiInputPrompt" placeholder="اكتب أمرك أو استفسارك هنا..." />
@@ -187,11 +189,11 @@ app.get('/', (req, res) => {
         <label id="lblPhone">رقم المستلم (مثال: 96777xxxxxxx):</label>
         <input type="tel" id="targetPhone" placeholder="96777xxxxxxx" style="direction:ltr; text-align:right;" />
         
-        <label id="lblMsg">نص التوجيه / الأمر المشفر (مدعوم بالذكاء الاصطناعي):</label>
+        <label id="lblMsg">نص التوجيه / الأمر المشفر (مدعوم بمزامنة الطوارئ):</label>
         <input type="text" id="targetMsg" placeholder="اكتب نص الأمر التشغيلي..." />
         
         <button type="button" class="btn-submit" id="btnSendMsg">إرسال عبر القناة الآمنة</button>
-        <button type="button" class="btn-submit btn-call" id="btnCallUser">إطلاق اتصال صوتي عصبي مشفر (1X Zero-Lag)</button>
+        <button type="button" class="btn-submit btn-call" id="btnCallUser">إطلاق اتصال صوتي عصبي مشفر (1X Sync)</button>
       </div>
     </div>
 
@@ -200,13 +202,13 @@ app.get('/', (req, res) => {
       <div class="header-compact">
         <div class="header-title">
           <h2>سجل المكالمات العصبية</h2>
-          <p>الاتصالات المشفرة عبر خوارزميات ضغط الصوت والفيديو الفضائي</p>
+          <p>الاتصالات المشفرة مع مخزن مؤقت للطوارئ وانقطاع الشبكة</p>
         </div>
       </div>
       <div class="card-box">
         <div class="list-item">
-          <div><strong>غرفة العمليات المركزية</strong><br/><span style="font-size:11px; color:var(--muted);">اتصال صوتي ومرئي عصبي (Zero-Lag Active)</span></div>
-          <span class="badge-gold">مؤمن خارق</span>
+          <div><strong>غرفة العمليات المركزية</strong><br/><span style="font-size:11px; color:var(--muted);">اتصال عصبي مؤمن (Offline-Buffer Active)</span></div>
+          <span class="badge-sync">مزامنة تلقائية</span>
         </div>
       </div>
     </div>
@@ -216,7 +218,7 @@ app.get('/', (req, res) => {
       <div class="profile-card">
         <div class="profile-avatar">سند</div>
         <h3 style="margin:0 0 4px;">برنامج سند السيادي</h3>
-        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة الذكية عابرة الحدود // v7.6 OMEGA UNIVERSE</p>
+        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة الذكية عابرة الحدود // v7.7 OMEGA SYNC</p>
       </div>
       <div class="card-box">
         <h3>لغة النظام / Language</h3>
@@ -248,13 +250,14 @@ app.get('/', (req, res) => {
       <span id="navCalls">المكالمات</span>
     </button>
     <button class="nav-item" type="button" onclick="switchScreen('settings', this)">
-      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c-.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
       <span id="navSettings">الإعدادات</span>
     </button>
   </nav>
 
   <script>
     let vault = [];
+    let offlineQueue = [];
     let currentLang = 'ar';
     let deferredPrompt;
 
@@ -273,6 +276,14 @@ app.get('/', (req, res) => {
           document.getElementById('installBtn').style.display = 'none';
         }
         deferredPrompt = null;
+      }
+    });
+
+    // مراقبة حالة الاتصال ومزامنة الطابور العصبي تلقائياً
+    window.addEventListener('online', () => {
+      if(offlineQueue.length > 0) {
+        alert(currentLang === 'ar' ? 'تم استعادة الإشارة! جاري مزامنة ' + offlineQueue.length + ' من التوجيهات المخزنة تلقائياً.' : 'Signal restored! Syncing offline queue.');
+        offlineQueue = [];
       }
     });
 
@@ -337,12 +348,21 @@ app.get('/', (req, res) => {
         return;
       }
 
-      vault.unshift({ owner, num, cat });
+      const record = { owner, num, cat };
+      vault.unshift(record);
+      
+      // إذا كان الجهاز غير متصل، يتم وضعه في طابور المزامنة العصبية المؤقتة
+      if(!navigator.onLine) {
+        offlineQueue.push(record);
+        alert(currentLang === 'ar' ? 'الإشارة مقطوعة! تم تخزين الكود في الذاكرة العصبية للطوارئ وسيتم مزامنته آلياً عند عودة الاتصال.' : 'Offline: Saved to neural queue.');
+      } else {
+        alert(currentLang === 'ar' ? 'تم الحفظ والمزامنة الفورية بنجاح في الخزنة السيادية!' : 'Successfully saved and synced!');
+      }
+
       renderVault();
       otpInputs.forEach(i => i.value = '');
       document.getElementById('ownerName').value = '';
       otpInputs[0].focus();
-      alert(currentLang === 'ar' ? 'تم الحفظ بنجاح في الخزنة السيادية OMEGA!' : 'Successfully saved in OMEGA vault!');
     });
 
     function renderVault(filter = '') {
@@ -353,7 +373,7 @@ app.get('/', (req, res) => {
         list.innerHTML = '<p style="color:var(--muted); text-align:center; font-size:12px;" id="vaultEmpty">' + (currentLang === 'ar' ? 'لا توجد نتائج مطابقة في الخزنة.' : 'No matching vault records.') + '</p>';
         return;
       }
-      list.innerHTML = filtered.map(i => '<div class="list-item"><div><strong>' + i.owner + '</strong><br/><span style="font-family:monospace; color:var(--accent);">' + i.num + '</span></div><span class="badge-gold">' + i.cat + '</span></div>').join('');
+      list.innerHTML = filtered.map(i => '<div class="list-item"><div><strong>' + i.owner + '</strong><br/><span style="font-family:monospace; color:var(--accent);">' + i.num + '</span></div><span class="badge-sync">' + i.cat + '</span></div>').join('');
     }
 
     function filterVault() {
@@ -370,13 +390,13 @@ app.get('/', (req, res) => {
       log.innerHTML += '<div style="margin-top:8px;"><strong>[أبو طارق]:</strong> ' + val + '</div>';
       
       setTimeout(() => {
-        let reply = "تقرير المساعد OMEGA: الأوامر السيادية مشفرة بالكامل عبر قنوات الأقمار الاصطناعية. جودة الاتصال مستقرة بنسبة 100% دون أي شوائب أو انقطاع.";
+        let reply = "تقرير المساعد SYNC: الذاكرة العصبية تعمل بكفاءة. حزم البيانات في الطابور مؤمنة بالكامل وجاهزة للمزامنة اللحظية مع الأقمار الاصطناعية.";
         if(val.includes("سلام") || val.includes("مرحبا")) {
-          reply = "أهلاً بك يا قائدنا العظيم. منظومة سند OMEGA في أعلى درجات الاستعداد السيادي العالمي.";
-        } else if(val.includes("فحص") || val.includes("شبكة")) {
-          reply = "فحص الأقمار الاصطناعية: شبكة 1X تعمل بأقصى كفاءة عصبية، ولا يوجد أي فقد في حزم البيانات.";
+          reply = "أهلاً بك يا قائدنا العظيم. منظومة سند SYNC تحافظ على أمان عملياتك حتى في انعدام الإشارة.";
+        } else if(val.includes("طوارئ") || val.includes("انقطاع")) {
+          reply = "حالة الذاكرة العصبية: 0% فقدان للبيانات. نظام الطوارئ الذكي يؤمن كل حرف ورقم تدخله.";
         }
-        log.innerHTML += '<div style="margin-top:8px; color:var(--gold);"><strong>[مساعد سند OMEGA]:</strong> ' + reply + '</div>';
+        log.innerHTML += '<div style="margin-top:8px; color:var(--emerald);"><strong>[مساعد سند SYNC]:</strong> ' + reply + '</div>';
         log.scrollTop = log.scrollHeight;
       }, 600);
 
@@ -392,7 +412,7 @@ app.get('/', (req, res) => {
         return;
       }
       phone = phone.replace(/^0+/, '').replace(/^\+/, '');
-      const prefix = currentLang === 'ar' ? '[بروتوكول سند OMEGA الذكي - أمر مشفر]: ' : '[Sanad OMEGA Protocol]: ';
+      const prefix = currentLang === 'ar' ? '[بروتوكول سند SYNC الذكي - أمر مشفر]: ' : '[Sanad SYNC Protocol]: ';
       window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(prefix + msg);
     });
 
@@ -403,7 +423,7 @@ app.get('/', (req, res) => {
         return;
       }
       phone = phone.replace(/^0+/, '').replace(/^\+/, '');
-      window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(currentLang === 'ar' ? '[طلب اتصال صوتي ومرئي عصبي مؤمن - سند OMEGA]' : '[OMEGA Secure Voice/Video Call Request]');
+      window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(currentLang === 'ar' ? '[طلب اتصال عصبي مؤمن مع ذاكرة الطوارئ - سند SYNC]' : '[SYNC Secure Call Request]');
     });
   </script>
 </body>

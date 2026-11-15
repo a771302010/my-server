@@ -25,45 +25,58 @@ app.get('/', (req, res) => {
       --gold: #f59e0b;
       --quantum: #8b5cf6;
     }
-    body { margin: 0; padding: 16px; background: var(--bg); color: var(--text); font-family: sans-serif; }
-    .container { max-width: 720px; margin: 0 auto; background: var(--card); border-radius: 20px; padding: 24px; border: 1px solid var(--border); box-shadow: 0 25px 50px rgba(0,0,0,0.8); }
-    .telemetry-bar { background: #020617; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; margin-bottom: 16px; font-family: monospace; font-size: 11px; display: flex; justify-content: space-between; align-items: center; color: var(--accent); }
-    .telemetry-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); }
-    header { text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 18px; }
-    .official-logo { width: 68px; height: 68px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 18px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(56, 189, 248, 0.4); border: 2px solid var(--gold); }
-    .official-logo svg { width: 38px; height: 38px; fill: #ffffff; }
-    h1 { margin: 0 0 4px; font-size: 24px; }
-    .subtitle { color: var(--accent); font-size: 13px; font-weight: 600; }
-    .top-controls { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
-    .btn-ctrl { background: #1e293b; border: 1px solid var(--border); color: #fff; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; }
-    .nav-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 18px; }
-    .tab-btn { background: #1e293b; border: 1px solid var(--border); padding: 12px 8px; border-radius: 10px; color: var(--muted); cursor: pointer; font-weight: bold; text-align: center; font-size: 13px; }
+    body { margin: 0; padding: 12px; background: var(--bg); color: var(--text); font-family: sans-serif; }
+    .container { max-width: 720px; margin: 0 auto; background: var(--card); border-radius: 16px; padding: 20px; border: 1px solid var(--border); box-shadow: 0 25px 50px rgba(0,0,0,0.8); }
+    
+    .telemetry-bar { background: #020617; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; margin-bottom: 14px; font-family: monospace; font-size: 11px; display: flex; justify-content: space-between; align-items: center; color: var(--accent); }
+    .telemetry-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
+
+    header { text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-bottom: 16px; }
+    .official-logo { width: 64px; height: 64px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 16px; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(56, 189, 248, 0.4); border: 2px solid var(--gold); }
+    .official-logo svg { width: 34px; height: 34px; fill: #ffffff; }
+    h1 { margin: 0 0 4px; font-size: 22px; }
+    .subtitle { color: var(--accent); font-size: 12px; font-weight: 600; }
+    
+    .top-controls { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
+    .btn-ctrl { background: #1e293b; border: 1px solid var(--border); color: #fff; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; }
+    .btn-ctrl.active-lang { border-color: var(--gold); color: var(--gold); }
+
+    .nav-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 16px; }
+    .tab-btn { background: #1e293b; border: 1px solid var(--border); padding: 10px 6px; border-radius: 10px; color: var(--muted); cursor: pointer; font-weight: bold; text-align: center; font-size: 12px; }
     .tab-btn.active { background: var(--primary); color: #fff; border-color: var(--accent); box-shadow: 0 4px 15px rgba(30,58,138,0.6); }
+
     .section { display: none; }
-    .section.active { display: block; }
-    .card-box { background: #1e293b; border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 14px; }
-    .card-box h3 { margin: 0 0 14px; font-size: 15px; color: var(--text); border-right: 4px solid var(--gold); padding-right: 8px; }
+    .section.active { display: block; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .card-box { background: #1e293b; border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+    .card-box h3 { margin: 0 0 12px; font-size: 14px; color: var(--text); border-right: 4px solid var(--gold); padding-right: 8px; }
     [dir="ltr"] .card-box h3 { border-right: none; border-left: 4px solid var(--gold); padding-right: 0; padding-left: 8px; }
-    label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 13px; color: var(--muted); }
-    input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 12px; background: #030712; color: var(--text); font-size: 14px; box-sizing: border-box; }
+
+    label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 12px; color: var(--muted); }
+    input, select { width: 100%; padding: 11px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 10px; background: #030712; color: var(--text); font-size: 13px; box-sizing: border-box; }
     input:focus, select:focus { border-color: var(--accent); outline: none; }
-    .otp-container { display: flex; justify-content: space-between; gap: 4px; direction: ltr; margin-bottom: 14px; width: 100%; }
-    .otp-input { flex: 1; max-width: 40px; height: 48px; text-align: center; font-size: 18px; font-weight: bold; border: 2px solid var(--border); border-radius: 8px; background: #030712; color: var(--accent); font-family: monospace; }
+
+    .otp-container { display: flex; justify-content: space-between; gap: 4px; direction: ltr; margin-bottom: 12px; }
+    .otp-input { width: 100% !important; max-width: 44px; height: 46px; text-align: center; font-size: 18px; font-weight: bold; border: 2px solid var(--border); border-radius: 8px; background: #030712; color: var(--accent); font-family: monospace; padding: 0 !important; margin: 0 !important; }
     .otp-input:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(245,158,11,0.4); }
-    .btn-submit { width: 100%; padding: 13px; background: var(--primary); color: #fff; border: 1px solid var(--accent); border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+
+    .btn-submit { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: 1px solid var(--accent); border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
     .btn-submit:hover { background: var(--primary-hover); }
     .btn-call { background: #312e81; border-color: var(--quantum); margin-top: 8px; }
-    .list-item { background: #030712; border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-    .badge-gold { background: rgba(245, 158, 11, 0.15); color: var(--gold); border: 1px solid var(--gold); padding: 3px 8px; border-radius: 15px; font-size: 11px; font-weight: bold; }
-    .footer-note { text-align: center; font-size: 11px; color: var(--muted); margin-top: 16px; font-family: monospace; }
+
+    .list-item { background: #030712; border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .badge-gold { background: rgba(245, 158, 11, 0.15); color: var(--gold); border: 1px solid var(--gold); padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; }
+    .footer-note { text-align: center; font-size: 10px; color: var(--muted); margin-top: 14px; font-family: monospace; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="telemetry-bar">
-      <span>AI-SAT LINK: <strong style="color:var(--gold);">SECURED // ORBITAL v5.9</strong></span>
+      <span id="telemetryStatus">AI-SAT LINK: <strong>SECURED // QUANTUM v6.0</strong></span>
       <div style="display:flex; align-items:center; gap:6px;">
-        <span>ONLINE</span>
+        <span id="txtOnline">ONLINE (1X OPTIMIZED)</span>
         <div class="telemetry-dot"></div>
       </div>
     </div>
@@ -77,15 +90,15 @@ app.get('/', (req, res) => {
       <h1 id="txtTitle">برنامج سند</h1>
       <p class="subtitle" id="txtSub">المنصة السيادية الدولية عابرة الحدود</p>
       <div class="top-controls">
-        <button class="btn-ctrl" type="button" id="langAr">العربية 🇸🇦</button>
-        <button class="btn-ctrl" type="button" id="langEn">English 🇬🇧</button>
+        <button class="btn-ctrl active-lang" type="button" id="langArBtn">العربية 🇸🇦</button>
+        <button class="btn-ctrl" type="button" id="langEnBtn">English 🇬🇧</button>
       </div>
     </header>
 
     <div class="nav-tabs">
       <button class="tab-btn active" type="button" id="tabGenBtn">الأكواد</button>
       <button class="tab-btn" type="button" id="tabVaultBtn">الخزنة</button>
-      <button class="tab-btn" type="button" id="tabGatewayBtn">التوجيه</button>
+      <button class="tab-btn" type="button" id="tabGatewayBtn">التوجيه والاتصال</button>
     </div>
 
     <!-- 1. قسم توليد الأكواد -->
@@ -96,19 +109,19 @@ app.get('/', (req, res) => {
           <label id="lblOwner">اسم الجهة أو المعرف:</label>
           <input type="text" id="ownerName" placeholder="مثال: غرفة العمليات المركزية" required />
           
-          <label id="lblOtp">أدخل الكود (8 خانات دقيقة):</label>
-          <div class="otp-container">
-            <input type="text" class="otp-input" maxlength="1" />
-            <input type="text" class="otp-input" maxlength="1" />
-            <input type="text" class="otp-input" maxlength="1" />
-            <input type="text" class="otp-input" maxlength="1" />
-            <input type="text" class="otp-input" maxlength="1" />
-            <input type="text" class="otp-input" maxlength="1" />
-            <input type="text" class="otp-input" maxlength="1" />
-            <input type="text" class="otp-input" maxlength="1" />
+          <label id="lblOtp">أدخل الكود (8 خانات دقيقة - انتقال تلقائي):</label>
+          <div class="otp-container" id="otpGroup">
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
           </div>
 
-          <label id="lblCat">التصنيف:</label>
+          <label id="lblCat">التصنيف السيادي:</label>
           <select id="numCategory">
             <option value="بروتوكول VIP السيادي (888)">بروتوكول VIP السيادي (888xxxxx)</option>
             <option value="محطة التشغيل المركزية (800)">محطة التشغيل المركزية (800xxxxx)</option>
@@ -124,33 +137,96 @@ app.get('/', (req, res) => {
       <div class="card-box">
         <h3 id="vaultHead">خزنة الأكواد السيادية</h3>
         <div id="vaultList">
-          <p style="color:var(--muted); text-align:center; font-size:13px;" id="vaultEmpty">الخزنة فارغة ونظيفة.</p>
+          <p style="color:var(--muted); text-align:center; font-size:12px;" id="vaultEmpty">الخزنة فارغة ونظيفة.</p>
         </div>
       </div>
     </div>
 
-    <!-- 3. قسم التوجيه والاتصال -->
+    <!-- 3. قسم التوجيه والاتصال المباشر -->
     <div id="sectionGateway" class="section">
       <div class="card-box">
-        <h3 id="gatewayHead">بوابة التوجيه والاتصال الفضائي</h3>
+        <h3 id="gatewayHead">بوابة التوجيه والاتصال الفضائي المشفر</h3>
         
-        <label id="lblPhone">رقم المستلم (مثال: 96777xxxxxxx):</label>
+        <label id="lblPhone">رقم المستلم (مع مفتاح الدولة، مثل: 96777xxxxxxx):</label>
         <input type="tel" id="targetPhone" placeholder="96777xxxxxxx" style="direction:ltr; text-align:right;" />
         
         <label id="lblMsg">نص التوجيه / الأمر المشفر:</label>
         <input type="text" id="targetMsg" placeholder="اكتب نص الأمر التشغيلي..." />
         
-        <button type="button" class="btn-submit" id="btnSendMsg">إرسال عبر البروتوكول الفضائي</button>
-        <button type="button" class="btn-submit btn-call" id="btnCallUser">طلب اتصال صوتي مشفر</button>
+        <button type="button" class="btn-submit" id="btnSendMsg">إرسال رسالة عبر القناة الآمنة</button>
+        <button type="button" class="btn-submit btn-call" id="btnCallUser">إطلاق اتصال صوتي فضائي مشفر</button>
       </div>
     </div>
 
-    <div class="footer-note">SANAD GLOBAL QUANTUM PROTOCOL v5.9</div>
+    <div class="footer-note" id="footerText">SANAD GLOBAL QUANTUM PROTOCOL v6.0 - 1X RESILIENT</div>
   </div>
 
   <script>
     let vault = [];
     let currentLang = 'ar';
+
+    const dict = {
+      ar: {
+        title: "برنامج سند",
+        sub: "المنصة السيادية الدولية عابرة الحدود",
+        online: "متصل (محسن لشبكات 1X)",
+        tabGen: "الأكواد",
+        tabVault: "الخزنة",
+        tabGateway: "التوجيه والاتصال",
+        genHead: "توليد وتأمين كود سيادي (8 خانات)",
+        lblOwner: "اسم الجهة أو المعرف:",
+        ownerPlaceholder: "مثال: غرفة العمليات المركزية",
+        lblOtp: "أدخل الكود (8 خانات دقيقة - انتقال تلقائي):",
+        lblCat: "التصنيف السيادي:",
+        opt1: "بروتوكول VIP السيادي (888xxxxx)",
+        opt2: "محطة التشغيل المركزية (800xxxxx)",
+        btnSave: "اعتماد الكود في النظام",
+        vaultHead: "خزنة الأكواد السيادية",
+        vaultEmpty: "الخزنة فارغة ونظيفة.",
+        gatewayHead: "بوابة التوجيه والاتصال الفضائي المشفر",
+        lblPhone: "رقم المستلم (مع مفتاح الدولة، مثل: 96777xxxxxxx):",
+        lblMsg: "نص التوجيه / الأمر المشفر:",
+        msgPlaceholder: "اكتب نص الأمر التشغيلي...",
+        btnSendMsg: "إرسال رسالة عبر القناة الآمنة",
+        btnCallUser: "إطلاق اتصال صوتي فضائي مشفر",
+        savedAlert: "تم الحفظ بنجاح في الخزنة السيادية!",
+        completeOtpAlert: "الرجاء إكمال إدخال الـ 8 خانات كاملة.",
+        fillFieldsAlert: "الرجاء إدخال رقم المستلم ونصح التوجيه.",
+        fillPhoneAlert: "الرجاء إدخال رقم المستلم أولاً.",
+        msgPrefix: "[بروتوكول سند الفضائي الذكي - أمر مشفر]: ",
+        callPrefix: "[طلب اتصال صوتي عالي التأمين عبر بروتوكول سند]"
+      },
+      en: {
+        title: "Sanad Platform",
+        sub: "International Sovereign Cross-Border Platform",
+        online: "ONLINE (1X OPTIMIZED)",
+        tabGen: "Codes",
+        tabVault: "Vault",
+        tabGateway: "Gateway & Call",
+        genHead: "Generate & Secure Sovereign Code (8 Digits)",
+        lblOwner: "Entity Name / ID:",
+        ownerPlaceholder: "e.g. Central Operations Room",
+        lblOtp: "Enter Code (8 Exact Digits - Auto Advance):",
+        lblCat: "Sovereign Category:",
+        opt1: "VIP Sovereign Protocol (888xxxxx)",
+        opt2: "Central Operation Station (800xxxxx)",
+        btnSave: "Authorize Code in System",
+        vaultHead: "Sovereign Code Vault",
+        vaultEmpty: "Vault is empty and clean.",
+        gatewayHead: "Encrypted Satellite Gateway & Call",
+        lblPhone: "Recipient Number (with country code, e.g. 96777xxxxxxx):",
+        lblMsg: "Encrypted Directive / Message:",
+        msgPlaceholder: "Type operational directive...",
+        btnSendMsg: "Send Message via Secure Channel",
+        btnCallUser: "Launch Encrypted Space Audio Call",
+        savedAlert: "Successfully saved in sovereign vault!",
+        completeOtpAlert: "Please complete all 8 digits.",
+        fillFieldsAlert: "Please enter recipient phone and message.",
+        fillPhoneAlert: "Please enter recipient phone first.",
+        msgPrefix: "[Sanad Quantum Protocol - Encrypted Directive]: ",
+        callPrefix: "[High-Security Voice Call Request via Sanad]"
+      }
+    };
 
     function switchTab(target) {
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -174,59 +250,100 @@ app.get('/', (req, res) => {
 
     function setLang(l) {
       currentLang = l;
+      const t = dict[l];
       const isAr = (l === 'ar');
+      
       document.getElementById('htmlRoot').setAttribute('dir', isAr ? 'rtl' : 'ltr');
+      document.getElementById('langArBtn').classList.toggle('active-lang', isAr);
+      document.getElementById('langEnBtn').classList.toggle('active-lang', !isAr);
+
+      document.getElementById('txtTitle').innerText = t.title;
+      document.getElementById('txtSub').innerText = t.sub;
+      document.getElementById('txtOnline').innerText = t.online;
       
-      document.getElementById('txtTitle').innerText = isAr ? 'برنامج سند' : 'Sanad Platform';
-      document.getElementById('txtSub').innerText = isAr ? 'المنصة السيادية الدولية عابرة الحدود' : 'International Sovereign Platform';
+      document.getElementById('tabGenBtn').innerText = t.tabGen;
+      document.getElementById('tabVaultBtn').innerText = t.tabVault;
+      document.getElementById('tabGatewayBtn').innerText = t.tabGateway;
       
-      document.getElementById('tabGenBtn').innerText = isAr ? 'الأكواد' : 'Codes';
-      document.getElementById('tabVaultBtn').innerText = isAr ? 'الخزنة' : 'Vault';
-      document.getElementById('tabGatewayBtn').innerText = isAr ? 'التوجيه' : 'Gateway';
+      document.getElementById('genHead').innerText = t.genHead;
+      document.getElementById('lblOwner').innerText = t.lblOwner;
+      document.getElementById('ownerName').placeholder = t.ownerPlaceholder;
+      document.getElementById('lblOtp').innerText = t.lblOtp;
+      document.getElementById('lblCat').innerText = t.lblCat;
       
-      document.getElementById('genHead').innerText = isAr ? 'توليد وتأمين كود سيادي (8 خانات)' : 'Generate Sovereign Code (8 Digits)';
-      document.getElementById('lblOwner').innerText = isAr ? 'اسم الجهة أو المعرف:' : 'Entity Name/ID:';
-      document.getElementById('lblOtp').innerText = isAr ? 'أدخل الكود (8 خانات دقيقة):' : 'Enter Code (8 Digits):';
-      document.getElementById('lblCat').innerText = isAr ? 'التصنيف:' : 'Category:';
-      document.getElementById('btnSave').innerText = isAr ? 'اعتماد الكود في النظام' : 'Authorize Code';
+      const select = document.getElementById('numCategory');
+      select.options[0].text = t.opt1;
+      select.options[1].text = t.opt2;
       
-      document.getElementById('vaultHead').innerText = isAr ? 'خزنة الأكواد السيادية' : 'Sovereign Vault';
-      document.getElementById('vaultEmpty').innerText = isAr ? 'الخزنة فارغة ونظيفة.' : 'Vault is empty and clean.';
+      document.getElementById('btnSave').innerText = t.btnSave;
+      document.getElementById('vaultHead').innerText = t.vaultHead;
       
-      document.getElementById('gatewayHead').innerText = isAr ? 'بوابة التوجيه والاتصال الفضائي' : 'Satellite Gateway & Call';
-      document.getElementById('lblPhone').innerText = isAr ? 'رقم المستلم (مثال: 96777xxxxxxx):' : 'Recipient Phone (e.g. 96777xxxxxxx):';
-      document.getElementById('lblMsg').innerText = isAr ? 'نص التوجيه / الأمر المشفر:' : 'Encrypted Directive / Message:';
-      document.getElementById('btnSendMsg').innerText = isAr ? 'إرسال عبر البروتوكول الفضائي' : 'Send via Space Protocol';
-      document.getElementById('btnCallUser').innerText = isAr ? 'طلب اتصال صوتي مشفر' : 'Request Encrypted Audio Call';
+      if(vault.length === 0) {
+        document.getElementById('vaultEmpty').innerText = t.vaultEmpty;
+      }
+      
+      document.getElementById('gatewayHead').innerText = t.gatewayHead;
+      document.getElementById('lblPhone').innerText = t.lblPhone;
+      document.getElementById('lblMsg').innerText = t.lblMsg;
+      document.getElementById('targetMsg').placeholder = t.msgPlaceholder;
+      document.getElementById('btnSendMsg').innerText = t.btnSendMsg;
+      document.getElementById('btnCallUser').innerText = t.btnCallUser;
     }
 
-    document.getElementById('langAr').addEventListener('click', () => setLang('ar'));
-    document.getElementById('langEn').addEventListener('click', () => setLang('en'));
+    document.getElementById('langArBtn').addEventListener('click', () => setLang('ar'));
+    document.getElementById('langEnBtn').addEventListener('click', () => setLang('en'));
 
-    // OTP auto-advance & keyboard navigation
+    // --- هندسة الانتقال التلقائي والدعم الكامل لل لصق (OTP Auto-Advance & Paste) ---
     const otpInputs = document.querySelectorAll('.otp-input');
+    
     otpInputs.forEach((input, idx) => {
       input.addEventListener('input', (e) => {
-        if (e.target.value.length === 1 && idx < otpInputs.length - 1) {
+        const val = e.target.value;
+        // إذا قام المستخدم لصق نص طويل (8 أرقام دفعة واحدة)
+        if (val.length > 1) {
+          const chars = val.replace(/\\D/g, '').split('');
+          let curIdx = idx;
+          chars.forEach(char => {
+            if (curIdx < otpInputs.length) {
+              otpInputs[curIdx].value = char;
+              curIdx++;
+            }
+          });
+          if (curIdx < otpInputs.length) {
+            otpInputs[curIdx].focus();
+          } else {
+            otpInputs[otpInputs.length - 1].focus();
+          }
+          return;
+        }
+
+        // الانتقال التلقائي للخانة التالية عند الكتابة العادية
+        if (val.length === 1 && idx < otpInputs.length - 1) {
           otpInputs[idx + 1].focus();
         }
       });
+
       input.addEventListener('keydown', (e) => {
-        if (e.key === 'Backspace' && input.value === '' && idx > 0) {
-          otpInputs[idx - 1].focus();
+        if (e.key === 'Backspace') {
+          if (input.value === '' && idx > 0) {
+            otpInputs[idx - 1].focus();
+          } else {
+            input.value = '';
+          }
         }
       });
     });
 
     document.getElementById('codeForm').addEventListener('submit', (e) => {
       e.preventDefault();
+      const t = dict[currentLang];
       const owner = document.getElementById('ownerName').value;
       const cat = document.getElementById('numCategory').value;
       let num = '';
       otpInputs.forEach(i => num += i.value);
 
       if (num.length < 8) {
-        alert(currentLang === 'ar' ? 'الرجاء إكمال إدخال الـ 8 خانات كاملة.' : 'Please complete all 8 digits.');
+        alert(t.completeOtpAlert);
         return;
       }
 
@@ -234,39 +351,43 @@ app.get('/', (req, res) => {
       renderVault();
       otpInputs.forEach(i => i.value = '');
       document.getElementById('ownerName').value = '';
-      alert(currentLang === 'ar' ? 'تم الحفظ بنجاح في الخزنة السيادية!' : 'Successfully saved in sovereign vault!');
+      otpInputs[0].focus();
+      alert(t.savedAlert);
       switchTab('vault');
     });
 
     function renderVault() {
+      const t = dict[currentLang];
       const list = document.getElementById('vaultList');
       if (vault.length === 0) {
-        list.innerHTML = '<p style="color:var(--muted); text-align:center; font-size:13px;">' + (currentLang === 'ar' ? 'الخزنة فارغة ونظيفة.' : 'Vault is empty and clean.') + '</p>';
+        list.innerHTML = '<p style="color:var(--muted); text-align:center; font-size:12px;" id="vaultEmpty">' + t.vaultEmpty + '</p>';
         return;
       }
       list.innerHTML = vault.map(i => '<div class="list-item"><div><strong>' + i.owner + '</strong><br/><span style="font-family:monospace; color:var(--accent);">' + i.num + '</span></div><span class="badge-gold">' + i.cat + '</span></div>').join('');
     }
 
+    // بوابة التوجيه والإرسال الفضائي (متوافقة 100% مع أجهزة الجوال والشبكات الضعيفة)
     document.getElementById('btnSendMsg').addEventListener('click', () => {
+      const t = dict[currentLang];
       let phone = document.getElementById('targetPhone').value.trim();
       const msg = document.getElementById('targetMsg').value.trim();
       if (!phone || !msg) {
-        alert(currentLang === 'ar' ? 'الرجاء إدخال رقم المستلم ونصح التوجيه المشفر.' : 'Please enter recipient phone and message.');
+        alert(t.fillFieldsAlert);
         return;
       }
       phone = phone.replace(/^0+/, '').replace(/^\+/, '');
-      const prefix = currentLang === 'ar' ? '[بروتوكول سند الفضائي الذكي - أمر مشفر]: ' : '[Sanad Quantum Protocol]: ';
-      window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(prefix + msg);
+      window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(t.msgPrefix + msg);
     });
 
     document.getElementById('btnCallUser').addEventListener('click', () => {
+      const t = dict[currentLang];
       let phone = document.getElementById('targetPhone').value.trim();
       if (!phone) {
-        alert(currentLang === 'ar' ? 'الرجاء إدخال رقم المستلم أولاً.' : 'Please enter recipient phone first.');
+        alert(t.fillPhoneAlert);
         return;
       }
       phone = phone.replace(/^0+/, '').replace(/^\+/, '');
-      window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(currentLang === 'ar' ? '[طلب اتصال صوتي عالي التأمين عبر بروتوكول سند]' : '[High-Security Voice Call Request via Sanad]');
+      window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(t.callPrefix);
     });
   </script>
 </body>

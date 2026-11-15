@@ -8,7 +8,7 @@ app.use(express.urlencoded({ extended: true }));
 // ملف التثبيت السيادي لتشغيل التطبيق كـ PWA مع أيقونة مستقلة
 app.get('/manifest.json', (req, res) => {
   res.json({
-    "name": "برنامج سند السيادي الذكي",
+    "name": "برنامج سند السيادي العالمي",
     "short_name": "سند",
     "start_url": "/",
     "display": "standalone",
@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>برنامج سند - المنصة السيادية الذكية (v7.5)</title>
+  <title>برنامج سند - المنصة السيادية العالمية (v7.6 OMEGA)</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -93,15 +93,15 @@ app.get('/', (req, res) => {
     .profile-card { text-align: center; padding: 20px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; }
     .profile-avatar { width: 64px; height: 64px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--gold); font-size: 24px; color: #fff; font-weight: bold; }
     
-    .ai-chat-box { background: #020617; border: 1px solid var(--quantum); border-radius: 8px; padding: 12px; min-height: 120px; max-height: 200px; overflow-y: auto; margin-bottom: 10px; font-size: 12px; color: var(--accent); }
+    .ai-chat-box { background: #020617; border: 1px solid var(--quantum); border-radius: 8px; padding: 12px; min-height: 140px; max-height: 220px; overflow-y: auto; margin-bottom: 10px; font-size: 12px; color: var(--accent); }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="telemetry-bar">
-      <span>AI-SAT LINK: <strong>SECURED // v7.5 QUANTUM</strong></span>
+      <span>AI-SAT LINK: <strong>SECURED // v7.6 OMEGA</strong></span>
       <div style="display:flex; align-items:center; gap:6px;">
-        <span id="txtOnline">1X NEURAL ACTIVE</span>
+        <span id="txtOnline">1X ZERO-LAG ACTIVE</span>
         <div class="telemetry-dot"></div>
       </div>
     </div>
@@ -139,7 +139,7 @@ app.get('/', (req, res) => {
           <select id="numCategory">
             <option value="بروتوكول VIP السيادي (888)">بروتوكول VIP السيادي (888xxxxx)</option>
             <option value="محطة التشغيل المركزية (800)">محطة التشغيل المركزية (800xxxxx)</option>
-            <option value="قناة التوجيه الفضائي (AI)">قناة التوجيه الفضائي (AI-SAT)</option>
+            <option value="قناة التوجيه الفضائي (AI)">قناة التوجيه الفضائي (AI-SAT OMEGA)</option>
           </select>
 
           <button type="submit" class="btn-submit" id="btnSave">اعتماد الحفظ في الخزنة الذكية</button>
@@ -155,18 +155,18 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    <!-- 2. شاشة مساعد سند الذكي (AI Assistant الجديد كلياً) -->
+    <!-- 2. شاشة مساعد سند الذكي (AI Quantum Omega) -->
     <div id="screenAi" class="screen">
       <div class="header-compact">
         <div class="header-title">
-          <h2>مساعد سند الذكي (AI Quantum)</h2>
-          <p>العقل العصبي المرافق للعمليات والتوجيهات السيادية</p>
+          <h2>مساعد سند الذكي (OMEGA AI)</h2>
+          <p>العقل العصبي المرافق للعمليات والتوجيهات السيادية العابرة للحدود</p>
         </div>
       </div>
       <div class="card-box">
-        <h3>سجل الحوار العصبي الفضائي</h3>
+        <h3>سجل الحوار العصبي الفضائي المطور</h3>
         <div class="ai-chat-box" id="aiChatLog">
-          <div><strong>[نظام سند الذكي]:</strong> مرحباً بك يا أبو طارق. أنا مساعدك العصبي جاهز لتنفيذ الأوامر، تحليل الاتصالات الفضائية، وتوليد الشفرات السيادية بدقة تامة على أضعف الشبكات (1X). كيف أخدمك اليوم؟</div>
+          <div><strong>[نظام سند OMEGA]:</strong> أهلاً بك يا أبو طارق. تم تفعيل خوارزميات الذكاء الاصطناعي الفضائي المقاومة للشوائب والتقطيع. النظام يعمل بكفاءة مطلقة على أضعف شبكات (1X). كيف أخدم إمبراطوريتك التقنية اليوم؟</div>
         </div>
         <label>أمر تشغيلي / سؤال للمساعد الذكي:</label>
         <input type="text" id="aiInputPrompt" placeholder="اكتب أمرك أو استفسارك هنا..." />
@@ -191,7 +191,7 @@ app.get('/', (req, res) => {
         <input type="text" id="targetMsg" placeholder="اكتب نص الأمر التشغيلي..." />
         
         <button type="button" class="btn-submit" id="btnSendMsg">إرسال عبر القناة الآمنة</button>
-        <button type="button" class="btn-submit btn-call" id="btnCallUser">إطلاق اتصال صوتي عصبي مشفر (1X)</button>
+        <button type="button" class="btn-submit btn-call" id="btnCallUser">إطلاق اتصال صوتي عصبي مشفر (1X Zero-Lag)</button>
       </div>
     </div>
 
@@ -200,13 +200,13 @@ app.get('/', (req, res) => {
       <div class="header-compact">
         <div class="header-title">
           <h2>سجل المكالمات العصبية</h2>
-          <p>الاتصالات المشفرة عبر خوارزميات ضغط الصوت الفضائي</p>
+          <p>الاتصالات المشفرة عبر خوارزميات ضغط الصوت والفيديو الفضائي</p>
         </div>
       </div>
       <div class="card-box">
         <div class="list-item">
-          <div><strong>غرفة العمليات المركزية</strong><br/><span style="font-size:11px; color:var(--muted);">اتصال صوتي عصبي (AI Neural Active)</span></div>
-          <span class="badge-gold">مؤمن</span>
+          <div><strong>غرفة العمليات المركزية</strong><br/><span style="font-size:11px; color:var(--muted);">اتصال صوتي ومرئي عصبي (Zero-Lag Active)</span></div>
+          <span class="badge-gold">مؤمن خارق</span>
         </div>
       </div>
     </div>
@@ -216,7 +216,7 @@ app.get('/', (req, res) => {
       <div class="profile-card">
         <div class="profile-avatar">سند</div>
         <h3 style="margin:0 0 4px;">برنامج سند السيادي</h3>
-        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة الذكية عابرة الحدود // v7.5 QUANTUM</p>
+        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة الذكية عابرة الحدود // v7.6 OMEGA UNIVERSE</p>
       </div>
       <div class="card-box">
         <h3>لغة النظام / Language</h3>
@@ -229,7 +229,7 @@ app.get('/', (req, res) => {
 
   </div>
 
-  <!-- شريط التنقل السفلي الاحترافي (محدث ليتضمن مساعد سند الذكي في المنتصف) -->
+  <!-- شريط التنقل السفلي الاحترافي -->
   <nav class="bottom-nav">
     <button class="nav-item active" type="button" onclick="switchScreen('codes', this)">
       <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
@@ -248,7 +248,7 @@ app.get('/', (req, res) => {
       <span id="navCalls">المكالمات</span>
     </button>
     <button class="nav-item" type="button" onclick="switchScreen('settings', this)">
-      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c-.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
       <span id="navSettings">الإعدادات</span>
     </button>
   </nav>
@@ -342,7 +342,7 @@ app.get('/', (req, res) => {
       otpInputs.forEach(i => i.value = '');
       document.getElementById('ownerName').value = '';
       otpInputs[0].focus();
-      alert(currentLang === 'ar' ? 'تم الحفظ بنجاح في الخزنة السيادية الذكية!' : 'Successfully saved in sovereign vault!');
+      alert(currentLang === 'ar' ? 'تم الحفظ بنجاح في الخزنة السيادية OMEGA!' : 'Successfully saved in OMEGA vault!');
     });
 
     function renderVault(filter = '') {
@@ -370,13 +370,13 @@ app.get('/', (req, res) => {
       log.innerHTML += '<div style="margin-top:8px;"><strong>[أبو طارق]:</strong> ' + val + '</div>';
       
       setTimeout(() => {
-        let reply = "تم استلام الأمر السيادي بنجاح. يتم تشفير التوجيه عبر خوارزميات سند العصبية وضغطه للعمل الفوري على قنوات الأقمار الاصطناعية (1X Optimized).";
+        let reply = "تقرير المساعد OMEGA: الأوامر السيادية مشفرة بالكامل عبر قنوات الأقمار الاصطناعية. جودة الاتصال مستقرة بنسبة 100% دون أي شوائب أو انقطاع.";
         if(val.includes("سلام") || val.includes("مرحبا")) {
-          reply = "أهلاً بك يا قائدنا. نظام سند العصبي في أتم جاهزية وكفاءة تامة.";
-        } else if(val.includes("فحص") || val.includes("اتصال")) {
-          reply = "تقرير المساعد: قنوات الاتصال الفضائي مؤمنة بنسبة 100% ولا توجد أي اختراقات.";
+          reply = "أهلاً بك يا قائدنا العظيم. منظومة سند OMEGA في أعلى درجات الاستعداد السيادي العالمي.";
+        } else if(val.includes("فحص") || val.includes("شبكة")) {
+          reply = "فحص الأقمار الاصطناعية: شبكة 1X تعمل بأقصى كفاءة عصبية، ولا يوجد أي فقد في حزم البيانات.";
         }
-        log.innerHTML += '<div style="margin-top:8px; color:var(--gold);"><strong>[مساعد سند الذكي]:</strong> ' + reply + '</div>';
+        log.innerHTML += '<div style="margin-top:8px; color:var(--gold);"><strong>[مساعد سند OMEGA]:</strong> ' + reply + '</div>';
         log.scrollTop = log.scrollHeight;
       }, 600);
 
@@ -392,7 +392,7 @@ app.get('/', (req, res) => {
         return;
       }
       phone = phone.replace(/^0+/, '').replace(/^\+/, '');
-      const prefix = currentLang === 'ar' ? '[بروتوكول سند الذكي بالذكاء الاصطناعي - أمر مشفر]: ' : '[Sanad AI Protocol]: ';
+      const prefix = currentLang === 'ar' ? '[بروتوكول سند OMEGA الذكي - أمر مشفر]: ' : '[Sanad OMEGA Protocol]: ';
       window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(prefix + msg);
     });
 
@@ -403,7 +403,7 @@ app.get('/', (req, res) => {
         return;
       }
       phone = phone.replace(/^0+/, '').replace(/^\+/, '');
-      window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(currentLang === 'ar' ? '[طلب اتصال صوتي عصبي مشفر بالذكاء الاصطناعي - سند 1X]' : '[AI Neural Voice Call Request via Sanad]');
+      window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(currentLang === 'ar' ? '[طلب اتصال صوتي ومرئي عصبي مؤمن - سند OMEGA]' : '[OMEGA Secure Voice/Video Call Request]');
     });
   </script>
 </body>

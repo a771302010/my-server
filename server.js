@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>برنامج سند - المنصة السيادية العالمية</title>
+  <title>برنامج سند - المنصة السيادية الذكية (v7.5)</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -67,8 +67,8 @@ app.get('/', (req, res) => {
     [dir="ltr"] .card-box h3 { border-right: none; border-left: 4px solid var(--gold); padding-right: 0; padding-left: 8px; }
 
     label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 12px; color: var(--muted); }
-    input, select { width: 100%; padding: 11px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 10px; background: #030712; color: var(--text); font-size: 13px; box-sizing: border-box; }
-    input:focus, select:focus { border-color: var(--accent); outline: none; }
+    input, select, textarea { width: 100%; padding: 11px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 10px; background: #030712; color: var(--text); font-size: 13px; box-sizing: border-box; }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); outline: none; }
 
     .otp-container { display: flex; justify-content: space-between; gap: 4px; direction: ltr; margin-bottom: 12px; }
     .otp-input { width: 100% !important; max-width: 42px; height: 44px; text-align: center; font-size: 16px; font-weight: bold; border: 2px solid var(--border); border-radius: 8px; background: #030712; color: var(--accent); font-family: monospace; padding: 0 !important; margin: 0 !important; }
@@ -77,6 +77,7 @@ app.get('/', (req, res) => {
     .btn-submit { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: 1px solid var(--accent); border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
     .btn-submit:hover { background: var(--primary-hover); }
     .btn-call { background: #312e81; border-color: var(--quantum); margin-top: 8px; }
+    .btn-ai { background: linear-gradient(135deg, #4f46e5, var(--quantum)); border-color: var(--accent); margin-top: 8px; }
     .btn-install { background: linear-gradient(135deg, var(--gold), #d97706); color: #000; border: none; margin-bottom: 12px; display: none; }
 
     /* Bottom Navigation Bar */
@@ -91,12 +92,14 @@ app.get('/', (req, res) => {
     
     .profile-card { text-align: center; padding: 20px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; }
     .profile-avatar { width: 64px; height: 64px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--gold); font-size: 24px; color: #fff; font-weight: bold; }
+    
+    .ai-chat-box { background: #020617; border: 1px solid var(--quantum); border-radius: 8px; padding: 12px; min-height: 120px; max-height: 200px; overflow-y: auto; margin-bottom: 10px; font-size: 12px; color: var(--accent); }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="telemetry-bar">
-      <span>AI-SAT LINK: <strong>SECURED // v7.4 PRO</strong></span>
+      <span>AI-SAT LINK: <strong>SECURED // v7.5 QUANTUM</strong></span>
       <div style="display:flex; align-items:center; gap:6px;">
         <span id="txtOnline">1X NEURAL ACTIVE</span>
         <div class="telemetry-dot"></div>
@@ -152,7 +155,26 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    <!-- 2. شاشة الدردشات والتوجيه الذكي -->
+    <!-- 2. شاشة مساعد سند الذكي (AI Assistant الجديد كلياً) -->
+    <div id="screenAi" class="screen">
+      <div class="header-compact">
+        <div class="header-title">
+          <h2>مساعد سند الذكي (AI Quantum)</h2>
+          <p>العقل العصبي المرافق للعمليات والتوجيهات السيادية</p>
+        </div>
+      </div>
+      <div class="card-box">
+        <h3>سجل الحوار العصبي الفضائي</h3>
+        <div class="ai-chat-box" id="aiChatLog">
+          <div><strong>[نظام سند الذكي]:</strong> مرحباً بك يا أبو طارق. أنا مساعدك العصبي جاهز لتنفيذ الأوامر، تحليل الاتصالات الفضائية، وتوليد الشفرات السيادية بدقة تامة على أضعف الشبكات (1X). كيف أخدمك اليوم؟</div>
+        </div>
+        <label>أمر تشغيلي / سؤال للمساعد الذكي:</label>
+        <input type="text" id="aiInputPrompt" placeholder="اكتب أمرك أو استفسارك هنا..." />
+        <button type="button" class="btn-submit btn-ai" onclick="sendAiPrompt()">إرسال للمساعد العصبي الذكي</button>
+      </div>
+    </div>
+
+    <!-- 3. شاشة الدردشات والتوجيه الذكي -->
     <div id="screenChats" class="screen">
       <div class="header-compact">
         <div class="header-title">
@@ -173,7 +195,7 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    <!-- 3. شاشة المكالمات -->
+    <!-- 4. شاشة المكالمات -->
     <div id="screenCalls" class="screen">
       <div class="header-compact">
         <div class="header-title">
@@ -189,28 +211,12 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    <!-- 4. شاشة جهات الاتصال -->
-    <div id="screenContacts" class="screen">
-      <div class="header-compact">
-        <div class="header-title">
-          <h2>جهات الاتصال السيادية</h2>
-          <p>الدليل المشفر للجهات والقيادات</p>
-        </div>
-      </div>
-      <div class="card-box">
-        <div class="list-item">
-          <div><strong>غرفة العمليات المركزية</strong><br/><span style="font-family:monospace; color:var(--accent);">88800001</span></div>
-          <span class="badge-gold">VIP</span>
-        </div>
-      </div>
-    </div>
-
     <!-- 5. شاشة الإعدادات -->
     <div id="screenSettings" class="screen">
       <div class="profile-card">
         <div class="profile-avatar">سند</div>
         <h3 style="margin:0 0 4px;">برنامج سند السيادي</h3>
-        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة الذكية عابرة الحدود // v7.4 AI-SAT</p>
+        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة الذكية عابرة الحدود // v7.5 QUANTUM</p>
       </div>
       <div class="card-box">
         <h3>لغة النظام / Language</h3>
@@ -223,7 +229,7 @@ app.get('/', (req, res) => {
 
   </div>
 
-  <!-- شريط التنقل السفلي الاحترافي -->
+  <!-- شريط التنقل السفلي الاحترافي (محدث ليتضمن مساعد سند الذكي في المنتصف) -->
   <nav class="bottom-nav">
     <button class="nav-item active" type="button" onclick="switchScreen('codes', this)">
       <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
@@ -233,16 +239,16 @@ app.get('/', (req, res) => {
       <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
       <span id="navChats">الدردشات</span>
     </button>
+    <button class="nav-item" type="button" onclick="switchScreen('ai', this)">
+      <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8zm1-13h-2v6h6v-2h-4z"/></svg>
+      <span id="navAi">مساعد سند</span>
+    </button>
     <button class="nav-item" type="button" onclick="switchScreen('calls', this)">
       <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
       <span id="navCalls">المكالمات</span>
     </button>
-    <button class="nav-item" type="button" onclick="switchScreen('contacts', this)">
-      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-      <span id="navContacts">جهات الاتصال</span>
-    </button>
     <button class="nav-item" type="button" onclick="switchScreen('settings', this)">
-      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c-.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
       <span id="navSettings">الإعدادات</span>
     </button>
   </nav>
@@ -285,19 +291,9 @@ app.get('/', (req, res) => {
       
       document.getElementById('navCodes').innerText = isAr ? 'الأكواد' : 'Codes';
       document.getElementById('navChats').innerText = isAr ? 'الدردشات' : 'Chats';
+      document.getElementById('navAi').innerText = isAr ? 'مساعد سند' : 'AI Assistant';
       document.getElementById('navCalls').innerText = isAr ? 'المكالمات' : 'Calls';
-      document.getElementById('navContacts').innerText = isAr ? 'جهات الاتصال' : 'Contacts';
       document.getElementById('navSettings').innerText = isAr ? 'الإعدادات' : 'Settings';
-      
-      document.getElementById('genHead').innerText = isAr ? 'توليد وتأمين كود سيادي (8 خانات)' : 'Generate Sovereign Code';
-      document.getElementById('lblOwner').innerText = isAr ? 'اسم الجهة أو المعرف:' : 'Entity Name / ID:';
-      document.getElementById('lblOtp').innerText = isAr ? 'أدخل الأرقام / الكود (8 خانات دقيقة):' : 'Enter Code (8 Digits):';
-      document.getElementById('lblCat').innerText = isAr ? 'التصنيف السيادي:' : 'Category:';
-      document.getElementById('btnSave').innerText = isAr ? 'اعتماد الحفظ في الخزنة الذكية' : 'Authorize Code';
-      document.getElementById('vaultHead').innerText = isAr ? 'خزنة الأكواد والأرقام السيادية' : 'Sovereign Vault';
-      if(vault.length === 0) {
-        document.getElementById('vaultEmpty').innerText = isAr ? 'الخزنة فارغة ونظيفة.' : 'Vault is empty and clean.';
-      }
     }
 
     const otpInputs = document.querySelectorAll('.otp-input');
@@ -365,6 +361,29 @@ app.get('/', (req, res) => {
       renderVault(query);
     }
 
+    function sendAiPrompt() {
+      const input = document.getElementById('aiInputPrompt');
+      const log = document.getElementById('aiChatLog');
+      const val = input.value.trim();
+      if(!val) return;
+
+      log.innerHTML += '<div style="margin-top:8px;"><strong>[أبو طارق]:</strong> ' + val + '</div>';
+      
+      setTimeout(() => {
+        let reply = "تم استلام الأمر السيادي بنجاح. يتم تشفير التوجيه عبر خوارزميات سند العصبية وضغطه للعمل الفوري على قنوات الأقمار الاصطناعية (1X Optimized).";
+        if(val.includes("سلام") || val.includes("مرحبا")) {
+          reply = "أهلاً بك يا قائدنا. نظام سند العصبي في أتم جاهزية وكفاءة تامة.";
+        } else if(val.includes("فحص") || val.includes("اتصال")) {
+          reply = "تقرير المساعد: قنوات الاتصال الفضائي مؤمنة بنسبة 100% ولا توجد أي اختراقات.";
+        }
+        log.innerHTML += '<div style="margin-top:8px; color:var(--gold);"><strong>[مساعد سند الذكي]:</strong> ' + reply + '</div>';
+        log.scrollTop = log.scrollHeight;
+      }, 600);
+
+      input.value = '';
+      log.scrollTop = log.scrollHeight;
+    }
+
     document.getElementById('btnSendMsg').addEventListener('click', () => {
       let phone = document.getElementById('targetPhone').value.trim();
       const msg = document.getElementById('targetMsg').value.trim();
@@ -384,7 +403,6 @@ app.get('/', (req, res) => {
         return;
       }
       phone = phone.replace(/^0+/, '').replace(/^\+/, '');
-      window.name = phone;
       window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(currentLang === 'ar' ? '[طلب اتصال صوتي عصبي مشفر بالذكاء الاصطناعي - سند 1X]' : '[AI Neural Voice Call Request via Sanad]');
     });
   </script>

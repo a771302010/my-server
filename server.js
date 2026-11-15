@@ -5,7 +5,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ملف التثبيت السيادي PWA للإصدار 9.2
+// ملف التثبيت السيادي PWA للإصدار 9.3
 app.get('/manifest.json', (req, res) => {
   res.json({
     "name": "سند - النظام العصبي السيادي",
@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>برنامج سند - النظام العصبي السيادي (v9.2 SERENITY)</title>
+  <title>برنامج سند - النظام العصبي السيادي (v9.3 CONTROL CENTER)</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -56,7 +56,7 @@ app.get('/', (req, res) => {
     .screen.active { display: block; }
 
     .card-box { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 18px; margin-bottom: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
-    .card-box h3 { margin: 0 0 14px; font-size: 14px; color: var(--text); border-right: 3px solid var(--gold); padding-right: 8px; font-weight: 600; }
+    .card-box h3 { margin: 0 0 14px; font-size: 14px; color: var(--text); border-right: 3px solid var(--gold); padding-right: 8px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
 
     label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 12px; color: var(--muted); }
     input, select, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--card-border); margin-bottom: 12px; background: #020617; color: var(--text); font-size: 13px; box-sizing: border-box; transition: all 0.3s ease; }
@@ -70,6 +70,16 @@ app.get('/', (req, res) => {
     .btn-action { background: #059669; padding: 6px 14px; font-size: 11px; width: auto; border-radius: 8px; color: #fff; border: none; cursor: pointer; }
     .btn-danger { background: #dc2626; box-shadow: 0 4px 15px rgba(220,38,38,0.3); color: #fff; border: none; cursor: pointer; }
     .btn-install { background: linear-gradient(135deg, var(--gold), #b45309); color: #000; margin-bottom: 14px; display: none; }
+
+    /* تبديل الإعدادات (Toggle Switch) */
+    .switch-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+    .switch-row:last-child { border-bottom: none; }
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #1e293b; transition: .3s; border-radius: 24px; border: 1px solid var(--card-border); }
+    .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--emerald); }
+    input:checked + .slider:before { transform: translateX(20px); }
 
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #020617; border-top: 1px solid var(--card-border); display: grid; grid-template-columns: repeat(5, 1fr); padding: 10px 4px; z-index: 1000; box-shadow: 0 -10px 30px rgba(0,0,0,0.8); }
     .nav-item { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; padding: 4px; font-weight: 500; gap: 4px; transition: color 0.2s; }
@@ -95,9 +105,9 @@ app.get('/', (req, res) => {
 <body>
   <div class="container">
     <div class="telemetry-bar">
-      <span>AI-SAT OMEGA: <strong>SECURED // v9.2 SERENITY</strong></span>
+      <span>AI-SAT OMEGA: <strong>SECURED // v9.3 CONTROL CENTER</strong></span>
       <div style="display:flex; align-items:center; gap:8px;">
-        <span id="txtOnline" style="color:var(--emerald);">نشط وهادئ</span>
+        <span id="txtOnline" style="color:var(--emerald);">سيادة مطلقة</span>
         <div class="telemetry-dot"></div>
       </div>
     </div>
@@ -221,20 +231,68 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    <!-- 5. شاشة الإعدادات ودرع الطوارئ -->
+    <!-- 5. شاشة الإعدادات وغرفة التحكم السيادية (Control Center v9.3) -->
     <div id="screenSettings" class="screen">
       <div class="profile-card">
         <div class="profile-avatar">Ω</div>
-        <h3 style="margin:0 0 4px;">سند OMEGA SERENITY</h3>
-        <p style="color:var(--muted); font-size:12px; margin:0;">النظام السيادي المستقل والهادئ // v9.2</p>
+        <h3 style="margin:0 0 4px;">سند CONTROL CENTER</h3>
+        <p style="color:var(--muted); font-size:12px; margin:0;">غرفة الإعدادات والتحكم السيادي الشامل // v9.3</p>
       </div>
+
+      <!-- إعدادات درع الحماية والخصوصية -->
       <div class="card-box">
-        <h3>إعدادات الحماية وطوارئ المسح (Kill-Switch)</h3>
-        <div class="list-item">
-          <div><strong>استقلالية الهوية</strong><br/><span style="font-size:11px; color:var(--emerald);">محمي قانونياً بعيداً عن شركات الاتصالات</span></div>
-          <span class="badge-gold">آمن تماماً</span>
+        <h3>🛡️ درع الحماية والخصوصية المتقدمة</h3>
+        <div class="switch-row">
+          <span>منع إعادة توجيه الرسائل (Anti-Forward)</span>
+          <label class="switch"><input type="checkbox" checked onchange="saveSetting('antiForward', this.checked)"><span class="slider"></span></label>
         </div>
-        <button type="button" class="btn-submit btn-danger" style="margin-top:14px;" onclick="executeKillSwitch()">⚡ تفعيل مفتاح الطوارئ (Kill-Switch) لمسح الذاكرة</button>
+        <div class="switch-row">
+          <span>حماية الوسائط لمرة واحدة (View-Once Guard)</span>
+          <label class="switch"><input type="checkbox" checked onchange="saveSetting('viewOnce', this.checked)"><span class="slider"></span></label>
+        </div>
+        <div class="switch-row">
+          <span>قفل الشاشة البيومتري والبصمة</span>
+          <label class="switch"><input type="checkbox" onchange="saveSetting('biometric', this.checked)"><span class="slider"></span></label>
+        </div>
+        <div class="switch-row">
+          <span>وضع التمويه العكسي الآمن (Honey-Pot)</span>
+          <label class="switch"><input type="checkbox" checked onchange="saveSetting('honeypot', this.checked)"><span class="slider"></span></label>
+        </div>
+      </div>
+
+      <!-- إعدادات محطة ذكاء OMEGA AI -->
+      <div class="card-box">
+        <h3>🧠 محطة ذكاء OMEGA AI والترجمة</h3>
+        <label>اللغة الافتراضية للمترجم العصبي الفوري:</label>
+        <select id="aiLangSelect" onchange="saveSetting('aiLang', this.value)">
+          <option value="ar">العربية (الافتراضية)</option>
+          <option value="en">الإنجليزية (English)</option>
+          <option value="dual">مزدوج تلقائي (Dual AI)</option>
+        </select>
+        <div class="switch-row">
+          <span>التلخيص الذكي التلقائي للملفات والمستندات</span>
+          <label class="switch"><input type="checkbox" checked onchange="saveSetting('autoSummary', this.checked)"><span class="slider"></span></label>
+        </div>
+      </div>
+
+      <!-- إعدادات الشبكة والاتصال الفضائي -->
+      <div class="card-box">
+        <h3>📡 الشبكة والاتصال السيادي (1X)</h3>
+        <div class="switch-row">
+          <span>وضع توفير البيانات وضغط الرسائل (90%)</span>
+          <label class="switch"><input type="checkbox" checked onchange="saveSetting('lowBandwidth', this.checked)"><span class="slider"></span></label>
+        </div>
+        <div class="list-item" style="margin-top:10px;">
+          <div><strong>استقلالية الهوية السيادية</strong><br/><span style="font-size:11px; color:var(--emerald);">نشط بمعرفات 8 أرقام (بدون شريحة)</span></div>
+          <span class="badge-gold">آمن قانونياً</span>
+        </div>
+      </div>
+
+      <!-- غرفة الطوارئ والمسح الفوري -->
+      <div class="card-box" style="border-color: rgba(239,68,68,0.3);">
+        <h3 style="border-right-color: var(--danger); color: var(--danger);">⚡ غرفة الطوارئ والتحكم المطلق</h3>
+        <p style="font-size: 11px; color: var(--muted); margin-bottom: 12px;">تفعيل مفتاح الطوارئ يمسح كافة السجلات والذاكرة المحلية فوراً ويؤمن الجهاز.</p>
+        <button type="button" class="btn-submit btn-danger" onclick="executeKillSwitch()">تفعيل مفتاح الطوارئ الشامل (Kill-Switch)</button>
       </div>
     </div>
 
@@ -270,7 +328,7 @@ app.get('/', (req, res) => {
     ];
     
     let internalMessages = {
-      '967770000001': [{sender: 'incoming', text: 'مرحباً بك يا أبو طارق. النظام جاهز ويعمل بكفاءة هادئة.', type: 'text'}]
+      '967770000001': [{sender: 'incoming', text: 'مرحباً بك يا أبو طارق في غرفة التحكم السيادية v9.3.', type: 'text'}]
     };
     let activeChatPhone = '967770000001';
     let deferredPrompt;
@@ -310,150 +368,3 @@ app.get('/', (req, res) => {
       document.getElementById('sovereignCodeInput').value = generatedCode;
     }
 
-    document.getElementById('codeForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const owner = document.getElementById('ownerName').value.trim();
-      const phone = document.getElementById('contactPhone').value.trim();
-      const cat = document.getElementById('numCategory').value;
-      const num = document.getElementById('sovereignCodeInput').value.trim();
-
-      if (!num || num.length !== 8) {
-        alert('الرجاء توليد أو إدخال الكود السيادي (8 أرقام).');
-        return;
-      }
-
-      const existing = vault.find(function(i) { return i.num === num; });
-      if (existing) {
-        alert('تنبيه أمني: هذا الكود مسجل مسبقاً.');
-        return;
-      }
-
-      vault.unshift({ owner: owner, phone: phone || 'محلي سيادي', num: num, cat: cat });
-      renderVault();
-      updateContactSelects();
-      document.getElementById('sovereignCodeInput').value = '';
-      document.getElementById('ownerName').value = '';
-      document.getElementById('contactPhone').value = '';
-      alert('تم حفظ الهوية في الخزنة السيادية بنجاح!');
-    });
-
-    function renderVault(filter) {
-      if (!filter) filter = '';
-      const list = document.getElementById('vaultList');
-      const filtered = vault.filter(function(i) {
-        return i.owner.toLowerCase().includes(filter.toLowerCase()) || i.num.includes(filter);
-      });
-      
-      if (filtered.length === 0) {
-        list.innerHTML = '<p style="color:var(--muted); text-align:center; font-size:12px;">لا توجد نتائج.</p>';
-        return;
-      }
-      
-      let html = '';
-      for (let i = 0; i < filtered.length; i++) {
-        let item = filtered[i];
-        html += '<div class="list-item"><div>' +
-                '<strong>' + item.owner + '</strong> <span class="badge-gold">' + item.cat + '</span><br/>' +
-                '<span style="font-family:monospace; color:var(--gold);">الكود السيادي: ' + item.num + '</span> | ' +
-                '<span style="font-family:monospace; color:var(--emerald);">الهاتف: ' + item.phone + '</span>' +
-                '</div><div>' +
-                '<button class="btn-submit btn-action" onclick="openChatFor(\\\'' + item.phone + '\\\', \\\'' + item.owner + '\\\')">مراسلة</button>' +
-                '</div></div>';
-      }
-      list.innerHTML = html;
-    }
-
-    function filterVault() {
-      renderVault(document.getElementById('vaultSearch').value);
-    }
-
-    function updateContactSelects() {
-      const chatSel = document.getElementById('chatContactSelect');
-      const callSel = document.getElementById('callContactSelect');
-      let options = '<option value="">-- اختر من الدليل --</option>';
-      for (let i = 0; i < vault.length; i++) {
-        options += '<option value="' + vault[i].phone + '">' + vault[i].owner + ' (كود: ' + vault[i].num + ')</option>';
-      }
-      if(chatSel) chatSel.innerHTML = options;
-      if(callSel) callSel.innerHTML = options;
-    }
-
-    function changeActiveChat() {
-      const chatSel = document.getElementById('chatContactSelect');
-      if(chatSel && chatSel.value) {
-        activeChatPhone = chatSel.value;
-        if(!internalMessages[activeChatPhone]) {
-          internalMessages[activeChatPhone] = [{sender: 'incoming', text: 'تم فتح قناة مشفرة ومحمية.', type: 'text'}];
-        }
-        loadChatMessages();
-      }
-    }
-
-    function loadChatMessages() {
-      const chatBox = document.getElementById('internalChatBox');
-      const msgs = internalMessages[activeChatPhone] || [];
-      let html = '';
-      for (let i = 0; i < msgs.length; i++) {
-        let m = msgs[i];
-        let content = (m.type === 'view-once') ? '🔒 [وسائط مرئية لرؤية لمرة واحدة - ممنوع الحفظ]' : m.text;
-        html += '<div class="chat-bubble ' + m.sender + '"><strong>' + (m.sender === 'outgoing' ? 'أنت:' : 'الطرف الآخر:') + '</strong> ' + content + '<div class="msg-meta"><span>محمي ضد التحويل</span><span>✓✓</span></div></div>';
-      }
-      chatBox.innerHTML = html;
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    function sendInternalMessage() {
-      const input = document.getElementById('chatInputMsg');
-      const text = input.value.trim();
-      if(!text) return;
-      if(!internalMessages[activeChatPhone]) internalMessages[activeChatPhone] = [];
-      internalMessages[activeChatPhone].push({sender: 'outgoing', text: text, type: 'text'});
-      input.value = '';
-      loadChatMessages();
-    }
-
-    function sendViewOnceMedia() {
-      if(!internalMessages[activeChatPhone]) internalMessages[activeChatPhone] = [];
-      internalMessages[activeChatPhone].push({sender: 'outgoing', text: 'تم إرسال وسائط سرية', type: 'view-once'});
-      loadChatMessages();
-      alert('🔒 تم إرسال الوسائط بنجاح (تختفي بعد المشاهدة وممنوع التقاط الشاشة).');
-    }
-
-    function translateLastMessageAI() {
-      alert('🌐 OMEGA AI: تم ترجمة وتحليل الرسائل الأخيرة بنجاح وتوفير الملخص الهادئ.');
-    }
-
-    function openChatFor(phone, name) {
-      switchScreen('chats', document.querySelectorAll('.nav-item')[1]);
-      const chatSel = document.getElementById('chatContactSelect');
-      if(chatSel) { chatSel.value = phone; changeActiveChat(); }
-    }
-
-    function startSecureCall() {
-      document.getElementById('callStateText').innerText = 'الحالة: 🔴 المكالمة الفضائية مؤمنة ونقية بنسبة 100%ل';
-    }
-
-    function endSecureCall() {
-      document.getElementById('callStateText').innerText = 'الحالة: تم قطع الاتصال وتأمين السجل';
-    }
-
-    function sendAiPrompt() {
-      const input = document.getElementById('aiInputPrompt');
-      if(!input.value.trim()) return;
-      document.getElementById('aiChatLog').innerHTML += '<div style="margin-top:6px; color:var(--emerald);"><strong>[OMEGA AI]:</strong> تم استيعاب الطلب وتنفيذه بنجاح.</div>';
-      input.value = '';
-    }
-
-    function executeKillSwitch() {
-      if(confirm('تحذير: هل تريد مسح الذاكرة الفورية وتأمين القطاع؟')) {
-        vault = []; internalMessages = {};
-        renderVault(); updateContactSelects();
-        alert('⚡ تم مسح الذاكرة وتفعيل درع الطوارئ.');
-      }
-    }
-  </script>
-</body>
-</html>`);
-});
-
-app.listen(PORT, function() { console.log('Server running on port ' + PORT); });

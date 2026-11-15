@@ -76,4 +76,70 @@ app.get('/', (req, res) => {
           <input type="text" id="ownerName" placeholder="مثال: غرفة العمليات المركزية" required />
           
           <label id="lblOtp">أدخل الكود (8 خانات دقيقة):</label>
-          <div class="otp-
+          <div class="otp-container">
+            <input type="text" class="otp-input" maxlength="1" oninput="moveNext(this, 1)" />
+            <input type="text" class="otp-input" maxlength="1" oninput="moveNext(this, 2)" />
+            <input type="text" class="otp-input" maxlength="1" oninput="moveNext(this, 3)" />
+            <input type="text" class="otp-input" maxlength="1" oninput="moveNext(this, 4)" />
+            <input type="text" class="otp-input" maxlength="1" oninput="moveNext(this, 5)" />
+            <input type="text" class="otp-input" maxlength="1" oninput="moveNext(this, 6)" />
+            <input type="text" class="otp-input" maxlength="1" oninput="moveNext(this, 7)" />
+            <input type="text" class="otp-input" maxlength="1" oninput="moveNext(this, 8)" />
+          </div>
+
+          <label id="lblCat">التصنيف:</label>
+          <select id="numCategory">
+            <option value="بروتوكول VIP السيادي (888)">بروتوكول VIP السيادي (888xxxxx)</option>
+            <option value="محطة التشغيل المركزية (800)">محطة التشغيل المركزية (800xxxxx)</option>
+          </select>
+
+          <button type="submit" class="btn-submit" id="btnSave">اعتماد الكود في النظام</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="vault" class="section">
+      <div class="card-box">
+        <h3 id="vaultHead">خزنة الأكواد السيادية</h3>
+        <div id="vaultList">
+          <p style="color:var(--muted); text-align:center; font-size:13px;" id="vaultEmpty">الخزنة فارغة ونظيفة.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="gateway" class="section">
+      <div class="card-box">
+        <h3 id="gatewayHead">بوابة التوجيه الدولي</h3>
+        <label id="lblPhone">رقم المستلم (مثال: 9677xxxxxxxx):</label>
+        <input type="tel" id="targetPhone" placeholder="9677xxxxxxxx" style="direction:ltr; text-align:right;" />
+        <label id="lblMsg">نص التوجيه:</label>
+        <input type="text" id="targetMsg" placeholder="اكتب نص الأمر..." />
+        <button type="submit" class="btn-submit" onclick="sendWhatsApp()" id="btnSend">إرسال عبر البروتوكول الدولي</button>
+      </div>
+    </div>
+
+    <div class="footer-note">SANAD SOVEREIGN PROTOCOL v5.0</div>
+  </div>
+
+  <script>
+    let vault = [];
+    let lang = 'ar';
+
+    function setLang(l) {
+      lang = l;
+      document.getElementById('htmlRoot').setAttribute('dir', l === 'ar' ? 'rtl' : 'ltr');
+      document.getElementById('txtTitle').innerText = l === 'ar' ? 'برنامج سند' : 'Sanad Platform';
+      document.getElementById('txtSub').innerText = l === 'ar' ? 'المنصة السيادية الدولية عابرة الحدود' : 'International Sovereign Platform';
+      document.getElementById('tab1').innerText = l === 'ar' ? 'الأكواد' : 'Codes';
+      document.getElementById('tab2').innerText = l === 'ar' ? 'الخزنة' : 'Vault';
+      document.getElementById('tab3').innerText = l === 'ar' ? 'التوجيه' : 'Gateway';
+      document.getElementById('genHead').innerText = l === 'ar' ? 'توليد وتأمين كود سيادي (8 خانات)' : 'Generate Sovereign Code (8 Digits)';
+      document.getElementById('lblOwner').innerText = l === 'ar' ? 'اسم الجهة أو المعرف:' : 'Entity Name/ID:';
+      document.getElementById('lblOtp').innerText = l === 'ar' ? 'أدخل الكود (8 خانات دقيقة):' : 'Enter Code (8 Digits):';
+      document.getElementById('lblCat').innerText = l === 'ar' ? 'التصنيف:' : 'Category:';
+      document.getElementById('btnSave').innerText = l === 'ar' ? 'اعتماد الكود في النظام' : 'Authorize Code';
+      document.getElementById('vaultHead').innerText = l === 'ar' ? 'خزنة الأكواد السيادية' : 'Sovereign Vault';
+      document.getElementById('vaultEmpty').innerText = l === 'ar' ? 'الخزنة فارغة ونظيفة.' : 'Vault is empty and clean.';
+      document.getElementById('gatewayHead').innerText = l === 'ar' ? 'بوابة التوجيه الدولي' : 'International Gateway';
+      document.getElementById('lblPhone').innerText = l === 'ar' ? 'رقم المستلم (مثال: 9677xxxxxxxx):' : 'Recipient Phone (e.g. 9677xxxxxxxx):';
+      document.getElementById('lblMsg').innerText = l === 'ar' ? 'نص التوجيه:' : 'Directive Text:';

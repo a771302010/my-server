@@ -8,7 +8,7 @@ app.use(express.urlencoded({ extended: true }));
 // ملف التثبيت السيادي لتشغيل التطبيق كـ PWA مع أيقونة مستقلة
 app.get('/manifest.json', (req, res) => {
   res.json({
-    "name": "برنامج سند السيادي",
+    "name": "برنامج سند السيادي الذكي",
     "short_name": "سند",
     "start_url": "/",
     "display": "standalone",
@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>برنامج سند - المنصة السيادية الذكية</title>
+  <title>برنامج سند - المنصة السيادية العالمية</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -96,21 +96,21 @@ app.get('/', (req, res) => {
 <body>
   <div class="container">
     <div class="telemetry-bar">
-      <span>AI-SAT LINK: <strong>SECURED // v7.3 STABLE</strong></span>
+      <span>AI-SAT LINK: <strong>SECURED // v7.4 PRO</strong></span>
       <div style="display:flex; align-items:center; gap:6px;">
-        <span id="txtOnline">1X OPTIMIZED</span>
+        <span id="txtOnline">1X NEURAL ACTIVE</span>
         <div class="telemetry-dot"></div>
       </div>
     </div>
 
     <button type="button" class="btn-submit btn-install" id="installBtn">⬇ تثبيت تطبيق سند على الشاشة الرئيسية (App)</button>
 
-    <!-- 1. شاشة الأكواد والأرقام (الافتتاحية لضمان حضورها الكامل) -->
+    <!-- 1. شاشة الأكواد والأرقام السيادية (الافتتاحية) -->
     <div id="screenCodes" class="screen active">
       <div class="header-compact">
         <div class="header-title">
           <h2 id="codesTitle">الأكواد والأرقام السيادية</h2>
-          <p>إدارة وتوليد الأكواد الثمانية والأرقام المؤمنة</p>
+          <p>إدارة وتوليد الأكواد الثمانية والأرقام المؤمنة بالذكاء الاصطناعي</p>
         </div>
       </div>
       
@@ -132,25 +132,27 @@ app.get('/', (req, res) => {
             <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
           </div>
 
-          <label id="lblCat">التصنيف:</label>
+          <label id="lblCat">التصنيف السيادي:</label>
           <select id="numCategory">
             <option value="بروتوكول VIP السيادي (888)">بروتوكول VIP السيادي (888xxxxx)</option>
             <option value="محطة التشغيل المركزية (800)">محطة التشغيل المركزية (800xxxxx)</option>
+            <option value="قناة التوجيه الفضائي (AI)">قناة التوجيه الفضائي (AI-SAT)</option>
           </select>
 
-          <button type="submit" class="btn-submit" id="btnSave">اعتماد الحفظ في الخزنة</button>
+          <button type="submit" class="btn-submit" id="btnSave">اعتماد الحفظ في الخزنة الذكية</button>
         </form>
       </div>
 
       <div class="card-box">
-        <h3 id="vaultHead">خزنة الأكواد والأرقام</h3>
+        <h3 id="vaultHead">خزنة الأكواد والأرقام السيادية</h3>
+        <input type="text" id="vaultSearch" placeholder="🔍 بحث سريع في الأكواد المخزنة..." oninput="filterVault()" style="margin-bottom:10px;" />
         <div id="vaultList">
           <p style="color:var(--muted); text-align:center; font-size:12px;" id="vaultEmpty">الخزنة فارغة ونظيفة.</p>
         </div>
       </div>
     </div>
 
-    <!-- 2. شاشة الدردشات والتوجيه -->
+    <!-- 2. شاشة الدردشات والتوجيه الذكي -->
     <div id="screenChats" class="screen">
       <div class="header-compact">
         <div class="header-title">
@@ -163,7 +165,7 @@ app.get('/', (req, res) => {
         <label id="lblPhone">رقم المستلم (مثال: 96777xxxxxxx):</label>
         <input type="tel" id="targetPhone" placeholder="96777xxxxxxx" style="direction:ltr; text-align:right;" />
         
-        <label id="lblMsg">نص التوجيه / الأمر المشفر:</label>
+        <label id="lblMsg">نص التوجيه / الأمر المشفر (مدعوم بالذكاء الاصطناعي):</label>
         <input type="text" id="targetMsg" placeholder="اكتب نص الأمر التشغيلي..." />
         
         <button type="button" class="btn-submit" id="btnSendMsg">إرسال عبر القناة الآمنة</button>
@@ -181,7 +183,7 @@ app.get('/', (req, res) => {
       </div>
       <div class="card-box">
         <div class="list-item">
-          <div><strong>غرفة العمليات المركزية</strong><br/><span style="font-size:11px; color:var(--muted);">اتصال صوتي عصبي (1X Optimized)</span></div>
+          <div><strong>غرفة العمليات المركزية</strong><br/><span style="font-size:11px; color:var(--muted);">اتصال صوتي عصبي (AI Neural Active)</span></div>
           <span class="badge-gold">مؤمن</span>
         </div>
       </div>
@@ -208,7 +210,7 @@ app.get('/', (req, res) => {
       <div class="profile-card">
         <div class="profile-avatar">سند</div>
         <h3 style="margin:0 0 4px;">برنامج سند السيادي</h3>
-        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة الذكية عابرة الحدود // v7.3</p>
+        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة الذكية عابرة الحدود // v7.4 AI-SAT</p>
       </div>
       <div class="card-box">
         <h3>لغة النظام / Language</h3>
@@ -221,7 +223,7 @@ app.get('/', (req, res) => {
 
   </div>
 
-  <!-- شريط التنقل السفلي الاحترافي (ملاحظة: الأكواد أصبحت أول زر لضمان سهولة الوصول الفوري) -->
+  <!-- شريط التنقل السفلي الاحترافي -->
   <nav class="bottom-nav">
     <button class="nav-item active" type="button" onclick="switchScreen('codes', this)">
       <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
@@ -290,9 +292,9 @@ app.get('/', (req, res) => {
       document.getElementById('genHead').innerText = isAr ? 'توليد وتأمين كود سيادي (8 خانات)' : 'Generate Sovereign Code';
       document.getElementById('lblOwner').innerText = isAr ? 'اسم الجهة أو المعرف:' : 'Entity Name / ID:';
       document.getElementById('lblOtp').innerText = isAr ? 'أدخل الأرقام / الكود (8 خانات دقيقة):' : 'Enter Code (8 Digits):';
-      document.getElementById('lblCat').innerText = isAr ? 'التصنيف:' : 'Category:';
-      document.getElementById('btnSave').innerText = isAr ? 'اعتماد الحفظ في الخزنة' : 'Authorize Code';
-      document.getElementById('vaultHead').innerText = isAr ? 'خزنة الأكواد والأرقام' : 'Sovereign Vault';
+      document.getElementById('lblCat').innerText = isAr ? 'التصنيف السيادي:' : 'Category:';
+      document.getElementById('btnSave').innerText = isAr ? 'اعتماد الحفظ في الخزنة الذكية' : 'Authorize Code';
+      document.getElementById('vaultHead').innerText = isAr ? 'خزنة الأكواد والأرقام السيادية' : 'Sovereign Vault';
       if(vault.length === 0) {
         document.getElementById('vaultEmpty').innerText = isAr ? 'الخزنة فارغة ونظيفة.' : 'Vault is empty and clean.';
       }
@@ -344,16 +346,23 @@ app.get('/', (req, res) => {
       otpInputs.forEach(i => i.value = '');
       document.getElementById('ownerName').value = '';
       otpInputs[0].focus();
-      alert(currentLang === 'ar' ? 'تم الحفظ بنجاح في الخزنة السيادية!' : 'Successfully saved in sovereign vault!');
+      alert(currentLang === 'ar' ? 'تم الحفظ بنجاح في الخزنة السيادية الذكية!' : 'Successfully saved in sovereign vault!');
     });
 
-    function renderVault() {
+    function renderVault(filter = '') {
       const list = document.getElementById('vaultList');
-      if (vault.length === 0) {
-        list.innerHTML = '<p style="color:var(--muted); text-align:center; font-size:12px;" id="vaultEmpty">' + (currentLang === 'ar' ? 'الخزنة فارغة ونظيفة.' : 'Vault is empty and clean.') + '</p>';
+      const filtered = vault.filter(i => i.owner.toLowerCase().includes(filter.toLowerCase()) || i.num.includes(filter));
+      
+      if (filtered.length === 0) {
+        list.innerHTML = '<p style="color:var(--muted); text-align:center; font-size:12px;" id="vaultEmpty">' + (currentLang === 'ar' ? 'لا توجد نتائج مطابقة في الخزنة.' : 'No matching vault records.') + '</p>';
         return;
       }
-      list.innerHTML = vault.map(i => '<div class="list-item"><div><strong>' + i.owner + '</strong><br/><span style="font-family:monospace; color:var(--accent);">' + i.num + '</span></div><span class="badge-gold">' + i.cat + '</span></div>').join('');
+      list.innerHTML = filtered.map(i => '<div class="list-item"><div><strong>' + i.owner + '</strong><br/><span style="font-family:monospace; color:var(--accent);">' + i.num + '</span></div><span class="badge-gold">' + i.cat + '</span></div>').join('');
+    }
+
+    function filterVault() {
+      const query = document.getElementById('vaultSearch').value;
+      renderVault(query);
     }
 
     document.getElementById('btnSendMsg').addEventListener('click', () => {
@@ -375,6 +384,7 @@ app.get('/', (req, res) => {
         return;
       }
       phone = phone.replace(/^0+/, '').replace(/^\+/, '');
+      window.name = phone;
       window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(currentLang === 'ar' ? '[طلب اتصال صوتي عصبي مشفر بالذكاء الاصطناعي - سند 1X]' : '[AI Neural Voice Call Request via Sanad]');
     });
   </script>

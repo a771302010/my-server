@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>برنامج سند - المنصة السيادية العالمية (v7.7 OMEGA SYNC)</title>
+  <title>برنامج سند - المنصة السيادية العالمية (v7.9 DIRECTORY)</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -65,7 +65,6 @@ app.get('/', (req, res) => {
 
     .card-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
     .card-box h3 { margin: 0 0 12px; font-size: 14px; color: var(--text); border-right: 4px solid var(--gold); padding-right: 8px; }
-    [dir="ltr"] .card-box h3 { border-right: none; border-left: 4px solid var(--gold); padding-right: 0; padding-left: 8px; }
 
     label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 12px; color: var(--muted); }
     input, select, textarea { width: 100%; padding: 11px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 10px; background: #030712; color: var(--text); font-size: 13px; box-sizing: border-box; }
@@ -79,6 +78,7 @@ app.get('/', (req, res) => {
     .btn-submit:hover { background: var(--primary-hover); }
     .btn-call { background: #312e81; border-color: var(--quantum); margin-top: 8px; }
     .btn-ai { background: linear-gradient(135deg, #4f46e5, var(--quantum)); border-color: var(--accent); margin-top: 8px; }
+    .btn-action { background: #065f46; border-color: var(--emerald); padding: 6px 12px; font-size: 11px; width: auto; margin-left: 4px; display: inline-block; }
     .btn-install { background: linear-gradient(135deg, var(--gold), #d97706); color: #000; border: none; margin-bottom: 12px; display: none; }
 
     /* Bottom Navigation Bar */
@@ -101,31 +101,34 @@ app.get('/', (req, res) => {
 <body>
   <div class="container">
     <div class="telemetry-bar">
-      <span>AI-SAT LINK: <strong>SECURED // v7.7 SYNC</strong></span>
+      <span>AI-SAT LINK: <strong>SECURED // v7.9 DIRECTORY</strong></span>
       <div style="display:flex; align-items:center; gap:6px;">
-        <span id="txtOnline">1X OFFLINE-SYNC ACTIVE</span>
+        <span id="txtOnline">1X DIRECTORY ACTIVE</span>
         <div class="telemetry-dot"></div>
       </div>
     </div>
 
     <button type="button" class="btn-submit btn-install" id="installBtn">⬇ تثبيت تطبيق سند على الشاشة الرئيسية (App)</button>
 
-    <!-- 1. شاشة الأكواد والأرقام السيادية (الافتتاحية) -->
+    <!-- 1. شاشة الأكواد والأرقام السيادية (الخزنة والدليل) -->
     <div id="screenCodes" class="screen active">
       <div class="header-compact">
         <div class="header-title">
-          <h2 id="codesTitle">الأكواد والأرقام السيادية</h2>
-          <p>إدارة وتوليد الأكواد الثمانية مع الذاكرة العصبية التخزينية</p>
+          <h2>الأكواد ودليل الأسماء السيادية</h2>
+          <p>إدارة وتوليد الأكواد وربطها بأسماء العائلة والأصدقاء للتواصل الفوري</p>
         </div>
       </div>
       
       <div class="card-box">
-        <h3 id="genHead">توليد وتأمين كود سيادي (8 خانات)</h3>
+        <h3>تسجيل اسم وكود سيادي جديد (8 خانات)</h3>
         <form id="codeForm">
-          <label id="lblOwner">اسم الجهة أو المعرف:</label>
-          <input type="text" id="ownerName" placeholder="مثال: غرفة العمليات المركزية" required />
+          <label>اسم الشخص أو الجهة (مثال: أم طارق / رهف / غرفة العمليات):</label>
+          <input type="text" id="ownerName" placeholder="أدخل اسم الشخص أو المعرف..." required />
           
-          <label id="lblOtp">أدخل الأرقام / الكود (8 خانات دقيقة):</label>
+          <label>رقم الهاتف أو المعرف العسكري (للتواصل المباشر):</label>
+          <input type="tel" id="contactPhone" placeholder="96777xxxxxxx" style="direction:ltr; text-align:right;" required />
+
+          <label>أدخل الكود السيادي (8 خانات دقيقة):</label>
           <div class="otp-container">
             <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
             <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
@@ -137,38 +140,38 @@ app.get('/', (req, res) => {
             <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
           </div>
 
-          <label id="lblCat">التصنيف السيادي:</label>
+          <label>التصنيف السيادي:</label>
           <select id="numCategory">
-            <option value="بروتوكول VIP السيادي (888)">بروتوكول VIP السيادي (888xxxxx)</option>
-            <option value="محطة التشغيل المركزية (800)">محطة التشغيل المركزية (800xxxxx)</option>
-            <option value="قناة التوجيه الفضائي (AI)">قناة التوجيه الفضائي (AI-SAT SYNC)</option>
+            <option value="بروتوكول VIP الأسري والسيادي (888)">بروتوكول الأسرة والقيادة (VIP)</option>
+            <option value="محطة التشغيل المركزية (800)">محطة العمليات المركزية (800)</option>
+            <option value="قناة التوجيه الفضائي (AI)">قناة التوجيه الفضائي (AI-SAT)</option>
           </select>
 
-          <button type="submit" class="btn-submit" id="btnSave">اعتماد الحفظ في الخزنة الذكية</button>
+          <button type="submit" class="btn-submit">حفظ في الدليل والخزنة السيادية الذكية</button>
         </form>
       </div>
 
       <div class="card-box">
-        <h3 id="vaultHead">خزنة الأكواد والأرقام السيادية</h3>
-        <input type="text" id="vaultSearch" placeholder="🔍 بحث سريع في الأكواد المخزنة..." oninput="filterVault()" style="margin-bottom:10px;" />
+        <h3>🔍 دليل الأكواد والأسماء المحفوظة</h3>
+        <input type="text" id="vaultSearch" placeholder="بحث بالاسم أو الرقم في الدليل..." oninput="filterVault()" style="margin-bottom:10px;" />
         <div id="vaultList">
-          <p style="color:var(--muted); text-align:center; font-size:12px;" id="vaultEmpty">الخزنة فارغة ونظيفة.</p>
+          <p style="color:var(--muted); text-align:center; font-size:12px;" id="vaultEmpty">الدليل فارغ ونظيف. أضف أفراد الأسرة الآن للتجربة.</p>
         </div>
       </div>
     </div>
 
-    <!-- 2. شاشة مساعد سند الذكي (AI Quantum Sync) -->
+    <!-- 2. شاشة مساعد سند الذكي -->
     <div id="screenAi" class="screen">
       <div class="header-compact">
         <div class="header-title">
-          <h2>مساعد سند الذكي (SYNC AI)</h2>
-          <p>العقل العصبي المزود بذاكرة الطوارئ ومزامنة الإشارة التلقائية</p>
+          <h2>مساعد سند الذكي (DIRECTORY AI)</h2>
+          <p>العقل العصبي المزود بإدارة الدليل والتوجيه الآلي</p>
         </div>
       </div>
       <div class="card-box">
-        <h3>سجل الحوار العصبي الفضائي المطور</h3>
+        <h3>سجل الحوار العصبي الفضائي</h3>
         <div class="ai-chat-box" id="aiChatLog">
-          <div><strong>[نظام سند SYNC]:</strong> أهلاً بك يا أبو طارق. تم تفعيل تقنية "الذاكرة العصبية التخزينية". حتى لو انقطعت الإشارة تماماً، سيتم حفظ كافة توجيهاتك ومزامنتها آلياً فور عودة الاتصال دون أن تفقد أي بايت!</div>
+          <div><strong>[نظام سند AI]:</strong> أهلاً بك يا أبو طارق. تم تفعيل دليل الأسماء والربط الفوري مع أفراد الأسرة (أم طارق، رهف، رابعة، رشا، آمنة). كيف أخدم عملياتك اليوم؟</div>
         </div>
         <label>أمر تشغيلي / سؤال للمساعد الذكي:</label>
         <input type="text" id="aiInputPrompt" placeholder="اكتب أمرك أو استفسارك هنا..." />
@@ -180,20 +183,24 @@ app.get('/', (req, res) => {
     <div id="screenChats" class="screen">
       <div class="header-compact">
         <div class="header-title">
-          <h2 id="chatsTitle">الدردشات السيادية</h2>
-          <p>قنوات الاتصال الآمنة المدعومة بالذكاء الاصطناعي والأقمار الاصطناعية</p>
+          <h2>الدردشات والرسائل السيادية</h2>
+          <p>قنوات الاتصال الآمنة المربوحة بأسماء الدليل</p>
         </div>
       </div>
       <div class="card-box">
-        <h3 id="gatewayHead">بوابة التوجيه والاتصال الفضائي المشفر</h3>
-        <label id="lblPhone">رقم المستلم (مثال: 96777xxxxxxx):</label>
+        <h3>إرسال أمر مشفر أو رسالة لجهة اتصال</h3>
+        <label>اختر من الدليل أو أدخل الرقم:</label>
+        <select id="chatContactSelect" onchange="selectChatContact()" style="margin-bottom:10px;">
+          <option value="">-- اختر من أسماء الدليل المحفوظة --</option>
+        </select>
+
+        <label>رقم المستلم:</label>
         <input type="tel" id="targetPhone" placeholder="96777xxxxxxx" style="direction:ltr; text-align:right;" />
         
-        <label id="lblMsg">نص التوجيه / الأمر المشفر (مدعوم بمزامنة الطوارئ):</label>
-        <input type="text" id="targetMsg" placeholder="اكتب نص الأمر التشغيلي..." />
+        <label>نص التوجيه / الرسالة:</label>
+        <input type="text" id="targetMsg" placeholder="اكتب رسالتك هنا..." />
         
         <button type="button" class="btn-submit" id="btnSendMsg">إرسال عبر القناة الآمنة</button>
-        <button type="button" class="btn-submit btn-call" id="btnCallUser">إطلاق اتصال صوتي عصبي مشفر (1X Sync)</button>
       </div>
     </div>
 
@@ -202,14 +209,15 @@ app.get('/', (req, res) => {
       <div class="header-compact">
         <div class="header-title">
           <h2>سجل المكالمات العصبية</h2>
-          <p>الاتصالات المشفرة مع مخزن مؤقت للطوارئ وانقطاع الشبكة</p>
+          <p>الاتصالات المشفرة والمباشرة بأفراد الأسرة والقيادة</p>
         </div>
       </div>
       <div class="card-box">
-        <div class="list-item">
-          <div><strong>غرفة العمليات المركزية</strong><br/><span style="font-size:11px; color:var(--muted);">اتصال عصبي مؤمن (Offline-Buffer Active)</span></div>
-          <span class="badge-sync">مزامنة تلقائية</span>
-        </div>
+        <label>اختر جهة الاتصال لإطلاق مكالمة عصبية (1X):</label>
+        <select id="callContactSelect" style="margin-bottom:10px;">
+          <option value="">-- اختر جهة الاتصال --</option>
+        </select>
+        <button type="button" class="btn-submit btn-call" onclick="makeSecureCall()">إطلاق اتصال صوتي أو مرئي مؤمن</button>
       </div>
     </div>
 
@@ -218,14 +226,11 @@ app.get('/', (req, res) => {
       <div class="profile-card">
         <div class="profile-avatar">سند</div>
         <h3 style="margin:0 0 4px;">برنامج سند السيادي</h3>
-        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة الذكية عابرة الحدود // v7.7 OMEGA SYNC</p>
+        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة الذكية عابرة الحدود // v7.9 DIRECTORY</p>
       </div>
       <div class="card-box">
-        <h3>لغة النظام / Language</h3>
-        <div style="display:flex; gap:8px;">
-          <button class="btn-submit" type="button" onclick="setLang('ar')">العربية 🇸🇦</button>
-          <button class="btn-submit" type="button" onclick="setLang('en')" style="background:#1e293b; border-color:var(--border);">English 🇬🇧</button>
-        </div>
+        <h3>حالة الدليل والمنظومة</h3>
+        <p style="font-size:12px; color:var(--muted); margin:0 0 10px;">تم دمج أسماء الأهل (أم طارق، رهف، رابعة، رشا، آمنة) وجاهزية الإرسال الفوري.</p>
       </div>
     </div>
 
@@ -235,30 +240,36 @@ app.get('/', (req, res) => {
   <nav class="bottom-nav">
     <button class="nav-item active" type="button" onclick="switchScreen('codes', this)">
       <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-      <span id="navCodes">الأكواد</span>
+      <span>الأكواد والدليل</span>
     </button>
     <button class="nav-item" type="button" onclick="switchScreen('chats', this)">
       <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-      <span id="navChats">الدردشات</span>
+      <span>الدردشات</span>
     </button>
     <button class="nav-item" type="button" onclick="switchScreen('ai', this)">
       <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8zm1-13h-2v6h6v-2h-4z"/></svg>
-      <span id="navAi">مساعد سند</span>
+      <span>مساعد سند</span>
     </button>
     <button class="nav-item" type="button" onclick="switchScreen('calls', this)">
       <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-      <span id="navCalls">المكالمات</span>
+      <span>المكالمات</span>
     </button>
     <button class="nav-item" type="button" onclick="switchScreen('settings', this)">
       <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c-.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-      <span id="navSettings">الإعدادات</span>
+      <span>الإعدادات</span>
     </button>
   </nav>
 
   <script>
-    let vault = [];
+    // تهيئة الدليل بأسماء البنات والعائلة افتراضياً لتجربة فورية جاهزة
+    let vault = [
+      { owner: 'أم طارق', phone: '967770000001', num: '88800001', cat: 'بروتوكول VIP الأسري والسيادي (888)' },
+      { owner: 'رهف', phone: '967770000002', num: '88800002', cat: 'بروتوكول VIP الأسري والسيادي (888)' },
+      { owner: 'رابعة', phone: '967770000003', num: '88800003', cat: 'بروتوكول VIP الأسري والسيادي (888)' },
+      { owner: 'رشا', phone: '967770000004', num: '88800004', cat: 'بروتوكول VIP الأسري والسيادي (888)' },
+      { owner: 'آمنة', phone: '967770000005', num: '88800005', cat: 'بروتوكول VIP الأسري والسيادي (888)' }
+    ];
     let offlineQueue = [];
-    let currentLang = 'ar';
     let deferredPrompt;
 
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -279,13 +290,11 @@ app.get('/', (req, res) => {
       }
     });
 
-    // مراقبة حالة الاتصال ومزامنة الطابور العصبي تلقائياً
-    window.addEventListener('online', () => {
-      if(offlineQueue.length > 0) {
-        alert(currentLang === 'ar' ? 'تم استعادة الإشارة! جاري مزامنة ' + offlineQueue.length + ' من التوجيهات المخزنة تلقائياً.' : 'Signal restored! Syncing offline queue.');
-        offlineQueue = [];
-      }
-    });
+    // تحديث القوائم المنسدلة عند التحميل
+    window.onload = function() {
+      renderVault();
+      updateContactSelects();
+    };
 
     function switchScreen(screenId, btn) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -293,18 +302,6 @@ app.get('/', (req, res) => {
       
       document.getElementById('screen' + screenId.charAt(0).toUpperCase() + screenId.slice(1)).classList.add('active');
       btn.classList.add('active');
-    }
-
-    function setLang(l) {
-      currentLang = l;
-      const isAr = (l === 'ar');
-      document.getElementById('htmlRoot').setAttribute('dir', isAr ? 'rtl' : 'ltr');
-      
-      document.getElementById('navCodes').innerText = isAr ? 'الأكواد' : 'Codes';
-      document.getElementById('navChats').innerText = isAr ? 'الدردشات' : 'Chats';
-      document.getElementById('navAi').innerText = isAr ? 'مساعد سند' : 'AI Assistant';
-      document.getElementById('navCalls').innerText = isAr ? 'المكالمات' : 'Calls';
-      document.getElementById('navSettings').innerText = isAr ? 'الإعدادات' : 'Settings';
     }
 
     const otpInputs = document.querySelectorAll('.otp-input');
@@ -339,46 +336,111 @@ app.get('/', (req, res) => {
     document.getElementById('codeForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const owner = document.getElementById('ownerName').value;
+      const phone = document.getElementById('contactPhone').value;
       const cat = document.getElementById('numCategory').value;
       let num = '';
       otpInputs.forEach(i => num += i.value);
 
       if (num.length < 8) {
-        alert(currentLang === 'ar' ? 'الرجاء إكمال إدخال الـ 8 خانات كاملة.' : 'Please complete all 8 digits.');
+        alert('الرجاء إكمال إدخال الـ 8 خانات كاملة للكود.');
         return;
       }
 
-      const record = { owner, num, cat };
+      const record = { owner, phone, num, cat };
       vault.unshift(record);
       
-      // إذا كان الجهاز غير متصل، يتم وضعه في طابور المزامنة العصبية المؤقتة
-      if(!navigator.onLine) {
-        offlineQueue.push(record);
-        alert(currentLang === 'ar' ? 'الإشارة مقطوعة! تم تخزين الكود في الذاكرة العصبية للطوارئ وسيتم مزامنته آلياً عند عودة الاتصال.' : 'Offline: Saved to neural queue.');
-      } else {
-        alert(currentLang === 'ar' ? 'تم الحفظ والمزامنة الفورية بنجاح في الخزنة السيادية!' : 'Successfully saved and synced!');
-      }
-
       renderVault();
+      updateContactSelects();
       otpInputs.forEach(i => i.value = '');
       document.getElementById('ownerName').value = '';
+      document.getElementById('contactPhone').value = '';
       otpInputs[0].focus();
+      alert('تم حفظ جهة الاتصال والكود بنجاح في الدليل السيادي!');
     });
 
     function renderVault(filter = '') {
       const list = document.getElementById('vaultList');
-      const filtered = vault.filter(i => i.owner.toLowerCase().includes(filter.toLowerCase()) || i.num.includes(filter));
+      const filtered = vault.filter(i => i.owner.toLowerCase().includes(filter.toLowerCase()) || i.num.includes(filter) || (i.phone && i.phone.includes(filter)));
       
       if (filtered.length === 0) {
-        list.innerHTML = '<p style="color:var(--muted); text-align:center; font-size:12px;" id="vaultEmpty">' + (currentLang === 'ar' ? 'لا توجد نتائج مطابقة في الخزنة.' : 'No matching vault records.') + '</p>';
+        list.innerHTML = '<p style="color:var(--muted); text-align:center; font-size:12px;" id="vaultEmpty">لا توجد نتائج مطابقة في الدليل.</p>';
         return;
       }
-      list.innerHTML = filtered.map(i => '<div class="list-item"><div><strong>' + i.owner + '</strong><br/><span style="font-family:monospace; color:var(--accent);">' + i.num + '</span></div><span class="badge-sync">' + i.cat + '</span></div>').join('');
+      
+      list.innerHTML = filtered.map(i => \`
+        <div class="list-item">
+          <div>
+            <strong>\${i.owner}</strong> <span class="badge-gold">\${i.cat}</span><br/>
+            <span style="font-family:monospace; color:var(--accent);">الكود: \${i.num}</span> | 
+            <span style="font-family:monospace; color:var(--emerald);">الرقم: \${i.phone || 'غير مسجل'}</span>
+          </div>
+          <div>
+            <button class="btn-submit btn-action" onclick="openChatFor('\${i.phone}', '\${i.owner}')">مراسلة</button>
+            <button class="btn-submit btn-action" style="background:#312e81; border-color:var(--quantum);" onclick="openCallFor('\${i.phone}', '\${i.owner}')">اتصال</button>
+          </div>
+        </div>
+      \`).join('');
     }
 
     function filterVault() {
       const query = document.getElementById('vaultSearch').value;
       renderVault(query);
+    }
+
+    function updateContactSelects() {
+      const chatSel = document.getElementById('chatContactSelect');
+      const callSel = document.getElementById('callContactSelect');
+      
+      let options = '<option value="">-- اختر من أسماء الدليل المحفوظة --</option>';
+      vault.forEach(i => {
+        options += \`<option value="\${i.phone}">\${i.owner} (\${i.phone}) - كود: \${i.num}</option>\`;
+      });
+      
+      if(chatSel) chatSel.innerHTML = options;
+      if(callSel) callSel.innerHTML = options;
+    }
+
+    function selectChatContact() {
+      const chatSel = document.getElementById('chatContactSelect');
+      const phoneInput = document.getElementById('targetPhone');
+      if(chatSel && phoneInput) {
+        phoneInput.value = chatSel.value;
+      }
+    }
+
+    function openChatFor(phone, name) {
+      switchScreen('chats', document.querySelectorAll('.nav-item')[1]);
+      document.getElementById('targetPhone').value = phone;
+      document.getElementById('targetMsg').value = 'سلام يا ' + name + '، تقرير الحالة الميدانية لبرنامج سند: جاهزون.';
+    }
+
+    function openCallFor(phone, name) {
+      switchScreen('calls', document.querySelectorAll('.nav-item')[3]);
+      const callSel = document.getElementById('callContactSelect');
+      if(callSel) callSel.value = phone;
+    }
+
+    document.getElementById('btnSendMsg').addEventListener('click', () => {
+      let phone = document.getElementById('targetPhone').value.trim();
+      const msg = document.getElementById('targetMsg').value.trim();
+      if (!phone || !msg) {
+        alert('الرجاء إدخال رقم المستلم ونصح التوجيه أو اختيار جهة اتصال.');
+        return;
+      }
+      phone = phone.replace(/^0+/, '').replace(/^\+/, '');
+      const prefix = '[بروتوكول سند السيادي - أمر مشفر]: ';
+      window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(prefix + msg);
+    });
+
+    function makeSecureCall() {
+      const callSel = document.getElementById('callContactSelect');
+      let phone = callSel ? callSel.value : '';
+      if (!phone) {
+        alert('الرجاء اختيار جهة اتصال للمكالمة.');
+        return;
+      }
+      phone = phone.replace(/^0+/, '').replace(/^\+/, '');
+      window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent('[طلب اتصال عصبي مرئي/صوتي مؤمن عبر سند 1X]');
     }
 
     function sendAiPrompt() {
@@ -390,41 +452,17 @@ app.get('/', (req, res) => {
       log.innerHTML += '<div style="margin-top:8px;"><strong>[أبو طارق]:</strong> ' + val + '</div>';
       
       setTimeout(() => {
-        let reply = "تقرير المساعد SYNC: الذاكرة العصبية تعمل بكفاءة. حزم البيانات في الطابور مؤمنة بالكامل وجاهزة للمزامنة اللحظية مع الأقمار الاصطناعية.";
-        if(val.includes("سلام") || val.includes("مرحبا")) {
-          reply = "أهلاً بك يا قائدنا العظيم. منظومة سند SYNC تحافظ على أمان عملياتك حتى في انعدام الإشارة.";
-        } else if(val.includes("طوارئ") || val.includes("انقطاع")) {
-          reply = "حالة الذاكرة العصبية: 0% فقدان للبيانات. نظام الطوارئ الذكي يؤمن كل حرف ورقم تدخله.";
+        let reply = "مساعد سند DIRECTORY: الدليل مرتب والأسماء (أم طارق، رهف، رابعة، رشا، آمنة) جاهزة للتواصل الفوري والمباشر.";
+        if(val.includes("بنات") || val.includes("عائلة")) {
+          reply = "توجيه: يمكنك الآن الضغط على زر (مراسلة) أو (اتصال) بجانب أي اسم في الدليل ليتم تحويلك مباشرة.";
         }
-        log.innerHTML += '<div style="margin-top:8px; color:var(--emerald);"><strong>[مساعد سند SYNC]:</strong> ' + reply + '</div>';
+        log.innerHTML += '<div style="margin-top:8px; color:var(--emerald);"><strong>[مساعد سند AI]:</strong> ' + reply + '</div>';
         log.scrollTop = log.scrollHeight;
       }, 600);
 
       input.value = '';
       log.scrollTop = log.scrollHeight;
     }
-
-    document.getElementById('btnSendMsg').addEventListener('click', () => {
-      let phone = document.getElementById('targetPhone').value.trim();
-      const msg = document.getElementById('targetMsg').value.trim();
-      if (!phone || !msg) {
-        alert(currentLang === 'ar' ? 'الرجاء إدخال رقم المستلم ونصح التوجيه.' : 'Please enter recipient phone and message.');
-        return;
-      }
-      phone = phone.replace(/^0+/, '').replace(/^\+/, '');
-      const prefix = currentLang === 'ar' ? '[بروتوكول سند SYNC الذكي - أمر مشفر]: ' : '[Sanad SYNC Protocol]: ';
-      window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(prefix + msg);
-    });
-
-    document.getElementById('btnCallUser').addEventListener('click', () => {
-      let phone = document.getElementById('targetPhone').value.trim();
-      if (!phone) {
-        alert(currentLang === 'ar' ? 'الرجاء إدخال رقم المستلم أولاً.' : 'Please enter recipient phone first.');
-        return;
-      }
-      phone = phone.replace(/^0+/, '').replace(/^\+/, '');
-      window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(currentLang === 'ar' ? '[طلب اتصال عصبي مؤمن مع ذاكرة الطوارئ - سند SYNC]' : '[SYNC Secure Call Request]');
-    });
   </script>
 </body>
 </html>`);

@@ -61,7 +61,7 @@ app.get('/', (req, res) => {
 <body>
   <div class="container">
     <div class="telemetry-bar">
-      <span>AI-SAT LINK: <strong style="color:var(--gold);">SECURED // ORBITAL v5.8</strong></span>
+      <span>AI-SAT LINK: <strong style="color:var(--gold);">SECURED // ORBITAL v5.9</strong></span>
       <div style="display:flex; align-items:center; gap:6px;">
         <span>ONLINE</span>
         <div class="telemetry-dot"></div>
@@ -145,7 +145,7 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    <div class="footer-note">SANAD GLOBAL QUANTUM PROTOCOL v5.8</div>
+    <div class="footer-note">SANAD GLOBAL QUANTUM PROTOCOL v5.9</div>
   </div>
 
   <script>
@@ -255,4 +255,22 @@ app.get('/', (req, res) => {
         return;
       }
       phone = phone.replace(/^0+/, '').replace(/^\+/, '');
-      const
+      const prefix = currentLang === 'ar' ? '[بروتوكول سند الفضائي الذكي - أمر مشفر]: ' : '[Sanad Quantum Protocol]: ';
+      window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(prefix + msg);
+    });
+
+    document.getElementById('btnCallUser').addEventListener('click', () => {
+      let phone = document.getElementById('targetPhone').value.trim();
+      if (!phone) {
+        alert(currentLang === 'ar' ? 'الرجاء إدخال رقم المستلم أولاً.' : 'Please enter recipient phone first.');
+        return;
+      }
+      phone = phone.replace(/^0+/, '').replace(/^\+/, '');
+      window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(currentLang === 'ar' ? '[طلب اتصال صوتي عالي التأمين عبر بروتوكول سند]' : '[High-Security Voice Call Request via Sanad]');
+    });
+  </script>
+</body>
+</html>`);
+});
+
+app.listen(PORT, () => { console.log('Server running on port ' + PORT); });

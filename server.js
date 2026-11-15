@@ -11,7 +11,7 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>برنامج سند - المنصة السيادية الدولية</title>
+  <title>برنامج سند - المنصة السيادية الذكية</title>
   <style>
     :root {
       --primary: #1e3a8a;
@@ -29,7 +29,8 @@ app.get('/', (req, res) => {
     .container { max-width: 720px; margin: 0 auto; padding: 16px; }
     
     .telemetry-bar { background: #020617; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-family: monospace; font-size: 11px; display: flex; justify-content: space-between; align-items: center; color: var(--accent); }
-    .telemetry-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); }
+    .telemetry-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
 
     .header-compact { display: flex; align-items: center; justify-content: space-between; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 14px; }
     .header-title h2 { margin: 0; font-size: 18px; color: var(--text); }
@@ -54,7 +55,7 @@ app.get('/', (req, res) => {
     .btn-submit:hover { background: var(--primary-hover); }
     .btn-call { background: #312e81; border-color: var(--quantum); margin-top: 8px; }
 
-    /* Bottom Navigation Bar (App Style) */
+    /* Bottom Navigation Bar */
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #020617; border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(5, 1fr); padding: 8px 4px; z-index: 1000; box-shadow: 0 -10px 25px rgba(0,0,0,0.9); }
     .nav-item { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; padding: 4px; font-weight: bold; gap: 4px; }
     .nav-item svg { width: 20px; height: 20px; fill: currentColor; }
@@ -71,19 +72,19 @@ app.get('/', (req, res) => {
 <body>
   <div class="container">
     <div class="telemetry-bar">
-      <span>AI-SAT LINK: <strong>SECURED // v7.0</strong></span>
+      <span>AI-SAT LINK: <strong>SECURED // v7.1</strong></span>
       <div style="display:flex; align-items:center; gap:6px;">
-        <span id="txtOnline">ONLINE (1X)</span>
+        <span id="txtOnline">ONLINE (1X RESILIENT)</span>
         <div class="telemetry-dot"></div>
       </div>
     </div>
 
-    <!-- 1. شاشة الدردشات / التوجيه -->
+    <!-- 1. شاشة الدردشات -->
     <div id="screenChats" class="screen active">
       <div class="header-compact">
         <div class="header-title">
           <h2 id="chatsTitle">الدردشات السيادية</h2>
-          <p>قنوات الاتصال المباشر والآمن</p>
+          <p>قنوات الاتصال الآمنة المدعومة بالذكاء الاصطناعي</p>
         </div>
       </div>
       <div class="card-box">
@@ -95,7 +96,7 @@ app.get('/', (req, res) => {
         <input type="text" id="targetMsg" placeholder="اكتب نص الأمر التشغيلي..." />
         
         <button type="button" class="btn-submit" id="btnSendMsg">إرسال عبر القناة الآمنة</button>
-        <button type="button" class="btn-submit btn-call" id="btnCallUser">إطلاق اتصال صوتي مشفر</button>
+        <button type="button" class="btn-submit btn-call" id="btnCallUser">إطلاق اتصال صوتي فضائي مشفر</button>
       </div>
     </div>
 
@@ -103,28 +104,24 @@ app.get('/', (req, res) => {
     <div id="screenCalls" class="screen">
       <div class="header-compact">
         <div class="header-title">
-          <h2>سجل المكالمات</h2>
-          <p>المكالمات الفضائية والتشفرة الأخيرة</p>
+          <h2>سجل المكالمات الفضائية</h2>
+          <p>الاتصالات المشفرة عبر الأقمار الاصطناعية</p>
         </div>
       </div>
       <div class="card-box">
         <div class="list-item">
-          <div><strong>غرفة العمليات المركزية</strong><br/><span style="font-size:11px; color:var(--muted);">اتصال مشفر صوتي (صادر)</span></div>
+          <div><strong>غرفة العمليات المركزية</strong><br/><span style="font-size:11px; color:var(--muted);">اتصال صوتي عالي النقاء (1X Optimized)</span></div>
           <span class="badge-gold">مؤمن</span>
-        </div>
-        <div class="list-item">
-          <div><strong>القيادة العليا - الساحل الغربي</strong><br/><span style="font-size:11px; color:var(--muted);">توجيه استراتيجي (وارد)</span></div>
-          <span class="badge-gold">نشط</span>
         </div>
       </div>
     </div>
 
-    <!-- 3. شاشة الأكواد والخزنة -->
+    <!-- 3. شاشة الأكواد -->
     <div id="screenCodes" class="screen">
       <div class="header-compact">
         <div class="header-title">
           <h2 id="codesTitle">الأكواد والخزنة</h2>
-          <p>إدارة وتأمين الأكواد السيادية</p>
+          <p>إدارة وتأمين الأكواد السيادية الثمانية</p>
         </div>
       </div>
       
@@ -134,7 +131,7 @@ app.get('/', (req, res) => {
           <label id="lblOwner">اسم الجهة أو المعرف:</label>
           <input type="text" id="ownerName" placeholder="مثال: غرفة العمليات المركزية" required />
           
-          <label id="lblOtp">أدخل الكود (8 خانات دقيقة):</label>
+          <label id="lblOtp">أدخل الكود (8 خانات دقيقة - انتقال تلقائي):</label>
           <div class="otp-container">
             <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
             <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
@@ -177,14 +174,6 @@ app.get('/', (req, res) => {
           <div><strong>غرفة العمليات المركزية</strong><br/><span style="font-family:monospace; color:var(--accent);">88800001</span></div>
           <span class="badge-gold">VIP</span>
         </div>
-        <div class="list-item">
-          <div><strong>محطة التشغيل اللوجستي</strong><br/><span style="font-family:monospace; color:var(--accent);">80011022</span></div>
-          <span class="badge-gold">نشط</span>
-        </div>
-        <div class="list-item">
-          <div><strong>محطة الأقمار الاصطناعية</strong><br/><span style="font-family:monospace; color:var(--accent);">88899988</span></div>
-          <span class="badge-gold">VIP</span>
-        </div>
       </div>
     </div>
 
@@ -193,7 +182,7 @@ app.get('/', (req, res) => {
       <div class="profile-card">
         <div class="profile-avatar">سند</div>
         <h3 style="margin:0 0 4px;">برنامج سند السيادي</h3>
-        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة العابرة للحدود // v7.0</p>
+        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة الذكية عابرة الحدود // v7.1</p>
       </div>
       <div class="card-box">
         <h3>لغة النظام / Language</h3>
@@ -206,7 +195,7 @@ app.get('/', (req, res) => {
 
   </div>
 
-  <!-- شريط التنقل السفلي الاحترافي (Bottom Navigation Bar) -->
+  <!-- شريط التنقل السفلي الاحترافي -->
   <nav class="bottom-nav">
     <button class="nav-item active" type="button" onclick="switchScreen('chats', this)">
       <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
@@ -253,8 +242,105 @@ app.get('/', (req, res) => {
       document.getElementById('navContacts').innerText = isAr ? 'جهات الاتصال' : 'Contacts';
       document.getElementById('navSettings').innerText = isAr ? 'الإعدادات' : 'Settings';
       
-      document.getElementById('gatewayHead').innerText = isAr ? 'بوابة التوجيه والاتصال الفضائي' : 'Satellite Gateway & Call';
+      document.getElementById('gatewayHead').innerText = isAr ? 'بوابة التوجيه والاتصال الفضائي' : 'Satellite Gateway';
       document.getElementById('lblPhone').innerText = isAr ? 'رقم المستلم (مثال: 96777xxxxxxx):' : 'Recipient Phone:';
       document.getElementById('lblMsg').innerText = isAr ? 'نص التوجيه / الأمر المشفر:' : 'Encrypted Directive:';
       document.getElementById('btnSendMsg').innerText = isAr ? 'إرسال عبر القناة الآمنة' : 'Send via Secure Channel';
-      document.getElementById('btnCallUser').innerText = isAr ? 'إطلاق اتصال صوتي مشفر' : 'Launch Encrypted Call
+      document.getElementById('btnCallUser').innerText = isAr ? 'إطلاق اتصال صوتي مشفر' : 'Launch Encrypted Call';
+      
+      document.getElementById('genHead').innerText = isAr ? 'توليد وتأمين كود سيادي (8 خانات)' : 'Generate Sovereign Code';
+      document.getElementById('lblOwner').innerText = isAr ? 'اسم الجهة أو المعرف:' : 'Entity Name / ID:';
+      document.getElementById('lblOtp').innerText = isAr ? 'أدخل الكود (8 خانات دقيقة):' : 'Enter Code (8 Digits):';
+      document.getElementById('lblCat').innerText = isAr ? 'التصنيف:' : 'Category:';
+      document.getElementById('btnSave').innerText = isAr ? 'اعتماد الكود في النظام' : 'Authorize Code';
+      document.getElementById('vaultHead').innerText = isAr ? 'خزنة الأكواد السيادية' : 'Sovereign Vault';
+      if(vault.length === 0) {
+        document.getElementById('vaultEmpty').innerText = isAr ? 'الخزنة فارغة ونظيفة.' : 'Vault is empty and clean.';
+      }
+    }
+
+    const otpInputs = document.querySelectorAll('.otp-input');
+    otpInputs.forEach((input, idx) => {
+      input.addEventListener('input', (e) => {
+        const val = e.target.value;
+        if (val.length > 1) {
+          const chars = val.replace(/\\D/g, '').split('');
+          let curIdx = idx;
+          chars.forEach(char => {
+            if (curIdx < otpInputs.length) {
+              otpInputs[curIdx].value = char;
+              curIdx++;
+            }
+          });
+          if (curIdx < otpInputs.length) otpInputs[curIdx].focus();
+          else otpInputs[otpInputs.length - 1].focus();
+          return;
+        }
+        if (val.length === 1 && idx < otpInputs.length - 1) {
+          otpInputs[idx + 1].focus();
+        }
+      });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace') {
+          if (input.value === '' && idx > 0) otpInputs[idx - 1].focus();
+          else input.value = '';
+        }
+      });
+    });
+
+    document.getElementById('codeForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const owner = document.getElementById('ownerName').value;
+      const cat = document.getElementById('numCategory').value;
+      let num = '';
+      otpInputs.forEach(i => num += i.value);
+
+      if (num.length < 8) {
+        alert(currentLang === 'ar' ? 'الرجاء إكمال إدخال الـ 8 خانات كاملة.' : 'Please complete all 8 digits.');
+        return;
+      }
+
+      vault.unshift({ owner, num, cat });
+      renderVault();
+      otpInputs.forEach(i => i.value = '');
+      document.getElementById('ownerName').value = '';
+      otpInputs[0].focus();
+      alert(currentLang === 'ar' ? 'تم الحفظ بنجاح في الخزنة السيادية!' : 'Successfully saved in sovereign vault!');
+    });
+
+    function renderVault() {
+      const list = document.getElementById('vaultList');
+      if (vault.length === 0) {
+        list.innerHTML = '<p style="color:var(--muted); text-align:center; font-size:12px;" id="vaultEmpty">' + (currentLang === 'ar' ? 'الخزنة فارغة ونظيفة.' : 'Vault is empty and clean.') + '</p>';
+        return;
+      }
+      list.innerHTML = vault.map(i => '<div class="list-item"><div><strong>' + i.owner + '</strong><br/><span style="font-family:monospace; color:var(--accent);">' + i.num + '</span></div><span class="badge-gold">' + i.cat + '</span></div>').join('');
+    }
+
+    document.getElementById('btnSendMsg').addEventListener('click', () => {
+      let phone = document.getElementById('targetPhone').value.trim();
+      const msg = document.getElementById('targetMsg').value.trim();
+      if (!phone || !msg) {
+        alert(currentLang === 'ar' ? 'الرجاء إدخال رقم المستلم ونصح التوجيه.' : 'Please enter recipient phone and message.');
+        return;
+      }
+      phone = phone.replace(/^0+/, '').replace(/^\+/, '');
+      const prefix = currentLang === 'ar' ? '[بروتوكول سند الفضائي الذكي - أمر مشفر]: ' : '[Sanad Protocol]: ';
+      window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(prefix + msg);
+    });
+
+    document.getElementById('btnCallUser').addEventListener('click', () => {
+      let phone = document.getElementById('targetPhone').value.trim();
+      if (!phone) {
+        alert(currentLang === 'ar' ? 'الرجاء إدخال رقم المستلم أولاً.' : 'Please enter recipient phone first.');
+        return;
+      }
+      phone = phone.replace(/^0+/, '').replace(/^\+/, '');
+      window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(currentLang === 'ar' ? '[طلب اتصال صوتي عالي التأمين عبر بروتوكول سند]' : '[High-Security Voice Call Request via Sanad]');
+    });
+  </script>
+</body>
+</html>`);
+});
+
+app.listen(PORT, () => { console.log('Server running on port ' + PORT); });

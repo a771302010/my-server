@@ -12,25 +12,22 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>برنامج سند - منصة الإدارة والخدمات المجتمعية</title>
+  <title>برنامج سند - نظام الأرقام المميزة والإدارة</title>
   <style>
     :root {
       --primary: #0f766e;
-      --primary-dark: #115e59;
-      --bg: #f0fdf4;
+      --primary-hover: #115e59;
+      --bg: #f8fafc;
       --card: #ffffff;
       --text: #0f172a;
       --muted: #475569;
       --border: #cbd5e1;
-      --badge-bg: #dcfce7;
-      --badge-text: #166534;
+      --gold: #d97706;
+      --silver: #64748b;
     }
-    body.theme-blue {
-      --primary: #1d4ed8;
-      --primary-dark: #1e40af;
-      --bg: #eff6ff;
-      --badge-bg: #dbeafe;
-      --badge-text: #1e40af;
+    body.theme-navy {
+      --primary: #1e3a8a;
+      --primary-hover: #172554;
     }
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
     body {
@@ -38,15 +35,14 @@ app.get('/', (req, res) => {
       padding: 16px;
       background: var(--bg);
       color: var(--text);
-      transition: all 0.3s ease;
     }
     .container {
-      max-width: 650px;
+      max-width: 680px;
       margin: 0 auto;
       background: var(--card);
       border-radius: 20px;
       padding: 24px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
       border: 1px solid var(--border);
     }
     header {
@@ -55,31 +51,43 @@ app.get('/', (req, res) => {
       padding-bottom: 16px;
       margin-bottom: 20px;
     }
-    h1 { margin: 0 0 6px; color: var(--primary); font-size: 28px; }
-    .subtitle { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
-    .theme-buttons { display: flex; justify-content: center; gap: 10px; }
-    .btn-theme {
-      border: none;
-      padding: 10px 18px;
-      border-radius: 10px;
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 24px;
+      font-weight: bold;
+      border-radius: 12px;
+      margin-bottom: 8px;
+    }
+    h1 { margin: 0 0 4px; color: var(--text); font-size: 24px; }
+    .subtitle { margin: 0 0 12px; color: var(--muted); font-size: 13px; }
+    
+    .theme-switch { display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; }
+    .btn-mode {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
       font-weight: bold;
       cursor: pointer;
-      color: #fff;
-      font-size: 14px;
     }
-    .btn-green { background: #0f766e; }
-    .btn-blue { background: #1d4ed8; }
     
     .nav-tabs {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 8px;
       margin-bottom: 20px;
     }
     .tab-btn {
-      background: #f8fafc;
+      background: #f1f5f9;
       border: 1px solid var(--border);
-      padding: 10px 6px;
+      padding: 10px;
       border-radius: 10px;
       font-weight: bold;
       font-size: 13px;
@@ -93,7 +101,7 @@ app.get('/', (req, res) => {
     }
     .section { display: none; }
     .section.active { display: block; }
-    
+
     .card-box {
       background: #f8fafc;
       border: 1px solid var(--border);
@@ -101,9 +109,9 @@ app.get('/', (req, res) => {
       padding: 16px;
       margin-bottom: 14px;
     }
-    .card-box h3 { margin: 0 0 10px; color: var(--primary); font-size: 18px; }
-    label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 14px; }
-    input, select {
+    .card-box h3 { margin: 0 0 10px; color: var(--text); font-size: 16px; border-right: 4px solid var(--primary); padding-right: 8px; }
+    label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 13px; }
+    input {
       width: 100%;
       padding: 12px;
       border-radius: 10px;
@@ -111,6 +119,32 @@ app.get('/', (req, res) => {
       margin-bottom: 12px;
       font-size: 15px;
     }
+
+    /* نظام الخانات المنفصلة (زي الكود) */
+    .otp-container {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      direction: ltr;
+      margin-bottom: 14px;
+    }
+    .otp-input {
+      width: 45px;
+      height: 52px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--text);
+    }
+    .otp-input:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 5px rgba(15,118,110,0.3);
+    }
+
     .btn-submit {
       width: 100%;
       padding: 12px;
@@ -118,12 +152,12 @@ app.get('/', (req, res) => {
       color: #fff;
       border: none;
       border-radius: 10px;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: bold;
       cursor: pointer;
     }
-    .btn-submit:hover { background: var(--primary-dark); }
-    
+    .btn-submit:hover { background: var(--primary-hover); }
+
     .list-item {
       background: #fff;
       border: 1px solid var(--border);
@@ -134,225 +168,156 @@ app.get('/', (req, res) => {
       justify-content: space-between;
       align-items: center;
     }
-    .badge {
-      background: var(--badge-bg);
-      color: var(--badge-text);
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: bold;
-    }
-    .status-bar {
-      background: var(--badge-bg);
-      color: var(--badge-text);
-      text-align: center;
-      padding: 12px;
-      border-radius: 12px;
-      font-weight: bold;
-      margin-top: 16px;
-    }
+    .badge-gold { background: #fef3c7; color: #b45309; border: 1px solid #f59e0b; padding: 3px 8px; border-radius: 15px; font-size: 11px; font-weight: bold; }
+    .badge-silver { background: #f1f5f9; color: #475569; border: 1px solid #94a3b8; padding: 3px 8px; border-radius: 15px; font-size: 11px; font-weight: bold; }
+    .badge-support { background: #dcfce7; color: #166534; border: 1px solid #22c55e; padding: 3px 8px; border-radius: 15px; font-size: 11px; font-weight: bold; }
+    
+    .footer-note { text-align: center; font-size: 12px; color: var(--muted); margin-top: 15px; }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
+      <div class="logo-badge">س</div>
       <h1>برنامج سند</h1>
-      <p class="subtitle">منصة الإدارة والخدمات المجتمعية وتفعيل الأرقام اليمنية</p>
-      <div class="theme-buttons">
-        <button class="btn-theme btn-green" onclick="setTheme('green')">الهوية الخضراء</button>
-        <button class="btn-theme btn-blue" onclick="setTheme('blue')">الهوية الزرقاء</button>
+      <p class="subtitle">نظام إدارة الأرقام المميزة (سلسلة 888) وخدمة العملاء</p>
+      <div class="theme-switch">
+        <button class="btn-mode" onclick="setTheme('green')">الرسمي الأخضر</button>
+        <button class="btn-mode" onclick="setTheme('navy')">الرسمي الكحلي</button>
       </div>
     </header>
 
     <div class="nav-tabs">
-      <button class="tab-btn active" onclick="showTab('login', this)">الدخول</button>
-      <button class="tab-btn" onclick="showTab('numbers', this)">الأرقام</button>
-      <button class="tab-btn" onclick="showTab('groups', this)">المجموعات</button>
-      <button class="tab-btn" onclick="showTab('services', this)">الخدمات</button>
+      <button class="tab-btn active" onclick="showTab('generator', this)">توليد الأرقام</button>
+      <button class="tab-btn" onclick="showTab('vault', this)">خزنة الأرقام</button>
+      <button class="tab-btn" onclick="showTab('support', this)">خدمة العملاء</button>
     </div>
 
-    <!-- قسم تسجيل الدخول -->
-    <div id="login" class="section active">
+    <!-- 1. توليد الأرقام بنظام الخانات المنفصلة -->
+    <div id="generator" class="section active">
       <div class="card-box">
-        <h3>تسجيل الدخول الرسمي للمنصة</h3>
-        <form onsubmit="handleLogin(event)">
-          <label>الاسم الكامل أو اللقب:</label>
-          <input type="text" id="userName" placeholder="مثال: أبو طارق" required />
-          <label>رقم الهاتف الأساسي:</label>
-          <input type="tel" id="userPhone" placeholder="مثال: 777123456" maxlength="9" required />
-          <button type="submit" class="btn-submit">دخول وتفعيل الجلسة</button>
-        </form>
-      </div>
-      <div id="welcomeMsg" class="card-box" style="display:none;">
-        <h3 id="welcomeTitle"></h3>
-        <p id="welcomeDetails" style="margin:0; color:var(--muted);"></p>
-      </div>
-    </div>
+        <h3>إصدار وتخصيص رقم سند (9 خانات متسلسلة)</h3>
+        <form onsubmit="saveSanadNumber(event)">
+          <label>اسم صاحب الرقم أو الجهة:</label>
+          <input type="text" id="ownerName" placeholder="مثال: الإدارة المركزية / أبو طارق" required />
+          
+          <label>الرقم المكون من 9 خانات (مثل البداية بـ 888 أو 800):</label>
+          <div class="otp-container">
+            <input type="text" class="otp-input" maxlength="1" oninput="moveNext(this, 1)" />
+            <input type="text" class="otp-input" maxlength="1" oninput="moveNext(this, 2)" />
+            <input type="text" class="otp-input" maxlength="1" oninput="moveNext(this, 3)" />
+            <input type="text" class="otp-input" maxlength="1" oninput="moveNext(this, 4)" />
+            <input type="text" class="otp-input" maxlength="1" oninput="moveNext(this, 5)" />
+            <input type="text" class="otp-input" maxlength="1" oninput="moveNext(this, 6)" />
+            <input type="text" class="otp-input" maxlength="1" oninput="moveNext(this, 7)" />
+            <input type="text" class="otp-input" maxlength="1" oninput="moveNext(this, 8)" />
+            <input type="text" class="otp-input" maxlength="1" oninput="moveNext(this, 9)" />
+          </div>
 
-    <!-- قسم تفعيل الأرقام والشبكات -->
-    <div id="numbers" class="section">
-      <div class="card-box">
-        <h3>إضافة وتفعيل رقم جديد</h3>
-        <form onsubmit="addNumber(event)">
-          <label>اسم صاحب الرقم:</label>
-          <input type="text" id="numOwner" placeholder="أدخل الاسم" required />
-          <label>رقم الهاتف (9 أرقام):</label>
-          <input type="tel" id="numPhone" placeholder="77 / 78 / 73 / 71 / 70" maxlength="9" oninput="detectNetwork()" required />
-          <label>الشبكة المكتشفة تلقائياً:</label>
-          <input type="text" id="numNetwork" value="في انتظار إدخال الرقم..." readonly style="background:#e2e8f0;" />
-          <label>إسناد إلى مجموعة:</label>
-          <select id="numGroup">
-            <option value="مجموعة العائلة الكريمة">مجموعة العائلة الكريمة</option>
-            <option value="فريق العمل والإدارة">فريق العمل والإدارة</option>
+          <label>تصنيف الرقم:</label>
+          <select id="numCategory" style="width:100%; padding:12px; border-radius:10px; border:1px solid var(--border); margin-bottom:12px; background:#fff;">
+            <option value="ذهبي (VIP الإدارة)">رقم ذهبي (VIP الإدارة)</option>
+            <option value="فضي (رئيسي مخصص)">رقم فضي (رئيسي مخصص)</option>
+            <option value="خدمة العملاء (800)">رقم خدمة العملاء (800)</option>
           </select>
-          <button type="submit" class="btn-submit">حفظ وتفعيل الرقم الآن</button>
+
+          <button type="submit" class="btn-submit">اعتماد وحفظ الرقم في النظام</button>
         </form>
       </div>
+    </div>
 
+    <!-- 2. خزنة الأرقام المعتمدة -->
+    <div id="vault" class="section">
       <div class="card-box">
-        <h3>الأرقام المفعلة في النظام (<span id="numCount">1</span>)</h3>
-        <div id="numbersList"></div>
+        <h3>الأرقام المميزة المسجلة في النظام</h3>
+        <div id="numbersVaultList">
+          <div class="list-item">
+            <div>
+              <strong>الإدارة العامة - أبو طارق</strong><br/>
+              <span style="font-family:monospace; font-weight:bold; letter-spacing:1px;">888100100</span>
+            </div>
+            <span class="badge-gold">ذهبي VIP</span>
+          </div>
+          <div class="list-item">
+            <div>
+              <strong>خط خدمة العملاء المركزي</strong><br/>
+              <span style="font-family:monospace; font-weight:bold; letter-spacing:1px;">800230210</span>
+            </div>
+            <span class="badge-support">خدمة العملاء</span>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- قسم المجموعات -->
-    <div id="groups" class="section">
+    <!-- 3. خدمة العملاء -->
+    <div id="support" class="section">
       <div class="card-box">
-        <h3>إنشاء مجموعة جديدة</h3>
-        <form onsubmit="addGroup(event)">
-          <label>اسم المجموعة:</label>
-          <input type="text" id="groupName" placeholder="مثال: مجموعة الأولاد" required />
-          <label>وصف المجموعة:</label>
-          <input type="text" id="groupDesc" placeholder="وصف مختصر للمجموعة" required />
-          <button type="submit" class="btn-submit">إضافة المجموعة</button>
-        </form>
-      </div>
-      <div class="card-box">
-        <h3>المجموعات النشطة</h3>
-        <div id="groupsList"></div>
+        <h3>الدعم الفني وخدمة العملاء المخفية</h3>
+        <p style="color:var(--muted); font-size:13px; margin:0 0 10px;">الرقم المعتمد لخدمة العملاء (800230210) يعمل في الخلفية لتلقي الاستفسارات وإدارة البلاغات دون ظهوره في قوائم الأعضاء العادية.</p>
+        <button class="btn-submit" onclick="alert('حالة الدعم الفني: نشط وجاهز للربط الفوري!')">اختبار استجابة خدمة العملاء</button>
       </div>
     </div>
 
-    <!-- قسم الخدمات والميزات -->
-    <div id="services" class="section">
-      <div class="card-box">
-        <h3>حالة السيرفر والاتصال</h3>
-        <p style="margin:0; color:var(--muted);">السيرفر متصل بنجاح ومستعد لمعالجة كافة الطلبات والعمليات اللحظية.</p>
-      </div>
-      <div class="card-box">
-        <h3>المهام والخدمات المجتمعية</h3>
-        <p style="margin:0 0 10px; color:var(--muted);">إدارة العمليات، تنسيق اللجان، وتوزيع الإشعارات الفورية للأرقام المسجلة.</p>
-        <button class="btn-submit" onclick="alert('تم إرسال إشعار تجريبي لكافة الأرقام المفعلة في المجموعات بنجاح!')">إرسال تعميم تجريبي للمجموعات</button>
-      </div>
+    <div class="footer-note">
+      منصة سند السحابية الرسمية | نظام الأرقام المؤمنة بدون فواصل
     </div>
-
-    <div class="status-bar">السيرفر يعمل بنجاح تام وصحيح 🚀</div>
   </div>
 
   <script>
-    let numbersData = [
-      { owner: 'أبو طارق', phone: '777000000', network: 'يمن موبايل', group: 'مجموعة العائلة الكريمة' }
-    ];
-    let groupsData = [
-      { name: 'مجموعة العائلة الكريمة', desc: 'التواصل العائلي والمتابعة الخاصة' },
-      { name: 'فريق العمل والإدارة', desc: 'تنسيق المهام والعمليات الميدانية' }
-    ];
-
-    function setTheme(theme) {
-      if (theme === 'blue') {
-        document.body.classList.add('theme-blue');
-      } else {
-        document.body.classList.remove('theme-blue');
-      }
+    function setTheme(mode) {
+      if (mode === 'navy') document.body.classList.add('theme-navy');
+      else document.body.classList.remove('theme-navy');
     }
 
-    function showTab(tabId, btn) {
+    function showTab(id, btn) {
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
+      document.getElementById(id).classList.add('active');
       btn.classList.add('active');
     }
 
-    function detectNetwork() {
-      const val = document.getElementById('numPhone').value;
-      const netField = document.getElementById('numNetwork');
-      if (val.startsWith('77') || val.startsWith('78')) netField.value = 'يمن موبايل (Yemen Mobile)';
-      else if (val.startsWith('73')) netField.value = 'يو (YOU)';
-      else if (val.startsWith('71')) netField.value = 'سبأفون (Sabafon)';
-      else if (val.startsWith('70')) netField.value = 'واي (Y)';
-      else if (val.length >= 2) netField.value = 'شبكة غير معروفة';
-      else netField.value = 'في انتظار إدخال الرقم...';
+    function moveNext(el, index) {
+      if (el.value.length === 1) {
+        const inputs = document.querySelectorAll('.otp-input');
+        if (index < inputs.length) {
+          inputs[index].focus();
+        }
+      }
     }
 
-    function handleLogin(e) {
+    function saveSanadNumber(e) {
       e.preventDefault();
-      const name = document.getElementById('userName').value;
-      const phone = document.getElementById('userPhone').value;
-      document.getElementById('welcomeMsg').style.display = 'block';
-      document.getElementById('welcomeTitle').innerText = 'مرحباً بك يا ' + name + ' في منصة سند';
-      document.getElementById('welcomeDetails').innerText = 'تم تسجيل دخولك بنجاح بالرقم: ' + phone + ' — يمكنك الآن الانتقال لتبويب (الأرقام) أو (المجموعات).';
-    }
-
-    function addNumber(e) {
-      e.preventDefault();
-      const owner = document.getElementById('numOwner').value;
-      const phone = document.getElementById('numPhone').value;
-      const network = document.getElementById('numNetwork').value;
-      const group = document.getElementById('numGroup').value;
+      const owner = document.getElementById('ownerName').value;
+      const category = document.getElementById('numCategory').value;
       
-      numbersData.push({ owner, phone, network, group });
-      renderNumbers();
-      e.target.reset();
-      document.getElementById('numNetwork').value = 'في انتظار إدخال الرقم...';
-      alert('تم تفعيل الرقم بنجاح وإضافته إلى القائمة!');
-    }
+      const inputs = document.querySelectorAll('.otp-input');
+      let fullNumber = '';
+      inputs.forEach(input => fullNumber += input.value);
 
-    function renderNumbers() {
-      const list = document.getElementById('numbersList');
-      document.getElementById('numCount').innerText = numbersData.length;
-      list.innerHTML = numbersData.map(item => \`
-        <div class="list-item">
-          <div>
-            <strong>\${item.owner}</strong> — <span dir="ltr">\${item.phone}</span><br/>
-            <small style="color:var(--muted);">\${item.network} | \${item.group}</small>
-          </div>
-          <span class="badge">مفعل ✓</span>
+      if (fullNumber.length < 9) {
+        alert('الرجاء إكمال إدخال الـ 9 خانات كاملة.');
+        return;
+      }
+
+      const vaultList = document.getElementById('numbersVaultList');
+      const badgeClass = category.includes('ذهبي') ? 'badge-gold' : (category.includes('خدمة') ? 'badge-support' : 'badge-silver');
+
+      const div = document.createElement('div');
+      div.className = 'list-item';
+      div.innerHTML = \`
+        <div>
+          <strong>\${owner}</strong><br/>
+          <span style="font-family:monospace; font-weight:bold; letter-spacing:1px;">\${fullNumber}</span>
         </div>
-      \`).join('');
-    }
+        <span class="\${badgeClass}">\${category}</span>
+      \`;
+      vaultList.prepend(div);
 
-    function addGroup(e) {
-      e.preventDefault();
-      const name = document.getElementById('groupName').value;
-      const desc = document.getElementById('groupDesc').value;
-      groupsData.push({ name, desc });
-      
-      const select = document.getElementById('numGroup');
-      const opt = document.createElement('option');
-      opt.value = name;
-      opt.innerText = name;
-      select.appendChild(opt);
-      
-      renderGroups();
-      e.target.reset();
-      alert('تم إنشاء المجموعة بنجاح!');
+      // تفريغ الحقول
+      inputs.forEach(input => input.value = '');
+      document.getElementById('ownerName').value = '';
+      alert('تم حفظ الرقم المميز بنجاح في خزنة النظام!');
     }
-
-    function renderGroups() {
-      const list = document.getElementById('groupsList');
-      list.innerHTML = groupsData.map(g => \`
-        <div class="list-item">
-          <div>
-            <strong>\${g.name}</strong><br/>
-            <small style="color:var(--muted);">\${g.desc}</small>
-          </div>
-          <span class="badge">نشطة</span>
-        </div>
-      \`).join('');
-    }
-
-    renderNumbers();
-    renderGroups();
   </script>
 </body>
 </html>
@@ -360,5 +325,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log('Sanad Server running on port ' + PORT);
+  console.log('Sanad Vault Server running on port ' + PORT);
 });

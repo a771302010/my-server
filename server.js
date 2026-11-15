@@ -143,3 +143,67 @@ app.get('/', (req, res) => {
       document.getElementById('gatewayHead').innerText = l === 'ar' ? 'بوابة التوجيه الدولي' : 'International Gateway';
       document.getElementById('lblPhone').innerText = l === 'ar' ? 'رقم المستلم (مثال: 9677xxxxxxxx):' : 'Recipient Phone (e.g. 9677xxxxxxxx):';
       document.getElementById('lblMsg').innerText = l === 'ar' ? 'نص التوجيه:' : 'Directive Text:';
+      document.getElementById('btnSend').innerText = l === 'ar' ? 'إرسال عبر البروتوكول الدولي' : 'Send via International Protocol';
+    }
+
+    function showTab(id, btn) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function moveNext(el, idx) {
+      if (el.value.length === 1) {
+        const inputs = document.querySelectorAll('.otp-input');
+        if (idx < inputs.length) inputs[idx].focus();
+      }
+    }
+
+    function saveCode(e) {
+      e.preventDefault();
+      const owner = document.getElementById('ownerName').value;
+      const cat = document.getElementById('numCategory').value;
+      const inputs = document.querySelectorAll('.otp-input');
+      let num = '';
+      inputs.forEach(i => num += i.value);
+
+      if (num.length < 8) {
+        alert(lang === 'ar' ? 'الرجاء إكمال إدخال الـ 8 خانات كاملة.' : 'Please complete all 8 digits.');
+        return;
+      }
+
+      vault.unshift({ owner, num, cat });
+      renderVault();
+      inputs.forEach(i => i.value = '');
+      document.getElementById('ownerName').value = '';
+      alert(lang === 'ar' ? 'تم الحفظ بنجاح في الخزنة!' : 'Successfully saved in vault!');
+      showTab('vault', document.querySelectorAll('.tab-btn')[1]);
+    }
+
+    function renderVault() {
+      const list = document.getElementById('vaultList');
+      if (vault.length === 0) {
+        list.innerHTML = '<p style="color:var(--muted); text-align:center; font-size:13px;">' + (lang === 'ar' ? 'الخزنة فارغة ونظيفة.' : 'Vault is empty and clean.') + '</p>';
+        return;
+      }
+      list.innerHTML = vault.map(i => '<div class="list-item"><div><strong>' + i.owner + '</strong><br/><span style="font-family:monospace; color:var(--accent);">' + i.num + '</span></div><span class="badge-gold">' + i.cat + '</span></div>').join('');
+    }
+
+    function sendWhatsApp() {
+      let phone = document.getElementById('targetPhone').value.trim();
+      const msg = document.getElementById('targetMsg').value.trim();
+      if (!phone || !msg) {
+        alert(lang === 'ar' ? 'الرجاء إدخال الرقم ونص الرسالة.' : 'Please enter phone and message.');
+        return;
+      }
+      phone = phone.replace(/^0+/, '').replace(/^\+/, '');
+      const prefix = lang === 'ar' ? '[بروتوكول سند الدولي]: ' : '[Sanad Protocol]: ';
+      window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(prefix + msg), '_blank');
+    }
+  </script>
+</body>
+</html>`);
+});
+
+app.listen(PORT, () => { console.log('Server running on port ' + PORT); });

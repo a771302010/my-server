@@ -61,7 +61,7 @@ app.get('/', (req, res) => {
 <body>
   <div class="container">
     <div class="telemetry-bar">
-      <span>AI-SAT LINK: <strong style="color:var(--gold);">SECURED // ORBITAL v5.6</strong></span>
+      <span>AI-SAT LINK: <strong style="color:var(--gold);">SECURED // ORBITAL v5.7</strong></span>
       <div style="display:flex; align-items:center; gap:6px;">
         <span>ONLINE</span>
         <div class="telemetry-dot"></div>
@@ -145,7 +145,7 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    <div class="footer-note">SANAD GLOBAL QUANTUM PROTOCOL v5.6</div>
+    <div class="footer-note">SANAD GLOBAL QUANTUM PROTOCOL v5.7</div>
   </div>
 
   <script>
@@ -244,19 +244,20 @@ app.get('/', (req, res) => {
         list.innerHTML = '<p style="color:var(--muted); text-align:center; font-size:13px;">' + (currentLang === 'ar' ? 'الخزنة فارغة ونظيفة.' : 'Vault is empty and clean.') + '</p>';
         return;
       }
-      list.innerHTML = vault.map(i => '<div class="list-item"><div><strong>' + i.owner + '</strong><br/><span style="font-family:monospace; color:var(--accent);">' + i.num + '</span></div><span class="badge-gold">' + i.cat + '</span></div>').join('');
+      list.innerHTML = vault.map(i => '<div class="list-item"><div><strong>' + i.owner + '</strong><br/><span style="font-family:monospace; color:var(--accent);`">' + i.num + '</span></div><span class="badge-gold">' + i.cat + '</span></div>').join('');
     }
 
+    // التحويل المباشر لتجاوز حظر المتصفحات على الجوال
     document.getElementById('btnSendMsg').addEventListener('click', () => {
       let phone = document.getElementById('targetPhone').value.trim();
       const msg = document.getElementById('targetMsg').value.trim();
       if (!phone || !msg) {
-        alert(currentLang === 'ar' ? 'الرجاء إدخال رقم المستلم ونصح التوجيه المشفر.' : 'Please enter recipient phone and message.');
+        alert(currentLang === 'ar' ? 'الرجاء إدخال رقم المستلم ونص التوجيه المشفر.' : 'Please enter recipient phone and message.');
         return;
       }
       phone = phone.replace(/^0+/, '').replace(/^\+/, '');
       const prefix = currentLang === 'ar' ? '[بروتوكول سند الفضائي الذكي - أمر مشفر]: ' : '[Sanad Quantum Protocol]: ';
-      window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(prefix + msg), '_blank');
+      window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(prefix + msg);
     });
 
     document.getElementById('btnCallUser').addEventListener('click', () => {
@@ -266,7 +267,7 @@ app.get('/', (req, res) => {
         return;
       }
       phone = phone.replace(/^0+/, '').replace(/^\+/, '');
-      window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(currentLang === 'ar' ? '[طلب اتصال صوتي عالي التأمين عبر بروتوكول سند]' : '[High-Security Voice Call Request via Sanad]'), '_blank');
+      window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(currentLang === 'ar' ? '[طلب اتصال صوتي عالي التأمين عبر بروتوكول سند]' : '[High-Security Voice Call Request via Sanad]');
     });
   </script>
 </body>

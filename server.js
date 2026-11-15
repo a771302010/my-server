@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>برنامج سند - المنصة السيادية العالمية (v8.2 SUPREME)</title>
+  <title>برنامج سند - المنصة السيادية العالمية (v8.3 SUPREME)</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -97,7 +97,6 @@ app.get('/', (req, res) => {
     
     .ai-chat-box { background: #020617; border: 1px solid var(--quantum); border-radius: 8px; padding: 12px; min-height: 140px; max-height: 220px; overflow-y: auto; margin-bottom: 10px; font-size: 12px; color: var(--accent); }
     
-    /* Internal Chat Styles */
     .chat-container { background: #020617; border: 1px solid var(--border); border-radius: 8px; padding: 10px; height: 240px; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
     .chat-bubble { padding: 8px 12px; border-radius: 8px; font-size: 12px; max-width: 80%; line-height: 1.4; }
     .chat-bubble.outgoing { background: var(--primary); color: #fff; align-self: flex-end; border-bottom-left-radius: 0; }
@@ -107,7 +106,7 @@ app.get('/', (req, res) => {
 <body>
   <div class="container">
     <div class="telemetry-bar">
-      <span>AI-SAT LINK: <strong>SECURED // v8.2 SUPREME</strong></span>
+      <span>AI-SAT LINK: <strong>SECURED // v8.3 SUPREME</strong></span>
       <div style="display:flex; align-items:center; gap:6px;">
         <span id="txtOnline">SOVEREIGN ACTIVE</span>
         <div class="telemetry-dot"></div>
@@ -157,7 +156,7 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    <!-- 2. شاشة الدردشات السيادية الداخلية (Active Chat) -->
+    <!-- 2. شاشة الدردشات السيادية الداخلية -->
     <div id="screenChats" class="screen">
       <div class="header-compact">
         <div class="header-title">
@@ -180,7 +179,7 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    <!-- 3. شاشة مساعد سند الذكي (AI Assistant) -->
+    <!-- 3. شاشة مساعد سند الذكي -->
     <div id="screenAi" class="screen">
       <div class="header-compact">
         <div class="header-title">
@@ -199,7 +198,7 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    <!-- 4. شاشة المكالمات العصبية (Secure Calls) -->
+    <!-- 4. شاشة المكالمات العصبية -->
     <div id="screenCalls" class="screen">
       <div class="header-compact">
         <div class="header-title">
@@ -224,12 +223,12 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    <!-- 5. شاشة الإعدادات السيادية (Settings) -->
+    <!-- 5. شاشة الإعدادات السيادية -->
     <div id="screenSettings" class="screen">
       <div class="profile-card">
         <div class="profile-avatar">سند</div>
         <h3 style="margin:0 0 4px;">برنامج سند السيادي</h3>
-        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة الذكية عابرة الحدود // v8.2 SUPREME</p>
+        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة السيادية عابرة الحدود // v8.3 SUPREME</p>
       </div>
       <div class="card-box">
         <h3>إعدادات الأمان والنظام السيادي</h3>
@@ -262,235 +261,4 @@ app.get('/', (req, res) => {
       <span>مساعد سند</span>
     </button>
     <button class="nav-item" type="button" onclick="switchScreen('calls', this)">
-      <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-      <span>المكالمات</span>
-    </button>
-    <button class="nav-item" type="button" onclick="switchScreen('settings', this)">
-      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c-.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-      <span>الإعدادات</span>
-    </button>
-  </nav>
-
-  <script>
-    // قاعدة البيانات المحلية والذاكرة العصبية للدردشات والمكالمات
-    let vault = [
-      { owner: 'أم طارق', phone: '967770000001', num: '88800001', cat: 'بروتوكول الأسرة والقيادة (VIP)' },
-      { owner: 'رهف', phone: '967770000002', num: '88800002', cat: 'بروتوكول الأسرة والقيادة (VIP)' },
-      { owner: 'رابعة', phone: '967770000003', num: '88800003', cat: 'بروتوكول الأسرة والقيادة (VIP)' },
-      { owner: 'رشا', phone: '967770000004', num: '88800004', cat: 'بروتوكول الأسرة والقيادة (VIP)' },
-      { owner: 'آمنة', phone: '967770000005', num: '88800005', cat: 'بروتوكول الأسرة والقيادة (VIP)' }
-    ];
-    
-    // مخزن الرسائل الداخلية لكل جهة اتصال
-    let internalMessages = {
-      '967770000001': [{sender: 'incoming', text: 'أهلاً بك يا أبو طارق. تم تأمين قناة الاتصال السيادية بنجاح.'}]
-    };
-    let activeChatPhone = '967770000001';
-    let deferredPrompt;
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      const installBtn = document.getElementById('installBtn');
-      if(installBtn) installBtn.style.display = 'block';
-    });
-
-    document.getElementById('installBtn').addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          document.getElementById('installBtn').style.display = 'none';
-        }
-        deferredPrompt = null;
-      }
-    });
-
-    window.onload = function() {
-      renderVault();
-      updateContactSelects();
-      loadChatMessages();
-    };
-
-    function switchScreen(screenId, btn) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-      
-      document.getElementById('screen' + screenId.charAt(0).toUpperCase() + screenId.slice(1)).classList.add('active');
-      btn.classList.add('active');
-    }
-
-    // تسجيل الأكواد مع منع التكرار
-    document.getElementById('codeForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const owner = document.getElementById('ownerName').value.trim();
-      const phone = document.getElementById('contactPhone').value.trim();
-      const cat = document.getElementById('numCategory').value;
-      const num = document.getElementById('sovereignCodeInput').value.trim();
-
-      if (num.length !== 8 || isNaN(num)) {
-        alert('خطأ سيادي: يجب أن يتكون الكود من 8 أرقام دقيقة تماماً.');
-        return;
-      }
-
-      const existing = vault.find(i => i.num === num);
-      if (existing) {
-        alert('خطأ سيادي: هذا الكود (' + num + ') مسجل مسبقاً لـ (' + existing.owner + '). لا يمكن تكرار الأكواد!');
-        return;
-      }
-
-      const record = { owner, phone, num, cat };
-      vault.unshift(record);
-      
-      renderVault();
-      updateContactSelects();
-      document.getElementById('sovereignCodeInput').value = '';
-      document.getElementById('ownerName').value = '';
-      document.getElementById('contactPhone').value = '';
-      alert('تم حفظ البصمة السيادية الفريدة بنجاح في الدليل!');
-    });
-
-    function renderVault(filter = '') {
-      const list = document.getElementById('vaultList');
-      const filtered = vault.filter(i => i.owner.toLowerCase().includes(filter.toLowerCase()) || i.num.includes(filter) || (i.phone && i.phone.includes(filter)));
-      
-      if (filtered.length === 0) {
-        list.innerHTML = '<p style="color:var(--muted); text-align:center; font-size:12px;" id="vaultEmpty">لا توجد نتائج مطابقة في الدليل.</p>';
-        return;
-      }
-      
-      list.innerHTML = filtered.map(i => `
-        <div class="list-item">
-          <div>
-            <strong>${i.owner}</strong> <span class="badge-gold">${i.cat}</span><br/>
-            <span style="font-family:monospace; color:var(--accent);">البصمة / الكود: ${i.num}</span> | 
-            <span style="font-family:monospace; color:var(--emerald);">الرقم: ${i.phone || 'غير مسجل'}</span>
-          </div>
-          <div>
-            <button class="btn-submit btn-action" onclick="openChatFor('${i.phone}', '${i.owner}')">مراسلة</button>
-            <button class="btn-submit btn-action" style="background:#312e81; border-color:var(--quantum);" onclick="openCallFor('${i.phone}', '${i.owner}')">اتصال</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function filterVault() {
-      const query = document.getElementById('vaultSearch').value;
-      renderVault(query);
-    }
-
-    function updateContactSelects() {
-      const chatSel = document.getElementById('chatContactSelect');
-      const callSel = document.getElementById('callContactSelect');
-      
-      let options = '<option value="">-- اختر من أسماء الدليل --</option>';
-      vault.forEach(i => {
-        options += `<option value="${i.phone}">${i.owner} (${i.phone}) - كود: ${i.num}</option>`;
-      });
-      
-      if(chatSel) chatSel.innerHTML = options;
-      if(callSel) callSel.innerHTML = options;
-    }
-
-    // تفعيل وظائف الدردشة الداخلية
-    function changeActiveChat() {
-      const chatSel = document.getElementById('chatContactSelect');
-      if(chatSel && chatSel.value) {
-        activeChatPhone = chatSel.value;
-        if(!internalMessages[activeChatPhone]) {
-          internalMessages[activeChatPhone] = [{sender: 'incoming', text: 'تم إنشاء قناة اتصال مشفرة جديدة.'}];
-        }
-        loadChatMessages();
-      }
-    }
-
-    function loadChatMessages() {
-      const chatBox = document.getElementById('internalChatBox');
-      const msgs = internalMessages[activeChatPhone] || [];
-      chatBox.innerHTML = msgs.map(m => `<div class="chat-bubble ${m.sender}"><strong>${m.sender === 'outgoing' ? '[أبو طارق]:' : '[النظام/الطرف الآخر]:'}</strong> ${m.text}</div>`).join('');
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    function sendInternalMessage() {
-      const input = document.getElementById('chatInputMsg');
-      const text = input.value.trim();
-      if(!text) return;
-
-      if(!internalMessages[activeChatPhone]) {
-        internalMessages[activeChatPhone] = [];
-      }
-
-      internalMessages[activeChatPhone].push({sender: 'outgoing', text: text});
-      input.value = '';
-      loadChatMessages();
-
-      // محاكاة رد ذكي أو استجابة الطرف الآخر بعد ثانية
-      setTimeout(() => {
-        internalMessages[activeChatPhone].push({sender: 'incoming', text: 'تم استلام الأمر المشفر وتأكيده بنجاح عبر بروتوكول سند السيادي.'});
-        loadChatMessages();
-      }, 1000);
-    }
-
-    function openChatFor(phone, name) {
-      switchScreen('chats', document.querySelectorAll('.nav-item')[1]);
-      const chatSel = document.getElementById('chatContactSelect');
-      if(chatSel) {
-        chatSel.value = phone;
-        changeActiveChat();
-      }
-    }
-
-    // تفعيل وظائف المكالمات السيادية
-    function openCallFor(phone, name) {
-      switchScreen('calls', document.querySelectorAll('.nav-item')[3]);
-      const callSel = document.getElementById('callContactSelect');
-      if(callSel) callSel.value = phone;
-    }
-
-    function startSecureCall() {
-      const callSel = document.getElementById('callContactSelect');
-      const phone = callSel ? callSel.value : '';
-      if(!phone) {
-        alert('الرجاء اختيار جهة اتصال لإطلاق المكالمة.');
-        return;
-      }
-      const contact = vault.find(i => i.phone === phone);
-      const name = contact ? contact.owner : phone;
-
-      document.getElementById('activeCallTarget').innerText = name + ' (' + phone + ')';
-      document.getElementById('callStateText').innerText = 'الحالة: جاري المصافحة المشفرة والاتصال العصبي (1X Active)...';
-      
-      setTimeout(() => {
-        document.getElementById('callStateText').innerText = 'الحالة: 🔴 المكالمة جارية الآن عبر القناة الفضائية الآمنة';
-      }, 1500);
-    }
-
-    function endSecureCall() {
-      document.getElementById('activeCallTarget').innerText = '-- لم يتم اتصال --';
-      document.getElementById('callStateText').innerText = 'الحالة: تم قطع وانهاء المكالمة بنجاح وتأمين السجل';
-    }
-
-    // مساعد سند الذكي
-    function sendAiPrompt() {
-      const input = document.getElementById('aiInputPrompt');
-      const log = document.getElementById('aiChatLog');
-      const val = input.value.trim();
-      if(!val) return;
-
-      log.innerHTML += '<div style="margin-top:8px;"><strong>[أبو طارق]:</strong> ' + val + '</div>';
-      
-      setTimeout(() => {
-        let reply = "مساعد سند SUPREME: كافة الأنظمة تعمل بكفاءة مطلقة. الدردشات الداخلية والمكالمات مؤمنة بالكامل.";
-        log.innerHTML += '<div style="margin-top:8px; color:var(--emerald);"><strong>[مساعد سند AI]:</strong> ' + reply + '</div>';
-        log.scrollTop = log.scrollHeight;
-      }, 600);
-
-      input.value = '';
-      log.scrollTop = log.scrollHeight;
-    }
-  </script>
-</body>
-</html>`);
-});
-
-app.listen(PORT, () => { console.log('Server running on port ' + PORT); });
+      <svg viewBox="0 0 24 24"><path d="M6.62 10.

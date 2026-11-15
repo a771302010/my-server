@@ -22,7 +22,7 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>برنامج سند - النظام العصبي السيادي (v9.3.1 CONTROL CENTER)</title>
+  <title>برنامج سند - النظام العصبي السيادي (v9.4 ULTIMATE)</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -102,9 +102,9 @@ app.get('/', (req, res) => {
 <body>
   <div class="container">
     <div class="telemetry-bar">
-      <span>AI-SAT OMEGA: <strong>SECURED // v9.3.1</strong></span>
+      <span>AI-SAT OMEGA: <strong>SECURED // v9.4 ULTIMATE</strong></span>
       <div style="display:flex; align-items:center; gap:8px;">
-        <span style="color:var(--emerald);">نشط وسريع</span>
+        <span style="color:var(--emerald);">نشط وسيادي</span>
         <div class="telemetry-dot"></div>
       </div>
     </div>
@@ -228,12 +228,12 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    <!-- 5. شاشة الإعدادات وغرفة التحكم السيادية -->
+    <!-- 5. شاشة الإعدادات وغرفة التحكم السيادية (Control Center v9.4) -->
     <div id="screenSettings" class="screen">
       <div class="profile-card">
         <div class="profile-avatar">Ω</div>
         <h3 style="margin:0 0 4px;">سند CONTROL CENTER</h3>
-        <p style="color:var(--muted); font-size:12px; margin:0;">غرفة التحكم والسيادة // v9.3.1</p>
+        <p style="color:var(--muted); font-size:12px; margin:0;">غرفة التحكم والسيادة الشاملة // v9.4</p>
       </div>
 
       <div class="card-box">
@@ -307,7 +307,7 @@ app.get('/', (req, res) => {
       { owner: 'أم طارق', phone: '967770000002', num: '88800002', cat: 'قناة عائلية خاصة' }
     ];
     let internalMessages = {
-      '967770000001': [{sender: 'incoming', text: 'مرحباً بك يا أبو طارق. النظام يعمل بكفاءة.', type: 'text'}]
+      '967770000001': [{sender: 'incoming', text: 'مرحباً بك يا أبو طارق. النظام يعمل بكفاءة تامة.', type: 'text'}]
     };
     let activeChatPhone = '967770000001';
     let deferredPrompt;

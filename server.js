@@ -5,13 +5,36 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ملف التثبيت السيادي لتشغيل التطبيق كـ PWA مع أيقونة مستقلة
+app.get('/manifest.json', (req, res) => {
+  res.json({
+    "name": "برنامج سند السيادي",
+    "short_name": "سند",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#030712",
+    "theme_color": "#1e3a8a",
+    "icons": [
+      {
+        "src": "https://img.icons8.com/clouds/512/security-checked.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  });
+});
+
 app.get('/', (req, res) => {
   res.send(`<!DOCTYPE html>
 <html lang="ar" dir="rtl" id="htmlRoot">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>برنامج سند - المنصة السيادية الذكية</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#1e3a8a">
   <style>
     :root {
       --primary: #1e3a8a;
@@ -25,7 +48,7 @@ app.get('/', (req, res) => {
       --gold: #f59e0b;
       --quantum: #8b5cf6;
     }
-    body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: sans-serif; padding-bottom: 75px; }
+    body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: sans-serif; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
     .container { max-width: 720px; margin: 0 auto; padding: 16px; }
     
     .telemetry-bar { background: #020617; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-family: monospace; font-size: 11px; display: flex; justify-content: space-between; align-items: center; color: var(--accent); }
@@ -54,6 +77,7 @@ app.get('/', (req, res) => {
     .btn-submit { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: 1px solid var(--accent); border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
     .btn-submit:hover { background: var(--primary-hover); }
     .btn-call { background: #312e81; border-color: var(--quantum); margin-top: 8px; }
+    .btn-install { background: linear-gradient(135deg, var(--gold), #d97706); color: #000; border: none; margin-bottom: 12px; display: none; }
 
     /* Bottom Navigation Bar */
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #020617; border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(5, 1fr); padding: 8px 4px; z-index: 1000; box-shadow: 0 -10px 25px rgba(0,0,0,0.9); }
@@ -72,31 +96,33 @@ app.get('/', (req, res) => {
 <body>
   <div class="container">
     <div class="telemetry-bar">
-      <span>AI-SAT LINK: <strong>SECURED // v7.1</strong></span>
+      <span>AI-SAT LINK: <strong>SECURED // v7.2 PWA</strong></span>
       <div style="display:flex; align-items:center; gap:6px;">
-        <span id="txtOnline">ONLINE (1X RESILIENT)</span>
+        <span id="txtOnline">1X NEURAL ACTIVE</span>
         <div class="telemetry-dot"></div>
       </div>
     </div>
+
+    <button type="button" class="btn-submit btn-install" id="installBtn">⬇ تثبيت تطبيق سند على الشاشة الرئيسية (App)</button>
 
     <!-- 1. شاشة الدردشات -->
     <div id="screenChats" class="screen active">
       <div class="header-compact">
         <div class="header-title">
           <h2 id="chatsTitle">الدردشات السيادية</h2>
-          <p>قنوات الاتصال الآمنة المدعومة بالذكاء الاصطناعي</p>
+          <p>قنوات الاتصال الآمنة المدعومة بالذكاء الاصطناعي والأقمار الاصطناعية</p>
         </div>
       </div>
       <div class="card-box">
-        <h3 id="gatewayHead">بوابة التوجيه والاتصال الفضائي</h3>
+        <h3 id="gatewayHead">بوابة التوجيه والاتصال الفضائي المشفر</h3>
         <label id="lblPhone">رقم المستلم (مثال: 96777xxxxxxx):</label>
         <input type="tel" id="targetPhone" placeholder="96777xxxxxxx" style="direction:ltr; text-align:right;" />
         
-        <label id="lblMsg">نص التوجيه / الأمر المشفر:</label>
+        <label id="lblMsg">نص التوجيه / الأمر المشفر (معزز بالذكاء الاصطناعي):</label>
         <input type="text" id="targetMsg" placeholder="اكتب نص الأمر التشغيلي..." />
         
         <button type="button" class="btn-submit" id="btnSendMsg">إرسال عبر القناة الآمنة</button>
-        <button type="button" class="btn-submit btn-call" id="btnCallUser">إطلاق اتصال صوتي فضائي مشفر</button>
+        <button type="button" class="btn-submit btn-call" id="btnCallUser">إطلاق اتصال صوتي عصبي مشفر (1X Optimized)</button>
       </div>
     </div>
 
@@ -104,13 +130,13 @@ app.get('/', (req, res) => {
     <div id="screenCalls" class="screen">
       <div class="header-compact">
         <div class="header-title">
-          <h2>سجل المكالمات الفضائية</h2>
-          <p>الاتصالات المشفرة عبر الأقمار الاصطناعية</p>
+          <h2>سجل المكالمات العصبية</h2>
+          <p>الاتصالات المشفرة عبر خوارزميات ضغط الصوت الفضائي</p>
         </div>
       </div>
       <div class="card-box">
         <div class="list-item">
-          <div><strong>غرفة العمليات المركزية</strong><br/><span style="font-size:11px; color:var(--muted);">اتصال صوتي عالي النقاء (1X Optimized)</span></div>
+          <div><strong>غرفة العمليات المركزية</strong><br/><span style="font-size:11px; color:var(--muted);">اتصال صوتي عصبي (AI Neural Codec Active)</span></div>
           <span class="badge-gold">مؤمن</span>
         </div>
       </div>
@@ -182,7 +208,7 @@ app.get('/', (req, res) => {
       <div class="profile-card">
         <div class="profile-avatar">سند</div>
         <h3 style="margin:0 0 4px;">برنامج سند السيادي</h3>
-        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة الذكية عابرة الحدود // v7.1</p>
+        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة الذكية عابرة الحدود // v7.2 AI-SAT</p>
       </div>
       <div class="card-box">
         <h3>لغة النظام / Language</h3>
@@ -222,6 +248,26 @@ app.get('/', (req, res) => {
   <script>
     let vault = [];
     let currentLang = 'ar';
+    let deferredPrompt;
+
+    // تفعيل التثبيت السيادي كأيقونة على الشاشة الرئيسية
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const installBtn = document.getElementById('installBtn');
+      if(installBtn) installBtn.style.display = 'block';
+    });
+
+    document.getElementById('installBtn').addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          document.getElementById('installBtn').style.display = 'none';
+        }
+        deferredPrompt = null;
+      }
+    });
 
     function switchScreen(screenId, btn) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -242,11 +288,11 @@ app.get('/', (req, res) => {
       document.getElementById('navContacts').innerText = isAr ? 'جهات الاتصال' : 'Contacts';
       document.getElementById('navSettings').innerText = isAr ? 'الإعدادات' : 'Settings';
       
-      document.getElementById('gatewayHead').innerText = isAr ? 'بوابة التوجيه والاتصال الفضائي' : 'Satellite Gateway';
+      document.getElementById('gatewayHead').innerText = isAr ? 'بوابة التوجيه والاتصال الفضائي المشفر' : 'Satellite Gateway';
       document.getElementById('lblPhone').innerText = isAr ? 'رقم المستلم (مثال: 96777xxxxxxx):' : 'Recipient Phone:';
-      document.getElementById('lblMsg').innerText = isAr ? 'نص التوجيه / الأمر المشفر:' : 'Encrypted Directive:';
+      document.getElementById('lblMsg').innerText = isAr ? 'نص التوجيه / الأمر المشفر (معزز بالذكاء الاصطناعي):' : 'AI Directive:';
       document.getElementById('btnSendMsg').innerText = isAr ? 'إرسال عبر القناة الآمنة' : 'Send via Secure Channel';
-      document.getElementById('btnCallUser').innerText = isAr ? 'إطلاق اتصال صوتي مشفر' : 'Launch Encrypted Call';
+      document.getElementById('btnCallUser').innerText = isAr ? 'إطلاق اتصال صوتي عصبي مشفر (1X Optimized)' : 'Launch AI Neural Call';
       
       document.getElementById('genHead').innerText = isAr ? 'توليد وتأمين كود سيادي (8 خانات)' : 'Generate Sovereign Code';
       document.getElementById('lblOwner').innerText = isAr ? 'اسم الجهة أو المعرف:' : 'Entity Name / ID:';
@@ -325,7 +371,7 @@ app.get('/', (req, res) => {
         return;
       }
       phone = phone.replace(/^0+/, '').replace(/^\+/, '');
-      const prefix = currentLang === 'ar' ? '[بروتوكول سند الفضائي الذكي - أمر مشفر]: ' : '[Sanad Protocol]: ';
+      const prefix = currentLang === 'ar' ? '[بروتوكول سند الذكي بالذكاء الاصطناعي - أمر مشفر]: ' : '[Sanad AI Protocol]: ';
       window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(prefix + msg);
     });
 
@@ -336,7 +382,7 @@ app.get('/', (req, res) => {
         return;
       }
       phone = phone.replace(/^0+/, '').replace(/^\+/, '');
-      window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(currentLang === 'ar' ? '[طلب اتصال صوتي عالي التأمين عبر بروتوكول سند]' : '[High-Security Voice Call Request via Sanad]');
+      window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(currentLang === 'ar' ? '[طلب اتصال صوتي عصبي مشفر بالذكاء الاصطناعي - سند 1X]' : '[AI Neural Voice Call Request via Sanad]');
     });
   </script>
 </body>

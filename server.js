@@ -290,18 +290,18 @@ app.get('/', (req, res) => {
     let activeChatPhone = '967770000001';
     let deferredPrompt;
 
-    window.addEventListener('beforeinstallprompt', (e) => {
+    window.addEventListener('beforeinstallprompt', function(e) {
       e.preventDefault();
       deferredPrompt = e;
       const installBtn = document.getElementById('installBtn');
       if(installBtn) installBtn.style.display = 'block';
     });
 
-    document.getElementById('installBtn').addEventListener('click', async () => {
+    document.getElementById('installBtn').addEventListener('click', async function() {
       if (deferredPrompt) {
         deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
+        const choiceResult = await deferredPrompt.userChoice;
+        if (choiceResult.outcome === 'accepted') {
           document.getElementById('installBtn').style.display = 'none';
         }
         deferredPrompt = null;
@@ -371,8 +371,8 @@ app.get('/', (req, res) => {
                 '<span style="font-family:monospace; color:var(--accent);">البصمة / الكود: ' + item.num + '</span> | ' +
                 '<span style="font-family:monospace; color:var(--emerald);">الرقم: ' + (item.phone || 'غير مسجل') + '</span>' +
                 '</div><div>' +
-                '<button class="btn-submit btn-action" onclick="openChatFor(\\\'' + item.phone + '\\\', \\\'' + item.owner + '\\\')">مراسلة</button>' +
-                '<button class="btn-submit btn-action" style="background:#312e81; border-color:var(--quantum);" onclick="openCallFor(\\\'' + item.phone + '\\\', \\\'' + item.owner + '\\\')">اتصال</button>' +
+                '<button class="btn-submit btn-action" onclick="openChatFor(\\'' + item.phone + '\\', \\'' + item.owner + '\\')">مراسلة</button>' +
+                '<button class="btn-submit btn-action" style="background:#312e81; border-color:var(--quantum);" onclick="openCallFor(\\'' + item.phone + '\\', \\'' + item.owner + '\\')">اتصال</button>' +
                 '</div></div>';
       }
       list.innerHTML = html;
@@ -403,4 +403,112 @@ app.get('/', (req, res) => {
         activeChatPhone = chatSel.value;
         if(!internalMessages[activeChatPhone]) {
           internalMessages[activeChatPhone] = [{sender: 'incoming', text: 'تم تفعيل بروتوكول الدردشة العصبية المشفرة.'}];
-        
+        }
+        loadChatMessages();
+      }
+    }
+
+    function loadChatMessages() {
+      const chatBox = document.getElementById('internalChatBox');
+      const msgs = internalMessages[activeChatPhone] || [];
+      let html = '';
+      for (let i = 0; i < msgs.length; i++) {
+        let m = msgs[i];
+        let senderTitle = (m.sender === 'outgoing') ? '[أبو طارق]:' : '[النظام العصبي OMEGA]:';
+        html += '<div class="chat-bubble ' + m.sender + '"><strong>' + senderTitle + '</strong> ' + m.text + '<div class="self-destruct-timer">تدمير ذاتي بعد القراءة // مشفر</div></div>';
+      }
+      chatBox.innerHTML = html;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function sendInternalMessage() {
+      const input = document.getElementById('chatInputMsg');
+      const text = input.value.trim();
+      if(!text) return;
+
+      if(!internalMessages[activeChatPhone]) {
+        internalMessages[activeChatPhone] = [];
+      }
+
+      internalMessages[activeChatPhone].push({sender: 'outgoing', text: '[محفوظ مشفر 90%]: ' + text});
+      input.value = '';
+      loadChatMessages();
+
+      setTimeout(function() {
+        internalMessages[activeChatPhone].push({sender: 'incoming', text: 'تم استلام الأمر بمعالجة عصبية وتأكيده عبر الأقمار.'});
+        loadChatMessages();
+      }, 1000);
+    }
+
+    function openChatFor(phone, name) {
+      switchScreen('chats', document.querySelectorAll('.nav-item')[1]);
+      const chatSel = document.getElementById('chatContactSelect');
+      if(chatSel) {
+        chatSel.value = phone;
+        changeActiveChat();
+      }
+    }
+
+    function openCallFor(phone, name) {
+      switchScreen('calls', document.querySelectorAll('.nav-item')[3]);
+      const callSel = document.getElementById('callContactSelect');
+      if(callSel) callSel.value = phone;
+    }
+
+    function startSecureCall() {
+      const callSel = document.getElementById('callContactSelect');
+      const phone = callSel ? callSel.value : '';
+      if(!phone) {
+        alert('الرجاء اختيار جهة اتصال لإطلاق الاتصال الفضائي.');
+        return;
+      }
+      const contact = vault.find(function(i) { return i.phone === phone; });
+      const name = contact ? contact.owner : phone;
+
+      document.getElementById('activeCallTarget').innerText = name + ' (' + phone + ')';
+      document.getElementById('callStateText').innerText = 'الحالة: جاري المصافحة الكمومية وإلغاء الضوضاء العصبية (1X)...';
+      
+      setTimeout(function() {
+        document.getElementById('callStateText').innerText = 'الحالة: 🔴 المكالمة الفضائية مؤمنة ونقية بنسبة 100%';
+      }, 1500);
+    }
+
+    function endSecureCall() {
+      document.getElementById('activeCallTarget').innerText = '-- لا يوجد اتصال نشط --';
+      document.getElementById('callStateText').innerText = 'الحالة: تم إنهاء الاتصال ومسح السجل المؤقت بنجاح';
+    }
+
+    function sendAiPrompt() {
+      const input = document.getElementById('aiInputPrompt');
+      const log = document.getElementById('aiChatLog');
+      const val = input.value.trim();
+      if(!val) return;
+
+      log.innerHTML += '<div style="margin-top:8px;"><strong>[أبو طارق]:</strong> ' + val + '</div>';
+      
+      setTimeout(function() {
+        let reply = "OMEGA AI: تحليل الاستشعار الاستراتيجي مكتمل. الإشارات الفضائية مستقرة ولا توجد أي مخاطر تتبع في القطاع.";
+        log.innerHTML += '<div style="margin-top:8px; color:var(--emerald);"><strong>[OMEGA AI]:</strong> ' + reply + '</div>';
+        log.scrollTop = log.scrollHeight;
+      }, 600);
+
+      input.value = '';
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function executeKillSwitch() {
+      if(confirm('تحذير سيادي أقصى: هل أنت متأكد من تفعيل مفتاح الطوارئ لمسح الذاكرة الفورية وتأمين القطاع؟')) {
+        vault = [];
+        internalMessages = {};
+        renderVault();
+        updateContactSelects();
+        alert('⚡ تم تفعيل مفتاح الطوارئ بنجاح! تم مسح كافة الذاكرة المؤقتة وحماية النظام.');
+        switchScreen('codes', document.querySelectorAll('.nav-item')[0]);
+      }
+    }
+  </script>
+</body>
+</html>`);
+});
+
+app.listen(PORT, function() { console.log('Server running on port ' + PORT); });

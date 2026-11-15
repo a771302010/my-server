@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>برنامج سند - المنصة السيادية العالمية (v7.9 DIRECTORY)</title>
+  <title>برنامج سند - المنصة السيادية العالمية (v8.0 PRIME)</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -48,6 +48,7 @@ app.get('/', (req, res) => {
       --gold: #f59e0b;
       --quantum: #8b5cf6;
       --emerald: #10b981;
+      --danger: #ef4444;
     }
     body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: sans-serif; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
     .container { max-width: 720px; margin: 0 auto; padding: 16px; }
@@ -101,34 +102,34 @@ app.get('/', (req, res) => {
 <body>
   <div class="container">
     <div class="telemetry-bar">
-      <span>AI-SAT LINK: <strong>SECURED // v7.9 DIRECTORY</strong></span>
+      <span>AI-SAT LINK: <strong>SECURED // v8.0 PRIME</strong></span>
       <div style="display:flex; align-items:center; gap:6px;">
-        <span id="txtOnline">1X DIRECTORY ACTIVE</span>
+        <span id="txtOnline">1X SOVEREIGN ACTIVE</span>
         <div class="telemetry-dot"></div>
       </div>
     </div>
 
     <button type="button" class="btn-submit btn-install" id="installBtn">⬇ تثبيت تطبيق سند على الشاشة الرئيسية (App)</button>
 
-    <!-- 1. شاشة الأكواد والأرقام السيادية (الخزنة والدليل) -->
+    <!-- 1. شاشة الأكواد ودليل الأسماء السيادية -->
     <div id="screenCodes" class="screen active">
       <div class="header-compact">
         <div class="header-title">
           <h2>الأكواد ودليل الأسماء السيادية</h2>
-          <p>إدارة وتوليد الأكواد وربطها بأسماء العائلة والأصدقاء للتواصل الفوري</p>
+          <p>إدارة البصمات الرقمية ومنع تكرار الأكواد بالذكاء الاصطناعي</p>
         </div>
       </div>
       
       <div class="card-box">
-        <h3>تسجيل اسم وكود سيادي جديد (8 خانات)</h3>
+        <h3>تسجيل اسم وكود سيادي فريد (8 خانات)</h3>
         <form id="codeForm">
           <label>اسم الشخص أو الجهة (مثال: أم طارق / رهف / غرفة العمليات):</label>
-          <input type="text" id="ownerName" placeholder="أدخل اسم الشخص أو المعرف..." required />
+          <input type="text" id="ownerName" placeholder="أدخل الاسم أو المعرف..." required />
           
           <label>رقم الهاتف أو المعرف العسكري (للتواصل المباشر):</label>
           <input type="tel" id="contactPhone" placeholder="96777xxxxxxx" style="direction:ltr; text-align:right;" required />
 
-          <label>أدخل الكود السيادي (8 خانات دقيقة):</label>
+          <label>أدخل الكود السيادي (8 خانات دقيقة - فريد حصري):</label>
           <div class="otp-container">
             <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
             <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
@@ -142,20 +143,20 @@ app.get('/', (req, res) => {
 
           <label>التصنيف السيادي:</label>
           <select id="numCategory">
-            <option value="بروتوكول VIP الأسري والسيادي (888)">بروتوكول الأسرة والقيادة (VIP)</option>
-            <option value="محطة التشغيل المركزية (800)">محطة العمليات المركزية (800)</option>
+            <option value="بروتوكول الأسرة والقيادة (VIP)">بروتوكول الأسرة والقيادة (VIP)</option>
+            <option value="محطة العمليات المركزية (800)">محطة العمليات المركزية (800)</option>
             <option value="قناة التوجيه الفضائي (AI)">قناة التوجيه الفضائي (AI-SAT)</option>
           </select>
 
-          <button type="submit" class="btn-submit">حفظ في الدليل والخزنة السيادية الذكية</button>
+          <button type="submit" class="btn-submit">حفظ وتأمين البصمة في الدليل السيادي</button>
         </form>
       </div>
 
       <div class="card-box">
-        <h3>🔍 دليل الأكواد والأسماء المحفوظة</h3>
+        <h3>🔍 دليل الأكواد والأسماء المحفوظة (محمي من التكرار)</h3>
         <input type="text" id="vaultSearch" placeholder="بحث بالاسم أو الرقم في الدليل..." oninput="filterVault()" style="margin-bottom:10px;" />
         <div id="vaultList">
-          <p style="color:var(--muted); text-align:center; font-size:12px;" id="vaultEmpty">الدليل فارغ ونظيف. أضف أفراد الأسرة الآن للتجربة.</p>
+          <p style="color:var(--muted); text-align:center; font-size:12px;" id="vaultEmpty">الدليل فارغ ونظيف.</p>
         </div>
       </div>
     </div>
@@ -164,14 +165,14 @@ app.get('/', (req, res) => {
     <div id="screenAi" class="screen">
       <div class="header-compact">
         <div class="header-title">
-          <h2>مساعد سند الذكي (DIRECTORY AI)</h2>
-          <p>العقل العصبي المزود بإدارة الدليل والتوجيه الآلي</p>
+          <h2>مساعد سند الذكي (PRIME AI)</h2>
+          <p>العقل العصبي لفحص الشبكة والتحقق من أمان العمليات</p>
         </div>
       </div>
       <div class="card-box">
         <h3>سجل الحوار العصبي الفضائي</h3>
         <div class="ai-chat-box" id="aiChatLog">
-          <div><strong>[نظام سند AI]:</strong> أهلاً بك يا أبو طارق. تم تفعيل دليل الأسماء والربط الفوري مع أفراد الأسرة (أم طارق، رهف، رابعة، رشا، آمنة). كيف أخدم عملياتك اليوم؟</div>
+          <div><strong>[نظام سند AI]:</strong> أهلاً بك يا أبو طارق. تم تفعيل خوارزميات الحماية الصارمة لمنع تكرار الأكواد وتأمين قنوات الأسرة (أم طارق، رهف، رابعة، رشا، آمنة). كيف أخدمك اليوم؟</div>
         </div>
         <label>أمر تشغيلي / سؤال للمساعد الذكي:</label>
         <input type="text" id="aiInputPrompt" placeholder="اكتب أمرك أو استفسارك هنا..." />
@@ -184,7 +185,7 @@ app.get('/', (req, res) => {
       <div class="header-compact">
         <div class="header-title">
           <h2>الدردشات والرسائل السيادية</h2>
-          <p>قنوات الاتصال الآمنة المربوحة بأسماء الدليل</p>
+          <p>قنوات الاتصال الآمنة المربوطة بأسماء الدليل</p>
         </div>
       </div>
       <div class="card-box">
@@ -226,11 +227,11 @@ app.get('/', (req, res) => {
       <div class="profile-card">
         <div class="profile-avatar">سند</div>
         <h3 style="margin:0 0 4px;">برنامج سند السيادي</h3>
-        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة الذكية عابرة الحدود // v7.9 DIRECTORY</p>
+        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة الذكية عابرة الحدود // v8.0 PRIME</p>
       </div>
       <div class="card-box">
-        <h3>حالة الدليل والمنظومة</h3>
-        <p style="font-size:12px; color:var(--muted); margin:0 0 10px;">تم دمج أسماء الأهل (أم طارق، رهف، رابعة، رشا، آمنة) وجاهزية الإرسال الفوري.</p>
+        <h3>حماية البيانات الفريدة</h3>
+        <p style="font-size:12px; color:var(--muted); margin:0 0 10px;">النظام يمنع تكرار أي كود سيادي ويضمن استقرار الأيقونة على جميع الهواتف.</p>
       </div>
     </div>
 
@@ -261,15 +262,14 @@ app.get('/', (req, res) => {
   </nav>
 
   <script>
-    // تهيئة الدليل بأسماء البنات والعائلة افتراضياً لتجربة فورية جاهزة
+    // تهيئة الدليل بأسماء البنات وعائلة أبو طارق مع منع تكرار الأكواد
     let vault = [
-      { owner: 'أم طارق', phone: '967770000001', num: '88800001', cat: 'بروتوكول VIP الأسري والسيادي (888)' },
-      { owner: 'رهف', phone: '967770000002', num: '88800002', cat: 'بروتوكول VIP الأسري والسيادي (888)' },
-      { owner: 'رابعة', phone: '967770000003', num: '88800003', cat: 'بروتوكول VIP الأسري والسيادي (888)' },
-      { owner: 'رشا', phone: '967770000004', num: '88800004', cat: 'بروتوكول VIP الأسري والسيادي (888)' },
-      { owner: 'آمنة', phone: '967770000005', num: '88800005', cat: 'بروتوكول VIP الأسري والسيادي (888)' }
+      { owner: 'أم طارق', phone: '967770000001', num: '88800001', cat: 'بروتوكول الأسرة والقيادة (VIP)' },
+      { owner: 'رهف', phone: '967770000002', num: '88800002', cat: 'بروتوكول الأسرة والقيادة (VIP)' },
+      { owner: 'رابعة', phone: '967770000003', num: '88800003', cat: 'بروتوكول الأسرة والقيادة (VIP)' },
+      { owner: 'رشا', phone: '967770000004', num: '88800004', cat: 'بروتوكول الأسرة والقيادة (VIP)' },
+      { owner: 'آمنة', phone: '967770000005', num: '88800005', cat: 'بروتوكول الأسرة والقيادة (VIP)' }
     ];
-    let offlineQueue = [];
     let deferredPrompt;
 
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -290,7 +290,6 @@ app.get('/', (req, res) => {
       }
     });
 
-    // تحديث القوائم المنسدلة عند التحميل
     window.onload = function() {
       renderVault();
       updateContactSelects();
@@ -333,16 +332,24 @@ app.get('/', (req, res) => {
       });
     });
 
+    // قاعدة الحماية ومنع تكرار الأكواد على السيرفر المحلي
     document.getElementById('codeForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      const owner = document.getElementById('ownerName').value;
-      const phone = document.getElementById('contactPhone').value;
+      const owner = document.getElementById('ownerName').value.trim();
+      const phone = document.getElementById('contactPhone').value.trim();
       const cat = document.getElementById('numCategory').value;
       let num = '';
       otpInputs.forEach(i => num += i.value);
 
       if (num.length < 8) {
-        alert('الرجاء إكمال إدخال الـ 8 خانات كاملة للكود.');
+        alert('الرجاء إكمال إدخال الـ 8 خانات كاملة للكود السيادي.');
+        return;
+      }
+
+      // فحص ما إذا كان الكود مكرراً مسبقاً
+      const existing = vault.find(i => i.num === num);
+      if (existing) {
+        alert('خطأ سيادي: هذا الكود (' + num + ') مسجل مسبقاً لـ (' + existing.owner + '). لا يمكن تكرار الأكواد لضمان عدم تداخل التوجيهات!');
         return;
       }
 
@@ -355,7 +362,7 @@ app.get('/', (req, res) => {
       document.getElementById('ownerName').value = '';
       document.getElementById('contactPhone').value = '';
       otpInputs[0].focus();
-      alert('تم حفظ جهة الاتصال والكود بنجاح في الدليل السيادي!');
+      alert('تم حفظ البصمة السيادية الفريدة بنجاح في الدليل!');
     });
 
     function renderVault(filter = '') {
@@ -371,7 +378,7 @@ app.get('/', (req, res) => {
         <div class="list-item">
           <div>
             <strong>\${i.owner}</strong> <span class="badge-gold">\${i.cat}</span><br/>
-            <span style="font-family:monospace; color:var(--accent);">الكود: \${i.num}</span> | 
+            <span style="font-family:monospace; color:var(--accent);">البصمة / الكود: \${i.num}</span> | 
             <span style="font-family:monospace; color:var(--emerald);">الرقم: \${i.phone || 'غير مسجل'}</span>
           </div>
           <div>
@@ -411,7 +418,7 @@ app.get('/', (req, res) => {
     function openChatFor(phone, name) {
       switchScreen('chats', document.querySelectorAll('.nav-item')[1]);
       document.getElementById('targetPhone').value = phone;
-      document.getElementById('targetMsg').value = 'سلام يا ' + name + '، تقرير الحالة الميدانية لبرنامج سند: جاهزون.';
+      document.getElementById('targetMsg').value = 'توجيه سيادي إلى ' + name + ': حالة العمليات مستقرة ومؤمنة.';
     }
 
     function openCallFor(phone, name) {
@@ -424,7 +431,7 @@ app.get('/', (req, res) => {
       let phone = document.getElementById('targetPhone').value.trim();
       const msg = document.getElementById('targetMsg').value.trim();
       if (!phone || !msg) {
-        alert('الرجاء إدخال رقم المستلم ونصح التوجيه أو اختيار جهة اتصال.');
+        alert('الرجاء إدخال رقم المستلم ونصح التوجيه.');
         return;
       }
       phone = phone.replace(/^0+/, '').replace(/^\+/, '');
@@ -452,10 +459,7 @@ app.get('/', (req, res) => {
       log.innerHTML += '<div style="margin-top:8px;"><strong>[أبو طارق]:</strong> ' + val + '</div>';
       
       setTimeout(() => {
-        let reply = "مساعد سند DIRECTORY: الدليل مرتب والأسماء (أم طارق، رهف، رابعة، رشا، آمنة) جاهزة للتواصل الفوري والمباشر.";
-        if(val.includes("بنات") || val.includes("عائلة")) {
-          reply = "توجيه: يمكنك الآن الضغط على زر (مراسلة) أو (اتصال) بجانب أي اسم في الدليل ليتم تحويلك مباشرة.";
-        }
+        let reply = "مساعد سند PRIME: قاعدة منع تكرار الأكواد مفعلة. لا يمكن أن يتطابق كودان لجهة مختلفة أبداً لضمان سيادة التوجيهات.";
         log.innerHTML += '<div style="margin-top:8px; color:var(--emerald);"><strong>[مساعد سند AI]:</strong> ' + reply + '</div>';
         log.scrollTop = log.scrollHeight;
       }, 600);

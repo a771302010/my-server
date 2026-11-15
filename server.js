@@ -96,58 +96,21 @@ app.get('/', (req, res) => {
 <body>
   <div class="container">
     <div class="telemetry-bar">
-      <span>AI-SAT LINK: <strong>SECURED // v7.2 PWA</strong></span>
+      <span>AI-SAT LINK: <strong>SECURED // v7.3 STABLE</strong></span>
       <div style="display:flex; align-items:center; gap:6px;">
-        <span id="txtOnline">1X NEURAL ACTIVE</span>
+        <span id="txtOnline">1X OPTIMIZED</span>
         <div class="telemetry-dot"></div>
       </div>
     </div>
 
     <button type="button" class="btn-submit btn-install" id="installBtn">⬇ تثبيت تطبيق سند على الشاشة الرئيسية (App)</button>
 
-    <!-- 1. شاشة الدردشات -->
-    <div id="screenChats" class="screen active">
+    <!-- 1. شاشة الأكواد والأرقام (الافتتاحية لضمان حضورها الكامل) -->
+    <div id="screenCodes" class="screen active">
       <div class="header-compact">
         <div class="header-title">
-          <h2 id="chatsTitle">الدردشات السيادية</h2>
-          <p>قنوات الاتصال الآمنة المدعومة بالذكاء الاصطناعي والأقمار الاصطناعية</p>
-        </div>
-      </div>
-      <div class="card-box">
-        <h3 id="gatewayHead">بوابة التوجيه والاتصال الفضائي المشفر</h3>
-        <label id="lblPhone">رقم المستلم (مثال: 96777xxxxxxx):</label>
-        <input type="tel" id="targetPhone" placeholder="96777xxxxxxx" style="direction:ltr; text-align:right;" />
-        
-        <label id="lblMsg">نص التوجيه / الأمر المشفر (معزز بالذكاء الاصطناعي):</label>
-        <input type="text" id="targetMsg" placeholder="اكتب نص الأمر التشغيلي..." />
-        
-        <button type="button" class="btn-submit" id="btnSendMsg">إرسال عبر القناة الآمنة</button>
-        <button type="button" class="btn-submit btn-call" id="btnCallUser">إطلاق اتصال صوتي عصبي مشفر (1X Optimized)</button>
-      </div>
-    </div>
-
-    <!-- 2. شاشة المكالمات -->
-    <div id="screenCalls" class="screen">
-      <div class="header-compact">
-        <div class="header-title">
-          <h2>سجل المكالمات العصبية</h2>
-          <p>الاتصالات المشفرة عبر خوارزميات ضغط الصوت الفضائي</p>
-        </div>
-      </div>
-      <div class="card-box">
-        <div class="list-item">
-          <div><strong>غرفة العمليات المركزية</strong><br/><span style="font-size:11px; color:var(--muted);">اتصال صوتي عصبي (AI Neural Codec Active)</span></div>
-          <span class="badge-gold">مؤمن</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3. شاشة الأكواد -->
-    <div id="screenCodes" class="screen">
-      <div class="header-compact">
-        <div class="header-title">
-          <h2 id="codesTitle">الأكواد والخزنة</h2>
-          <p>إدارة وتأمين الأكواد السيادية الثمانية</p>
+          <h2 id="codesTitle">الأكواد والأرقام السيادية</h2>
+          <p>إدارة وتوليد الأكواد الثمانية والأرقام المؤمنة</p>
         </div>
       </div>
       
@@ -157,7 +120,7 @@ app.get('/', (req, res) => {
           <label id="lblOwner">اسم الجهة أو المعرف:</label>
           <input type="text" id="ownerName" placeholder="مثال: غرفة العمليات المركزية" required />
           
-          <label id="lblOtp">أدخل الكود (8 خانات دقيقة - انتقال تلقائي):</label>
+          <label id="lblOtp">أدخل الأرقام / الكود (8 خانات دقيقة):</label>
           <div class="otp-container">
             <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
             <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
@@ -175,14 +138,51 @@ app.get('/', (req, res) => {
             <option value="محطة التشغيل المركزية (800)">محطة التشغيل المركزية (800xxxxx)</option>
           </select>
 
-          <button type="submit" class="btn-submit" id="btnSave">اعتماد الكود في النظام</button>
+          <button type="submit" class="btn-submit" id="btnSave">اعتماد الحفظ في الخزنة</button>
         </form>
       </div>
 
       <div class="card-box">
-        <h3 id="vaultHead">خزنة الأكواد السيادية</h3>
+        <h3 id="vaultHead">خزنة الأكواد والأرقام</h3>
         <div id="vaultList">
           <p style="color:var(--muted); text-align:center; font-size:12px;" id="vaultEmpty">الخزنة فارغة ونظيفة.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. شاشة الدردشات والتوجيه -->
+    <div id="screenChats" class="screen">
+      <div class="header-compact">
+        <div class="header-title">
+          <h2 id="chatsTitle">الدردشات السيادية</h2>
+          <p>قنوات الاتصال الآمنة المدعومة بالذكاء الاصطناعي والأقمار الاصطناعية</p>
+        </div>
+      </div>
+      <div class="card-box">
+        <h3 id="gatewayHead">بوابة التوجيه والاتصال الفضائي المشفر</h3>
+        <label id="lblPhone">رقم المستلم (مثال: 96777xxxxxxx):</label>
+        <input type="tel" id="targetPhone" placeholder="96777xxxxxxx" style="direction:ltr; text-align:right;" />
+        
+        <label id="lblMsg">نص التوجيه / الأمر المشفر:</label>
+        <input type="text" id="targetMsg" placeholder="اكتب نص الأمر التشغيلي..." />
+        
+        <button type="button" class="btn-submit" id="btnSendMsg">إرسال عبر القناة الآمنة</button>
+        <button type="button" class="btn-submit btn-call" id="btnCallUser">إطلاق اتصال صوتي عصبي مشفر (1X)</button>
+      </div>
+    </div>
+
+    <!-- 3. شاشة المكالمات -->
+    <div id="screenCalls" class="screen">
+      <div class="header-compact">
+        <div class="header-title">
+          <h2>سجل المكالمات العصبية</h2>
+          <p>الاتصالات المشفرة عبر خوارزميات ضغط الصوت الفضائي</p>
+        </div>
+      </div>
+      <div class="card-box">
+        <div class="list-item">
+          <div><strong>غرفة العمليات المركزية</strong><br/><span style="font-size:11px; color:var(--muted);">اتصال صوتي عصبي (1X Optimized)</span></div>
+          <span class="badge-gold">مؤمن</span>
         </div>
       </div>
     </div>
@@ -208,7 +208,7 @@ app.get('/', (req, res) => {
       <div class="profile-card">
         <div class="profile-avatar">سند</div>
         <h3 style="margin:0 0 4px;">برنامج سند السيادي</h3>
-        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة الذكية عابرة الحدود // v7.2 AI-SAT</p>
+        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة الذكية عابرة الحدود // v7.3</p>
       </div>
       <div class="card-box">
         <h3>لغة النظام / Language</h3>
@@ -221,19 +221,19 @@ app.get('/', (req, res) => {
 
   </div>
 
-  <!-- شريط التنقل السفلي الاحترافي -->
+  <!-- شريط التنقل السفلي الاحترافي (ملاحظة: الأكواد أصبحت أول زر لضمان سهولة الوصول الفوري) -->
   <nav class="bottom-nav">
-    <button class="nav-item active" type="button" onclick="switchScreen('chats', this)">
+    <button class="nav-item active" type="button" onclick="switchScreen('codes', this)">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+      <span id="navCodes">الأكواد</span>
+    </button>
+    <button class="nav-item" type="button" onclick="switchScreen('chats', this)">
       <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
       <span id="navChats">الدردشات</span>
     </button>
     <button class="nav-item" type="button" onclick="switchScreen('calls', this)">
       <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
       <span id="navCalls">المكالمات</span>
-    </button>
-    <button class="nav-item" type="button" onclick="switchScreen('codes', this)">
-      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-      <span id="navCodes">الأكواد</span>
     </button>
     <button class="nav-item" type="button" onclick="switchScreen('contacts', this)">
       <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
@@ -250,7 +250,6 @@ app.get('/', (req, res) => {
     let currentLang = 'ar';
     let deferredPrompt;
 
-    // تفعيل التثبيت السيادي كأيقونة على الشاشة الرئيسية
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
@@ -282,24 +281,18 @@ app.get('/', (req, res) => {
       const isAr = (l === 'ar');
       document.getElementById('htmlRoot').setAttribute('dir', isAr ? 'rtl' : 'ltr');
       
+      document.getElementById('navCodes').innerText = isAr ? 'الأكواد' : 'Codes';
       document.getElementById('navChats').innerText = isAr ? 'الدردشات' : 'Chats';
       document.getElementById('navCalls').innerText = isAr ? 'المكالمات' : 'Calls';
-      document.getElementById('navCodes').innerText = isAr ? 'الأكواد' : 'Codes';
       document.getElementById('navContacts').innerText = isAr ? 'جهات الاتصال' : 'Contacts';
       document.getElementById('navSettings').innerText = isAr ? 'الإعدادات' : 'Settings';
       
-      document.getElementById('gatewayHead').innerText = isAr ? 'بوابة التوجيه والاتصال الفضائي المشفر' : 'Satellite Gateway';
-      document.getElementById('lblPhone').innerText = isAr ? 'رقم المستلم (مثال: 96777xxxxxxx):' : 'Recipient Phone:';
-      document.getElementById('lblMsg').innerText = isAr ? 'نص التوجيه / الأمر المشفر (معزز بالذكاء الاصطناعي):' : 'AI Directive:';
-      document.getElementById('btnSendMsg').innerText = isAr ? 'إرسال عبر القناة الآمنة' : 'Send via Secure Channel';
-      document.getElementById('btnCallUser').innerText = isAr ? 'إطلاق اتصال صوتي عصبي مشفر (1X Optimized)' : 'Launch AI Neural Call';
-      
       document.getElementById('genHead').innerText = isAr ? 'توليد وتأمين كود سيادي (8 خانات)' : 'Generate Sovereign Code';
       document.getElementById('lblOwner').innerText = isAr ? 'اسم الجهة أو المعرف:' : 'Entity Name / ID:';
-      document.getElementById('lblOtp').innerText = isAr ? 'أدخل الكود (8 خانات دقيقة):' : 'Enter Code (8 Digits):';
+      document.getElementById('lblOtp').innerText = isAr ? 'أدخل الأرقام / الكود (8 خانات دقيقة):' : 'Enter Code (8 Digits):';
       document.getElementById('lblCat').innerText = isAr ? 'التصنيف:' : 'Category:';
-      document.getElementById('btnSave').innerText = isAr ? 'اعتماد الكود في النظام' : 'Authorize Code';
-      document.getElementById('vaultHead').innerText = isAr ? 'خزنة الأكواد السيادية' : 'Sovereign Vault';
+      document.getElementById('btnSave').innerText = isAr ? 'اعتماد الحفظ في الخزنة' : 'Authorize Code';
+      document.getElementById('vaultHead').innerText = isAr ? 'خزنة الأكواد والأرقام' : 'Sovereign Vault';
       if(vault.length === 0) {
         document.getElementById('vaultEmpty').innerText = isAr ? 'الخزنة فارغة ونظيفة.' : 'Vault is empty and clean.';
       }

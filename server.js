@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>برنامج سند - المنصة السيادية العالمية (v8.0 PRIME)</title>
+  <title>برنامج سند - المنصة السيادية العالمية (v8.1 ULTRA)</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -48,7 +48,6 @@ app.get('/', (req, res) => {
       --gold: #f59e0b;
       --quantum: #8b5cf6;
       --emerald: #10b981;
-      --danger: #ef4444;
     }
     body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: sans-serif; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
     .container { max-width: 720px; margin: 0 auto; padding: 16px; }
@@ -71,9 +70,9 @@ app.get('/', (req, res) => {
     input, select, textarea { width: 100%; padding: 11px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 10px; background: #030712; color: var(--text); font-size: 13px; box-sizing: border-box; }
     input:focus, select:focus, textarea:focus { border-color: var(--accent); outline: none; }
 
-    .otp-container { display: flex; justify-content: space-between; gap: 4px; direction: ltr; margin-bottom: 12px; }
-    .otp-input { width: 100% !important; max-width: 42px; height: 44px; text-align: center; font-size: 16px; font-weight: bold; border: 2px solid var(--border); border-radius: 8px; background: #030712; color: var(--accent); font-family: monospace; padding: 0 !important; margin: 0 !important; }
-    .otp-input:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(245,158,11,0.4); }
+    /* حقل الأكواد الموحد الفاخر */
+    .unified-code-input { font-family: monospace !important; font-size: 18px !important; font-weight: bold; letter-spacing: 4px; text-align: center; color: var(--accent) !important; background: #020617 !important; border: 2px solid var(--border) !important; }
+    .unified-code-input:focus { border-color: var(--gold) !important; box-shadow: 0 0 12px rgba(245,158,11,0.4); }
 
     .btn-submit { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: 1px solid var(--accent); border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
     .btn-submit:hover { background: var(--primary-hover); }
@@ -102,7 +101,7 @@ app.get('/', (req, res) => {
 <body>
   <div class="container">
     <div class="telemetry-bar">
-      <span>AI-SAT LINK: <strong>SECURED // v8.0 PRIME</strong></span>
+      <span>AI-SAT LINK: <strong>SECURED // v8.1 ULTRA</strong></span>
       <div style="display:flex; align-items:center; gap:6px;">
         <span id="txtOnline">1X SOVEREIGN ACTIVE</span>
         <div class="telemetry-dot"></div>
@@ -116,7 +115,7 @@ app.get('/', (req, res) => {
       <div class="header-compact">
         <div class="header-title">
           <h2>الأكواد ودليل الأسماء السيادية</h2>
-          <p>إدارة البصمات الرقمية ومنع تكرار الأكواد بالذكاء الاصطناعي</p>
+          <p>إدخال البصمات الرقمية الموحدة وحماية ضد التكرار</p>
         </div>
       </div>
       
@@ -129,17 +128,8 @@ app.get('/', (req, res) => {
           <label>رقم الهاتف أو المعرف العسكري (للتواصل المباشر):</label>
           <input type="tel" id="contactPhone" placeholder="96777xxxxxxx" style="direction:ltr; text-align:right;" required />
 
-          <label>أدخل الكود السيادي (8 خانات دقيقة - فريد حصري):</label>
-          <div class="otp-container">
-            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
-            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
-            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
-            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
-            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
-            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
-            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
-            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" />
-          </div>
+          <label>الكود السيادي (8 أرقام دقيقة - لصق أو كتابة):</label>
+          <input type="text" id="sovereignCodeInput" class="unified-code-input" placeholder="12345678" maxlength="8" inputmode="numeric" required />
 
           <label>التصنيف السيادي:</label>
           <select id="numCategory">
@@ -165,14 +155,14 @@ app.get('/', (req, res) => {
     <div id="screenAi" class="screen">
       <div class="header-compact">
         <div class="header-title">
-          <h2>مساعد سند الذكي (PRIME AI)</h2>
+          <h2>مساعد سند الذكي (ULTRA AI)</h2>
           <p>العقل العصبي لفحص الشبكة والتحقق من أمان العمليات</p>
         </div>
       </div>
       <div class="card-box">
         <h3>سجل الحوار العصبي الفضائي</h3>
         <div class="ai-chat-box" id="aiChatLog">
-          <div><strong>[نظام سند AI]:</strong> أهلاً بك يا أبو طارق. تم تفعيل خوارزميات الحماية الصارمة لمنع تكرار الأكواد وتأمين قنوات الأسرة (أم طارق، رهف، رابعة، رشا، آمنة). كيف أخدمك اليوم؟</div>
+          <div><strong>[نظام سند AI]:</strong> أهلاً بك يا أبو طارق. تم اعتماد حقل الإدخال الموحد فائق السلاسة لضمان اللصق الفوري ودون أي أخطاء. كيف أخدمك اليوم؟</div>
         </div>
         <label>أمر تشغيلي / سؤال للمساعد الذكي:</label>
         <input type="text" id="aiInputPrompt" placeholder="اكتب أمرك أو استفسارك هنا..." />
@@ -227,11 +217,11 @@ app.get('/', (req, res) => {
       <div class="profile-card">
         <div class="profile-avatar">سند</div>
         <h3 style="margin:0 0 4px;">برنامج سند السيادي</h3>
-        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة الذكية عابرة الحدود // v8.0 PRIME</p>
+        <p style="color:var(--accent); font-size:12px; margin:0;">المنصة الذكية عابرة الحدود // v8.1 ULTRA</p>
       </div>
       <div class="card-box">
-        <h3>حماية البيانات الفريدة</h3>
-        <p style="font-size:12px; color:var(--muted); margin:0 0 10px;">النظام يمنع تكرار أي كود سيادي ويضمن استقرار الأيقونة على جميع الهواتف.</p>
+        <h3>واجهة الإدخال المحسنة</h3>
+        <p style="font-size:12px; color:var(--muted); margin:0 0 10px;">تم دمج حقل الأكواد الموحد لضمان سرعة اللصق والكتابة دون أخطاء.</p>
       </div>
     </div>
 
@@ -257,12 +247,11 @@ app.get('/', (req, res) => {
     </button>
     <button class="nav-item" type="button" onclick="switchScreen('settings', this)">
       <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c-.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-      <span>الإعدادات</span>
+      <span><span>الإعدادات</span>
     </button>
   </nav>
 
   <script>
-    // تهيئة الدليل بأسماء البنات وعائلة أبو طارق مع منع تكرار الأكواد
     let vault = [
       { owner: 'أم طارق', phone: '967770000001', num: '88800001', cat: 'بروتوكول الأسرة والقيادة (VIP)' },
       { owner: 'رهف', phone: '967770000002', num: '88800002', cat: 'بروتوكول الأسرة والقيادة (VIP)' },
@@ -303,53 +292,23 @@ app.get('/', (req, res) => {
       btn.classList.add('active');
     }
 
-    const otpInputs = document.querySelectorAll('.otp-input');
-    otpInputs.forEach((input, idx) => {
-      input.addEventListener('input', (e) => {
-        const val = e.target.value;
-        if (val.length > 1) {
-          const chars = val.replace(/\\D/g, '').split('');
-          let curIdx = idx;
-          chars.forEach(char => {
-            if (curIdx < otpInputs.length) {
-              otpInputs[curIdx].value = char;
-              curIdx++;
-            }
-          });
-          if (curIdx < otpInputs.length) otpInputs[curIdx].focus();
-          else otpInputs[otpInputs.length - 1].focus();
-          return;
-        }
-        if (val.length === 1 && idx < otpInputs.length - 1) {
-          otpInputs[idx + 1].focus();
-        }
-      });
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Backspace') {
-          if (input.value === '' && idx > 0) otpInputs[idx - 1].focus();
-          else input.value = '';
-        }
-      });
-    });
-
-    // قاعدة الحماية ومنع تكرار الأكواد على السيرفر المحلي
+    // التحقق من الحقل الموحد ومنع التكرار
     document.getElementById('codeForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const owner = document.getElementById('ownerName').value.trim();
       const phone = document.getElementById('contactPhone').value.trim();
       const cat = document.getElementById('numCategory').value;
-      let num = '';
-      otpInputs.forEach(i => num += i.value);
+      const num = document.getElementById('sovereignCodeInput').value.trim();
 
-      if (num.length < 8) {
-        alert('الرجاء إكمال إدخال الـ 8 خانات كاملة للكود السيادي.');
+      if (num.length !== 8 || isNaN(num)) {
+        alert('خطأ سيادي: يجب أن يتكون الكود من 8 أرقام دقيقة تماماً.');
         return;
       }
 
-      // فحص ما إذا كان الكود مكرراً مسبقاً
+      // فحص منع تكرار الكود
       const existing = vault.find(i => i.num === num);
       if (existing) {
-        alert('خطأ سيادي: هذا الكود (' + num + ') مسجل مسبقاً لـ (' + existing.owner + '). لا يمكن تكرار الأكواد لضمان عدم تداخل التوجيهات!');
+        alert('خطأ سيادي: هذا الكود (' + num + ') مسجل مسبقاً لـ (' + existing.owner + '). لا يمكن تكرار الأكواد!');
         return;
       }
 
@@ -358,10 +317,9 @@ app.get('/', (req, res) => {
       
       renderVault();
       updateContactSelects();
-      otpInputs.forEach(i => i.value = '');
+      document.getElementById('sovereignCodeInput').value = '';
       document.getElementById('ownerName').value = '';
       document.getElementById('contactPhone').value = '';
-      otpInputs[0].focus();
       alert('تم حفظ البصمة السيادية الفريدة بنجاح في الدليل!');
     });
 
@@ -383,7 +341,7 @@ app.get('/', (req, res) => {
           </div>
           <div>
             <button class="btn-submit btn-action" onclick="openChatFor('\${i.phone}', '\${i.owner}')">مراسلة</button>
-            <button class="btn-submit btn-action" style="background:#312e81; border-color:var(--quantum);" onclick="openCallFor('\${i.phone}', '\${i.owner}')">اتصال</button>
+            <button class="btn-submit btn-action" style="background:#312e81; border-color:var(--quantum);" onclick="openCallFor('\{i.phone}', '\${i.owner}')">اتصال</button>
           </div>
         </div>
       \`).join('');
@@ -446,7 +404,7 @@ app.get('/', (req, res) => {
         alert('الرجاء اختيار جهة اتصال للمكالمة.');
         return;
       }
-      phone = phone.replace(/^0+/, '').replace(/^\+/, '');
+      phone = phone.replace(/^0+/, '').replace(/^\+/**', '');
       window.location.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent('[طلب اتصال عصبي مرئي/صوتي مؤمن عبر سند 1X]');
     }
 
@@ -459,7 +417,7 @@ app.get('/', (req, res) => {
       log.innerHTML += '<div style="margin-top:8px;"><strong>[أبو طارق]:</strong> ' + val + '</div>';
       
       setTimeout(() => {
-        let reply = "مساعد سند PRIME: قاعدة منع تكرار الأكواد مفعلة. لا يمكن أن يتطابق كودان لجهة مختلفة أبداً لضمان سيادة التوجيهات.";
+        let reply = "مساعد سند ULTRA: تم تفعيل حقل الإدخال الموحد بنجاح. السرعة والمرونة في أعلى مستوياتها.";
         log.innerHTML += '<div style="margin-top:8px; color:var(--emerald);"><strong>[مساعد سند AI]:</strong> ' + reply + '</div>';
         log.scrollTop = log.scrollHeight;
       }, 600);

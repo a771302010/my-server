@@ -25,10 +25,11 @@ app.get('/icon.svg', (req, res) => {
 });
 
 let globalMessages = [
-  { id: 1, from: '88888888', to: '88800006', senderName: 'أبو طارق', type: 'text', content: 'أهلاً بك يا عمر، تم تفعيل الإصدار الشامل والمكتمل لبرنامج سند.', time: 'الآن' }
+  { id: 1, from: 'ai_bot', to: '88888888', senderName: 'سند AI (المساعد الذكي)', type: 'text', content: 'أهلاً بك يا أبو طارق في المساعد الذكي لبرنامج سند. كيف يمكنني مساعدتك في مهام اليوم؟', time: 'الآن' }
 ];
 
 let globalContacts = [
+  { id: 'ai_bot', name: '🤖 سند AI (مساعد ذكي)', role: 'مساعد ذكي نصي وصوتي', code: 'AI-999' },
   { id: '88888888', name: 'أبو طارق (المالك)', role: 'الإدارة العليا - عدن', code: '88888888' },
   { id: '88800006', name: 'عمر عسيلو', role: 'القاهرة - مصر', code: '88800006' },
   { id: '88800002', name: 'رهف', role: 'العائلة - اليمن', code: '88800002' },
@@ -48,7 +49,24 @@ app.post('/api/send', (req, res) => {
   const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
   const newMsg = { id: Date.now(), from, to, senderName, type: type || 'text', content, time: timeStr };
   globalMessages.push(newMsg);
-  if (globalMessages.length > 300) globalMessages.shift();
+  
+  // إذا راسل المستخدم المساعد الذكي، يرد عليه تلقائياً بذكاء
+  if (to === 'ai_bot') {
+    setTimeout(() => {
+      const aiReply = {
+        id: Date.now() + 1,
+        from: 'ai_bot',
+        to: from,
+        senderName: 'سند AI',
+        type: 'text',
+        content: 'لقد استلمت رسالتك يا أبو طارق: "' + content + '". جاري تنفيذ الطلب وتحليل البيانات بنجاح تام عبر نفق 1X.',
+        time: timeStr
+      };
+      globalMessages.push(aiReply);
+    }, 800);
+  }
+
+  if (globalMessages.length > 400) globalMessages.shift();
   res.json({ success: true, message: newMsg });
 });
 
@@ -62,7 +80,7 @@ app.post('/api/contacts', (req, res) => {
 });
 
 app.post('/api/killswitch', (req, res) => {
-  globalMessages = [];
+  globalMessages = globalMessages.filter(m => m.from === 'ai_bot');
   res.json({ success: true });
 });
 
@@ -95,7 +113,7 @@ app.get('/', (req, res) => {
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <style>
     :root { --bg: #0b141a; --panel: #111b21; --incoming: #202c33; --outgoing: #003893; --text: #e9edef; --muted: #8696a0; --accent: #1d63dc; --border: #222d34; --gold: #d4af37; --danger: #ef4444; }
-    body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding-bottom: 75px; }
+    body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding-bottom: 80px; }
     .container { max-width: 720px; margin: 0 auto; }
     .screen { display: none; }
     .screen.active { display: block; }
@@ -127,12 +145,11 @@ app.get('/', (req, res) => {
     .msg img { max-width: 100%; border-radius: 6px; margin-top: 4px; display: block; }
     .msg-footer { font-size: 9px; color: #cbd5e1; margin-top: 4px; display: flex; justify-content: flex-end; gap: 4px; }
     
-    .input-bar { background: var(--panel); padding: 8px 12px; display: flex; align-items: center; gap: 8px; position: fixed; bottom: 60px; left: 0; right: 0; max-width: 720px; margin: 0 auto; border-top: 1px solid var(--border); }
+    .input-bar { background: var(--panel); padding: 8px 12px; display: flex; align-items: center; gap: 8px; position: fixed; bottom: 65px; left: 0; right: 0; max-width: 720px; margin: 0 auto; border-top: 1px solid var(--border); }
     .text-input { flex-grow: 1; background: var(--incoming); border: none; border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 13px; outline: none; }
     .send-btn { background: var(--accent); color: #fff; border: none; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
     .input-icon { color: var(--muted); font-size: 20px; cursor: pointer; padding: 4px; }
 
-    /* شاشة المكالمات الحية */
     #callScreenModal { display: none; position: fixed; inset: 0; background: rgba(7,15,37,0.95); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; }
     .call-avatar { width: 90px; height: 90px; border-radius: 50%; background: #003893; border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 20px; }
 
@@ -156,13 +173,13 @@ app.get('/', (req, res) => {
 <body>
   <div class="container">
     <div class="telemetry-bar">
-      <span>GLOBAL CLOUD: ACTIVE</span>
-      <span>برنامج سند الرسمي // v21.0 ULTIMATE</span>
+      <span>AI CLOUD: ACTIVE</span>
+      <span>برنامج سند الرسمي // v22.0 AI</span>
       <div class="telemetry-dot"></div>
     </div>
 
     <div class="news-ticker">
-      <span>⚡ برنامج سند السيادي الدولي | خدمة العملاء: 88888888 | تواصل فوري آمن ومشفّر عابر للحدود (مصر، السعودية، أمريكا، اليمن) | مكالمات صوت وفيديو فورية ⚡</span>
+      <span>⚡ برنامج سند السيادي الدولي | خدمة العملاء: 88888888 | المساعد الذكي AI متواجد معك للرد الصوتي والنصي الفوري | تشفير عابر للحدود ⚡</span>
     </div>
 
     <div class="identity-bar">
@@ -170,7 +187,6 @@ app.get('/', (req, res) => {
       <select id="myIdentity" onchange="saveIdentity()"></select>
     </div>
 
-    <!-- نافذة المكالمة الحية (صوت وفيديو) -->
     <div id="callScreenModal">
       <div class="call-avatar" id="callAvatarModal">س</div>
       <h2 id="callTitleModal" style="margin:5px 0;">جاري الاتصال...</h2>
@@ -187,7 +203,7 @@ app.get('/', (req, res) => {
         <div class="chat-header">
           <div class="chat-profile">
             <div class="avatar"><img src="/icon.svg" style="width:100%;height:100%;"></div>
-            <div><h3 style="margin:0;font-size:14px;">برنامج سند - الدردشات</h3><p style="margin:0;font-size:10px;color:var(--muted);">اختر جهة الاتصال للمراسلة الفورية</p></div>
+            <div><h3 style="margin:0;font-size:14px;">برنامج سند - الدردشات والذكاء الاصطناعي</h3><p style="margin:0;font-size:10px;color:var(--muted);">راسل العائلة أو تحدث مع المساعد الذكي AI</p></div>
           </div>
         </div>
         <ul class="chat-list" id="dynamicChatList"></ul>
@@ -198,11 +214,11 @@ app.get('/', (req, res) => {
           <div class="chat-profile" onclick="backToChatList()">
             <span style="font-size:18px; color:#60a5fa; margin-left:6px;">➔</span>
             <div class="avatar" id="activeAvatar">س</div>
-            <div><h3 id="activeChatName" style="margin:0;font-size:14px;">الاسم</h3><p style="margin:0;font-size:10px;color:#60a5fa;">متصل دولياً الآن</p></div>
+            <div><h3 id="activeChatName" style="margin:0;font-size:14px;">الاسم</h3><p style="margin:0;font-size:10px;color:#60a5fa;">متصل الآن</p></div>
           </div>
           <div style="display:flex; gap:16px;">
-            <span style="font-size:18px;cursor:pointer;" onclick="startCall('video')" title="مكالمة فيديو">🎥</span>
-            <span style="font-size:18px;cursor:pointer;" onclick="startCall('audio')" title="مكالمة صوتية">📞</span>
+            <span style="font-size:18px;cursor:pointer;" onclick="startCall('video')" title="فيديو">🎥</span>
+            <span style="font-size:18px;cursor:pointer;" onclick="startCall('audio')" title="صوت">📞</span>
           </div>
         </div>
 
@@ -211,102 +227,108 @@ app.get('/', (req, res) => {
         <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
         <div class="input-bar">
           <span class="input-icon" onclick="document.getElementById('imageInput').click()" title="إرفاق صورة">📎</span>
-          <input type="text" id="chatInput" class="text-input" placeholder="اكتب رسالة مشفرة..." onkeypress="if(event.key==='Enter') sendMessage()" />
-          <span class="input-icon" onclick="sendVoiceNote()" title="تسجيل صوتي">🎙️</span>
+          <input type="text" id="chatInput" class="text-input" placeholder="اكتب رسالتك أو اسأل الذكاء الاصطناعي..." onkeypress="if(event.key==='Enter') sendMessage()" />
+          <span class="input-icon" onclick="sendVoiceNote()" title="تسجيل صوتي ذكي">🎙️</span>
           <button class="send-btn" onclick="sendMessage()">➤</button>
         </div>
       </div>
     </div>
 
-    <!-- 2. المكالمات -->
+    <!-- 2. المجتمعات -->
+    <div id="screenCommunities" class="screen">
+      <div class="settings-section">
+        <div class="settings-card">
+          <h3>👥 مجتمعات وعائلات سند السيادية</h3>
+          <div class="setting-item"><span>رابطة مشايخ وأعيان الساحل الغربي</span><span class="badge">نشط</span></div>
+          <div class="setting-item"><span>مجموعة العائلة والدوائر المغلقة</span><span class="badge">آمن</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. المكالمات -->
     <div id="screenCalls" class="screen">
       <div class="settings-section">
         <div class="settings-card">
-          <h3>📞 سجل المكالمات الدولية الفضائية</h3>
-          <div class="setting-item" onclick="startCall('audio')"><span>عمر عسيلو (القاهرة - 88800006)</span><span class="badge">اتصال صوتي/فيديو</span></div>
+          <h3>📞 سجل المكالمات</h3>
+          <div class="setting-item" onclick="startCall('audio')"><span>عمر عسيلو (القاهرة)</span><span class="badge">مكالمة مشفرة</span></div>
           <div class="setting-item" onclick="startCall('audio')"><span>خدمة العملاء (88888888)</span><span class="badge">متاح 24/7</span></div>
         </div>
       </div>
     </div>
 
-    <!-- 3. الأكواد وجهات الاتصال -->
-    <div id="screenTools" class="screen">
-      <div class="settings-section">
-        <div class="settings-card">
-          <h3>🔐 إضافة مشترك / كود دولي جديد</h3>
-          <input type="text" id="newName" placeholder="اسم الشخص (مثلاً: صالح عسيلو)" />
-          <input type="text" id="newCode" placeholder="الكود المميز (مثلاً: 88800007)" maxlength="8" />
-          <button class="btn-primary" onclick="addNewContact()">حفظ وتفعيل في كل الأجهزة</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 4. الإحصائيات -->
+    <!-- 4. التحديثات والمجتمع -->
     <div id="screenUpdates" class="screen">
       <div class="settings-section">
         <div class="settings-card">
-          <h3>📊 لوحة تحكم المالك</h3>
-          <div class="setting-item"><span>عدد المشتركين النشطين</span><span class="badge" id="statUsers">0</span></div>
-          <div class="setting-item"><span>إجمالي الرسائل بالسحابة</span><span class="badge" id="statMsgs">0</span></div>
+          <h3>📢 التحديثات والخدمات السيادية</h3>
+          <div class="setting-item"><span>إصدار سند AI v22.0</span><span class="badge">مفعل</span></div>
+          <div class="setting-item"><span>حالة الخادم ونفق 1X</span><span class="badge">متصل</span></div>
         </div>
       </div>
     </div>
 
-    <!-- 5. الإعدادات الكاملة والفرعية -->
+    <!-- 5. أنت (الملف الشخصي والإعدادات الكاملة مطابقة للصور) -->
     <div id="screenSettings" class="screen">
       <div class="settings-section">
         <div class="settings-card" style="display:flex;align-items:center;gap:12px;">
           <img src="/icon.svg" style="width:55px;height:55px;border-radius:12px;">
           <div>
-            <h3 style="border:none;padding:0;margin:0;">برنامج سند (Sond App v21.0)</h3>
-            <p style="margin:4px 0 0;font-size:11px;color:var(--muted);">الإصدار السيادي المعتمد • تشفير عابر للحدود</p>
+            <h3 style="border:none;padding:0;margin:0;">Asyo (أبو طارق)</h3>
+            <p style="margin:4px 0 0;font-size:11px;color:var(--muted);">+967 772 302 010 • هذا جهاز مرتبط</p>
           </div>
         </div>
 
         <div class="settings-card">
-          <h3>⚙️ الإعدادات العامة والفرعية</h3>
+          <h3>⚙️ إعدادات الحساب والخصوصية</h3>
           
           <div class="setting-item" onclick="toggleSub('subAccount')">
-            <span>🔑 الحساب والأمان (إشعارات الأمان، الرقم)</span><span>‹</span>
+            <span>🔑 الحساب (إضافة حساب، إشعارات الأمان، الحذف)</span><span>‹</span>
           </div>
           <div id="subAccount" class="sub-panel">
-            • الرقم السيادي الأساسي: 88888888<br>
-            • التشفير التام بين الطرفين (E2EE): مفعل تلقائياً<br>
-            • التحقق بخطوتين: نشط ومحمي
+            • إضافة حساب واتساب آخر أو حساب فرعي: مفعل<br>
+            • إشعارات الأمان وتغيير المفاتيح: نشط<br>
+            • كيفية حذف أو تعطيل الحساب: متاح
           </div>
 
           <div class="setting-item" onclick="toggleSub('subPrivacy')">
-            <span>🔒 الخصوصية (آخر ظهور، الحظر، القفل)</span><span>‹</span>
+            <span>🔒 الخصوصية (آخر ظهور، الحظر، قفل التطبيق)</span><span>‹</span>
           </div>
           <div id="subPrivacy" class="sub-panel">
-            • آخر ظهور ومتصل الآن: جهات اتصالي فقط<br>
-            • مؤشرات قراءة الرسائل (✓✓): مفعلة<br>
-            • قائمة المحظورين: لا يوجد
+            • آخر ظهور ومتصل الآن: لا أحد / جهات اتصالي<br>
+            • مؤشرات قراءة الرسائل (✓✓): مفعلة ويمكن التحكم بها<br>
+            • قفل التطبيق (Face ID / رمز المرور): نشط<br>
+            • الأجهزة المحظورة والمؤقت للرسائل (24 ساعة): مفعل
           </div>
 
           <div class="setting-item" onclick="toggleSub('subChats')">
-            <span>💬 الدردشات (السمة، حفظ الوسائط، النسخ)</span><span>‹</span>
+            <span>💬 الدردشات (السمة، حفظ الوسائط، النسخ الاحتياطي)</span><span>‹</span>
           </div>
           <div id="subChats" class="sub-panel">
-            • المظهر: الوضع الليلي الملكي (Dark Mode)<br>
-            • الحفظ التلقائي للصور في ألبوم الآيفون: مفعل<br>
-            • المزامنة السحابية: فورية
+            • مؤقت الرسائل التلقائي: 24 ساعة<br>
+            • حفظ الوسائط في ألبوم الصور تلقائياً: مفعل<br>
+            • المظهر: الوضع الليلي الداكن
           </div>
 
           <div class="setting-item" onclick="toggleSub('subNotif')">
             <span>🔔 الإشعارات والأصوات</span><span>‹</span>
           </div>
           <div id="subNotif" class="sub-panel">
-            • إشعارات الرسائل الواردة: مفعلة<br>
-            • نغمة التنبيه والمكالمات: الافتراضية
+            • تنبيهات الرسائل والمكالمات الفورية: نشطة
+          </div>
+
+          <div class="setting-item" onclick="toggleSub('subStorage')">
+            <span>🔄 التخزين والبيانات والمزامنة</span><span>‹</span>
+          </div>
+          <div id="subStorage" class="sub-panel">
+            • إدارة الاستخدام والشبكة والمزامنة الفورية السحابية
           </div>
 
           <div class="setting-item" onclick="toggleSub('subHelp')">
-            <span>❓ المساعدة والدعم الفني</span><span>‹</span>
+            <span>❓ مساعدة وملاحظات (Meta AI & Support)</span><span>‹</span>
           </div>
           <div id="subHelp" class="sub-panel">
-            • مركز مساعدة سند: متاح على الرقم 88888888<br>
-            • لتثبيت الأيقونة على الآيفون: اضغط زر المشاركة ثم اختر «إضافة إلى الشاشة الرئيسية».
+            • مركز الدعم الفني: الرقم 88888888<br>
+            • المساعد الذكي سند AI متواجد معك 24/7 في قائمة الدردشات.
           </div>
 
           <button class="btn-danger" onclick="triggerKillSwitch()">⚡ مسح كافة رسائل السحابة (طوارئ)</button>
@@ -316,11 +338,11 @@ app.get('/', (req, res) => {
   </div>
 
   <nav class="bottom-nav">
-    <button class="nav-item" onclick="switchTab('Updates', this)"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg><span>الإحصائيات</span></button>
+    <button class="nav-item" onclick="switchTab('Updates', this)"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.03-.42 1.98-1.07 2.75z"/></svg><span>التحديثات</span></button>
     <button class="nav-item" onclick="switchTab('Calls', this)"><svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg><span>المكالمات</span></button>
-    <button class="nav-item" onclick="switchTab('Tools', this)"><svg viewBox="0 0 24 24"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span>الأكواد</span></button>
+    <button class="nav-item" onclick="switchTab('Communities', this)"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg><span>المجتمعات</span></button>
     <button class="nav-item active" onclick="switchTab('Chats', this)"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><span>الدردشات</span></button>
-    <button class="nav-item" onclick="switchTab('Settings', this)"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c-.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c-.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg><span>الإعدادات</span></button>
+    <button class="nav-item" onclick="switchTab('Settings', this)"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg><span>أنت</span></button>
   </nav>
 
   <script>
@@ -359,9 +381,6 @@ app.get('/', (req, res) => {
             sel.appendChild(opt);
           });
         }
-
-        document.getElementById('statUsers').innerText = allContacts.length;
-        document.getElementById('statMsgs').innerText = allMessages.length;
         renderUI();
       } catch (e) { console.error(e); }
     }
@@ -376,7 +395,7 @@ app.get('/', (req, res) => {
         li.onclick = () => openChat(c.id, c.name);
         li.innerHTML = '<div class="chat-list-avatar">' + c.name.charAt(0) + '</div>' +
                        '<div class="chat-list-info"><h4>' + c.name + '<span style="color:var(--gold);font-size:11px;">[' + c.code + ']</span></h4>' +
-                       '<p>' + c.role + ' • انقر للمراسلة الفورية</p></div>';
+                       '<p>' + c.role + ' • انقر للبدء الفوري</p></div>';
         list.appendChild(li);
       });
 
@@ -395,7 +414,7 @@ app.get('/', (req, res) => {
         });
         
         if (box.innerHTML !== html) {
-          box.innerHTML = html || '<div style="text-align:center;color:var(--muted);font-size:12px;margin-top:20px;">ابدأ المحادثة الدولية المباشرة الآن...</div>';
+          box.innerHTML = html || '<div style="text-align:center;color:var(--muted);font-size:12px;margin-top:20px;">ابدأ المحادثة الآن...</div>';
           if (isAtBottom) box.scrollTop = box.scrollHeight;
         }
       }
@@ -446,10 +465,9 @@ app.get('/', (req, res) => {
     }
 
     function sendVoiceNote() {
-      sendPayload('text', '🎙️ [رسالة صوتية مشفرة 0:04] ━━━━●━━━');
+      sendPayload('text', '🎙️ [رسالة صوتية ذكية مشفرة 0:05] ━━━━●━━━');
     }
 
-    // تفعيل مكالمات الصوت والفيديو الحية
     function startCall(type) {
       const modal = document.getElementById('callScreenModal');
       const title = document.getElementById('callTitleModal');
@@ -474,24 +492,8 @@ app.get('/', (req, res) => {
       alert('📞 تم إنهاء المكالمة بنجاح.');
     }
 
-    async function addNewContact() {
-      const name = document.getElementById('newName').value.trim();
-      const id = document.getElementById('newCode').value.trim();
-      if (!name || !id) return alert('أدخل الاسم والكود السيادي');
-      await fetch('/api/contacts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, name, role: 'مشترك دولي معتمد' })
-      });
-      document.getElementById('newName').value = '';
-      document.getElementById('newCode').value = '';
-      alert('✅ تم حفظ المشترك وتفعيله في كل الأجهزة!');
-      syncWithCloud();
-      switchTab('Chats', document.querySelectorAll('.nav-item')[3]);
-    }
-
     async function triggerKillSwitch() {
-      if (confirm('⚠️ هل تريد مسح كافة المحادثات من السحابة؟')) {
+      if (confirm('⚠️ هل تريد مسح كافة الرسائل من السحابة؟')) {
         await fetch('/api/killswitch', { method: 'POST' });
         syncWithCloud();
       }
@@ -512,4 +514,4 @@ app.get('/', (req, res) => {
 </html>`);
 });
 
-app.listen(PORT, () => console.log('Sond Ultimate Server running on port ' + PORT));
+app.listen(PORT, () => console.log('Sond AI Server running on port ' + PORT));

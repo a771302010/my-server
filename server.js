@@ -5,10 +5,10 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// PWA Manifest السيادي الموحد
+// PWA Manifest السيادي الشامل
 app.get('/manifest.json', (req, res) => {
   res.json({
-    "name": "سند - المنصة السيادية الموحدة",
+    "name": "سند - المنصة السيادية الدولية عابرة الحدود",
     "short_name": "سند ULTRA",
     "start_url": "/",
     "display": "standalone",
@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>برنامج سند - المنصة السيادية الشاملة (v8.2 ULTRA)</title>
+  <title>برنامج سند - المنصة السيادية الدولية عابرة الحدود (v8.5 ULTRA)</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -42,36 +42,37 @@ app.get('/', (req, res) => {
       --danger: #ef4444;
     }
     body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding-bottom: 90px; -webkit-tap-highlight-color: transparent; }
-    .container { max-width: 720px; margin: 0 auto; padding: 16px; }
+    .container { max-width: 720px; margin: 0 auto; padding: 14px; }
     
-    .telemetry-bar { background: #070f25; border: 1px solid var(--card-border); border-radius: 12px; padding: 10px 14px; margin-bottom: 14px; font-family: monospace; font-size: 11px; display: flex; justify-content: space-between; align-items: center; color: var(--accent); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+    .telemetry-bar { background: #070f25; border: 1px solid var(--card-border); border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; font-family: monospace; font-size: 11px; display: flex; justify-content: space-between; align-items: center; color: var(--accent); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
     .telemetry-dot { width: 8px; height: 8px; background: var(--emerald); border-radius: 50%; box-shadow: 0 0 10px var(--emerald); animation: pulse 2s infinite; }
     @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
-    .header-compact { display: flex; align-items: center; justify-content: space-between; background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px 18px; margin-bottom: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-    .header-title h2 { margin: 0; font-size: 17px; color: var(--text); font-weight: 600; }
-    .header-title p { margin: 3px 0 0; font-size: 11px; color: var(--muted); }
+    .brand-header { text-align: center; background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; margin-bottom: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
+    .brand-logo { width: 56px; height: 56px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--gold); box-shadow: 0 0 15px rgba(56,189,248,0.4); font-size: 24px; color: #fff; }
+    .brand-header h1 { margin: 0; font-size: 18px; color: var(--text); font-weight: 700; }
+    .brand-header p { margin: 4px 0 0; font-size: 11px; color: var(--accent); letter-spacing: 0.5px; }
 
     .screen { display: none; }
     .screen.active { display: block; }
 
-    .card-box { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 18px; margin-bottom: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
-    .card-box h3 { margin: 0 0 14px; font-size: 14px; color: var(--text); border-right: 3px solid var(--gold); padding-right: 8px; font-weight: 600; }
+    .card-box { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; margin-bottom: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+    .card-box h3 { margin: 0 0 12px; font-size: 14px; color: var(--text); border-right: 3px solid var(--gold); padding-right: 8px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
 
-    label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 12px; color: var(--muted); }
-    input, select, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--card-border); margin-bottom: 12px; background: #020617; color: var(--text); font-size: 13px; box-sizing: border-box; }
+    label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 11px; color: var(--muted); }
+    input, select, textarea { width: 100%; padding: 11px; border-radius: 10px; border: 1px solid var(--card-border); margin-bottom: 11px; background: #020617; color: var(--text); font-size: 13px; box-sizing: border-box; }
     input:focus, select:focus, textarea:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 10px rgba(56,189,248,0.2); }
 
     .unified-code-input { font-family: monospace !important; font-size: 18px !important; font-weight: bold; letter-spacing: 4px; text-align: center; color: var(--gold) !important; background: #020617 !important; border: 2px solid var(--card-border) !important; }
 
-    .btn-submit { width: 100%; padding: 13px; background: #1d4ed8; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(29,78,216,0.3); }
+    .btn-submit { width: 100%; padding: 12px; background: #1d4ed8; color: #fff; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(29,78,216,0.3); }
     .btn-submit:hover { background: #1e40af; }
     .btn-ai { background: linear-gradient(135deg, #3b82f6, #6366f1); box-shadow: 0 4px 15px rgba(99,102,241,0.3); }
-    .btn-action { background: #059669; padding: 6px 14px; font-size: 11px; width: auto; border-radius: 8px; color: #fff; border: none; cursor: pointer; }
+    .btn-action { background: #059669; padding: 6px 12px; font-size: 11px; width: auto; border-radius: 8px; color: #fff; border: none; cursor: pointer; }
     .btn-danger { background: #dc2626; box-shadow: 0 4px 15px rgba(220,38,38,0.3); color: #fff; border: none; cursor: pointer; }
 
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #020617; border-top: 1px solid var(--card-border); display: grid; grid-template-columns: repeat(5, 1fr); padding: 10px 4px; z-index: 1000; box-shadow: 0 -10px 30px rgba(0,0,0,0.8); }
-    .nav-item { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; padding: 4px; font-weight: 500; gap: 4px; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #020617; border-top: 1px solid var(--card-border); display: grid; grid-template-columns: repeat(5, 1fr); padding: 8px 4px; z-index: 1000; box-shadow: 0 -10px 30px rgba(0,0,0,0.8); }
+    .nav-item { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; padding: 4px; font-weight: 500; gap: 3px; }
     .nav-item svg { width: 22px; height: 22px; fill: currentColor; }
     .nav-item.active { color: var(--accent); }
     .nav-item.active svg { fill: var(--accent); }
@@ -79,11 +80,7 @@ app.get('/', (req, res) => {
     .list-item { background: #020617; border: 1px solid var(--card-border); border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
     .badge-gold { background: rgba(212,175,55,0.12); color: var(--gold); border: 1px solid rgba(212,175,55,0.3); padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; }
     
-    .profile-card { text-align: center; padding: 22px; background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; margin-bottom: 14px; }
-    .profile-avatar { width: 68px; height: 68px; background: linear-gradient(135deg, #1e3a8a, #3b82f6); border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--gold); font-size: 26px; color: #fff; font-weight: bold; }
-    
-    .ai-chat-box { background: #020617; border: 1px solid var(--card-border); border-radius: 10px; padding: 14px; min-height: 150px; max-height: 220px; overflow-y: auto; margin-bottom: 12px; font-size: 12px; color: var(--accent); }
-    .chat-container { background: #020617; border: 1px solid var(--card-border); border-radius: 10px; padding: 12px; height: 250px; overflow-y: auto; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .chat-container { background: #020617; border: 1px solid var(--card-border); border-radius: 10px; padding: 12px; height: 240px; overflow-y: auto; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px; }
     .chat-bubble { padding: 10px 14px; border-radius: 12px; font-size: 12px; max-width: 82%; line-height: 1.5; position: relative; }
     .chat-bubble.outgoing { background: #1e40af; color: #fff; align-self: flex-end; border-bottom-left-radius: 2px; }
     .chat-bubble.incoming { background: #1e293b; color: var(--text); align-self: flex-start; border-bottom-right-radius: 2px; }
@@ -94,22 +91,21 @@ app.get('/', (req, res) => {
   <div class="container">
     <div class="telemetry-bar">
       <span>1X SOVEREIGN ACTIVE</span>
-      <span>AI-SAT LINK: SECURED // v8.2 ULTRA</span>
+      <span>AI-SAT LINK: SECURED // v8.5 ULTRA</span>
       <div class="telemetry-dot"></div>
+    </div>
+
+    <div class="brand-header">
+      <div class="brand-logo">Ω</div>
+      <h1>برنامج سند</h1>
+      <p>المنصة السيادية الدولية عابرة الحدود</p>
     </div>
 
     <!-- 1. شاشة الأكواد والدليل -->
     <div id="screenCodes" class="screen active">
-      <div class="header-compact">
-        <div class="header-title">
-          <h2>الأكواد ودليل الأسماء السيادية</h2>
-          <p>إدخال البصمات الرقمية الموحدة وحماية ضد التكرار</p>
-        </div>
-      </div>
-      
       <div class="card-box">
         <h3>تسجيل اسم وكود سيادي فريد (8 خانات)</h3>
-        <button type="button" class="btn-submit btn-ai" onclick="generateSovereignId()" style="margin-bottom:14px;">⚡ توليد وتأمين كود سيادي جديد</button>
+        <button type="button" class="btn-submit btn-ai" onclick="generateSovereignId()" style="margin-bottom:12px;">⚡ توليد وتأمين كود سيادي جديد</button>
         
         <form id="codeForm">
           <label>اسم الشخص أو الجهة (مثال: أم طارق / رهف / غرفة العمليات):</label>
@@ -128,12 +124,12 @@ app.get('/', (req, res) => {
             <option value="قناة التوجيه الفضائي (AI-SAT)">قناة التوجيه الفضائي (AI-SAT)</option>
           </select>
 
-          <button type="submit" class="btn-submit" style="margin-top:6px;">حفظ وتأمين البصمة في الدليل السيادي</button>
+          <button type="submit" class="btn-submit" style="margin-top:4px;">حفظ وتأمين البصمة في الدليل السيادي</button>
         </form>
       </div>
 
       <div class="card-box">
-        <h3>🔍 دليل الأكواد والأسماء المحفوظة (محمي من التكرار)</h3>
+        <h3>🔍 دليل الأكواد والأسماء المحفوظة</h3>
         <input type="text" id="vaultSearch" placeholder="بحث بالاسم أو الرقم في الدليل..." oninput="filterVault()" style="margin-bottom:10px;" />
         <div id="vaultList">
           <p style="color:var(--muted); text-align:center; font-size:12px;">الدليل فارغ ونظيف.</p>
@@ -143,13 +139,8 @@ app.get('/', (req, res) => {
 
     <!-- 2. شاشة الدردشات المشفرة -->
     <div id="screenChats" class="screen">
-      <div class="header-compact">
-        <div class="header-title">
-          <h2>الدردشات السيادية المشفرة</h2>
-          <p>مراسلة آمنة مع درع حماية وتدمير الوسائط</p>
-        </div>
-      </div>
       <div class="card-box">
+        <h3>💬 الدردشات المشفرة وتأمين الوسائط</h3>
         <label>اختر جهة الاتصال من الدليل:</label>
         <select id="chatContactSelect" onchange="changeActiveChat()" style="margin-bottom:12px;">
           <option value="">-- اختر جهة الاتصال --</option>
@@ -157,7 +148,7 @@ app.get('/', (req, res) => {
 
         <div class="chat-container" id="internalChatBox">
           <div class="chat-bubble incoming">
-            <strong>[درع سند]:</strong> أهلاً بك يا أبو طارق. القناة مشفرة وآمنة تماماً.
+            <strong>[درع سند]:</strong> أهلاً بك يا أبو طارق. القناة مشفرة وآمنة عبر الأقمار.
             <div class="msg-meta"><span>محمي سيادياً</span><span>✓✓</span></div>
           </div>
         </div>
@@ -173,62 +164,49 @@ app.get('/', (req, res) => {
 
     <!-- 3. مساعدة سند والتحليل الذكي -->
     <div id="screenAi" class="screen">
-      <div class="header-compact">
-        <div class="header-title">
-          <h2>مساعد سند الاستراتيجي</h2>
-          <p>تحليل البيانات والمهام الميدانية بالذكاء الاصطناعي</p>
-        </div>
-      </div>
       <div class="card-box">
-        <h3>سجل المساعد الذكي</h3>
-        <div class="ai-chat-box" id="aiChatLog">
-          <div><strong>[OMEGA AI]:</strong> جاهز لمعالجة وتحليل الاستفسارات بكل دقة يا أبو طارق.</div>
+        <h3>🤖 مساعد سند الاستراتيجي والذكاء الاصطناعي</h3>
+        <div class="chat-container" id="aiChatLog" style="height: 180px;">
+          <div class="chat-bubble incoming"><strong>[OMEGA AI]:</strong> جاهز لمعالجة وتحليل الاستفسارات الميدانية والإدارية بكل دقة يا أبو طارق.</div>
         </div>
-        <label>استفسار للتحليل:</label>
+        <label>استفسار للتحليل المتقدم:</label>
         <input type="text" id="aiInputPrompt" placeholder="اكتب استفسارك هنا..." />
-        <button type="button" class="btn-submit btn-ai" onclick="sendAiPrompt()">تنفيذ التحليل الذكي</button>
+        <button type="button" class="btn-submit btn-ai" onclick="sendAiPrompt()">تنفيذ التحليل الذكي عبر AI-SAT</button>
       </div>
     </div>
 
     <!-- 4. شاشة المكالمات الفضائية الآمنة -->
     <div id="screenCalls" class="screen">
-      <div class="header-compact">
-        <div class="header-title">
-          <h2>مركز المكالمات الفضائية الآمنة</h2>
-          <p>اتصال صوتي نقي عبر بروتوكول 1X</p>
-        </div>
-      </div>
       <div class="card-box">
-        <h3>إطلاق اتصال مشفر</h3>
+        <h3>📞 مركز المكالمات الفضائية الآمنة</h3>
         <label>اختر جهة الاتصال:</label>
         <select id="callContactSelect" style="margin-bottom:12px;">
           <option value="">-- اختر جهة الاتصال --</option>
         </select>
         
         <div id="callStatusBox" style="background:#020617; border:1px solid var(--card-border); border-radius:10px; padding:16px; text-align:center; margin-bottom:12px;">
-          <p style="margin:0 0 6px; color:var(--muted); font-size:12px;" id="callStateText">الحالة: جاهز للمصافحة الفضائية</p>
-          <h3 id="activeCallTarget" style="margin:0; color:var(--accent);">-- لا يوجد اتصال --</h3>
+          <p style="margin:0 0 6px; color:var(--muted); font-size:12px;" id="callStateText">الحالة: جاهز للمصافحة الفضائية المشفرة</p>
+          <h3 id="activeCallTarget" style="margin:0; color:var(--accent);">-- بانتظار بدء الاتصال --</h3>
         </div>
 
-        <button type="button" class="btn-submit" style="background:#1e40af;" onclick="startSecureCall()">بدء الاتصال المشفر</button>
+        <button type="button" class="btn-submit" style="background:#1e40af;" onclick="startSecureCall()">بدء الاتصال الفضائي المشفر</button>
         <button type="button" class="btn-submit btn-danger" style="margin-top:8px;" onclick="endSecureCall()">قطع الاتصال وتأمين السجل</button>
       </div>
     </div>
 
-    <!-- 5. شاشة الإعدادات والتحكم المطلق -->
+    <!-- 5. شاشة الإعدادات ومركز التحكم المطلق -->
     <div id="screenSettings" class="screen">
-      <div class="profile-card">
-        <div class="profile-avatar">Ω</div>
-        <h3 style="margin:0 0 4px;">سند CONTROL CENTER</h3>
-        <p style="color:var(--muted); font-size:12px; margin:0;">غرفة التحكم والسيادة الشاملة // v8.2 ULTRA</p>
-      </div>
       <div class="card-box">
-        <h3>🛡️ درع الحماية والخصوصية المتقدمة</h3>
+        <h3>⚙️ إعدادات مركز التحكم والسيادة (Control Center)</h3>
         <div class="list-item">
           <div><strong>منع إعادة توجيه الرسائل</strong><br/><span style="font-size:11px; color:var(--emerald);">مفعل وحماية تامة للخصوصية</span></div>
           <span class="badge-gold">نشط</span>
         </div>
-        <button type="button" class="btn-submit btn-danger" style="margin-top:14px;" onclick="executeKillSwitch()">⚡ تفعيل مفتاح الطوارئ الشامل (Kill-Switch)</button>
+        <div class="list-item" style="margin-top:10px;">
+          <div><strong>قناة التوجيه الفضائي (AI-SAT)</strong><br/><span style="font-size:11px; color:var(--accent);">مستقرة وعبر بروتوكول 1X</span></div>
+          <span class="badge-gold">عالي السرعة</span>
+        </div>
+        <button type="button" class="btn-submit btn-danger" style="margin-top:16px;" onclick="executeKillSwitch()">⚡ تفعيل مفتاح الطوارئ الشامل (Kill-Switch)</button>
       </div>
     </div>
 
@@ -237,7 +215,7 @@ app.get('/', (req, res) => {
   <nav class="bottom-nav">
     <button class="nav-item active" type="button" id="nav-codes" onclick="switchScreen('codes', this)">
       <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-      <span>الأكواد والدليل</span>
+      <span>الأكواد</span>
     </button>
     <button class="nav-item" type="button" id="nav-chats" onclick="switchScreen('chats', this)">
       <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
@@ -252,7 +230,7 @@ app.get('/', (req, res) => {
       <span>المكالمات</span>
     </button>
     <button class="nav-item" type="button" id="nav-settings" onclick="switchScreen('settings', this)">
-      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c-.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c-.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c-.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
       <span>الإعدادات</span>
     </button>
   </nav>
@@ -263,7 +241,7 @@ app.get('/', (req, res) => {
       { owner: 'أم طارق', phone: '967770000002', num: '88800002', cat: 'محطة العمليات المركزية (800)' }
     ];
     let internalMessages = {
-      '967770000001': [{sender: 'incoming', text: 'مرحباً بك يا أبو طارق. النظام السيادي الشامل جاهز.', type: 'text'}]
+      '967770000001': [{sender: 'incoming', type: 'text', text: 'مرحباً بك يا أبو طارق. القناة السيادية مؤمنة تماماً.'}]
     };
     let activeChatPhone = '967770000001';
 
@@ -418,7 +396,7 @@ app.get('/', (req, res) => {
       let val = input.value.trim();
       if(!val) return;
       let logBox = document.getElementById('aiChatLog');
-      if(logBox) logBox.innerHTML += '<div style="margin-top:6px; color:var(--emerald);"><strong>[OMEGA AI]:</strong> تم استيعاب الطلب وتحليله بنجاح.</div>';
+      if(logBox) logBox.innerHTML += '<div class="chat-bubble incoming"><strong>[OMEGA AI]:</strong> تم استيعاب الطلب وتحليله بنجاح عبر قناة AI-SAT.</div>';
       input.value = '';
     }
 

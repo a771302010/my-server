@@ -5,7 +5,6 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// أيقونة سند الرسمية المدمجة (الأزرق الملكي والأبيض)
 const SOND_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <rect width="512" height="512" rx="110" fill="#ffffff"/>
   <path d="M0 110 C0 49 49 0 110 0 L402 0 C463 0 512 49 512 110 L512 245 L0 245 Z" fill="#003893"/>
@@ -25,11 +24,11 @@ app.get('/icon.svg', (req, res) => {
 });
 
 let globalMessages = [
-  { id: 1, from: 'ai_bot', to: '88888888', senderName: 'سند AI (المساعد الذكي)', type: 'text', content: 'أهلاً بك يا أبو طارق في المساعد الذكي لبرنامج سند. كيف يمكنني مساعدتك في مهام اليوم؟', time: 'الآن' }
+  { id: 1, from: 'ai_bot', to: '88888888', senderName: 'سند AI (المساعد الذكي)', type: 'text', content: 'أهلاً بك يا أبو طارق في الإصدار 24.0 الرسمي الثابت. كيف أساعدك اليوم؟', time: 'الآن' }
 ];
 
 let globalContacts = [
-  { id: 'ai_bot', name: '🤖 سند AI (مساعد ذكي)', role: 'مساعد ذكي نصي وصوتي', code: 'AI-999' },
+  { id: 'ai_bot', name: '🤖 سند AI (المساعد الذكي)', role: 'مساعد ذكي نصي وصوتي', code: 'AI-999' },
   { id: '88888888', name: 'أبو طارق (المالك)', role: 'الإدارة العليا - عدن', code: '88888888' },
   { id: '88800006', name: 'عمر عسيلو', role: 'القاهرة - مصر', code: '88800006' },
   { id: '88800002', name: 'رهف', role: 'العائلة - اليمن', code: '88800002' },
@@ -50,7 +49,6 @@ app.post('/api/send', (req, res) => {
   const newMsg = { id: Date.now(), from, to, senderName, type: type || 'text', content, time: timeStr };
   globalMessages.push(newMsg);
   
-  // إذا راسل المستخدم المساعد الذكي، يرد عليه تلقائياً بذكاء
   if (to === 'ai_bot') {
     setTimeout(() => {
       const aiReply = {
@@ -59,7 +57,7 @@ app.post('/api/send', (req, res) => {
         to: from,
         senderName: 'سند AI',
         type: 'text',
-        content: 'لقد استلمت رسالتك يا أبو طارق: "' + content + '". جاري تنفيذ الطلب وتحليل البيانات بنجاح تام عبر نفق 1X.',
+        content: 'تم استقبال طلبك في الإصدار 24.0: "' + content + '". جاري التنفيذ والتحليل بنجاح.',
         time: timeStr
       };
       globalMessages.push(aiReply);
@@ -86,7 +84,7 @@ app.post('/api/killswitch', (req, res) => {
 
 app.get('/manifest.json', (req, res) => {
   res.json({
-    "name": "برنامج سند - المنصة السيادية الدولية",
+    "name": "برنامج سند - الإصدار 24.0",
     "short_name": "سند",
     "start_url": "/",
     "display": "standalone",
@@ -104,7 +102,7 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>برنامج سند الرسمي</title>
+  <title>برنامج سند - الإصدار 24.0</title>
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" type="image/svg+xml" href="/icon.svg">
   <link rel="apple-touch-icon" href="/icon.svg">
@@ -174,12 +172,12 @@ app.get('/', (req, res) => {
   <div class="container">
     <div class="telemetry-bar">
       <span>AI CLOUD: ACTIVE</span>
-      <span>برنامج سند الرسمي // v22.0 AI</span>
+      <span>برنامج سند الرسمي // الإصدار 24.0</span>
       <div class="telemetry-dot"></div>
     </div>
 
     <div class="news-ticker">
-      <span>⚡ برنامج سند السيادي الدولي | خدمة العملاء: 88888888 | المساعد الذكي AI متواجد معك للرد الصوتي والنصي الفوري | تشفير عابر للحدود ⚡</span>
+      <span>⚡ برنامج سند السيادي الدولي | الإصدار 24.0 الرسمي | خدمة العملاء: 88888888 | المساعد الذكي AI متواجد معك للرد الصوتي والنصي الفوري ⚡</span>
     </div>
 
     <div class="identity-bar">
@@ -203,7 +201,7 @@ app.get('/', (req, res) => {
         <div class="chat-header">
           <div class="chat-profile">
             <div class="avatar"><img src="/icon.svg" style="width:100%;height:100%;"></div>
-            <div><h3 style="margin:0;font-size:14px;">برنامج سند - الدردشات والذكاء الاصطناعي</h3><p style="margin:0;font-size:10px;color:var(--muted);">راسل العائلة أو تحدث مع المساعد الذكي AI</p></div>
+            <div><h3 style="margin:0;font-size:14px;">برنامج سند - الدردشات والذكاء الاصطناعي</h3><p style="margin:0;font-size:10px;color:var(--muted);">الإصدار 24.0 • راسل العائلة أو اسأل الذكاء الاصطناعي</p></div>
           </div>
         </div>
         <ul class="chat-list" id="dynamicChatList"></ul>
@@ -227,7 +225,7 @@ app.get('/', (req, res) => {
         <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
         <div class="input-bar">
           <span class="input-icon" onclick="document.getElementById('imageInput').click()" title="إرفاق صورة">📎</span>
-          <input type="text" id="chatInput" class="text-input" placeholder="اكتب رسالتك أو اسأل الذكاء الاصطناعي..." onkeypress="if(event.key==='Enter') sendMessage()" />
+          <input type="text" id="chatInput" class="text-input" placeholder="اكتب رسالتك أو اسأل المساعد الذكي..." onkeypress="if(event.key==='Enter') sendMessage()" />
           <span class="input-icon" onclick="sendVoiceNote()" title="تسجيل صوتي ذكي">🎙️</span>
           <button class="send-btn" onclick="sendMessage()">➤</button>
         </div>
@@ -249,32 +247,32 @@ app.get('/', (req, res) => {
     <div id="screenCalls" class="screen">
       <div class="settings-section">
         <div class="settings-card">
-          <h3>📞 سجل المكالمات</h3>
+          <h3>📞 سجل المكالمات (الإصدار 24.0)</h3>
           <div class="setting-item" onclick="startCall('audio')"><span>عمر عسيلو (القاهرة)</span><span class="badge">مكالمة مشفرة</span></div>
           <div class="setting-item" onclick="startCall('audio')"><span>خدمة العملاء (88888888)</span><span class="badge">متاح 24/7</span></div>
         </div>
       </div>
     </div>
 
-    <!-- 4. التحديثات والمجتمع -->
+    <!-- 4. التحديثات -->
     <div id="screenUpdates" class="screen">
       <div class="settings-section">
         <div class="settings-card">
           <h3>📢 التحديثات والخدمات السيادية</h3>
-          <div class="setting-item"><span>إصدار سند AI v22.0</span><span class="badge">مفعل</span></div>
+          <div class="setting-item"><span>إصدار سند الرسمي</span><span class="badge">الإصدار 24.0</span></div>
           <div class="setting-item"><span>حالة الخادم ونفق 1X</span><span class="badge">متصل</span></div>
         </div>
       </div>
     </div>
 
-    <!-- 5. أنت (الملف الشخصي والإعدادات الكاملة مطابقة للصور) -->
+    <!-- 5. أنت (الملف الشخصي والإعدادات) -->
     <div id="screenSettings" class="screen">
       <div class="settings-section">
         <div class="settings-card" style="display:flex;align-items:center;gap:12px;">
           <img src="/icon.svg" style="width:55px;height:55px;border-radius:12px;">
           <div>
             <h3 style="border:none;padding:0;margin:0;">Asyo (أبو طارق)</h3>
-            <p style="margin:4px 0 0;font-size:11px;color:var(--muted);">+967 772 302 010 • هذا جهاز مرتبط</p>
+            <p style="margin:4px 0 0;font-size:11px;color:var(--muted);">+967 772 302 010 • الإصدار 24.0 الرسمي</p>
           </div>
         </div>
 
@@ -504,6 +502,15 @@ app.get('/', (req, res) => {
       document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
       document.getElementById('screen' + name).classList.add('active');
       btn.classList.add('active');
+      if (name === 'Chats') backTopicChatList();
+    }
+
+    // تصحيح دالة العودة للدردشات
+    function switchTab(name, btn) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      document.getElementById('screen' + name).classList.add('active');
+      btn.classList.add('active');
       if (name === 'Chats') backToChatList();
     }
 
@@ -514,4 +521,4 @@ app.get('/', (req, res) => {
 </html>`);
 });
 
-app.listen(PORT, () => console.log('Sond AI Server running on port ' + PORT));
+app.listen(PORT, () => console.log('Sond v24 Server running on port ' + PORT));

@@ -22,7 +22,7 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>برنامج سند - المنصة السيادية (v16.0 Master Plan)</title>
+  <title>برنامج سند - المنصة السيادية الشاملة (v17.0 Enterprise)</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -51,12 +51,12 @@ app.get('/', (req, res) => {
     .telemetry-dot { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 8px var(--accent); animation: pulse 2s infinite; }
     @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
-    /* الشريط الإخباري التقني لبرنامج سند */
-    .news-ticker { background: #111b21; border-bottom: 1px solid var(--border); color: var(--gold); font-size: 11px; padding: 6px 10px; overflow: hidden; white-space: nowrap; position: relative; }
-    .news-ticker span { display: inline-block; padding-left: 50%; animation: ticker 25s linear infinite; }
+    /* الشريط الإخباري التقني لبرنامج سند (كبير وواضح) */
+    .news-ticker { background: #111b21; border-bottom: 2px solid var(--gold); color: var(--gold); font-size: 13px; font-weight: bold; padding: 10px 14px; overflow: hidden; white-space: nowrap; position: relative; }
+    .news-ticker span { display: inline-block; padding-left: 50%; animation: ticker 28s linear infinite; }
     @keyframes ticker { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
 
-    /* قائمة المحادثات (Chat List) */
+    /* قائمة المحادثات */
     .chat-list { padding: 0; margin: 0; list-style: none; }
     .chat-list-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--border); cursor: pointer; background: var(--panel); }
     .chat-list-item:hover { background: var(--incoming); }
@@ -74,7 +74,7 @@ app.get('/', (req, res) => {
     .header-icons { display: flex; gap: 16px; color: var(--muted); font-size: 18px; cursor: pointer; }
 
     /* صندوق الرسائل */
-    .messages-box { background: var(--bg); background-image: radial-gradient(#111b21 1px, transparent 1px); background-size: 20px 20px; padding: 14px; height: calc(100vh - 250px); overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .messages-box { background: var(--bg); background-image: radial-gradient(#111b21 1px, transparent 1px); background-size: 20px 20px; padding: 14px; height: calc(100vh - 275px); overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
     .msg { max-width: 80%; padding: 8px 12px; border-radius: 8px; font-size: 13px; line-height: 1.4; position: relative; word-break: break-word; }
     .msg.incoming { background: var(--incoming); color: var(--text); align-self: flex-start; border-top-right-radius: 0; }
     .msg.outgoing { background: var(--outgoing); color: var(--text); align-self: flex-end; border-top-left-radius: 0; }
@@ -114,22 +114,33 @@ app.get('/', (req, res) => {
   <div class="container">
     <div class="telemetry-bar">
       <span>1X SOVEREIGN ACTIVE</span>
-      <span>برنامج سند // v16.0 MASTER</span>
+      <span>برنامج سند // v17.0 ENTERPRISE</span>
       <div class="telemetry-dot"></div>
     </div>
 
-    <!-- الشريط الإخباري التقني لبرنامج سند -->
+    <!-- الشريط الإخباري التقني لبرنامج سند (كبير وبارز في البداية) -->
     <div class="news-ticker">
-      <span>⚡ أهلاً بك يا أبو طارق في برنامج سند السيادي | تشفير ثنائي متطور 1X | ربط عبر الأقمار الاصطناعية AI-SAT | تواصل آمن مع العائلة والجهات المعتمدة | كفاءة عالية وسرعة فائقة ⚡</span>
+      <span>⚡ أهلاً بك في برنامج سند السيادي الدولي | خدمة العملاء الرسمية: 88888888 | تواصل آمن ومشفّر عابر للحدود مع العائلة والزملاء | تشفير ثنائي 1X عبر الأقمار الاصطناعية AI-SAT ⚡</span>
     </div>
 
-    <!-- 1. شاشة التحديثات -->
+    <!-- 1. شاشة التحديثات ولوحة تحكم المالك -->
     <div id="screenUpdates" class="screen">
       <div class="settings-section">
         <div class="settings-card">
-          <h3>📢 التحديثات الرسمية لبرنامج سند</h3>
+          <h3>📊 لوحة تحكم المالك (إحصائيات المنصة)</h3>
           <div class="setting-item">
-            <div><strong>إصدار المنصة v16.0</strong><br/><span style="color:var(--muted); font-size:11px;">تم تفعيل نظام الدردشات الفردية المتعددة وإدارة جهات الاتصال.</span></div>
+            <div><strong>إجمالي المشتركين النشطين</strong><br/><span style="color:var(--muted); font-size:11px;">العائلة، الزملاء، وجهات الاتصال</span></div>
+            <span class="badge" id="totalSubscribersCount">6 مشتركين</span>
+          </div>
+          <div class="setting-item">
+            <div><strong>حالة الخادم ونفق 1X</strong><br/><span style="color:var(--accent); font-size:11px;">متصل عبر الأقمار الاصطناعية AI-SAT</span></div>
+            <span class="badge">ممتاز</span>
+          </div>
+        </div>
+        <div class="settings-card">
+          <h3>📢 التحديثات الرسمية</h3>
+          <div class="setting-item">
+            <div><strong>إصدار سند v17.0 الشامل</strong><br/><span style="color:var(--muted); font-size:11px;">تفعيل الأكواد المميزة (العائلة وعمر في الخارج).</span></div>
             <span class="badge">نشط</span>
           </div>
         </div>
@@ -142,7 +153,7 @@ app.get('/', (req, res) => {
         <div class="settings-card">
           <h3>📞 سجل المكالمات الفضائية الآمنة</h3>
           <div class="setting-item">
-            <div><strong>مكالمة صوتية مشفرة مع عمر عسيلو</strong><br/><span style="color:var(--accent); font-size:11px;">مكتملة عبر نفق 1X</span></div>
+            <div><strong>مكالمة صوتية مشفرة مع عمر (في الخارج)</strong><br/><span style="color:var(--accent); font-size:11px;">عبر نفق 1X - جودة عالية</span></div>
             <span class="badge">آمن</span>
           </div>
           <button class="btn-primary" style="margin-top:12px;" onclick="alert('📞 جاري بدء الاتصال الفضائي الجديد...')">بدء مكالمة جديدة</button>
@@ -150,27 +161,27 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    <!-- 3. شاشة الأدوات والأكواد (جهات الاتصال والربط) -->
+    <!-- 3. شاشة الأدوات والأكواد (جهات الاتصال المميزة) -->
     <div id="screenTools" class="screen">
       <div class="settings-section">
         <div class="settings-card" style="text-align:center;">
           <div class="avatar" style="width:70px; height:70px; margin:0 auto 10px; font-size:28px;">Ω</div>
-          <h3>برنامج سند - الهوية والاتصال</h3>
-          <p style="color:var(--muted); font-size:11px; margin:0 0 12px;">إدارة الأكواد وربط أفراد العائلة وجهات الاتصال</p>
+          <h3>برنامج سند - إدارة الأكواد</h3>
+          <p style="color:var(--muted); font-size:11px; margin:0 0 12px;">خدمة العملاء والربط العائلي والدوائر المغلقة</p>
         </div>
         <div class="settings-card">
           <h3>🔐 تسجيل رقم أو كود عائلي جديد</h3>
           <button class="btn-primary" onclick="generateCode()" style="margin-bottom:10px;">⚡ توليد كود معتمد جديد</button>
-          <label>اسم الشخص (مثلاً: عمر عسيلو، رهف، رابعة...):</label>
+          <label>اسم الشخص (مثلاً: عمر، رهف، رابعة...):</label>
           <input type="text" id="codeName" placeholder="أدخل الاسم..." />
-          <label>الكود السيادي (8 أرقام):</label>
+          <label>الكود السيادي (يبدأ بـ 888...):</label>
           <input type="text" id="codeVal" class="text-input" style="font-family:monospace; font-size:16px; letter-spacing:2px; text-align:center;" maxlength="8" />
-          <button class="btn-primary" onclick="saveContactAndChat()" style="margin-top:4px;">حفظ في الدليل وبدء الدردشة</button>
+          <button class="btn-primary" onclick="saveContactAndChat()" style="margin-top:4px;">حفظ في الدليل وبدء القناة</button>
         </div>
       </div>
     </div>
 
-    <!-- 4. شاشة الدردشات (قائمة الدردشات وشاشة المحادثة الفردية) -->
+    <!-- 4. شاشة الدردشات -->
     <div id="screenChats" class="screen active">
       <!-- وجهة أ: قائمة المحادثات -->
       <div id="chatListView">
@@ -179,16 +190,16 @@ app.get('/', (req, res) => {
             <div class="avatar">Ω</div>
             <div class="chat-info">
               <h3>برنامج سند - الدردشات</h3>
-              <p>اختر محادثة العائلة أو الأصدقاء</p>
+              <p>اختر قناة العائلة أو الزملاء</p>
             </div>
           </div>
         </div>
         <ul class="chat-list" id="dynamicChatList">
-          <!-- يتم تعبئتها تلقائياً -->
+          <!-- تُعبأ تلقائياً -->
         </ul>
       </div>
 
-      <!-- وجهة ب: نافذة المحادثة الفردية (مخفية حتى يتم اختيار محادثة) -->
+      <!-- وجهة ب: نافذة المحادثة الفردية -->
       <div id="chatRoomView" style="display:none;">
         <div class="chat-header">
           <div class="chat-profile" onclick="backToChatList()">
@@ -206,7 +217,7 @@ app.get('/', (req, res) => {
         </div>
 
         <div class="messages-box" id="msgBox">
-          <!-- رسائل المحادثة الحالية -->
+          <!-- الرسائل -->
         </div>
 
         <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
@@ -226,7 +237,11 @@ app.get('/', (req, res) => {
         <div class="settings-card">
           <h3>⚙️ الملف الشخصي وإدارة الأرقام</h3>
           <div class="setting-item">
-            <div><strong>أبو طارق (الرقم الأساسي)</strong><br/><span style="color:var(--gold); font-family:monospace;">الكود: 88848031</span></div>
+            <div><strong>خدمة العملاء / المالك</strong><br/><span style="color:var(--gold); font-family:monospace;">الكود المميز: 88888888</span></div>
+            <span class="badge">الرئيسي</span>
+          </div>
+          <div class="setting-item">
+            <div><strong>أبو طارق</strong><br/><span style="color:var(--gold); font-family:monospace;">الكود: 88848031</span></div>
             <span class="badge">نشط</span>
           </div>
         </div>
@@ -267,19 +282,19 @@ app.get('/', (req, res) => {
   </nav>
 
   <script>
-    // تهيئة جهات الاتصال والمحادثات الافتراضية (العائلة والزملاء)
+    // جهات الاتصال والأكواد المميزة للعائلة (عمر في الخارج، والبنات)
     let defaultContacts = [
-      { id: 'omar', name: 'عمر عسيلو', code: '88811122', lastMsg: 'ترتيبات للهجوم وانطلق...' },
-      { id: 'rahaf', name: 'رهف (ابنة)', code: '88822233', lastMsg: 'سلام من اليمن يا أبوي الغالي' },
-      { id: 'rabia', name: 'رابعة (ابنة)', code: '88833344', lastMsg: 'كيف العمليات يا أبو طارق؟' },
-      { id: 'rasha', name: 'رشا (ابنة)', code: '88844455', lastMsg: 'تم إرسال التقرير الميداني' },
-      { id: 'amna', name: 'آمنة (ابنة)', code: '88855566', lastMsg: 'حفظ الله الساحل الغربي' }
+      { id: 'omar', name: 'عمر (في الخارج)', code: '88800006', lastMsg: 'جاهزون للتواصل والترتيبات...' },
+      { id: 'rahaf', name: 'رهف', code: '88800002', lastMsg: 'سلام من اليمن يا أبوي الغالي' },
+      { id: 'rabia', name: 'رابعة', code: '88800003', lastMsg: 'كيف العمليات يا أبو طارق؟' },
+      { id: 'rasha', name: 'رشا', code: '88800004', lastMsg: 'تم إرسال التقرير الميداني' },
+      { id: 'amna', name: 'آمنة', code: '88800005', lastMsg: 'حفظ الله الساحل الغربي' }
     ];
 
     function getContacts() {
-      let saved = localStorage.getItem('sond_contacts');
+      let saved = localStorage.getItem('sond_enterprise_contacts');
       if(!saved) {
-        localStorage.setItem('sond_contacts', JSON.stringify(defaultContacts));
+        localStorage.setItem('sond_enterprise_contacts', JSON.stringify(defaultContacts));
         return defaultContacts;
       }
       return JSON.parse(saved);
@@ -291,6 +306,10 @@ app.get('/', (req, res) => {
       let contacts = getContacts();
       let listEl = document.getElementById('dynamicChatList');
       listEl.innerHTML = '';
+      
+      // تحديث إجمالي المشتركين في لوحة التحكم
+      document.getElementById('totalSubscribersCount').innerText = contacts.length + ' مشتركين';
+
       contacts.forEach(c => {
         let li = document.createElement('li');
         li.className = 'chat-list-item';
@@ -311,13 +330,12 @@ app.get('/', (req, res) => {
       document.getElementById('activeChatName').innerText = name;
       document.getElementById('activeAvatar').innerText = name.charAt(0);
       
-      // تحميل رسائل هذا الشخص
       let msgBox = document.getElementById('msgBox');
       let chatHistory = localStorage.getItem('chat_msgs_' + id);
       if(chatHistory) {
         msgBox.innerHTML = chatHistory;
       } else {
-        msgBox.innerHTML = '<div class="msg incoming">مرحباً بك يا أبو طارق. تم فتح القناة المشفرة مع ' + name + '<div class="msg-footer"><span>الآن</span><span class="checkmarks">✓✓</span></div></div>';
+        msgBox.innerHTML = '<div class="msg incoming">مرحباً بك. تم فتح القناة المشفرة عبر نفق 1X مع ' + name + '<div class="msg-footer"><span>الآن</span><span class="checkmarks">✓✓</span></div></div>';
       }
       msgBox.scrollTop = msgBox.scrollHeight;
     }
@@ -396,7 +414,7 @@ app.get('/', (req, res) => {
     function generateCode() {
       let r = Math.floor(100000 + Math.random() * 900000);
       document.getElementById('codeVal').value = '888' + r.toString().substring(0, 5);
-      alert('🔐 تم توليد كود سيادي معتمد بنجاح.');
+      alert('🔐 تم توليد كود سيادي معتمد جديد بنجاح.');
     }
 
     function saveContactAndChat() {
@@ -408,8 +426,8 @@ app.get('/', (req, res) => {
       }
       let contacts = getContacts();
       let newId = 'contact_' + Date.now();
-      contacts.push({ id: newId, name: name, code: code, lastMsg: 'تم إنشاء القناة بنجاح' });
-      localStorage.setItem('sond_contacts', JSON.stringify(contacts));
+      contacts.push({ id: newId, name: name, code: code, lastMsg: 'تم فتح القناة السيادية بنجاح' });
+      localStorage.setItem('sond_enterprise_contacts', JSON.stringify(contacts));
       alert('✅ تم حفظ جهة الاتصال وبدء القناة بنجاح!');
       document.getElementById('codeName').value = '';
       document.getElementById('codeVal').value = '';
@@ -422,7 +440,6 @@ app.get('/', (req, res) => {
       }
     }
 
-    // تشغيل قائمة الدردشات عند التحميل
     window.onload = function() {
       renderChatList();
     };

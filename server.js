@@ -22,7 +22,7 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>برنامج سند - المنصة السيادية (v12.0 ULTIMATE)</title>
+  <title>برنامج سند - المنصة السيادية (v13.0 ULTIMATE)</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -73,7 +73,7 @@ app.get('/', (req, res) => {
     .text-input { flex-grow: 1; background: var(--incoming); border: none; border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 13px; outline: none; }
     .send-btn { background: var(--accent); color: #fff; border: none; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; flex-shrink: 0; }
 
-    /* إعدادات وقوائم نظيفة على طراز واتساب */
+    /* إعدادات وقوائم نظيفة */
     .settings-section { padding: 12px; }
     .settings-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
     .settings-card h3 { margin: 0 0 10px; font-size: 14px; color: var(--text); border-right: 3px solid var(--gold); padding-right: 8px; }
@@ -100,18 +100,18 @@ app.get('/', (req, res) => {
   <div class="container">
     <div class="telemetry-bar">
       <span>1X SOVEREIGN ACTIVE</span>
-      <span>AI-SAT LINK: v12.0 STABLE</span>
+      <span>AI-SAT LINK: v13.0 STABLE</span>
       <div class="telemetry-dot"></div>
     </div>
 
-    {/* 1. شاشة الدردشات (واتساب/زانغي) */}
+    <!-- 1. شاشة الدردشات (واتساب/زانغي) -->
     <div id="screenChats" class="screen active">
       <div class="chat-header">
         <div class="chat-profile">
           <div class="avatar">Ω</div>
           <div class="chat-info">
-            <h3>عمر عسيلو <span class="badge">VIP</span></h3>
-            <p>متصل عبر الأقمار الاصطناعية (AI-SAT)</p>
+            <h3>غرفة العمليات السيادية <span class="badge">VIP</span></h3>
+            <p>متصل الآن عبر الأقمار الاصطناعية (AI-SAT)</p>
           </div>
         </div>
         <div class="header-icons">
@@ -122,16 +122,16 @@ app.get('/', (req, res) => {
 
       <div class="messages-box" id="msgBox">
         <div class="msg incoming">
-          أهلاً بك يا أبو طارق. واجهة سند الآن مطابقة تماماً لواتساب وزانغي وبأعلى استقرار.
-          <div class="msg-footer"><span>05:20 ص</span><span class="checkmarks">✓✓</span></div>
+          أهلاً بك يا أبو طارق. واجهة سند نظيفة بالكامل وتعمل بنظام واتساب وزانغي بدقة متناهية.
+          <div class="msg-footer"><span>05:30 ص</span><span class="checkmarks">✓✓</span></div>
         </div>
         <div class="msg outgoing">
-          ممتاز جداً. التنقل سلس ولا توجد أي حشوات معقدة.
-          <div class="msg-footer"><span>05:21 ص</span><span class="checkmarks">✓✓</span></div>
+          ممتاز جداً. تم التخلص من أي رموز أو شوائب سابقة. النظام مستقر.
+          <div class="msg-footer"><span>05:31 ص</span><span class="checkmarks">✓✓</span></div>
         </div>
         <div class="msg outgoing">
-          🎙️ [رسالة صوتية مشفرة] ━━━━●━━━ 0:08
-          <div class="msg-footer"><span>05:21 ص</span><span class="checkmarks">✓✓</span></div>
+          🎙️ [رسالة صوتية مشفرة] ━━━━●━━━ 0:06
+          <div class="msg-footer"><span>05:31 ص</span><span class="checkmarks">✓✓</span></div>
         </div>
       </div>
 
@@ -143,13 +143,13 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    {/* 2. شاشة المكالمات */}
+    <!-- 2. شاشة المكالمات -->
     <div id="screenCalls" class="screen">
       <div class="settings-section">
         <div class="settings-card">
           <h3>📞 سجل المكالمات الفضائية الآمنة</h3>
           <div class="setting-item">
-            <div><strong>مكالمة صوتية مع عمر عسيلو</strong><br/><span style="color:var(--accent); font-size:11px;">مكتملة - مشفرة 1X</span></div>
+            <div><strong>مكالمة صوتية مشفرة</strong><br/><span style="color:var(--accent); font-size:11px;">مكتملة عبر نفق 1X</span></div>
             <span class="badge">آمن</span>
           </div>
           <div class="setting-item">
@@ -161,7 +161,7 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    {/* 3. شاشة الأكواد والدليل */}
+    <!-- 3. شاشة الأكواد والدليل -->
     <div id="screenCodes" class="screen">
       <div class="settings-section">
         <div class="settings-card">
@@ -176,7 +176,7 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    {/* 4. مساعد سند (OMEGA AI) */}
+    <!-- 4. مساعد سند (OMEGA AI) -->
     <div id="screenAi" class="screen">
       <div class="settings-section">
         <div class="settings-card">
@@ -192,7 +192,7 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    {/* 5. شاشة الإعدادات وإدارة الحسابات والأرقام */}
+    <!-- 5. شاشة الإعدادات وإدارة الحسابات والأرقام -->
     <div id="screenSettings" class="screen">
       <div class="settings-section">
         <div class="settings-card">

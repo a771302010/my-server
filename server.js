@@ -22,7 +22,7 @@ app.get('/', (req, res) => {
 '<head>\n' +
 '  <meta charset="UTF-8">\n' +
 '  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">\n' +
-'  <title>برنامج سند - النظام الرقمي السيادي (v9.5 ULTIMATE)</title>\n' +
+'  <title>برنامج سند - النظام الرقمي المتكامل (v9.6 ULTIMATE)</title>\n' +
 '  <link rel="manifest" href="/manifest.json">\n' +
 '  <meta name="apple-mobile-web-app-capable" content="yes">\n' +
 '  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">\n' +
@@ -92,7 +92,7 @@ app.get('/', (req, res) => {
 '<body>\n' +
 '  <div class="container">\n' +
 '    <div class="telemetry-bar">\n' +
-'      <span>AI-SAT OMEGA: <strong>SECURED // v9.5 ULTIMATE</strong></span>\n' +
+'      <span>AI-SAT OMEGA: <strong>SECURED // v9.6 ULTIMATE</strong></span>\n' +
 '      <div style="display:flex; align-items:center; gap:8px;">\n' +
 '        <span style="color:var(--emerald);">نشط وآمن</span>\n' +
 '        <div class="telemetry-dot"></div>\n' +
@@ -113,7 +113,7 @@ app.get('/', (req, res) => {
 '      <div class="header-compact">\n' +
 '        <div class="header-title">\n' +
 '          <h2>الهوية الرقمية المستقلة</h2>\n' +
-'          <p>توليد المعرف الذكي 8 أرقام (بدون شريحة)</p>\n' +
+'          <p>توليد المعرف الذكي 8 أرقام</p>\n' +
 '        </div>\n' +
 '      </div>\n' +
 '      <div class="card-box">\n' +
@@ -208,7 +208,7 @@ app.get('/', (req, res) => {
 '      <div class="profile-card">\n' +
 '        <div class="profile-avatar">Ω</div>\n' +
 '        <h3 style="margin:0 0 4px;">سند CONTROL CENTER</h3>\n' +
-'        <p style="color:var(--muted); font-size:12px; margin:0;">غرفة التحكم والسيادة الشاملة // v9.5</p>\n' +
+'        <p style="color:var(--muted); font-size:12px; margin:0;">غرفة التحكم والسيادة الشاملة // v9.6</p>\n' +
 '      </div>\n' +
 '      <div class="card-box">\n' +
 '        <h3>🛡️ درع الحماية والخصوصية المتقدمة</h3>\n' +
@@ -230,13 +230,15 @@ app.get('/', (req, res) => {
 '      </div>\n' +
 '    </div>\n' +
 '  </div>\n' +
+'  \n' +
 '  <nav class="bottom-nav">\n' +
-'    <button class="nav-item active" type="button" onclick="switchScreen(\'codes\', this)"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg><span>الهوية</span></button>\n' +
-'    <button class="nav-item" type="button" onclick="switchScreen(\'chats\', this)"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><span>الدردشات</span></button>\n' +
-'    <button class="nav-item" type="button" onclick="switchScreen(\'ai\', this)"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8zm1-13h-2v6h6v-2h-4z"/></svg><span>مساعد AI</span></button>\n' +
-'    <button class="nav-item" type="button" onclick="switchScreen(\'calls\', this)"><svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg><span>المكالمات</span></button>\n' +
-'    <button class="nav-item" type="button" onclick="switchScreen(\'settings\', this)"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c-.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg><span>الإعدادات</span></button>\n' +
+'    <button class="nav-item active" type="button" id="nav-codes" onclick="switchScreen(\'codes\', this)"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg><span>الهوية</span></button>\n' +
+'    <button class="nav-item" type="button" id="nav-chats" onclick="switchScreen(\'chats\', this)"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><span>الدردشات</span></button>\n' +
+'    <button class="nav-item" type="button" id="nav-ai" onclick="switchScreen(\'ai\', this)"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8zm1-13h-2v6h6v-2h-4z"/></svg><span>مساعد AI</span></button>\n' +
+'    <button class="nav-item" type="button" id="nav-calls" onclick="switchScreen(\'calls\', this)"><svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg><span>المكالمات</span></button>\n' +
+'    <button class="nav-item" type="button" id="nav-settings" onclick="switchScreen(\'settings\', this)"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c-.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg><span>الإعدادات</span></button>\n' +
 '  </nav>\n' +
+'\n' +
 '  <script>\n' +
 '    let vault = [\n' +
 '      { owner: "أبو طارق", phone: "967770000001", num: "88800001", cat: "بروتوكول القيادة العليا (VIP)" },\n' +
@@ -245,47 +247,74 @@ app.get('/', (req, res) => {
 '    let internalMessages = { "967770000001": [{sender: "incoming", text: "مرحباً بك يا أبو طارق. النظام جاهز.", type: "text"}] };\n' +
 '    let activeChatPhone = "967770000001";\n' +
 '    \n' +
-'    window.onload = function() { renderVault(); updateContactSelects(); updateAdminStats(); };\n' +
+'    window.onload = function() {\n' +
+'      renderVault();\n' +
+'      updateContactSelects();\n' +
+'      updateAdminStats();\n' +
+'    };\n' +
 '    \n' +
 '    function switchScreen(id, btn) {\n' +
-'      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));\n' +
-'      document.querySelectorAll(".nav-item").forEach(i => i.classList.remove("active"));\n' +
-'      document.getElementById("screen" + id.charAt(0).toUpperCase() + id.slice(1)).classList.add("active");\n' +
-'      btn.classList.add("active");\n' +
+'      document.querySelectorAll(".screen").forEach(function(s) { s.classList.remove("active"); });\n' +
+'      document.querySelectorAll(".nav-item").forEach(function(i) { i.classList.remove("active"); });\n' +
+'      \n' +
+'      let targetScreen = document.getElementById("screen" + id.charAt(0).toUpperCase() + id.slice(1));\n' +
+'      if(targetScreen) { targetScreen.classList.add("active"); }\n' +
+'      if(btn) { btn.classList.add("active"); }\n' +
 '    }\n' +
 '    \n' +
 '    function generateSovereignId() {\n' +
 '      let suffix = Math.floor(100000 + Math.random() * 900000);\n' +
-'      document.getElementById("sovereignCodeInput").value = "888" + suffix.toString().substring(0, 5);\n' +
+'      let inputField = document.getElementById("sovereignCodeInput");\n' +
+'      if(inputField) { inputField.value = "888" + suffix.toString().substring(0, 5); }\n' +
 '    }\n' +
 '    \n' +
-'    document.getElementById("codeForm").addEventListener("submit", function(e) {\n' +
-'      e.preventDefault();\n' +
-'      let owner = document.getElementById("ownerName").value.trim();\n' +
-'      let phone = document.getElementById("contactPhone").value.trim();\n' +
-'      let cat = document.getElementById("numCategory").value;\n' +
-'      let num = document.getElementById("sovereignCodeInput").value.trim();\n' +
-'      \n' +
-'      if (!num || num.length !== 8) { alert("أدخل الكود الرقمي (8 أرقام)."); return; }\n' +
-'      if (vault.some(i => i.num === num)) { alert("تنبيه: هذا الكود مسجل مسبقاً لمنع التكرار."); return; }\n' +
-'      \n' +
-'      vault.unshift({ owner, phone: phone || "رقمي محلي", num, cat });\n' +
-'      renderVault();\n' +
-'      updateContactSelects();\n' +
-'      updateAdminStats();\n' +
-'      document.getElementById("codeForm").reset();\n' +
-'      alert("تم حفظ الهوية في الدليل بنجاح!");\n' +
-'    });\n' +
+'    let codeFormEl = document.getElementById("codeForm");\n' +
+'    if(codeFormEl) {\n' +
+'      codeFormEl.addEventListener("submit", function(e) {\n' +
+'        e.preventDefault();\n' +
+'        let owner = document.getElementById("ownerName").value.trim();\n' +
+'        let phone = document.getElementById("contactPhone").value.trim();\n' +
+'        let cat = document.getElementById("numCategory").value;\n' +
+'        let num = document.getElementById("sovereignCodeInput").value.trim();\n' +
+'        \n' +
+'        if (!num || num.length !== 8) { alert("أدخل الكود الرقمي (8 أرقام)."); return; }\n' +
+'        if (vault.some(function(i) { return i.num === num; })) { alert("تنبيه: هذا الكود مسجل مسبقاً لمنع التكرار."); return; }\n' +
+'        \n' +
+'        vault.unshift({ owner: owner, phone: phone || "رقمي محلي", num: num, cat: cat });\n' +
+'        renderVault();\n' +
+'        updateContactSelects();\n' +
+'        updateAdminStats();\n' +
+'        codeFormEl.reset();\n' +
+'        alert("تم حفظ الهوية وتحديث الدليل آلياً بنجاح!");\n' +
+'      });\n' +
+'    }\n' +
 '    \n' +
-'    function renderVault() {\n' +
+'    function renderVault(filterText) {\n' +
 '      let list = document.getElementById("vaultList");\n' +
-'      if (vault.length === 0) { list.innerHTML = "<p style=\'color:var(--muted); text-align:center;\'>الدليل فارغ.</p>"; return; }\n' +
+'      if(!list) return;\n' +
+'      let query = filterText ? filterText.toLowerCase() : "";\n' +
+'      let filtered = vault.filter(function(item) {\n' +
+'        return item.owner.toLowerCase().indexOf(query) !== -1 || item.num.indexOf(query) !== -1;\n' +
+'      });\n' +
+'      \n' +
+'      if (filtered.length === 0) {\n' +
+'        list.innerHTML = "<p style=\'color:var(--muted); text-align:center;\'>لا توجد نتائج مطابقة.</p>";\n' +
+'        return;\n' +
+'      }\n' +
+'      \n' +
 '      let h = "";\n' +
-'      for(let i=0; i<vault.length; i++) {\n' +
-'        let item = vault[i];\n' +
-'        h += "<div class=\'list-item\'><div><strong>" + item.owner + "</strong> <span class=\'badge-gold\'>" + item.cat + "</span><br/><span style=\'font-family:monospace; color:var(--gold);\'>الكود: " + item.num + "</span></div><div><button class=\'btn-submit btn-action\' onclick=\'openChatFor(\\"" + item.phone + "\\")\'>مراسلة</button></div></div>";\n' +
+'      for(let i=0; i<filtered.length; i++) {\n' +
+'        let item = filtered[i];\n' +
+'        h += "<div class=\'list-item\'><div><strong>" + item.owner + "</strong> <span class=\'badge-gold\'>" + item.cat + "</span><br/><span style=\'font-family:monospace; color:var(--gold);\'>الكود: " + item.num + "</span> | <span style=\'font-family:monospace; color:var(--emerald);\'>الهاتف: " + item.phone + "</span></div><div><button class=\'btn-submit btn-action\' onclick=\'openChatFor(\\"" + item.phone + "\\")\'>مراسلة</button></div></div>";\n' +
 '      }\n' +
 '      list.innerHTML = h;\n' +
+'    }\n' +
+'    \n' +
+'    function filterVault() {\n' +
+'      let searchInput = document.getElementById("vaultSearch");\n' +
+'      if(searchInput) {\n' +
+'        renderVault(searchInput.value);\n' +
+'      }\n' +
 '    }\n' +
 '    \n' +
 '    function updateAdminStats() {\n' +
@@ -298,12 +327,16 @@ app.get('/', (req, res) => {
 '      for(let i=0; i<vault.length; i++) {\n' +
 '        opts += "<option value=\'" + vault[i].phone + "\'>" + vault[i].owner + " (كود: " + vault[i].num + ")</option>";\n' +
 '      }\n' +
-'      document.getElementById("chatContactSelect").innerHTML = opts;\n' +
-'      document.getElementById("callContactSelect").innerHTML = opts;\n' +
+'      let chatSel = document.getElementById("chatContactSelect");\n' +
+'      let callSel = document.getElementById("callContactSelect");\n' +
+'      if(chatSel) chatSel.innerHTML = opts;\n' +
+'      if(callSel) callSel.innerHTML = opts;\n' +
 '    }\n' +
 '    \n' +
 '    function changeActiveChat() {\n' +
-'      let phone = document.getElementById("chatContactSelect").value;\n' +
+'      let chatSel = document.getElementById("chatContactSelect");\n' +
+'      if(!chatSel) return;\n' +
+'      let phone = chatSel.value;\n' +
 '      if(phone) {\n' +
 '        activeChatPhone = phone;\n' +
 '        if(!internalMessages[activeChatPhone]) {\n' +
@@ -315,6 +348,7 @@ app.get('/', (req, res) => {
 '    \n' +
 '    function loadChatMessages() {\n' +
 '      let box = document.getElementById("internalChatBox");\n' +
+'      if(!box) return;\n' +
 '      let msgs = internalMessages[activeChatPhone] || [];\n' +
 '      let h = "";\n' +
 '      for(let i=0; i<msgs.length; i++) {\n' +
@@ -328,10 +362,11 @@ app.get('/', (req, res) => {
 '    \n' +
 '    function sendInternalMessage() {\n' +
 '      let input = document.getElementById("chatInputMsg");\n' +
+'      if(!input) return;\n' +
 '      let text = input.value.trim();\n' +
 '      if(!text) return;\n' +
 '      if(!internalMessages[activeChatPhone]) internalMessages[activeChatPhone] = [];\n' +
-'      internalMessages[activeChatPhone].push({sender: "outgoing", text, type: "text"});\n' +
+'      internalMessages[activeChatPhone].push({sender: "outgoing", text: text, type: "text"});\n' +
 '      input.value = "";\n' +
 '      loadChatMessages();\n' +
 '    }\n' +
@@ -339,7 +374,6 @@ app.get('/', (req, res) => {
 '    function sendViewOnceMedia() {\n' +
 '      if(!internalMessages[activeChatPhone]) internalMessages[activeChatPhone] = [];\n' +
 '      internalMessages[activeChatPhone].push({sender: "outgoing", text: "وسائط سرية", type: "view-once"});\n' +
-'      loadChild = true;\n' +
 '      loadChatMessages();\n' +
 '      alert("🔒 تم إرسال الوسائط (تختفي بعد المشاهدة).");\n' +
 '    }\n' +
@@ -349,29 +383,44 @@ app.get('/', (req, res) => {
 '    }\n' +
 '    \n' +
 '    function openChatFor(phone) {\n' +
-'      switchScreen("chats", document.querySelectorAll(".nav-item")[1]);\n' +
-'      document.getElementById("chatContactSelect").value = phone;\n' +
-'      changeActiveChat();\n' +
+'      let chatNavBtn = document.getElementById("nav-chats");\n' +
+'      switchScreen("chats", chatNavBtn);\n' +
+'      let chatSel = document.getElementById("chatContactSelect");\n' +
+'      if(chatSel) {\n' +
+'        chatSel.value = phone;\n' +
+'        changeActiveChat();\n' +
+'      }\n' +
 '    }\n' +
 '    \n' +
 '    function startSecureCall() {\n' +
-'      document.getElementById("callStateText").innerText = "الحالة: 🔴 المكالمة الرقمية مؤمنة 100%";\n' +
+'      let stateText = document.getElementById("callStateText");\n' +
+'      if(stateText) { stateText.innerText = "الحالة: 🔴 المكالمة الرقمية مؤمنة 100%"; }\n' +
 '    }\n' +
 '    \n' +
 '    function endSecureCall() {\n' +
-'      document.getElementById("callStateText").innerText = "الحالة: تم قطع الاتصال وتأمين السجل";\n' +
+'    let stateText = document.getElementById("callStateText");\n' +
+'      if(stateText) { stateText.innerText = "الحالة: تم قطع الاتصال وتأمين السجل"; }\n' +
 '    }\n' +
 '    \n' +
 '    function sendAiPrompt() {\n' +
 '      let input = document.getElementById("aiInputPrompt");\n' +
-'      if(!input.value.trim()) return;\n' +
-'      document.getElementById("aiChatLog").innerHTML += "<div style=\'margin-top:6px; color:var(--emerald);\'><strong>[OMEGA AI]:</strong> تم استيعاب الطلب وتنفيذه بنجاح.</div>";\n' +
+'      if(!input) return;\n' +
+'      let val = input.value.trim();\n' +
+'      if(!val) return;\n' +
+'      let logBox = document.getElementById("aiChatLog");\n' +
+'      if(logBox) {\n' +
+'        logBox.innerHTML += "<div style=\'margin-top:6px; color:var(--emerald);\'><strong>[OMEGA AI]:</strong> تم استيعاب الطلب وتنفيذه بنجاح.</div>";\n' +
+'      }\n' +
 '      input.value = "";\n' +
 '    }\n' +
 '    \n' +
 '    function executeKillSwitch() {\n' +
 '      if(confirm("تحذير: هل تريد مسح الذاكرة الفورية وتأمين القطاع؟")) {\n' +
-'        vault = []; updateAdminStats(); renderVault(); updateContactSelects();\n' +
+'        vault = [];\n' +
+'        internalMessages = {};\n' +
+'        updateAdminStats();\n' +
+'        renderVault();\n' +
+'        updateContactSelects();\n' +
 '        alert("⚡ تم مسح الذاكرة وتفعيل درع الطوارئ بنجاح.");\n' +
 '      }\n' +
 '    }\n' +

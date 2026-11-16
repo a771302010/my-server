@@ -22,7 +22,7 @@ app.get('/', (req, res) => {
 '<head>\n' +
 '  <meta charset="UTF-8">\n' +
 '  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">\n' +
-'  <title>برنامج سند - النظام الرقمي المتكامل (v9.6 ULTIMATE)</title>\n' +
+'  <title>برنامج سند - النظام الرقمي المتكامل (v9.7 MASTER ULTIMATE)</title>\n' +
 '  <link rel="manifest" href="/manifest.json">\n' +
 '  <meta name="apple-mobile-web-app-capable" content="yes">\n' +
 '  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">\n' +
@@ -92,14 +92,14 @@ app.get('/', (req, res) => {
 '<body>\n' +
 '  <div class="container">\n' +
 '    <div class="telemetry-bar">\n' +
-'      <span>AI-SAT OMEGA: <strong>SECURED // v9.6 ULTIMATE</strong></span>\n' +
+'      <span>AI-SAT OMEGA: <strong>SECURED // v9.7 MASTER</strong></span>\n' +
 '      <div style="display:flex; align-items:center; gap:8px;">\n' +
 '        <span style="color:var(--emerald);">نشط وآمن</span>\n' +
 '        <div class="telemetry-dot"></div>\n' +
 '      </div>\n' +
 '    </div>\n' +
 '    \n' +
-'    <!-- لوحة الإدارة والتحكم لمالك البرنامج -->\n' +
+'    <!-- لوحة الإدارة والتحكم الشاملة لمالك البرنامج -->\n' +
 '    <div class="card-box" style="background: linear-gradient(135deg, #0b132b, #070f25);">\n' +
 '      <h3>👑 لوحة المشتركين والإدارة العامة (أبو طارق)</h3>\n' +
 '      <div class="admin-stats">\n' +
@@ -208,7 +208,7 @@ app.get('/', (req, res) => {
 '      <div class="profile-card">\n' +
 '        <div class="profile-avatar">Ω</div>\n' +
 '        <h3 style="margin:0 0 4px;">سند CONTROL CENTER</h3>\n' +
-'        <p style="color:var(--muted); font-size:12px; margin:0;">غرفة التحكم والسيادة الشاملة // v9.6</p>\n' +
+'        <p style="color:var(--muted); font-size:12px; margin:0;">غرفة التحكم والسيادة الشاملة // v9.7</p>\n' +
 '      </div>\n' +
 '      <div class="card-box">\n' +
 '        <h3>🛡️ درع الحماية والخصوصية المتقدمة</h3>\n' +
@@ -259,7 +259,10 @@ app.get('/', (req, res) => {
 '      \n' +
 '      let targetScreen = document.getElementById("screen" + id.charAt(0).toUpperCase() + id.slice(1));\n' +
 '      if(targetScreen) { targetScreen.classList.add("active"); }\n' +
-'      if(btn) { btn.classList.add("active"); }\n' +
+'      \n' +
+'      // تحديد الزر النشط بناءً على المعرف أو العنصر المرسل\n' +
+'      let activeBtn = btn || document.getElementById("nav-" + id);\n' +
+'      if(activeBtn) { activeBtn.classList.add("active"); }\n' +
 '    }\n' +
 '    \n' +
 '    function generateSovereignId() {\n' +
@@ -383,8 +386,7 @@ app.get('/', (req, res) => {
 '    }\n' +
 '    \n' +
 '    function openChatFor(phone) {\n' +
-'      let chatNavBtn = document.getElementById("nav-chats");\n' +
-'      switchScreen("chats", chatNavBtn);\n' +
+'      switchScreen("chats", document.getElementById("nav-chats"));\n' +
 '      let chatSel = document.getElementById("chatContactSelect");\n' +
 '      if(chatSel) {\n' +
 '        chatSel.value = phone;\n' +
@@ -398,7 +400,7 @@ app.get('/', (req, res) => {
 '    }\n' +
 '    \n' +
 '    function endSecureCall() {\n' +
-'    let stateText = document.getElementById("callStateText");\n' +
+'      let stateText = document.getElementById("callStateText");\n' +
 '      if(stateText) { stateText.innerText = "الحالة: تم قطع الاتصال وتأمين السجل"; }\n' +
 '    }\n' +
 '    \n' +
@@ -429,4 +431,4 @@ app.get('/', (req, res) => {
 '</html>');
 });
 
-app.listen(PORT, () => console.log('Server running on port ' + PORT));
+app.listen(PORT, function() { console.log('Server running on port ' + PORT); });

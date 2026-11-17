@@ -79,10 +79,38 @@ wss.on('connection', (ws) => {
           });
         }
       }
+      else if (data.type === 'clear_chat') {
+        const recipient = data.recipient;
+        if (privateChats[recipient]) {
+          privateChats[recipient] = [];
+          wss.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+              client.send(JSON.stringify({ type: 'update_chats', recipient, chats: [] }));
+            }
+          });
+        }
+      }
+      else if (data.type === 'view_once_opened') {
+        const recipient = data.recipient;
+        const msgId = data.msgId;
+        if (privateChats[recipient]) {
+          const msg = privateChats[recipient].find(m => m.id === msgId);
+          if (msg) {
+            msg.isOpened = true;
+            msg.text = '👁️ [تم فتح المحتوى وتدميره ذاتياً]';
+            msg.type = 'text';
+            wss.clients.forEach(client => {
+              if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({ type: 'update_chats', recipient, chats: privateChats[recipient] }));
+              }
+            });
+          }
+        }
+      }
       else if (data.type === 'ai_chat') {
         aiChatLogs.push(data.msg);
         const userText = data.msg.text;
-        let aiReplyText = `أهلاً بك يا أبو طارق. استلمت طلبك ("${userText}") وتم تنفيذه عبر OMEGA AI. النظام يعمل بأقصى سرعة وكفاءة فضائية.`;
+        let aiReplyText = `⚡ [OMEGA AI]: استلمت الأمر السيادي ("${userText}"). تم تشفير البيانات وتحليل الإشارات عبر الأقمار الصناعية بنجاح تام يا أبو طارق. النظام مؤمن بأقصى درجات الحماية.`;
         
         const aiReply = {
           sender: 'OMEGA AI',
@@ -240,7 +268,7 @@ app.get('/', (req, res) => {
         <!-- المحتوى التفاعلي -->
         <main class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden h-full w-full">
             
-            <!-- أ. قسم المراسلات -->
+            <!-- أ. قسم المراسلات مع زر مسح المحادثة بالكامل -->
             <div id="section-chats" class="flex-1 flex flex-col h-full overflow-hidden">
                 <div class="bg-sky-900 border-b border-sky-800 px-3 py-2 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
@@ -252,7 +280,10 @@ app.get('/', (req, res) => {
                             </p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="clearCurrentChat()" class="px-2 py-1 bg-rose-900/80 hover:bg-rose-700 text-white rounded-lg text-[10px] font-bold transition shadow" title="مسح سجل المحادثة بالكامل">
+                            🗑️ مسح الكل
+                        </button>
                         <button onclick="quickCall('audio')" class="p-2 bg-sky-800 hover:bg-sky-700 text-sky-200 rounded-full transition shadow" title="مكالمة صوتية">
                             <i data-lucide="phone" class="w-4 h-4"></i>
                         </button>
@@ -275,11 +306,17 @@ app.get('/', (req, res) => {
 
                 <div id="chat-messages-box" class="flex-1 overflow-y-auto p-3 space-y-2.5 chat-bg"></div>
 
+                <!-- نموذج الإرسال مع زر العرض لمرة واحدة -->
                 <form id="chat-form" class="p-2 bg-sky-950 border-t border-sky-800 flex gap-1.5 items-center shrink-0">
                     <label class="cursor-pointer bg-sky-800 hover:bg-sky-700 text-sky-200 p-2.5 rounded-full flex items-center justify-center shrink-0 shadow" title="إرفاق ملف">
                         <i data-lucide="plus" class="w-4 h-4"></i>
                         <input type="file" id="file-input" class="hidden" accept="image/*,video/*,.pdf,.doc,.docx" onchange="handleFileUpload(event)">
                     </label>
+
+                    <!-- زر تفعيل وضع المشاهدة لمرة واحدة -->
+                    <button type="button" id="view-once-btn" onclick="toggleViewOnce()" class="bg-sky-900 border border-sky-700 text-sky-300 hover:text-white p-2.5 rounded-full text-xs flex items-center justify-center shrink-0 shadow transition" title="رسالة تُفتح مرة واحدة وتختفي (View Once)">
+                        <i data-lucide="eye-off" class="w-4 h-4"></i>
+                    </button>
 
                     <input type="text" id="chat-input" placeholder="اكتب رسالة مشفرة..." class="flex-1 bg-sky-900 border border-sky-700 rounded-2xl px-4 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
                     
@@ -314,7 +351,7 @@ app.get('/', (req, res) => {
                 </form>
             </div>
 
-            <!-- ج. المكالمات (إصلاح فصل الكاميرات تماماً) -->
+            <!-- ج. المكالمات -->
             <div id="section-calls" class="flex-1 hidden flex-col h-full p-4 items-center justify-center text-center bg-sky-950 overflow-y-auto">
                 <div class="w-20 h-20 bg-sky-900 border-2 border-sky-500/50 rounded-full flex items-center justify-center mb-3 text-sky-300 shadow-2xl relative">
                     <div class="absolute inset-0 rounded-full border border-sky-400 animate-ping"></div>
@@ -345,9 +382,7 @@ app.get('/', (req, res) => {
                 <div id="call-screen" class="hidden w-full max-w-md bg-slate-900 border border-sky-700 rounded-2xl p-3 text-center space-y-2">
                     <p id="call-status" class="text-xs text-amber-300 font-bold">جاري الاتصال عبر القمر الصناعي...</p>
                     <div id="video-container" class="hidden grid grid-cols-2 gap-2">
-                        <!-- خانة صورتك أنت -->
                         <div class="relative"><video id="localVideo" autoplay muted playsinline class="w-full h-28 bg-black rounded-xl object-cover"></video><span class="absolute bottom-1 right-1 bg-black/60 text-[9px] px-1.5 rounded text-white">صورتك</span></div>
-                        <!-- خانة الطرف الآخر المستقلة -->
                         <div class="relative bg-black rounded-xl flex items-center justify-center h-28 border border-sky-800"><span id="remote-status-text" class="text-sky-300 text-[10px]">بانتظار رد الطرف الآخر...</span><span class="absolute bottom-1 right-1 bg-black/60 text-[9px] px-1.5 rounded text-white">الطرف الآخر</span></div>
                     </div>
                     <button onclick="endCall()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-4 py-1.5 rounded-xl text-xs">إنهاء الاتصال</button>
@@ -382,8 +417,9 @@ app.get('/', (req, res) => {
                 <div class="bg-sky-900 border border-sky-800 rounded-2xl p-4 space-y-3">
                     <h3 class="font-bold text-sm text-purple-300">📖 الدليل السيادي لمنظومة سَنَد</h3>
                     <div class="p-3 bg-sky-950 rounded-xl border border-sky-800 space-y-2 text-sky-100">
-                        <p><strong>1. حذف الرسائل:</strong> زر الحذف ظاهر ومفعل بجانب كل رسالة.</p>
-                        <p><strong>2. مكالمات الفيديو:</strong> صورتك تظهر في خانة الكاميرا المحلية بشكل مستقل تماماً.</p>
+                        <p><strong>1. رسائل العرض لمرة واحدة (View Once):</strong> اضغط على أيقونة العين المتقطعة قبل الإرسال لتفعيل تدمير الرسالة فور قراءتها.</p>
+                        <p><strong>2. مسح السجل:</strong> يمكنك مسح المحادثة بالكامل بنقرة واحدة عبر زر "مسح الكل" بالأعلى.</p>
+                        <p><strong>3. مكالمات الفيديو:</strong> صورتك تظهر في خانة الكاميرا المحلية بشكل مستقل تماماً.</p>
                     </div>
                 </div>
             </div>
@@ -417,6 +453,7 @@ app.get('/', (req, res) => {
         let audioChunks = [];
         let isRecording = false;
         let localStream = null;
+        let isViewOnceMode = false;
 
         function playRingTone() {
             try {
@@ -572,6 +609,18 @@ app.get('/', (req, res) => {
             if (targetBtn) targetBtn.className = "p-3 rounded-2xl bg-sky-700 text-white shadow transition flex flex-col items-center gap-1";
         }
 
+        function toggleViewOnce() {
+            isViewOnceMode = !isViewOnceMode;
+            const btn = document.getElementById('view-once-btn');
+            if (isViewOnceMode) {
+                btn.className = "bg-amber-500 text-slate-950 p-2.5 rounded-full text-xs flex items-center justify-center shrink-0 shadow animate-pulse";
+                btn.title = "وضع العرض لمرة واحدة مفعل (View Once)";
+            } else {
+                btn.className = "bg-sky-900 border border-sky-700 text-sky-300 hover:text-white p-2.5 rounded-full text-xs flex items-center justify-center shrink-0 shadow transition";
+                btn.title = "رسالة تُفتح مرة واحدة وتختفي";
+            }
+        }
+
         document.getElementById('chat-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const input = document.getElementById('chat-input');
@@ -581,8 +630,9 @@ app.get('/', (req, res) => {
             const msgData = {
                 id: 'msg_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
                 sender: 'أبو طارق',
-                type: 'text',
+                type: isViewOnceMode ? 'view_once' : 'text',
                 text: text,
+                isOpened: false,
                 time: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'}),
                 isMe: true
             };
@@ -590,6 +640,7 @@ app.get('/', (req, res) => {
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ type: 'private_chat', recipient: currentRecipient, msg: msgData }));
                 input.value = '';
+                if (isViewOnceMode) toggleViewOnce(); // إعادة تعيين الوضع
             }
         });
 
@@ -628,14 +679,16 @@ app.get('/', (req, res) => {
                 const fileData = {
                     id: 'file_' + Date.now(),
                     sender: 'أبو طارق',
-                    type: file.type.startsWith('image/') ? 'image' : 'file',
+                    type: isViewOnceMode ? 'view_once_media' : (file.type.startsWith('image/') ? 'image' : 'file'),
                     url: e.target.result,
                     name: file.name,
+                    isOpened: false,
                     time: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'}),
                     isMe: true
                 };
                 if (ws && ws.readyState === WebSocket.OPEN) {
                     ws.send(JSON.stringify({ type: 'private_chat', recipient: currentRecipient, msg: fileData }));
+                    if (isViewOnceMode) toggleViewOnce();
                 }
             };
             reader.readAsDataURL(file);
@@ -676,7 +729,7 @@ app.get('/', (req, res) => {
             }
         }
 
-        // عرض الرسائل مع زر حذف الرسالة الواضح والمفعّل
+        // عرض الرسائل مع دعم العرض لمرة واحدة وتدميرها
         function appendMessage(msg) {
             const box = document.getElementById('chat-messages-box');
             if(!box) return;
@@ -688,6 +741,24 @@ app.get('/', (req, res) => {
                 content = \`<img src="\${msg.url}" class="w-full max-h-48 rounded-xl object-cover mt-1 cursor-pointer" onclick="window.open(this.src)">\`;
             } else if (msg.type === 'file') {
                 content = \`<a href="\${msg.url}" download="\${msg.name}" class="text-amber-300 underline block mt-1">📁 تنزيل الملف: \${msg.name}</a>\`;
+            } else if (msg.type === 'view_once') {
+                if (msg.isOpened) {
+                    content = \`<p class="text-slate-400 italic mt-0.5">👁️ [تم عرض الرسالة وتدميرها ذاتياً]</p>\`;
+                } else {
+                    content = \`<div onclick="openViewOnce('\${msg.id}', \`\${msg.text}\`)" class="bg-amber-500/20 border border-amber-400 p-2 rounded-xl cursor-pointer text-amber-300 font-bold flex items-center gap-2 mt-1">
+                        <i data-lucide="eye" class="w-4 h-4 animate-bounce"></i>
+                        <span>رسالة نصية تُفتح لمرة واحدة (اضغط للعرض)</span>
+                    </div>\`;
+                }
+            } else if (msg.type === 'view_once_media') {
+                if (msg.isOpened) {
+                    content = \`<p class="text-slate-400 italic mt-0.5">👁️ [تم عرض الملف وتدميره ذاتياً]</p>\`;
+                } else {
+                    content = \`<div onclick="openViewOnceMedia('\${msg.id}', \`\${msg.url}\`)" class="bg-amber-500/20 border border-amber-400 p-2 rounded-xl cursor-pointer text-amber-300 font-bold flex items-center gap-2 mt-1">
+                        <i data-lucide="eye" class="w-4 h-4 animate-bounce"></i>
+                        <span>صورة/ملف يُفتح لمرة واحدة (اضغط للعرض)</span>
+                    </div>\`;
+                }
             } else {
                 content = \`<p class="mt-0.5">\${msg.text}</p>\`;
             }
@@ -710,6 +781,22 @@ app.get('/', (req, res) => {
                 </div>
             </div>\`;
             box.scrollTop = box.scrollHeight;
+            lucide.createIcons();
+        }
+
+        function openViewOnce(msgId, text) {
+            alert('🔐 محتوى الرسالة المدمرة ذاتياً:\\n\\n' + text);
+            if(ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'view_once_opened', recipient: currentRecipient, msgId: msgId }));
+            }
+        }
+
+        function openViewOnceMedia(msgId, url) {
+            const win = window.open();
+            win.document.write('<iframe src="' + url + '" frameborder="0" style="border:0; top:0; left:0; bottom:0; right:0; width:100%; height:100%;" allowfullscreen></iframe>');
+            if(ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'view_once_opened', recipient: currentRecipient, msgId: msgId }));
+            }
         }
 
         function deleteMessage(msgId) {
@@ -718,6 +805,14 @@ app.get('/', (req, res) => {
                 if(el) el.remove();
                 if(ws && ws.readyState === WebSocket.OPEN) {
                     ws.send(JSON.stringify({ type: 'delete_msg', recipient: currentRecipient, msgId: msgId }));
+                }
+            }
+        }
+
+        function clearCurrentChat() {
+            if(confirm('⚠️ تحذير: هل تريد مسح سجل هذه المحادثة بالكامل من الطرفين؟')) {
+                if(ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'clear_chat', recipient: currentRecipient }));
                 }
             }
         }
@@ -797,7 +892,7 @@ app.get('/', (req, res) => {
 
         function saveSecureCode() {
             const name = document.getElementById('new-owner-name').value.trim();
-            const code = document.getElementById('new-code-val').value.trim();
+            const code = document.getElementById('new-code-val.value').trim() || document.getElementById('new-code-val').value.trim();
             if(!name || !code) {
                 alert('يرجى إدخال اسم الجهة وتوليد الكود.');
                 return;

@@ -82,7 +82,7 @@ wss.on('connection', (ws) => {
       else if (data.type === 'ai_chat') {
         aiChatLogs.push(data.msg);
         const userText = data.msg.text;
-        let aiReplyText = `أهلاً بك يا أبو طارق. استلمت طلبك ("${userText}") وتم تنفيذه عبر OMEGA AI. النظام يعمل بأقصى كفاءة.`;
+        let aiReplyText = `أهلاً بك يا أبو طارق. استلمت طلبك ("${userText}") وتم تنفيذه عبر OMEGA AI. النظام يعمل بأقصى سرعة وكفاءة فضائية.`;
         
         const aiReply = {
           sender: 'OMEGA AI',
@@ -208,7 +208,7 @@ app.get('/', (req, res) => {
     <!-- مساحة العمل الرئيسية -->
     <div class="flex-1 flex overflow-hidden relative">
         
-        <!-- القائمة الجانبية -->
+        <!-- القائمة الجانبية بالترتيب العالمي الأمثل -->
         <aside class="w-16 md:w-20 bg-slate-950 border-l border-sky-900 flex flex-col items-center py-2 h-full shrink-0 z-10 space-y-3">
             <button onclick="switchSection('chats')" id="btn-sec-chats" class="p-3 rounded-2xl bg-sky-700 text-white shadow transition flex flex-col items-center gap-1 relative" title="المراسلات">
                 <i data-lucide="message-square" class="w-5 h-5 text-sky-200"></i>
@@ -314,7 +314,7 @@ app.get('/', (req, res) => {
                 </form>
             </div>
 
-            <!-- ج. المكالمات (إصلاح فصل الكاميرات: صورتك في خانة وصورة الطرف الآخر في خانة مستقلة) -->
+            <!-- ج. المكالمات (إصلاح فصل الكاميرات تماماً) -->
             <div id="section-calls" class="flex-1 hidden flex-col h-full p-4 items-center justify-center text-center bg-sky-950 overflow-y-auto">
                 <div class="w-20 h-20 bg-sky-900 border-2 border-sky-500/50 rounded-full flex items-center justify-center mb-3 text-sky-300 shadow-2xl relative">
                     <div class="absolute inset-0 rounded-full border border-sky-400 animate-ping"></div>
@@ -348,7 +348,7 @@ app.get('/', (req, res) => {
                         <!-- خانة صورتك أنت -->
                         <div class="relative"><video id="localVideo" autoplay muted playsinline class="w-full h-28 bg-black rounded-xl object-cover"></video><span class="absolute bottom-1 right-1 bg-black/60 text-[9px] px-1.5 rounded text-white">صورتك</span></div>
                         <!-- خانة الطرف الآخر المستقلة -->
-                        <div class="relative bg-black rounded-xl flex items-center justify-center h-28 border border-sky-800"><span id="remote-status-text" class="text-sky-300 text-[10px]">بانتظار الطرف الآخر...</span><span class="absolute bottom-1 right-1 bg-black/60 text-[9px] px-1.5 rounded text-white">الطرف الآخر</span></div>
+                        <div class="relative bg-black rounded-xl flex items-center justify-center h-28 border border-sky-800"><span id="remote-status-text" class="text-sky-300 text-[10px]">بانتظار رد الطرف الآخر...</span><span class="absolute bottom-1 right-1 bg-black/60 text-[9px] px-1.5 rounded text-white">الطرف الآخر</span></div>
                     </div>
                     <button onclick="endCall()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-4 py-1.5 rounded-xl text-xs">إنهاء الاتصال</button>
                 </div>
@@ -382,8 +382,8 @@ app.get('/', (req, res) => {
                 <div class="bg-sky-900 border border-sky-800 rounded-2xl p-4 space-y-3">
                     <h3 class="font-bold text-sm text-purple-300">📖 الدليل السيادي لمنظومة سَنَد</h3>
                     <div class="p-3 bg-sky-950 rounded-xl border border-sky-800 space-y-2 text-sky-100">
-                        <p><strong>1. حذف الرسائل:</strong> اضغط على زر الحذف بجانب أي رسالة لاختيار حذفها من جهازك أو من الطرفين.</p>
-                        <p><strong>2. مكالمات الفيديو:</strong> تظهر صورتك في خانة الكاميرا المحلية بشكل مستقل تماماً عن الطرف الآخر.</p>
+                        <p><strong>1. حذف الرسائل:</strong> زر الحذف ظاهر ومفعل بجانب كل رسالة.</p>
+                        <p><strong>2. مكالمات الفيديو:</strong> صورتك تظهر في خانة الكاميرا المحلية بشكل مستقل تماماً.</p>
                     </div>
                 </div>
             </div>
@@ -676,7 +676,7 @@ app.get('/', (req, res) => {
             }
         }
 
-        // عرض الرسائل مع زر حذف الرسالة
+        // عرض الرسائل مع زر حذف الرسالة الواضح والمفعّل
         function appendMessage(msg) {
             const box = document.getElementById('chat-messages-box');
             if(!box) return;
@@ -700,7 +700,7 @@ app.get('/', (req, res) => {
                 <div class="max-w-[85%] \${bgClass} p-3 rounded-2xl text-xs leading-relaxed shadow relative">
                     <div class="flex justify-between items-center gap-4 mb-0.5">
                         <strong class="text-amber-300">\${msg.sender}</strong>
-                        <button onclick="deleteMessage('\${msg.id}')" class="text-rose-400 hover:text-rose-200 text-[10px] opacity-70 hover:opacity-100 transition" title="حذف الرسالة">🗑️ حذف</button>
+                        <button onclick="deleteMessage('\${msg.id}')" class="bg-rose-900/60 hover:bg-rose-700 text-white px-2 py-0.5 rounded text-[10px] transition font-bold" title="حذف الرسالة">🗑️ حذف</button>
                     </div>
                     \${content}
                     <div class="text-[9px] opacity-80 mt-1 flex justify-between items-center">
@@ -713,7 +713,7 @@ app.get('/', (req, res) => {
         }
 
         function deleteMessage(msgId) {
-            if(confirm('هل تريد حذف هذه الرسالة من الطرفين؟')) {
+            if(confirm('هل تريد حذف هذه الرسالة من النظام والطرفين؟')) {
                 const el = document.getElementById('msg_box_' + msgId);
                 if(el) el.remove();
                 if(ws && ws.readyState === WebSocket.OPEN) {
@@ -767,7 +767,6 @@ app.get('/', (req, res) => {
                 videoBox.classList.remove('hidden');
                 navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
                     localStream = stream;
-                    // عرض كاميرتك في خانة صورتك وحدها
                     document.getElementById('localVideo').srcObject = stream;
                     document.getElementById('remote-status-text').textContent = "بانتظار رد " + target + "...";
                     status.textContent = \`متصل مرئياً الآن بـ \${target}\`;

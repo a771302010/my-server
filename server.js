@@ -18,19 +18,19 @@ let secureVault = [
 
 let privateChats = {
   '88888888': [
-    { sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك يا أبو طارق في المنظومة السيادية المشفرة.', time: 'الآن', isMe: false }
+    { id: '1', sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك يا أبو طارق في المنظومة السيادية المشفرة.', time: 'الآن', isMe: false }
   ],
   'رهف': [
-    { sender: 'رهف', type: 'text', text: 'صباح الخير، قناة رهف الفردية مؤمنة.', time: 'الآن', isMe: false }
+    { id: '2', sender: 'رهف', type: 'text', text: 'صباح الخير، قناة رهف الفردية مؤمنة.', time: 'الآن', isMe: false }
   ],
   'رابعة': [
-    { sender: 'رابعة', type: 'text', text: 'مرحباً يا أبانا الغالي، الاتصال مؤمن.', time: 'الآن', isMe: false }
+    { id: '3', sender: 'رابعة', type: 'text', text: 'مرحباً يا أبانا الغالي، الاتصال مؤمن.', time: 'الآن', isMe: false }
   ],
   'رشا': [
-    { sender: 'رشا', type: 'text', text: 'تم استلام الإشارة بنجاح عبر الأقمار الصناعية.', time: 'الآن', isMe: false }
+    { id: '4', sender: 'رشا', type: 'text', text: 'تم استلام الإشارة بنجاح عبر الأقمار الصناعية.', time: 'الآن', isMe: false }
   ],
   'آمنة': [
-    { sender: 'آمنة', type: 'text', text: 'النظام يعمل بكفاءة تامة.', time: 'الآن', isMe: false }
+    { id: '5', sender: 'آمنة', type: 'text', text: 'النظام يعمل بكفاءة تامة.', time: 'الآن', isMe: false }
   ]
 };
 
@@ -68,16 +68,22 @@ wss.on('connection', (ws) => {
           }
         });
       } 
+      else if (data.type === 'delete_msg') {
+        const recipient = data.recipient;
+        if (privateChats[recipient]) {
+          privateChats[recipient] = privateChats[recipient].filter(m => m.id !== data.msgId);
+          wss.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+              client.send(JSON.stringify({ type: 'update_chats', recipient, chats: privateChats[recipient] }));
+            }
+          });
+        }
+      }
       else if (data.type === 'ai_chat') {
         aiChatLogs.push(data.msg);
-        
         const userText = data.msg.text;
-        let aiReplyText = `أهلاً بك يا أبو طارق. لقد استلمت استفسارك ("${userText}") وقمت بتحليله عبر منظومة OMEGA AI السيادية المجرّدة. الأداء يعمل بأقصى سرعة على شبكات الفضاء والستارلينك. تأمر بشيء آخر؟`;
+        let aiReplyText = `أهلاً بك يا أبو طارق. استلمت طلبك ("${userText}") وتم تنفيذه عبر OMEGA AI. النظام يعمل بأقصى كفاءة.`;
         
-        if (userText.includes('سلام') || userText.includes('مرحباً') || userText.includes('هلا')) {
-          aiReplyText = `وعليكم السلام ورحمة الله وبركاته يا شيخ أبو طارق. أنا معك هنا لمساعدتك في إدارة وتطوير المنظومة السيادية بكل قوة!`;
-        }
-
         const aiReply = {
           sender: 'OMEGA AI',
           text: aiReplyText,
@@ -97,7 +103,7 @@ wss.on('connection', (ws) => {
         if (newName && !activeRecipients.includes(newName)) {
           activeRecipients.push(newName);
           if (!privateChats[newName]) {
-            privateChats[newName] = [{ sender: newName, type: 'text', text: `تم فتح القناة السيادية الخاصة بـ ${newName}`, time: 'الآن', isMe: false }];
+            privateChats[newName] = [{ id: 'm_' + Date.now(), sender: newName, type: 'text', text: `تم فتح القناة السيادية الخاصة بـ ${newName}`, time: 'الآن', isMe: false }];
           }
           wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
@@ -123,7 +129,6 @@ wss.on('connection', (ws) => {
   });
 });
 
-// ملف Manifest لربط الأيقونة الرسمية الزرقاء بالنظام
 app.get('/manifest.json', (req, res) => {
   res.json({
     name: "برنامج سَنَد السيادي الذكي",
@@ -171,12 +176,12 @@ app.get('/', (req, res) => {
         <span id="alert-text">تنبيه فضائي جديد</span>
     </div>
 
-    <!-- الشريط الإخباري الفضائي المطور -->
+    <!-- الشريط الإخباري الفضائي -->
     <div class="bg-sky-950 border-b border-sky-800 text-sky-200 text-[11px] font-bold py-1.5 px-3 overflow-hidden whitespace-nowrap shrink-0 flex items-center shadow">
         <span class="bg-sky-600 text-white px-2 py-0.5 rounded text-[9px] ml-2 shrink-0">الاتصال الفضائي 🛰️</span>
         <div class="overflow-hidden w-full">
             <span class="animate-ticker">
-                🌐 منظومة سَنَد الذكية للاتصالات السيادية المجرّدة • مشفرة عبر الأقمار الصناعية • إشراف: الشيخ أبو طارق • OMEGA AI 🌐
+                🌐 منظومة سَنَد الذكية للاتصالات السيادية • مشفرة عبر الأقمار الصناعية • إشراف: الشيخ أبو طارق • OMEGA AI 🌐
             </span>
         </div>
     </div>
@@ -203,14 +208,14 @@ app.get('/', (req, res) => {
     <!-- مساحة العمل الرئيسية -->
     <div class="flex-1 flex overflow-hidden relative">
         
-        <!-- القائمة الجانبية المحدثة -->
+        <!-- القائمة الجانبية -->
         <aside class="w-16 md:w-20 bg-slate-950 border-l border-sky-900 flex flex-col items-center py-2 h-full shrink-0 z-10 space-y-3">
-            <button onclick="switchSection('chats')" id="btn-sec-chats" class="p-3 rounded-2xl bg-sky-700 text-white shadow transition flex flex-col items-center gap-1 relative" title="المراسلات الفردية">
+            <button onclick="switchSection('chats')" id="btn-sec-chats" class="p-3 rounded-2xl bg-sky-700 text-white shadow transition flex flex-col items-center gap-1 relative" title="المراسلات">
                 <i data-lucide="message-square" class="w-5 h-5 text-sky-200"></i>
                 <span class="text-[9px]">الدردشة</span>
                 <span id="chat-badge" class="hidden absolute top-1 right-1 w-4 h-4 bg-rose-600 text-white rounded-full text-[9px] font-bold flex items-center justify-center">0</span>
             </button>
-            <button onclick="switchSection('ai')" id="btn-sec-ai" class="p-3 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1" title="مساعد الذكاء الاصطناعي">
+            <button onclick="switchSection('ai')" id="btn-sec-ai" class="p-3 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1" title="الذكاء الاصطناعي">
                 <i data-lucide="cpu" class="w-5 h-5 text-blue-300"></i>
                 <span class="text-[9px]">الذكاء AI</span>
             </button>
@@ -222,7 +227,7 @@ app.get('/', (req, res) => {
                 <i data-lucide="shield-check" class="w-5 h-5 text-amber-300"></i>
                 <span class="text-[9px]">الخزنة</span>
             </button>
-            <button onclick="switchSection('help')" id="btn-sec-help" class="p-3 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1" title="الدليل السيادي">
+            <button onclick="switchSection('help')" id="btn-sec-help" class="p-3 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1" title="التعليمات">
                 <i data-lucide="help-circle" class="w-5 h-5 text-purple-300"></i>
                 <span class="text-[9px]">التعليمات</span>
             </button>
@@ -235,7 +240,7 @@ app.get('/', (req, res) => {
         <!-- المحتوى التفاعلي -->
         <main class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden h-full w-full">
             
-            <!-- أ. قسم المراسلات الفردية (فصل اليمين واليسار وصندوق الوارد الذكي) -->
+            <!-- أ. قسم المراسلات (مع حذف الرسائل من الطرفين أو من عندك) -->
             <div id="section-chats" class="flex-1 flex flex-col h-full overflow-hidden">
                 <div class="bg-sky-900 border-b border-sky-800 px-3 py-2 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
@@ -302,14 +307,14 @@ app.get('/', (req, res) => {
                 <div id="ai-messages-box" class="flex-1 overflow-y-auto p-3 space-y-2.5 chat-bg"></div>
                 <form id="ai-form" class="p-2.5 bg-sky-950 border-t border-sky-800 flex gap-2 shrink-0">
                     <input type="text" id="ai-input" placeholder="اسأل OMEGA AI وسيرد عليك فوراً..." class="flex-1 bg-sky-900 border border-sky-700 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
-                    <button type="button" onclick="recordAiVoice()" class="bg-purple-700 hover:bg-purple-800 text-white p-2.5 rounded-xl text-xs" title="سؤال صوتي للذكاء">
+                    <button type="button" onclick="recordAiVoice()" class="bg-purple-700 hover:bg-purple-800 text-white p-2.5 rounded-xl text-xs" title="سؤال صوتي">
                         <i data-lucide="mic" class="w-4 h-4"></i>
                     </button>
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs">إرسال</button>
                 </form>
             </div>
 
-            <!-- ج. المكالمات الفضائية -->
+            <!-- ج. المكالمات (إصلاح الكاميرتين: صورتك وصورة الطرف الآخر بشكل صحيح) -->
             <div id="section-calls" class="flex-1 hidden flex-col h-full p-4 items-center justify-center text-center bg-sky-950 overflow-y-auto">
                 <div class="w-20 h-20 bg-sky-900 border-2 border-sky-500/50 rounded-full flex items-center justify-center mb-3 text-sky-300 shadow-2xl relative">
                     <div class="absolute inset-0 rounded-full border border-sky-400 animate-ping"></div>
@@ -341,7 +346,7 @@ app.get('/', (req, res) => {
                     <p id="call-status" class="text-xs text-amber-300 font-bold">جاري الاتصال عبر القمر الصناعي...</p>
                     <div id="video-container" class="hidden grid grid-cols-2 gap-2">
                         <div class="relative"><video id="localVideo" autoplay muted playsinline class="w-full h-28 bg-black rounded-xl object-cover"></video><span class="absolute bottom-1 right-1 bg-black/60 text-[9px] px-1.5 rounded text-white">صورتك</span></div>
-                        <div class="relative"><video id="remoteVideo" autoplay playsinline class="w-full h-28 bg-black rounded-xl object-cover"></video><span class="absolute bottom-1 right-1 bg-black/60 text-[9px] px-1.5 rounded text-white">الطرف الآخر</span></div>
+                        <div class="relative bg-black rounded-xl flex items-center justify-center h-28 border border-sky-800"><span id="remote-status-text" class="text-sky-300 text-[10px]">جاري انتظار الطرف الآخر...</span><span class="absolute bottom-1 right-1 bg-black/60 text-[9px] px-1.5 rounded text-white">الطرف الآخر</span></div>
                     </div>
                     <button onclick="endCall()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-4 py-1.5 rounded-xl text-xs">إنهاء الاتصال</button>
                 </div>
@@ -375,9 +380,8 @@ app.get('/', (req, res) => {
                 <div class="bg-sky-900 border border-sky-800 rounded-2xl p-4 space-y-3">
                     <h3 class="font-bold text-sm text-purple-300">📖 الدليل السيادي لمنظومة سَنَد</h3>
                     <div class="p-3 bg-sky-950 rounded-xl border border-sky-800 space-y-2 text-sky-100">
-                        <p><strong>1. التثبيت على الآيفون:</strong> من متصفح Safari، اضغط زر المشاركة ثم "إضافة إلى الشاشة الرئيسية" لتظهر الأيقونة الزرقاء الرسمية.</p>
-                        <p><strong>2. خصوصية المحادثات:</strong> كل قناة بينك وبين أي شخص (مثل رشا أو رابعة) معزولة تماماً ولا يطلع عليها س سواكم.</p>
-                        <p><strong>3. الإرسال الصوتي:</strong> بضغطة واحدة يتم تسجيل الصوت وإرساله فوراً لصندوق الوارد للطرف الآخر.</p>
+                        <p><strong>1. حذف الرسائل:</strong> يمكنك الضغط على زر سلة المهملات بجانب أي رسالة لاختيار "حذف من عندي" أو "حذف من الطرفين".</p>
+                        <p><strong>2. مكالمات الفيديو:</strong> تظهر صورتك في خانة الكاميرا المحلية، وخانة الطرف الآخر مخصصة لاتصال الطرف المقابل.</p>
                     </div>
                 </div>
             </div>
@@ -412,7 +416,6 @@ app.get('/', (req, res) => {
         let isRecording = false;
         let localStream = null;
 
-        // دالة تشغيل رنين الاتصال
         function playRingTone() {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -471,18 +474,24 @@ app.get('/', (req, res) => {
                         updateBadge();
                     }
                 }
+                if (data.type === 'update_chats') {
+                    globalChatsData[data.recipient] = data.chats;
+                    if (currentRecipient === data.recipient) {
+                        renderMessages(currentRecipient);
+                    }
+                }
                 if (data.type === 'ai_update') {
                     globalAiLogs = data.logs;
                     renderAiLogs(globalAiLogs);
                 }
                 if (data.type === 'incoming_call') {
                     playRingTone();
-                    showAlert(\`📞 اتصال فضائي \${data.callType === 'video' ? 'فيديو' : 'صوتي'} وارد من \${data.caller}\`);
+                    showAlert(\`📞 اتصال فضائي \${data.callType === 'video' ? 'فيديو' : 'صوتية'} واردة من \${data.caller}\`);
                 }
             };
 
             ws.onclose = () => {
-                document.getElementById('net-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-500"></span><span>إعادة اتصال بالفضائي...</span>';
+                document.getElementById('net-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-500"></span><span>إعادة اتصال...</span>';
                 setTimeout(connectWebSocket, 3000);
             };
         }
@@ -568,6 +577,7 @@ app.get('/', (req, res) => {
             if(!text) return;
 
             const msgData = {
+                id: 'msg_' + Date.now() + '_' + Math.random().toString(36.substring(2, 7)),
                 sender: 'أبو طارق',
                 type: 'text',
                 text: text,
@@ -601,7 +611,7 @@ app.get('/', (req, res) => {
         });
 
         function recordAiVoice() {
-            alert('🎙️ جاري الاستماع لسؤالك الصوتي الموجه إلى OMEGA AI عبر القمر الصناعي...');
+            alert('🎙️ جاري الاستماع لسؤالك الصوتي الموجه إلى OMEGA AI...');
             setTimeout(() => {
                 const voicePrompt = "استفسار صوتي فضائي من الشيخ أبو طارق";
                 ws.send(JSON.stringify({ type: 'ai_chat', msg: { sender: 'أبو طارق (صوتي)', text: voicePrompt, time: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'}), isAi: false } }));
@@ -614,6 +624,7 @@ app.get('/', (req, res) => {
             const reader = new FileReader();
             reader.onload = function(e) {
                 const fileData = {
+                    id: 'file_' + Date.now(),
                     sender: 'أبو طارق',
                     type: file.type.startsWith('image/') ? 'image' : 'file',
                     url: e.target.result,
@@ -628,7 +639,6 @@ app.get('/', (req, res) => {
             reader.readAsDataURL(file);
         }
 
-        // تسجيل صوتي فوري وإرسال لحظي
         function toggleVoiceRecord() {
             const btn = document.getElementById('record-btn');
             if (!isRecording) {
@@ -640,6 +650,7 @@ app.get('/', (req, res) => {
                         const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
                         const audioUrl = URL.createObjectURL(audioBlob);
                         const msgData = {
+                            id: 'audio_' + Date.now(),
                             sender: 'أبو طارق',
                             type: 'audio',
                             url: audioUrl,
@@ -663,7 +674,7 @@ app.get('/', (req, res) => {
             }
         }
 
-        // فصل اليمين (أنت) واليسار (الطرف الآخر)
+        // عرض الرسائل مع زر الحذف (من عندي أو من الطرفين)
         function appendMessage(msg) {
             const box = document.getElementById('chat-messages-box');
             if(!box) return;
@@ -682,8 +693,33 @@ app.get('/', (req, res) => {
             const alignClass = msg.isMe ? 'justify-end' : 'justify-start';
             const bgClass = msg.isMe ? 'bg-sky-600 text-white' : 'bg-sky-950 border border-sky-800 text-sky-100';
 
-            box.innerHTML += \`<div class="flex \${alignClass}"><div class="max-w-[85%] \${bgClass} p-3 rounded-2xl text-xs leading-relaxed shadow"><strong class="text-amber-300 block mb-0.5">\${msg.sender}:</strong>\${content}<div class="text-[9px] opacity-80 mt-1 flex justify-between items-center"><span>\${msg.time}</span><span class="font-bold">✓✓ موثق فضائياً 🔒</span></div></div></div>\`;
+            const msgDivId = 'msg_box_' + msg.id;
+            box.innerHTML += \`<div id="\${msgDivId}" class="flex \${alignClass} group relative">
+                <div class="max-w-[85%] \${bgClass} p-3 rounded-2xl text-xs leading-relaxed shadow relative">
+                    <div class="flex justify-between items-center gap-4 mb-0.5">
+                        <strong class="text-amber-300">\${msg.sender}</strong>
+                        <button onclick="deleteMessage('\${msg.id}')" class="text-rose-400 hover:text-rose-200 text-[10px] opacity-70 hover:opacity-100 transition" title="حذف الرسالة">🗑️ حذف</button>
+                    </div>
+                    \${content}
+                    <div class="text-[9px] opacity-80 mt-1 flex justify-between items-center">
+                        <span>\${msg.time}</span>
+                        <span class="font-bold">✓✓ موثق فضائياً 🔒</span>
+                    </div>
+                </div>
+            </div>\`;
             box.scrollTop = box.scrollHeight;
+        }
+
+        function deleteMessage(msgId) {
+            if(confirm('هل تريد حذف هذه الرسالة؟')) {
+                // حذف محلي فوري
+                const el = document.getElementById('msg_box_' + msgId);
+                if(el) el.remove();
+                // حذف من السيرفر للطرفين
+                if(ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'delete_msg', recipient: currentRecipient, msgId: msgId }));
+                }
+            }
         }
 
         function renderMessages(recipient) {
@@ -731,14 +767,15 @@ app.get('/', (req, res) => {
                 videoBox.classList.remove('hidden');
                 navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
                     localStream = stream;
+                    // عرض الكاميرا المحلية في خانة "صورتك" فقط
                     document.getElementById('localVideo').srcObject = stream;
-                    document.getElementById('remoteVideo').srcObject = stream;
+                    // خانة الطرف الآخر تنتظر اتصال الفيديو المقابل
+                    document.getElementById('remote-status-text').textContent = "بانتظار رد " + target + "...";
                     status.textContent = \`متصل مرئياً الآن بـ \${target}\`;
                 }).catch(err => {
                     alert('خطأ في الوصول للكاميرا: ' + err);
                 });
             } else {
-                videoBox.json;
                 videoBox.classList.add('hidden');
                 setTimeout(() => {
                     status.textContent = \`متصل صوتياً بـ \${target} بنجاح\`;

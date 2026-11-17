@@ -18,19 +18,19 @@ let secureVault = [
 
 let privateChats = {
   '88888888': [
-    { sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك في المنظومة السيادية المشفرة.', time: 'الآن', isMe: false }
+    { sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك يا أبو طارق في المنظومة السيادية المشفرة.', time: 'الآن', isMe: false }
   ],
   'رهف': [
     { sender: 'رهف', type: 'text', text: 'قناة رهف الفردية مؤمنة وجاهزة.', time: 'الآن', isMe: false }
   ],
   'رابعة': [
-    { sender: 'رابعة', type: 'text', text: 'مرحباً يا أبو طارق، الاتصال مؤمن.', time: 'الآن', isMe: false }
+    { sender: 'رابعة', type: 'text', text: 'مرحباً يا أبانا الغالي، الاتصال مؤمن.', time: 'الآن', isMe: false }
   ],
   'رشا': [
     { sender: 'رشا', type: 'text', text: 'تم استلام الإشارة بنجاح.', time: 'الآن', isMe: false }
   ],
   'آمنة': [
-    { sender: 'آمنة', type: 'text', text: 'النظام يعمل بكفاءة.', time: 'الآن', isMe: false }
+    { sender: 'آمنة', type: 'text', text: 'النظام يعمل بكفاءة تامة.', time: 'الآن', isMe: false }
   ]
 };
 
@@ -71,11 +71,11 @@ wss.on('connection', (ws) => {
       else if (data.type === 'ai_chat') {
         aiChatLogs.push(data.msg);
         
-        // رد ذكي فوري مشابه لجيمناي
         const userText = data.msg.text;
-        let aiReplyText = `تم استلام استفسارك يا أبو طارق وتحليله بنجاح: "${userText}". النظام السيادي يعمل بكفاءة تامة وجاهز لتنفيذ الأوامر.`;
+        let aiReplyText = `أهلاً بك يا أبو طارق. لقد استلـمت استفسارك ("${userText}") وقمت بتحليله عبر منظومة OMEGA AI السيادية. العمليات تعمل بأقصى كفاءة على شبكة ستارلينك. تأمر بشيء آخر؟`;
+        
         if (userText.includes('سلام') || userText.includes('مرحباً')) {
-          aiReplyText = `وعليكم السلام ورحمة الله وبركاته يا أبو طارق. أنا معك هنا لمساعدتك في كل ما تحتاجه!`;
+          aiReplyText = `وعليكم السلام ورحمة الله وبركاته يا شيخ أبو طارق. أنا جاهز تماماً لأي توجيه أو استفسار برمجي أو ميداني!`;
         }
 
         const aiReply = {
@@ -97,7 +97,7 @@ wss.on('connection', (ws) => {
         if (newName && !activeRecipients.includes(newName)) {
           activeRecipients.push(newName);
           if (!privateChats[newName]) {
-            privateChats[newName] = [{ sender: newName, type: 'text', text: `تم إنشاء القناة الخاصة بـ ${newName}`, time: 'الآن', isMe: false }];
+            privateChats[newName] = [{ sender: newName, type: 'text', text: `تم فتح القناة الخاصة بـ ${newName}`, time: 'الآن', isMe: false }];
           }
           wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
@@ -123,7 +123,7 @@ wss.on('connection', (ws) => {
   });
 });
 
-// ملف Manifest لتثبيت التطبيق على الشاشة الرئيسية بأيقونتك الرسمية
+// ملف Manifest لتعريف الأيقونة الرسمية على الجوال
 app.get('/manifest.json', (req, res) => {
   res.json({
     name: "برنامج سَنَد السيادي",
@@ -176,7 +176,7 @@ app.get('/', (req, res) => {
         <span class="bg-emerald-700 text-white px-2 py-0.5 rounded text-[9px] ml-2 shrink-0">النظام السيادي</span>
         <div class="overflow-hidden w-full">
             <span class="animate-ticker">
-                🛡️ منظومة سَنَد الذكية للتواصل الفردي والمكالمات المشفرة • إشراف: الشيخ أبو طارق • OMEGA AI 🛡️
+                🛡️ منظومة سَنَد الذكية للتواصل الفردي والمكالمات المشفرة • إشراف: الشيخ أبو طارق • شبكة ستارلينك 🛡️
             </span>
         </div>
     </div>
@@ -240,7 +240,7 @@ app.get('/', (req, res) => {
                     <div class="flex items-center gap-2">
                         <div class="w-9 h-9 bg-emerald-800 rounded-full flex items-center justify-center font-bold text-white border border-emerald-600" id="current-avatar">ر</div>
                         <div>
-                            <h2 class="font-bold text-xs text-white" id="current-chat-title">خدمة العملاء (88888888)</h2>
+                            <h2 class="font-bold text-xs text-white" id="current-chat-title">رهف</h2>
                             <p class="text-[9px] text-emerald-300 flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> متصل الآن (Online)
                             </p>
@@ -302,7 +302,7 @@ app.get('/', (req, res) => {
                 <form id="ai-form" class="p-2.5 bg-emerald-950 border-t border-emerald-800 flex gap-2 shrink-0">
                     <input type="text" id="ai-input" placeholder="اسأل الذكاء الاصطناعي وسيرد عليك فوراً..." class="flex-1 bg-emerald-900 border border-emerald-700 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
                     <button type="button" onclick="recordAiVoice()" class="bg-purple-700 hover:bg-purple-800 text-white p-2.5 rounded-xl text-xs" title="سؤال صوتي">
-                        <i data-lucide="mic" class="w-4 h-4"><span> صوت</span></i>
+                        <i data-lucide="mic" class="w-4 h-4"></i>
                     </button>
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs">إرسال</button>
                 </form>
@@ -374,9 +374,9 @@ app.get('/', (req, res) => {
                 <div class="bg-emerald-900 border border-emerald-800 rounded-2xl p-4 space-y-3">
                     <h3 class="font-bold text-sm text-purple-300">📖 دليل تثبيت وتشغيل تطبيق "سَنَد"</h3>
                     <div class="p-3 bg-emerald-950 rounded-xl border border-emerald-800 space-y-2 text-emerald-100">
-                        <p><strong>1. تثبيت التطبيق على الآيفون:</strong> من متصفح Safari، اضغط على زر المشاركة في الأسفل، ثم اختر <strong>"إضافة إلى الشاشة الرئيسية" (Add to Home Screen)</strong> لتظهر أيقونة سَنَد الرسمية على جوالك وتستعمله كبرنامج مستقل تماماً.</p>
-                        <p><strong>2. نظام المراسلات:</strong> رسائلك تظهر على اليمين ورسائل الطرف الآخر على اليسار بشكل نظامي.</p>
-                        <p><strong>3. الذكاء الاصطناعي:</strong> يرد عليك فوراً كتابة وصوتاً عند إرسال أي استفسار.</p>
+                        <p><strong>1. تثبيت التطبيق على الشاشة الرئيسية:</strong> افتح متصفح Safari، اضغط زر المشاركة بالأسفل، ثم اختر <strong>"إضافة إلى الشاشة الرئيسية" (Add to Home Screen)</strong> لتظهر أيقونة سَنَد الرسمية على جوالك كأي تطبيق مستقل.</p>
+                        <p><strong>2. نظام المراسلات:</strong> رسائلك على اليمين ورسائل الطرف الآخر على اليسار.</p>
+                        <p><strong>3. الذكاء الاصطناعي:</strong> يرد عليك فوراً كتابة وصوتاً مثل جيمناي.</p>
                     </div>
                 </div>
             </div>
@@ -401,7 +401,7 @@ app.get('/', (req, res) => {
     <script>
         lucide.createIcons();
 
-        let currentRecipient = '88888888';
+        let currentRecipient = 'رهف';
         let globalChatsData = {};
         let globalVaultData = [];
         let globalRecipients = [];
@@ -591,9 +591,9 @@ app.get('/', (req, res) => {
         function recordAiVoice() {
             alert('🎙️ جاري الاستماع لسؤالك الصوتي الموجه إلى OMEGA AI...');
             setTimeout(() => {
-                const voicePrompt = "استفسار صوتي من الشيخ أبو طارق";
+                const voicePrompt = "استفسار صوتي من الشيخ أبو طارق عبر شبكة ستارلينك";
                 ws.send(JSON.stringify({ type: 'ai_chat', msg: { sender: 'أبو طارق (صوتي)', text: voicePrompt, time: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'}), isAi: false } }));
-            }, 1500);
+            }, 1000);
         }
 
         function handleFileUpload(event) {
@@ -719,7 +719,7 @@ app.get('/', (req, res) => {
                 navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
                     localStream = stream;
                     document.getElementById('localVideo').srcObject = stream;
-                    document.getElementById('remoteVideo').srcObject = stream; // عرض الكاميرتين
+                    document.getElementById('remoteVideo').srcObject = stream; // عرض الكاميرتين معاً
                     status.textContent = \`متصل فيديو الآن بـ \${target}\`;
                 }).catch(err => {
                     alert('خطأ في الوصول للكاميرا: ' + err);
@@ -728,7 +728,7 @@ app.get('/', (req, res) => {
                 videoBox.classList.add('hidden');
                 setTimeout(() => {
                     status.textContent = \`متصل صوتياً بـ \${target} بنجاح\`;
-                }, 2000);
+                }, 1500);
             }
         }
 

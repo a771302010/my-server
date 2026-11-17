@@ -70,10 +70,9 @@ wss.on('connection', (ws) => {
       } 
       else if (data.type === 'ai_chat') {
         aiChatLogs.push(data.msg);
-        // رد تلقائي ذكي من الـ AI
         const aiReply = {
           sender: 'OMEGA AI',
-          text: `تم استلام استفسارك بنجاح وتحليله عبر الشبكة السيادية: "${data.msg.text}". النظام يعمل بكفاءة تامة.`,
+          text: `تم استلام استفسارك بنجاح وتحليله: "${data.msg.text}". النظام يعمل بكفاءة تامة.`,
           time: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'})
         };
         aiChatLogs.push(aiReply);
@@ -136,13 +135,11 @@ app.get('/', (req, res) => {
 </head>
 <body class="w-screen h-[100dvh] flex flex-col justify-between m-0 p-0">
     
-    <!-- تنبيه عائم -->
     <div id="alert-banner" class="hidden fixed top-2 left-1/2 transform -translate-x-1/2 bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-2xl text-xs z-50 shadow-2xl animate-bounce flex items-center gap-2">
         <i data-lucide="bell" class="w-4 h-4"></i>
         <span id="alert-text">تنبيه سيادي جديد</span>
     </div>
 
-    <!-- الشريط الإخباري -->
     <div class="bg-emerald-950 border-b border-emerald-700 text-emerald-200 text-[11px] font-bold py-1.5 px-3 overflow-hidden whitespace-nowrap shrink-0 flex items-center shadow">
         <span class="bg-emerald-700 text-white px-2 py-0.5 rounded text-[9px] ml-2 shrink-0">النظام السيادي</span>
         <div class="overflow-hidden w-full">
@@ -152,7 +149,6 @@ app.get('/', (req, res) => {
         </div>
     </div>
 
-    <!-- رأس التطبيق -->
     <header class="bg-emerald-800 border-b border-emerald-700 px-3 py-2 flex items-center justify-between shrink-0 shadow-lg">
         <div class="flex items-center gap-2">
             <div class="w-9 h-9 bg-white rounded-xl flex items-center justify-center border-2 border-emerald-300 text-emerald-800 font-extrabold text-lg shadow">S</div>
@@ -171,10 +167,8 @@ app.get('/', (req, res) => {
         </div>
     </header>
 
-    <!-- مساحة العمل الرئيسية -->
     <div class="flex-1 flex overflow-hidden relative">
         
-        <!-- القائمة الجانبية (الأيقونات الترتيب الصحيح) -->
         <aside class="w-16 md:w-20 bg-emerald-950 border-l border-emerald-800 flex flex-col items-center py-2 h-full shrink-0 z-10 space-y-3">
             <button onclick="switchSection('chats')" id="btn-sec-chats" class="p-3 rounded-2xl bg-emerald-800 text-white shadow transition flex flex-col items-center gap-1" title="المراسلات الفردية">
                 <i data-lucide="message-square" class="w-5 h-5 text-emerald-300"></i>
@@ -202,23 +196,19 @@ app.get('/', (req, res) => {
             </button>
         </aside>
 
-        <!-- المحتوى التفاعلي (يمتلئ تماماً بالشاشة) -->
         <main class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden h-full w-full">
             
-            <!-- أ. قسم المراسلات الفردية (مطابق لتجربة واتساب) -->
             <div id="section-chats" class="flex-1 flex flex-col h-full overflow-hidden">
-                <!-- شريط العلوي للمحادثة (الاسم، الحالة، أزرار الاتصال السريع) -->
                 <div class="bg-emerald-900 border-b border-emerald-800 px-3 py-2 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
                         <div class="w-9 h-9 bg-emerald-800 rounded-full flex items-center justify-center font-bold text-white border border-emerald-600" id="current-avatar">ر</div>
                         <div>
                             <h2 class="font-bold text-xs text-white" id="current-chat-title">خدمة العملاء (88888888)</h2>
                             <p class="text-[9px] text-emerald-300 flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></i> متصل الآن (Online)
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> متصل الآن (Online)
                             </p>
                         </div>
                     </div>
-                    <!-- أزرار اتصال سريع بالفيديو والصوت من داخل المحادثة -->
                     <div class="flex items-center gap-2">
                         <button onclick="quickCall('audio')" class="p-2 bg-emerald-800 hover:bg-emerald-700 text-emerald-200 rounded-full transition shadow" title="مكالمة صوتية سريعة">
                             <i data-lucide="phone" class="w-4 h-4"></i>
@@ -229,7 +219,6 @@ app.get('/', (req, res) => {
                     </div>
                 </div>
 
-                <!-- شريط البحث وإضافة اسم جديد -->
                 <div class="p-2 bg-emerald-950 border-b border-emerald-800 flex flex-col gap-1.5 shrink-0">
                     <div class="flex items-center gap-2">
                         <input type="text" id="search-contact" placeholder="🔍 ابحث عن اسم..." oninput="filterRecipients()" class="bg-emerald-900 border border-emerald-700 rounded-lg px-2.5 py-1 text-[11px] text-white flex-1">
@@ -241,14 +230,9 @@ app.get('/', (req, res) => {
                     <div class="flex gap-1.5 overflow-x-auto pb-1" id="recipient-tabs"></div>
                 </div>
 
-                <!-- رسائل الدردشة -->
                 <div id="chat-messages-box" class="flex-1 overflow-y-auto p-3 space-y-2.5 chat-bg"></div>
 
-                <!-- شريط الإرسال والمرفقات (مطابق لواتساب تماماً في الأسفل) -->
                 <form id="chat-form" class="p-2 bg-emerald-950 border-t border-emerald-800 flex gap-1.5 items-center shrink-0">
-                    <input type="text" id="sender-name" value="المشغل الرئيسي" class="hidden">
-                    
-                    <!-- زر إرفاق ملف أو صوره (+) -->
                     <label class="cursor-pointer bg-emerald-800 hover:bg-emerald-700 text-emerald-200 p-2.5 rounded-full flex items-center justify-center shrink-0 shadow" title="إرفاق صورة أو ملف">
                         <i data-lucide="plus" class="w-4 h-4"></i>
                         <input type="file" id="file-input" class="hidden" accept="image/*,video/*,.pdf,.doc,.docx" onchange="handleFileUpload(event)">
@@ -256,7 +240,6 @@ app.get('/', (req, res) => {
 
                     <input type="text" id="chat-input" placeholder="اكتب رسالة..." class="flex-1 bg-emerald-900 border border-emerald-700 rounded-2xl px-4 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
                     
-                    <!-- زر تسجيل الصوت -->
                     <button type="button" id="record-btn" onclick="toggleVoiceRecord()" class="bg-purple-700 hover:bg-purple-800 text-white p-2.5 rounded-full text-xs flex items-center justify-center shrink-0 shadow" title="تسجيل صوت">
                         <i data-lucide="mic" class="w-4 h-4"></i>
                     </button>
@@ -267,7 +250,6 @@ app.get('/', (req, res) => {
                 </form>
             </div>
 
-            <!-- ب. مساعد الذكاء الاصطناعي المباشر (OMEGA AI Chat) -->
             <div id="section-ai" class="flex-1 hidden flex-col h-full bg-slate-950 overflow-hidden">
                 <div class="bg-blue-950 border-b border-blue-900 px-3 py-2.5 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
@@ -285,7 +267,6 @@ app.get('/', (req, res) => {
                 </form>
             </div>
 
-            <!-- ج. المكالمات والاتصال -->
             <div id="section-calls" class="flex-1 hidden flex-col h-full p-6 items-center justify-center text-center bg-emerald-950">
                 <div class="w-24 h-24 bg-emerald-900 border-2 border-emerald-500/50 rounded-full flex items-center justify-center mb-4 text-emerald-300 shadow-2xl relative">
                     <div class="absolute inset-0 rounded-full border border-emerald-400 animate-ping"></div>
@@ -323,7 +304,6 @@ app.get('/', (req, res) => {
                 </div>
             </div>
 
-            <!-- د. الخزنة والأكواد -->
             <div id="section-codes" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-4 bg-emerald-950">
                 <div class="bg-emerald-900 border border-emerald-800 rounded-2xl p-4">
                     <h3 class="font-bold text-sm text-amber-300 mb-3 flex items-center gap-2">
@@ -346,7 +326,6 @@ app.get('/', (req, res) => {
                 </div>
             </div>
 
-            <!-- هـ. التعليمات والدليل -->
             <div id="section-help" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 text-xs bg-emerald-950">
                 <div class="bg-emerald-900 border border-emerald-800 rounded-2xl p-4 space-y-3">
                     <h3 class="font-bold text-sm text-purple-300">📖 دليل وتشغيل منظومة سَنَد الذكية</h3>
@@ -358,7 +337,6 @@ app.get('/', (req, res) => {
                 </div>
             </div>
 
-            <!-- و. الإعدادات -->
             <div id="section-settings" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 text-xs bg-emerald-950">
                 <div class="bg-emerald-900 border border-emerald-800 rounded-2xl p-4 space-y-3">
                     <h3 class="font-bold text-sm text-indigo-300">إحصائيات الشبكة والتحكم المركزي</h3>

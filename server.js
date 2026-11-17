@@ -110,7 +110,7 @@ wss.on('connection', (ws) => {
       else if (data.type === 'ai_chat') {
         aiChatLogs.push(data.msg);
         const userText = data.msg.text;
-        let aiReplyText = `⚡ [OMEGA AI]: استلمت الأمر السيادي ("${userText}"). تم تشفير البيانات وتحليل الإشارات عبر الأقمار الصناعية بنجاح تام يا أبو طارق. النظام مؤمن بأقصى درجات الحماية.`;
+        let aiReplyText = `أهلاً بك يا أبو طارق. استلمت طلبك ("${userText}") وتم تنفيذه عبر OMEGA AI. النظام يعمل بأقصى سرعة وكفاءة فضائية.`;
         
         const aiReply = {
           sender: 'OMEGA AI',
@@ -268,7 +268,7 @@ app.get('/', (req, res) => {
         <!-- المحتوى التفاعلي -->
         <main class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden h-full w-full">
             
-            <!-- أ. قسم المراسلات مع زر مسح المحادثة بالكامل -->
+            <!-- أ. قسم المراسلات -->
             <div id="section-chats" class="flex-1 flex flex-col h-full overflow-hidden">
                 <div class="bg-sky-900 border-b border-sky-800 px-3 py-2 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
@@ -280,8 +280,8 @@ app.get('/', (req, res) => {
                             </p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                        <button onclick="clearCurrentChat()" class="px-2 py-1 bg-rose-900/80 hover:bg-rose-700 text-white rounded-lg text-[10px] font-bold transition shadow" title="مسح سجل المحادثة بالكامل">
+                    <div class="flex items-center gap-2">
+                        <button onclick="clearCurrentChat()" class="px-2.5 py-1 bg-rose-900/80 hover:bg-rose-700 text-white rounded-lg text-[10px] font-bold transition shadow" title="مسح سجل المحادثة">
                             🗑️ مسح الكل
                         </button>
                         <button onclick="quickCall('audio')" class="p-2 bg-sky-800 hover:bg-sky-700 text-sky-200 rounded-full transition shadow" title="مكالمة صوتية">
@@ -306,15 +306,13 @@ app.get('/', (req, res) => {
 
                 <div id="chat-messages-box" class="flex-1 overflow-y-auto p-3 space-y-2.5 chat-bg"></div>
 
-                <!-- نموذج الإرسال مع زر العرض لمرة واحدة -->
                 <form id="chat-form" class="p-2 bg-sky-950 border-t border-sky-800 flex gap-1.5 items-center shrink-0">
                     <label class="cursor-pointer bg-sky-800 hover:bg-sky-700 text-sky-200 p-2.5 rounded-full flex items-center justify-center shrink-0 shadow" title="إرفاق ملف">
                         <i data-lucide="plus" class="w-4 h-4"></i>
                         <input type="file" id="file-input" class="hidden" accept="image/*,video/*,.pdf,.doc,.docx" onchange="handleFileUpload(event)">
                     </label>
 
-                    <!-- زر تفعيل وضع المشاهدة لمرة واحدة -->
-                    <button type="button" id="view-once-btn" onclick="toggleViewOnce()" class="bg-sky-900 border border-sky-700 text-sky-300 hover:text-white p-2.5 rounded-full text-xs flex items-center justify-center shrink-0 shadow transition" title="رسالة تُفتح مرة واحدة وتختفي (View Once)">
+                    <button type="button" id="view-once-btn" onclick="toggleViewOnce()" class="bg-sky-900 border border-sky-700 text-sky-300 hover:text-white p-2.5 rounded-full text-xs flex items-center justify-center shrink-0 shadow transition" title="عرض لمرة واحدة (View Once)">
                         <i data-lucide="eye-off" class="w-4 h-4"></i>
                     </button>
 
@@ -417,8 +415,8 @@ app.get('/', (req, res) => {
                 <div class="bg-sky-900 border border-sky-800 rounded-2xl p-4 space-y-3">
                     <h3 class="font-bold text-sm text-purple-300">📖 الدليل السيادي لمنظومة سَنَد</h3>
                     <div class="p-3 bg-sky-950 rounded-xl border border-sky-800 space-y-2 text-sky-100">
-                        <p><strong>1. رسائل العرض لمرة واحدة (View Once):</strong> اضغط على أيقونة العين المتقطعة قبل الإرسال لتفعيل تدمير الرسالة فور قراءتها.</p>
-                        <p><strong>2. مسح السجل:</strong> يمكنك مسح المحادثة بالكامل بنقرة واحدة عبر زر "مسح الكل" بالأعلى.</p>
+                        <p><strong>1. رسائل العرض لمرة واحدة:</strong> اضغط أيقونة العين المتقطعة لتدمير الرسالة تلقائياً بعد فتحها.</p>
+                        <p><strong>2. مسح السجل:</strong> يمكنك مسح المحادثة بالكامل من زر "مسح الكل" بالأعلى.</p>
                         <p><strong>3. مكالمات الفيديو:</strong> صورتك تظهر في خانة الكاميرا المحلية بشكل مستقل تماماً.</p>
                     </div>
                 </div>
@@ -614,10 +612,10 @@ app.get('/', (req, res) => {
             const btn = document.getElementById('view-once-btn');
             if (isViewOnceMode) {
                 btn.className = "bg-amber-500 text-slate-950 p-2.5 rounded-full text-xs flex items-center justify-center shrink-0 shadow animate-pulse";
-                btn.title = "وضع العرض لمرة واحدة مفعل (View Once)";
+                btn.title = "وضع العرض لمرة واحدة مفعل";
             } else {
                 btn.className = "bg-sky-900 border border-sky-700 text-sky-300 hover:text-white p-2.5 rounded-full text-xs flex items-center justify-center shrink-0 shadow transition";
-                btn.title = "رسالة تُفتح مرة واحدة وتختفي";
+                btn.title = "عرض لمرة واحدة (View Once)";
             }
         }
 
@@ -640,7 +638,7 @@ app.get('/', (req, res) => {
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ type: 'private_chat', recipient: currentRecipient, msg: msgData }));
                 input.value = '';
-                if (isViewOnceMode) toggleViewOnce(); // إعادة تعيين الوضع
+                if (isViewOnceMode) toggleViewOnce();
             }
         });
 
@@ -729,7 +727,6 @@ app.get('/', (req, res) => {
             }
         }
 
-        // عرض الرسائل مع دعم العرض لمرة واحدة وتدميرها
         function appendMessage(msg) {
             const box = document.getElementById('chat-messages-box');
             if(!box) return;
@@ -747,7 +744,7 @@ app.get('/', (req, res) => {
                 } else {
                     content = \`<div onclick="openViewOnce('\${msg.id}', \`\${msg.text}\`)" class="bg-amber-500/20 border border-amber-400 p-2 rounded-xl cursor-pointer text-amber-300 font-bold flex items-center gap-2 mt-1">
                         <i data-lucide="eye" class="w-4 h-4 animate-bounce"></i>
-                        <span>رسالة نصية تُفتح لمرة واحدة (اضغط للعرض)</span>
+                        <span>رسالة تُفتح لمرة واحدة (اضغط للعرض)</span>
                     </div>\`;
                 }
             } else if (msg.type === 'view_once_media') {
@@ -810,7 +807,7 @@ app.get('/', (req, res) => {
         }
 
         function clearCurrentChat() {
-            if(confirm('⚠️ تحذير: هل تريد مسح سجل هذه المحادثة بالكامل من الطرفين؟')) {
+            if(confirm('⚠️ تحذير: هل تريد مسح سجل هذه المحادثة بالكامل؟')) {
                 if(ws && ws.readyState === WebSocket.OPEN) {
                     ws.send(JSON.stringify({ type: 'clear_chat', recipient: currentRecipient }));
                 }
@@ -892,7 +889,7 @@ app.get('/', (req, res) => {
 
         function saveSecureCode() {
             const name = document.getElementById('new-owner-name').value.trim();
-            const code = document.getElementById('new-code-val.value').trim() || document.getElementById('new-code-val').value.trim();
+            const code = document.getElementById('new-code-val').value.trim();
             if(!name || !code) {
                 alert('يرجى إدخال اسم الجهة وتوليد الكود.');
                 return;

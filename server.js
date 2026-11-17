@@ -27,7 +27,7 @@ let privateChats = {
     { sender: 'رابعة', type: 'text', text: 'مرحباً يا أبانا الغالي، الاتصال مؤمن.', time: 'الآن', isMe: false }
   ],
   'رشا': [
-    { sender: 'رشا', type: 'text', text: 'تم استلام الإشارة بنجاح.', time: 'الآن', isMe: false }
+    { sender: 'رشا', type: 'text', text: 'تم استلام الإشارة بنجاح عبر ستارلينك.', time: 'الآن', isMe: false }
   ],
   'آمنة': [
     { sender: 'آمنة', type: 'text', text: 'النظام يعمل بكفاءة تامة.', time: 'الآن', isMe: false }
@@ -72,10 +72,10 @@ wss.on('connection', (ws) => {
         aiChatLogs.push(data.msg);
         
         const userText = data.msg.text;
-        let aiReplyText = `أهلاً بك يا أبو طارق. لقد استلـمت استفسارك ("${userText}") وقمت بتحليله عبر منظومة OMEGA AI السيادية. العمليات تعمل بأقصى كفاءة على شبكة ستارلينك. تأمر بشيء آخر؟`;
+        let aiReplyText = `أهلاً بك يا أبو طارق. لقد استلمت استفسارك ("${userText}") وقمت بتحليله عبر منظومة OMEGA AI السيادية. الأداء يعمل بأقصى سرعة على شبكة ستارلينك. تأمر بشيء آخر؟`;
         
-        if (userText.includes('سلام') || userText.includes('مرحباً')) {
-          aiReplyText = `وعليكم السلام ورحمة الله وبركاته يا شيخ أبو طارق. أنا جاهز تماماً لأي توجيه أو استفسار برمجي أو ميداني!`;
+        if (userText.includes('سلام') || userText.includes('مرحباً') || userText.includes('هلا')) {
+          aiReplyText = `وعليكم السلام ورحمة الله وبركاته يا شيخ أبو طارق. أنا معك هنا للرد الفوري ومساعدتك في كل ما تطلبه!`;
         }
 
         const aiReply = {
@@ -123,7 +123,7 @@ wss.on('connection', (ws) => {
   });
 });
 
-// ملف Manifest لتعريف الأيقونة الرسمية على الجوال
+// ملف Manifest لربط الأيقونة الرسمية بالنظام
 app.get('/manifest.json', (req, res) => {
   res.json({
     name: "برنامج سَنَد السيادي",

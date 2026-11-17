@@ -21,7 +21,7 @@ let privateChats = {
     { sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك يا أبو طارق في المنظومة السيادية المشفرة.', time: 'الآن', isMe: false }
   ],
   'رهف': [
-    { sender: 'رهف', type: 'text', text: 'قناة رهف الفردية مؤمنة وجاهزة.', time: 'الآن', isMe: false }
+    { sender: 'رهف', type: 'text', text: 'صباح الخير، قناة رهف الفردية مؤمنة.', time: 'الآن', isMe: false }
   ],
   'رابعة': [
     { sender: 'رابعة', type: 'text', text: 'مرحباً يا أبانا الغالي، الاتصال مؤمن.', time: 'الآن', isMe: false }
@@ -123,15 +123,15 @@ wss.on('connection', (ws) => {
   });
 });
 
-// ملف Manifest لربط الأيقونة الرسمية بالنظام
+// ملف Manifest لربط الأيقونة الرسمية الزرقاء بالنظام
 app.get('/manifest.json', (req, res) => {
   res.json({
     name: "برنامج سَنَد السيادي",
     short_name: "سَنَد",
     start_url: "/",
     display: "standalone",
-    background_color: "#064e3b",
-    theme_color: "#047857",
+    background_color: "#042f2e",
+    theme_color: "#0369a1",
     icons: [
       {
         src: "https://i.ibb.co/3s65Z62/IMG-3248.jpg",
@@ -149,7 +149,7 @@ app.get('/', (req, res) => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#047857">
+    <meta name="theme-color" content="#0369a1">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="https://i.ibb.co/3s65Z62/IMG-3248.jpg">
     <title>سَنَد | الشبكة السيادية الذكية المشفرة</title>

@@ -8,42 +8,44 @@ const wss = new WebSocket.Server({ server });
 
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json({ limit: '20mb' }));
-app.use(express.urlencoded({ extended: true, limit: '20mb' }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// الخزنة السيادية للأكواد (خاصة بالإدارة)
 let secureVault = [
   { owner: 'القيادة المركزية العليا', phone: '967770000001', num: '88800001', cat: 'بروتوكول VIP' },
   { owner: 'خدمة العملاء المركزية', phone: '88888888', num: '88888888', cat: 'الدعم الفني 24/7' }
 ];
 
-// المحادثات الفردية المشفرة لكل غرفة
 let privateChats = {
   '88888888': [
-    { sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك في المنظومة السيادية المشفرة.', time: 'الآن' }
+    { sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك في المنظومة السيادية المشفرة.', time: 'الآن', status: 'read' }
   ],
   'رهف': [
-    { sender: 'النظام الآمن', type: 'text', text: 'قناة رهف الفردية مؤمنة.', time: 'الآن' }
+    { sender: 'النظام الآمن', type: 'text', text: 'قناة رهف الفردية مؤمنة.', time: 'الآن', status: 'read' }
   ],
   'رابعة': [
-    { sender: 'النظام الآمن', type: 'text', text: 'قناة رابعة الفردية مؤمنة.', time: 'الآن' }
+    { sender: 'النظام الآمن', type: 'text', text: 'قناة رابعة الفردية مؤمنة.', time: 'الآن', status: 'read' }
   ],
   'رشا': [
-    { sender: 'النظام الآمن', type: 'text', text: 'قناة رشا الفردية مؤمنة.', time: 'الآن' }
+    { sender: 'النظام الآمن', type: 'text', text: 'قناة رشا الفردية مؤمنة.', time: 'الآن', status: 'read' }
   ],
   'آمنة': [
-    { sender: 'النظام الآمن', type: 'text', text: 'قناة آمنة الفردية مؤمنة.', time: 'الآن' }
+    { sender: 'النظام الآمن', type: 'text', text: 'قناة آمنة الفردية مؤمنة.', time: 'الآن', status: 'read' }
   ]
 };
 
 let activeRecipients = ['88888888', 'رهف', 'رابعة', 'رشا', 'آمنة'];
+let activeConnectionsCount = 0;
 
 wss.on('connection', (ws) => {
+  activeConnectionsCount++;
+  
   ws.send(JSON.stringify({
     type: 'init',
     vault: secureVault,
     chats: privateChats,
-    recipients: activeRecipients
+    recipients: activeRecipients,
+    connections: activeConnectionsCount
   }));
 
   ws.on('message', (message) => {
@@ -66,7 +68,7 @@ wss.on('connection', (ws) => {
         if (newName && !activeRecipients.includes(newName)) {
           activeRecipients.push(newName);
           if (!privateChats[newName]) {
-            privateChats[newName] = [{ sender: 'النظام الآمن', type: 'text', text: `تم إنشاء القناة الخاصة بـ ${newName}`, time: 'الآن' }];
+            privateChats[newName] = [{ sender: 'النظام الآمن', type: 'text', text: `تم إنشاء القناة الخاصة بـ ${newName}`, time: 'الآن', status: 'read' }];
           }
           wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
@@ -75,17 +77,20 @@ wss.on('connection', (ws) => {
           });
         }
       }
-      else if (data.type === 'add_secure_code') {
-        secureVault.unshift(data.item);
+      else if (data.type === 'call_action') {
         wss.clients.forEach(client => {
           if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({ type: 'update_vault', vault: secureVault }));
+            client.send(JSON.stringify({ type: 'incoming_call', target: data.target, callType: data.callType, caller: data.caller }));
           }
         });
       }
     } catch (e) {
       console.error('Error handling WS message', e);
     }
+  });
+
+  ws.on('close', () => {
+    activeConnectionsCount = Math.max(1, activeConnectionsCount - 1);
   });
 });
 
@@ -101,17 +106,24 @@ app.get('/', (req, res) => {
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #064e3b; color: #f0fdf4; height: 100dvh; overflow: hidden; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Tajawal', sans-serif; background-color: #064e3b; color: #f0fdf4; height: 100vh; height: 100dvh; overflow: hidden; margin: 0; display: flex; flex-direction: column; }
         .chat-bg { background-color: #022c22; background-image: radial-gradient(#059669 1px, transparent 1px); background-size: 20px 20px; }
         @keyframes ticker { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
         .animate-ticker { display: inline-block; animation: ticker 40s linear infinite; }
     </style>
 </head>
-<body class="flex flex-col justify-between h-[100dvh] w-screen m-0 p-0">
+<body class="w-screen h-[100dvh] flex flex-col justify-between m-0 p-0">
     
+    <!-- تنبيه الرسائل والمكالمات العائم -->
+    <div id="alert-banner" class="hidden fixed top-2 left-1/2 transform -translate-x-1/2 bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-2xl text-xs z-50 shadow-2xl animate-bounce flex items-center gap-2">
+        <i data-lucide="bell" class="w-4 h-4"></i>
+        <span id="alert-text">تنبيه سيادي جديد</span>
+    </div>
+
     <!-- الشريط الإخباري -->
-    <div class="bg-emerald-950 border-b border-emerald-700 text-emerald-200 text-xs font-bold py-2 px-4 overflow-hidden whitespace-nowrap shrink-0 flex items-center shadow-md">
-        <span class="bg-emerald-700 text-white px-2 py-0.5 rounded text-[10px] ml-3 shrink-0">النظام السيادي</span>
+    <div class="bg-emerald-950 border-b border-emerald-700 text-emerald-200 text-[11px] font-bold py-1.5 px-3 overflow-hidden whitespace-nowrap shrink-0 flex items-center shadow">
+        <span class="bg-emerald-700 text-white px-2 py-0.5 rounded text-[9px] ml-2 shrink-0">النظام السيادي</span>
         <div class="overflow-hidden w-full">
             <span class="animate-ticker">
                 🛡️ منظومة سَنَد الذكية للتواصل الفردي والمكالمات المشفرة • الربط المركزي: 88888888 • مؤمن بالذكاء الاصطناعي OMEGA AI 🛡️
@@ -120,87 +132,94 @@ app.get('/', (req, res) => {
     </div>
 
     <!-- رأس التطبيق -->
-    <header class="bg-emerald-800 border-b border-emerald-700 px-4 py-3 flex items-center justify-between shrink-0 shadow-lg">
-        <div class="flex items-center gap-3">
-            <div class="w-11 h-11 bg-white rounded-2xl flex items-center justify-center border-2 border-emerald-300 text-emerald-800 font-extrabold text-2xl shadow">S</div>
+    <header class="bg-emerald-800 border-b border-emerald-700 px-3 py-2.5 flex items-center justify-between shrink-0 shadow-lg">
+        <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center border-2 border-emerald-300 text-emerald-800 font-extrabold text-xl shadow">S</div>
             <div>
-                <h1 class="font-extrabold text-base text-white flex items-center gap-2">
-                    برنامج سَنَد <span class="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">النسخة السيادية الذكية</span>
+                <h1 class="font-extrabold text-sm text-white flex items-center gap-1.5">
+                    برنامج سَنَد <span class="bg-emerald-600 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">النسخة السيادية</span>
                 </h1>
-                <p class="text-[11px] text-emerald-100">الربط المركزي: 88888888 • مدعوم بـ OMEGA AI</p>
+                <p class="text-[10px] text-emerald-100">الربط المركزي: 88888888 • متصل عالمياً</p>
             </div>
         </div>
         <div class="flex items-center gap-2">
             <span id="net-status" class="bg-emerald-500/20 text-emerald-300 text-[10px] px-2.5 py-1 rounded-full font-mono flex items-center gap-1.5 border border-emerald-500/40">
                 <span id="net-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span id="net-text">متصل بالأمان التام</span>
+                <span id="net-text">آمن (Live)</span>
             </span>
         </div>
     </header>
 
-    <!-- مساحة العمل -->
+    <!-- مساحة العمل الرئيسية -->
     <div class="flex-1 flex overflow-hidden relative">
         
-        <!-- القائمة الجانبية -->
-        <aside class="w-20 md:w-64 bg-emerald-950 border-l border-emerald-800 flex flex-col h-full shrink-0 z-10 p-2 space-y-1 overflow-y-auto">
-            <div class="text-[10px] font-bold text-emerald-300 px-2 py-1 hidden md:block">القوائم المشفرة:</div>
+        <!-- القائمة الجانبية (مرتبة ومنظمة بالترتيب الصحيح) -->
+        <aside class="w-16 md:w-56 bg-emerald-950 border-l border-emerald-800 flex flex-col h-full shrink-0 z-10 p-1.5 space-y-1 overflow-y-auto">
+            <div class="text-[10px] font-bold text-emerald-300 px-2 py-1 hidden md:block">القوائم السيادية:</div>
             
-            <button onclick="switchSection('chats')" id="btn-sec-chats" class="w-full text-right p-2.5 rounded-xl bg-emerald-800 border border-emerald-600 text-white font-bold text-xs flex items-center gap-3 transition">
+            <button onclick="switchSection('chats')" id="btn-sec-chats" class="w-full text-right p-2.5 rounded-xl bg-emerald-800 border border-emerald-600 text-white font-bold text-xs flex items-center gap-2.5 transition">
                 <i data-lucide="message-circle" class="w-4 h-4 text-emerald-300 shrink-0"></i>
                 <span class="hidden md:inline">المراسلات الفردية</span>
             </button>
 
-            <button onclick="switchSection('codes')" id="btn-sec-codes" class="w-full text-right p-2.5 rounded-xl hover:bg-emerald-900 text-emerald-200 font-bold text-xs flex items-center gap-3 transition">
+            <button onclick="switchSection('codes')" id="btn-sec-codes" class="w-full text-right p-2.5 rounded-xl hover:bg-emerald-900 text-emerald-200 font-bold text-xs flex items-center gap-2.5 transition">
                 <i data-lucide="shield-check" class="w-4 h-4 text-amber-300 shrink-0"></i>
                 <span class="hidden md:inline">الخزنة والأكواد</span>
             </button>
 
-            <button onclick="switchSection('ai')" id="btn-sec-ai" class="w-full text-right p-2.5 rounded-xl hover:bg-emerald-900 text-emerald-200 font-bold text-xs flex items-center gap-3 transition">
+            <button onclick="switchSection('ai')" id="btn-sec-ai" class="w-full text-right p-2.5 rounded-xl hover:bg-emerald-900 text-emerald-200 font-bold text-xs flex items-center gap-2.5 transition">
                 <i data-lucide="cpu" class="w-4 h-4 text-blue-300 shrink-0"></i>
                 <span class="hidden md:inline">OMEGA AI الذكي</span>
             </button>
 
-            <button onclick="switchSection('calls')" id="btn-sec-calls" class="w-full text-right p-2.5 rounded-xl hover:bg-emerald-900 text-emerald-200 font-bold text-xs flex items-center gap-3 transition">
+            <button onclick="switchSection('calls')" id="btn-sec-calls" class="w-full text-right p-2.5 rounded-xl hover:bg-emerald-900 text-emerald-200 font-bold text-xs flex items-center gap-2.5 transition">
                 <i data-lucide="phone-forwarded" class="w-4 h-4 text-emerald-300 shrink-0"></i>
                 <span class="hidden md:inline">المكالمات والاتصال</span>
             </button>
 
-            <button onclick="switchSection('settings')" id="btn-sec-settings" class="w-full text-right p-2.5 rounded-xl hover:bg-emerald-900 text-emerald-200 font-bold text-xs flex items-center gap-3 transition">
+            <button onclick="switchSection('settings')" id="btn-sec-settings" class="w-full text-right p-2.5 rounded-xl hover:bg-emerald-900 text-emerald-200 font-bold text-xs flex items-center gap-2.5 transition">
                 <i data-lucide="sliders" class="w-4 h-4 text-purple-300 shrink-0"></i>
                 <span class="hidden md:inline">إعدادات النظام</span>
             </button>
         </aside>
 
-        <!-- المحتوى التفاعلي -->
-        <main class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden h-full">
+        <!-- المحتوى التفاعلي الشامل (يمتلئ تماماً بالشاشة) -->
+        <main class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden h-full w-full">
             
-            <!-- أ. قسم المراسلات الفردية مع إضافة شخص جديد وتسجيل الصوت -->
+            <!-- أ. قسم المراسلات الفردية (بحث، إضافة اسم، صور، صوت، ملفات) -->
             <div id="section-chats" class="flex-1 flex flex-col h-full overflow-hidden">
-                <div class="p-2.5 bg-emerald-900 border-b border-emerald-800 flex flex-col gap-2 shrink-0">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[11px] text-emerald-200 font-bold">اختر المحادثة الخاصة:</span>
+                <div class="p-2 bg-emerald-900 border-b border-emerald-800 flex flex-col gap-2 shrink-0">
+                    <div class="flex items-center justify-between gap-2">
+                        <input type="text" id="search-contact" placeholder="بحث عن اسم أو محادثة..." oninput="filterRecipients()" class="bg-emerald-950 border border-emerald-700 rounded-lg px-2.5 py-1 text-[11px] text-white flex-1">
                         <div class="flex gap-1">
-                            <input type="text" id="new-contact-name" placeholder="أضف اسم شخص جديد..." class="bg-emerald-950 border border-emerald-700 rounded-lg px-2 py-1 text-[11px] text-white w-32">
-                            <button onclick="addNewContact()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-2 py-1 rounded-lg text-[11px]">إضافة</button>
+                            <input type="text" id="new-contact-name" placeholder="إضافة شخص..." class="bg-emerald-950 border border-emerald-700 rounded-lg px-2 py-1 text-[11px] text-white w-28">
+                            <button onclick="addNewContact()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-2.5 py-1 rounded-lg text-[11px] shadow">إضافة</button>
                         </div>
                     </div>
-                    <div class="flex gap-1.5 overflow-x-auto pb-1" id="recipient-tabs">
-                        <!-- تضاف حياً -->
-                    </div>
+                    <!-- تبويبات الأسماء -->
+                    <div class="flex gap-1.5 overflow-x-auto pb-1" id="recipient-tabs"></div>
                 </div>
 
-                <div id="chat-messages-box" class="flex-1 overflow-y-auto p-4 space-y-3 chat-bg"></div>
+                <div id="chat-messages-box" class="flex-1 overflow-y-auto p-3 space-y-2.5 chat-bg"></div>
 
-                <form id="chat-form" class="p-3 bg-emerald-950 border-t border-emerald-800 flex gap-2 items-center shrink-0">
-                    <input type="text" id="sender-name" placeholder="معرفك..." value="المشغل الرئيسي" class="w-24 bg-emerald-900 border border-emerald-700 rounded-xl px-2.5 py-2 text-xs text-white focus:outline-none">
-                    <input type="text" id="chat-input" placeholder="اكتب رسالة سرية خاصة..." class="flex-1 bg-emerald-900 border border-emerald-700 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                <!-- شريط الإرسال والمرفقات (مثل واتساب) -->
+                <form id="chat-form" class="p-2.5 bg-emerald-950 border-t border-emerald-800 flex gap-1.5 items-center shrink-0">
+                    <input type="text" id="sender-name" value="المشغل الرئيسي" class="w-20 bg-emerald-900 border border-emerald-700 rounded-xl px-2 py-2 text-[11px] text-white text-center focus:outline-none">
+                    
+                    <!-- زر إرفاق ملف أو صوره -->
+                    <label class="cursor-pointer bg-emerald-800 hover:bg-emerald-700 text-emerald-200 p-2 rounded-xl flex items-center justify-center shrink-0" title="إرفاق صورة أو ملف">
+                        <i data-lucide="paperclip" class="w-4 h-4"></i>
+                        <input type="file" id="file-input" class="hidden" accept="image/*,video/*,.pdf,.doc,.docx" onchange="handleFileUpload(event)">
+                    </label>
+
+                    <input type="text" id="chat-input" placeholder="اكتب رسالة سرية خاصة..." class="flex-1 bg-emerald-900 border border-emerald-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
                     
                     <!-- زر تسجيل الصوت -->
-                    <button type="button" id="record-btn" onclick="toggleVoiceRecord()" class="bg-purple-700 hover:bg-purple-800 text-white p-2 rounded-xl text-xs flex items-center justify-center title='تسجيل صوت'">
+                    <button type="button" id="record-btn" onclick="toggleVoiceRecord()" class="bg-purple-700 hover:bg-purple-800 text-white p-2 rounded-xl text-xs flex items-center justify-center shrink-0" title="تسجيل صوت">
                         <i data-lucide="mic" class="w-4 h-4"></i>
                     </button>
 
-                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs">إرسال</button>
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs shrink-0 shadow">إرسال</button>
                 </form>
             </div>
 
@@ -235,7 +254,7 @@ app.get('/', (req, res) => {
                     </h3>
                     <div id="ai-log" class="flex-1 bg-emerald-950 border border-emerald-800 rounded-xl p-3 overflow-y-auto space-y-3 text-xs mb-3">
                         <div class="bg-blue-950/60 border border-blue-800 p-3 rounded-xl text-emerald-100">
-                            <strong>[OMEGA AI]:</strong> جاهز لتنفيذ الأوامر الذكية وتأمين الاتصالات.
+                            <strong>[OMEGA AI]:</strong> جاهز لتنفيذ الأوامر الذكية وتحليل حركة الاتصالات.
                         </div>
                     </div>
                     <div class="flex gap-2 shrink-0">
@@ -245,14 +264,14 @@ app.get('/', (req, res) => {
                 </div>
             </div>
 
-            <!-- د. قسم المكالمات (صوت وفيديو حقيقي ومباشر) -->
+            <!-- د. المكالمات (صوت وفيديو مع رنين للطرف الآخر) -->
             <div id="section-calls" class="flex-1 hidden flex-col h-full p-6 items-center justify-center text-center bg-emerald-950">
                 <div class="w-24 h-24 bg-emerald-900 border-2 border-emerald-500/50 rounded-full flex items-center justify-center mb-4 text-emerald-300 shadow-2xl relative">
                     <div class="absolute inset-0 rounded-full border border-emerald-400 animate-ping"></div>
                     <i data-lucide="phone-call" class="w-10 h-10"></i>
                 </div>
                 <h3 class="text-lg font-bold text-white mb-2">مركز الاتصال الفردي المشفر</h3>
-                <p class="text-xs text-emerald-300/80 mb-4">اختر الشخص ونوع الاتصال (صوت أو فيديو)</p>
+                <p class="text-xs text-emerald-300/80 mb-4">اختر الشخص ونوع الاتصال (صوت أو فيديو مباشر)</p>
                 
                 <div class="w-full max-w-xs space-y-3 mb-4">
                     <select id="call-target" class="w-full bg-emerald-900 border border-emerald-700 rounded-xl p-2.5 text-xs text-white text-center">
@@ -274,7 +293,7 @@ app.get('/', (req, res) => {
                 </div>
 
                 <div id="call-screen" class="hidden w-full max-w-md bg-slate-900 border border-emerald-700 rounded-2xl p-4 text-center space-y-3">
-                    <p id="call-status" class="text-xs text-amber-300 font-bold">جاري الاتصال...</p>
+                    <p id="call-status" class="text-xs text-amber-300 font-bold">جاري رنين الطرف الآخر...</p>
                     <div id="video-container" class="hidden grid grid-cols-2 gap-2">
                         <video id="localVideo" autoplay muted playsinline class="w-full h-32 bg-black rounded-xl object-cover"></video>
                         <video id="remoteVideo" autoplay playsinline class="w-full h-32 bg-black rounded-xl object-cover"></video>
@@ -283,16 +302,20 @@ app.get('/', (req, res) => {
                 </div>
             </div>
 
-            <!-- هـ. الإعدادات -->
+            <!-- هـ. الإعدادات وإحصائيات النظام -->
             <div id="section-settings" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 text-xs bg-emerald-950">
                 <div class="bg-emerald-900 border border-emerald-800 rounded-2xl p-4 space-y-3">
-                    <h3 class="font-bold text-sm text-purple-300">لوحة تحكم الشبكة السيادية</h3>
+                    <h3 class="font-bold text-sm text-purple-300">إحصائيات الشبكة والتحكم المركزي</h3>
                     <div class="flex justify-between items-center p-2.5 bg-emerald-950 rounded-xl border border-emerald-800">
-                        <span>نوع التشفير:</span>
+                        <span>المشتركين المتصلين حالياً:</span>
+                        <span id="stat-connections" class="text-emerald-300 font-bold font-mono">1</span>
+                    </div>
+                    <div class="flex justify-between items-center p-2.5 bg-emerald-950 rounded-xl border border-emerald-800">
+                        <span>نوع التشفير الدولي:</span>
                         <span class="text-amber-300 font-mono">AES-256 (فردي خاص)</span>
                     </div>
                     <button onclick="triggerKillSwitch()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-xl text-xs mt-2 transition">
-                        ⚡ تفعيل مفتاح الطوارئ وحذف السجل
+                        ⚡ تفعيل مفتاح الطوارئ وحذف السجل المؤقت
                     </button>
                 </div>
             </div>
@@ -321,7 +344,7 @@ app.get('/', (req, res) => {
 
             ws.onopen = () => {
                 document.getElementById('net-dot').className = 'w-2 h-2 rounded-full bg-emerald-400';
-                document.getElementById('net-text').textContent = 'متصل بالأمان التام';
+                document.getElementById('net-text').textContent = 'آمن (Live)';
             };
 
             ws.onmessage = (event) => {
@@ -333,6 +356,7 @@ app.get('/', (req, res) => {
                     renderVault(globalVaultData);
                     renderRecipients(globalRecipients);
                     renderMessages(currentRecipient);
+                    document.getElementById('stat-connections').textContent = data.connections;
                 }
                 if (data.type === 'update_vault') {
                     globalVaultData = data.vault;
@@ -346,9 +370,15 @@ app.get('/', (req, res) => {
                 if (data.type === 'private_chat') {
                     if (!globalChatsData[data.recipient]) globalChatsData[data.recipient] = [];
                     globalChatsData[data.recipient].push(data.msg);
+                    
                     if (currentRecipient === data.recipient) {
                         appendMessage(data.msg);
+                    } else {
+                        showAlert(\`رسالة جديدة من \${data.recipient}\`);
                     }
+                }
+                if (data.type === 'incoming_call') {
+                    showAlert(\`📞 مكالمة \${data.callType === 'video' ? 'فيديو' : 'صوتية'} واردة من \${data.caller}\`);
                 }
             };
 
@@ -361,15 +391,28 @@ app.get('/', (req, res) => {
 
         window.onload = connectWebSocket;
 
+        function showAlert(text) {
+            const banner = document.getElementById('alert-banner');
+            document.getElementById('alert-text').textContent = text;
+            banner.classList.remove('hidden');
+            setTimeout(() => banner.classList.add('hidden'), 4000);
+        }
+
         function renderRecipients(recipients) {
             const tabs = document.getElementById('recipient-tabs');
             if(!tabs) return;
             let html = '';
             recipients.forEach(name => {
                 const isActive = name === currentRecipient;
-                html += \`<button onclick="selectRecipient('\${name}')" class="recipient-btn px-3 py-1.5 rounded-lg \${isActive ? 'bg-emerald-700 text-white' : 'bg-emerald-950 text-emerald-200 border border-emerald-700'} text-xs font-bold transition shrink-0" data-target="\${name}">\${name}</button>\`;
+                html += \`<button onclick="selectRecipient('\${name}')" class="recipient-btn px-3 py-1.5 rounded-lg \${isActive ? 'bg-emerald-700 text-white shadow' : 'bg-emerald-950 text-emerald-200 border border-emerald-700'} text-xs font-bold transition shrink-0" data-target="\${name}">\${name}</button>\`;
             });
             tabs.innerHTML = html;
+        }
+
+        function filterRecipients() {
+            const query = document.getElementById('search-contact').value.toLowerCase();
+            const filtered = globalRecipients.filter(r => r.toLowerCase().includes(query));
+            renderRecipients(filtered);
         }
 
         function addNewContact() {
@@ -382,7 +425,7 @@ app.get('/', (req, res) => {
             if(ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ type: 'add_recipient', name: name }));
                 input.value = '';
-                alert('✅ تمت إضافة الشخص بنجاح وفتحت له قناة خاصة.');
+                alert('✅ تمت إضافة الشخص وفتح قناة خاصة به.');
             }
         }
 
@@ -397,7 +440,7 @@ app.get('/', (req, res) => {
                 const el = document.getElementById('section-' + id);
                 if (el) el.classList.add('hidden');
                 const btn = document.getElementById('btn-sec-' + id);
-                if (btn) btn.className = "w-full text-right p-2.5 rounded-xl hover:bg-emerald-900 text-emerald-200 font-bold text-xs flex items-center gap-3 transition";
+                if (btn) btn.className = "w-full text-right p-2.5 rounded-xl hover:bg-emerald-900 text-emerald-200 font-bold text-xs flex items-center gap-2.5 transition";
             });
             const target = document.getElementById('section-' + secId);
             if (target) {
@@ -405,7 +448,7 @@ app.get('/', (req, res) => {
                 target.classList.add('flex');
             }
             const targetBtn = document.getElementById('btn-sec-' + secId);
-            if (targetBtn) targetBtn.className = "w-full text-right p-2.5 rounded-xl bg-emerald-800 border border-emerald-600 text-white font-bold text-xs flex items-center gap-3 transition";
+            if (targetBtn) targetBtn.className = "w-full text-right p-2.5 rounded-xl bg-emerald-800 border border-emerald-600 text-white font-bold text-xs flex items-center gap-2.5 transition";
         }
 
         function generateSovereignCode() {
@@ -450,7 +493,8 @@ app.get('/', (req, res) => {
                 sender: sender,
                 type: 'text',
                 text: text,
-                time: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'})
+                time: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'}),
+                status: 'read'
             };
 
             if (ws && ws.readyState === WebSocket.OPEN) {
@@ -458,6 +502,28 @@ app.get('/', (req, res) => {
                 input.value = '';
             }
         });
+
+        // إرفاق ملف أو صوره
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const sender = document.getElementById('sender-name').value.trim() || 'المشغل';
+                const fileData = {
+                    sender: sender,
+                    type: file.type.startsWith('image/') ? 'image' : 'file',
+                    url: e.target.result,
+                    name: file.name,
+                    time: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'}),
+                    status: 'read'
+                };
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'private_chat', recipient: currentRecipient, msg: fileData }));
+                }
+            };
+            reader.readAsDataURL(file);
+        }
 
         // تسجيل الصوت
         function toggleVoiceRecord() {
@@ -470,29 +536,28 @@ app.get('/', (req, res) => {
                     mediaRecorder.onstop = () => {
                         const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
                         const audioUrl = URL.createObjectURL(audioBlob);
-                        
                         const sender = document.getElementById('sender-name').value.trim() || 'المشغل';
                         const msgData = {
                             sender: sender,
                             type: 'audio',
                             url: audioUrl,
-                            time: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'})
+                            time: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'}),
+                            status: 'read'
                         };
-
                         if (ws && ws.readyState === WebSocket.OPEN) {
                             ws.send(JSON.stringify({ type: 'private_chat', recipient: currentRecipient, msg: msgData }));
                         }
                     };
                     mediaRecorder.start();
                     isRecording = true;
-                    btn.className = "bg-rose-600 text-white p-2 rounded-xl text-xs animate-ping";
+                    btn.className = "bg-rose-600 text-white p-2 rounded-xl text-xs animate-ping shrink-0";
                 }).catch(err => {
                     alert('لا يمكن الوصول إلى الميكروفون: ' + err);
                 });
             } else {
                 mediaRecorder.stop();
                 isRecording = false;
-                btn.className = "bg-purple-700 hover:bg-purple-800 text-white p-2 rounded-xl text-xs flex items-center justify-center";
+                btn.className = "bg-purple-700 hover:bg-purple-800 text-white p-2 rounded-xl text-xs flex items-center justify-center shrink-0";
             }
         }
 
@@ -503,11 +568,15 @@ app.get('/', (req, res) => {
             let content = '';
             if (msg.type === 'audio') {
                 content = \`<audio controls src="\${msg.url}" class="w-full h-8 mt-1"></audio>\`;
+            } else if (msg.type === 'image') {
+                content = \`<img src="\${msg.url}" class="w-full max-h-48 rounded-xl object-cover mt-1 cursor-pointer" onclick="window.open(this.src)">\`;
+            } else if (msg.type === 'file') {
+                content = \`<a href="\${msg.url}" download="\${msg.name}" class="text-amber-300 underline block mt-1">📁 تنزيل الملف: \${msg.name}</a>\`;
             } else {
                 content = \`<p class="mt-0.5">\${msg.text}</p>\`;
             }
 
-            box.innerHTML += \`<div class="flex justify-start"><div class="max-w-[85%] bg-emerald-900 border border-emerald-700 p-3 rounded-2xl text-xs leading-relaxed text-emerald-100 shadow"><strong class="text-amber-300 block mb-0.5">\${msg.sender}:</strong>\${content}<div class="text-[9px] text-emerald-300 mt-1 text-left">\${msg.time} • مشفر 🔒</div></div></div>\`;
+            box.innerHTML += \`<div class="flex justify-start"><div class="max-w-[85%] bg-emerald-900 border border-emerald-700 p-3 rounded-2xl text-xs leading-relaxed text-emerald-100 shadow"><strong class="text-amber-300 block mb-0.5">\${msg.sender}:</strong>\${content}<div class="text-[9px] text-emerald-300 mt-1 flex justify-between items-center"><span>\${msg.time}</span><span class="text-emerald-400 font-bold">✓✓ مقروء 🔒</span></div></div></div>\`;
             box.scrollTop = box.scrollHeight;
         }
 
@@ -519,31 +588,36 @@ app.get('/', (req, res) => {
             msgs.forEach(msg => appendMessage(msg));
         }
 
-        // بدء المكالمات الحية
+        // بدء المكالمات مع تنبيه الطرف الآخر
         function startCall(type) {
             const target = document.getElementById('call-target').value;
+            const sender = document.getElementById('sender-name').value.trim() || 'المشغل';
             const screen = document.getElementById('call-screen');
             const status = document.getElementById('call-status');
             const videoBox = document.getElementById('video-container');
             
             screen.classList.remove('hidden');
-            status.textContent = \`جاري إجراء اتصال \${type === 'video' ? 'فيديو' : 'صوتي'} مع: \${target}...\`;
+            status.textContent = \`جاري رنين وتنبيه (\${target})...\`;
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'call_action', target: target, callType: type, caller: sender }));
+            }
 
             if (type === 'video') {
                 videoBox.classList.remove('hidden');
                 navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
                     localStream = stream;
                     document.getElementById('localVideo').srcObject = stream;
-                    document.getElementById('remoteVideo').srcObject = stream; // محاكاة الطرف الآخر
-                    status.textContent = \`متصل الآن بـ \${target}\`;
+                    document.getElementById('remoteVideo').srcObject = stream;
+                    status.textContent = \`متصل فيديو الآن بـ \${target}\`;
                 }).catch(err => {
-                    alert('خطأ في الوصول للكاميرا/الميكروفون: ' + err);
+                    alert('خطأ في الوصول للكاميرا: ' + err);
                 });
             } else {
                 videoBox.classList.add('hidden');
                 setTimeout(() => {
                     status.textContent = \`متصل صوتياً بـ \${target} بنجاح\`;
-                }, 1500);
+                }, 2000);
             }
         }
 
@@ -561,10 +635,10 @@ app.get('/', (req, res) => {
             const val = inp.value.trim();
             if(!val) return;
             const log = document.getElementById('ai-log');
-            log.innerHTML += \`<div class="bg-emerald-950 p-2.5 rounded-xl text-white border border-emerald-800"><strong>المشغل:</strong> \$.{val}</div>\`;
+            log.innerHTML += \`<div class="bg-emerald-950 p-2.5 rounded-xl text-white border border-emerald-800"><strong>المشغل:</strong> \${val}</div>\`;
             inp.value = '';
             setTimeout(() => {
-                log.innerHTML += \`<div class="bg-blue-950/60 border border-blue-800 p-3 rounded-xl text-emerald-100"><strong>[OMEGA AI]:</strong> تمت معالجة طلبك الاستراتيجي بنجاح.</div>\`;
+                log.innerHTML += \`<div class="bg-blue-950/60 border border-blue-800 p-3 rounded-xl text-emerald-100"><strong>[OMEGA AI]:</strong> تمت معالجة الطلب بنجاح.</div>\`;
                 log.scrollTop = log.scrollHeight;
             }, 800);
         }

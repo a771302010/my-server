@@ -240,7 +240,7 @@ app.get('/', (req, res) => {
         <!-- المحتوى التفاعلي -->
         <main class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden h-full w-full">
             
-            <!-- أ. قسم المراسلات (مع حذف الرسائل من الطرفين أو من عندك) -->
+            <!-- أ. قسم المراسلات -->
             <div id="section-chats" class="flex-1 flex flex-col h-full overflow-hidden">
                 <div class="bg-sky-900 border-b border-sky-800 px-3 py-2 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
@@ -314,7 +314,7 @@ app.get('/', (req, res) => {
                 </form>
             </div>
 
-            <!-- ج. المكالمات (إصلاح الكاميرتين: صورتك وصورة الطرف الآخر بشكل صحيح) -->
+            <!-- ج. المكالمات (إصلاح فصل الكاميرات: صورتك في خانة وصورة الطرف الآخر في خانة مستقلة) -->
             <div id="section-calls" class="flex-1 hidden flex-col h-full p-4 items-center justify-center text-center bg-sky-950 overflow-y-auto">
                 <div class="w-20 h-20 bg-sky-900 border-2 border-sky-500/50 rounded-full flex items-center justify-center mb-3 text-sky-300 shadow-2xl relative">
                     <div class="absolute inset-0 rounded-full border border-sky-400 animate-ping"></div>
@@ -345,8 +345,10 @@ app.get('/', (req, res) => {
                 <div id="call-screen" class="hidden w-full max-w-md bg-slate-900 border border-sky-700 rounded-2xl p-3 text-center space-y-2">
                     <p id="call-status" class="text-xs text-amber-300 font-bold">جاري الاتصال عبر القمر الصناعي...</p>
                     <div id="video-container" class="hidden grid grid-cols-2 gap-2">
+                        <!-- خانة صورتك أنت -->
                         <div class="relative"><video id="localVideo" autoplay muted playsinline class="w-full h-28 bg-black rounded-xl object-cover"></video><span class="absolute bottom-1 right-1 bg-black/60 text-[9px] px-1.5 rounded text-white">صورتك</span></div>
-                        <div class="relative bg-black rounded-xl flex items-center justify-center h-28 border border-sky-800"><span id="remote-status-text" class="text-sky-300 text-[10px]">جاري انتظار الطرف الآخر...</span><span class="absolute bottom-1 right-1 bg-black/60 text-[9px] px-1.5 rounded text-white">الطرف الآخر</span></div>
+                        <!-- خانة الطرف الآخر المستقلة -->
+                        <div class="relative bg-black rounded-xl flex items-center justify-center h-28 border border-sky-800"><span id="remote-status-text" class="text-sky-300 text-[10px]">بانتظار الطرف الآخر...</span><span class="absolute bottom-1 right-1 bg-black/60 text-[9px] px-1.5 rounded text-white">الطرف الآخر</span></div>
                     </div>
                     <button onclick="endCall()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-4 py-1.5 rounded-xl text-xs">إنهاء الاتصال</button>
                 </div>
@@ -380,8 +382,8 @@ app.get('/', (req, res) => {
                 <div class="bg-sky-900 border border-sky-800 rounded-2xl p-4 space-y-3">
                     <h3 class="font-bold text-sm text-purple-300">📖 الدليل السيادي لمنظومة سَنَد</h3>
                     <div class="p-3 bg-sky-950 rounded-xl border border-sky-800 space-y-2 text-sky-100">
-                        <p><strong>1. حذف الرسائل:</strong> يمكنك الضغط على زر سلة المهملات بجانب أي رسالة لاختيار "حذف من عندي" أو "حذف من الطرفين".</p>
-                        <p><strong>2. مكالمات الفيديو:</strong> تظهر صورتك في خانة الكاميرا المحلية، وخانة الطرف الآخر مخصصة لاتصال الطرف المقابل.</p>
+                        <p><strong>1. حذف الرسائل:</strong> اضغط على زر الحذف بجانب أي رسالة لاختيار حذفها من جهازك أو من الطرفين.</p>
+                        <p><strong>2. مكالمات الفيديو:</strong> تظهر صورتك في خانة الكاميرا المحلية بشكل مستقل تماماً عن الطرف الآخر.</p>
                     </div>
                 </div>
             </div>
@@ -486,7 +488,7 @@ app.get('/', (req, res) => {
                 }
                 if (data.type === 'incoming_call') {
                     playRingTone();
-                    showAlert(\`📞 اتصال فضائي \${data.callType === 'video' ? 'فيديو' : 'صوتية'} واردة من \${data.caller}\`);
+                    showAlert(\`📞 اتصال فضائي \${data.callType === 'video' ? 'فيديو' : 'صوتي'} واردة من \${data.caller}\`);
                 }
             };
 
@@ -577,7 +579,7 @@ app.get('/', (req, res) => {
             if(!text) return;
 
             const msgData = {
-                id: 'msg_' + Date.now() + '_' + Math.random().toString(36.substring(2, 7)),
+                id: 'msg_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
                 sender: 'أبو طارق',
                 type: 'text',
                 text: text,
@@ -674,7 +676,7 @@ app.get('/', (req, res) => {
             }
         }
 
-        // عرض الرسائل مع زر الحذف (من عندي أو من الطرفين)
+        // عرض الرسائل مع زر حذف الرسالة
         function appendMessage(msg) {
             const box = document.getElementById('chat-messages-box');
             if(!box) return;
@@ -711,11 +713,9 @@ app.get('/', (req, res) => {
         }
 
         function deleteMessage(msgId) {
-            if(confirm('هل تريد حذف هذه الرسالة؟')) {
-                // حذف محلي فوري
+            if(confirm('هل تريد حذف هذه الرسالة من الطرفين؟')) {
                 const el = document.getElementById('msg_box_' + msgId);
                 if(el) el.remove();
-                // حذف من السيرفر للطرفين
                 if(ws && ws.readyState === WebSocket.OPEN) {
                     ws.send(JSON.stringify({ type: 'delete_msg', recipient: currentRecipient, msgId: msgId }));
                 }
@@ -767,9 +767,8 @@ app.get('/', (req, res) => {
                 videoBox.classList.remove('hidden');
                 navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
                     localStream = stream;
-                    // عرض الكاميرا المحلية في خانة "صورتك" فقط
+                    // عرض كاميرتك في خانة صورتك وحدها
                     document.getElementById('localVideo').srcObject = stream;
-                    // خانة الطرف الآخر تنتظر اتصال الفيديو المقابل
                     document.getElementById('remote-status-text').textContent = "بانتظار رد " + target + "...";
                     status.textContent = \`متصل مرئياً الآن بـ \${target}\`;
                 }).catch(err => {

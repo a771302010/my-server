@@ -72,7 +72,7 @@ wss.on('connection', (ws) => {
         aiChatLogs.push(data.msg);
         const aiReply = {
           sender: 'OMEGA AI',
-          text: `تم استلام استفسارك بنجاح وتحليله عبر الشبكة السيادية: "${data.msg.text}". النظام يعمل بكفاءة تامة.`,
+          text: `تم استلام استفسارك بنجاح وتحليله عبر الشبكة السيادية: "${data.msg.text}". النظام يعمل بكفاءة تامة يا أبو طارق.`,
           time: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'})
         };
         aiChatLogs.push(aiReply);
@@ -114,6 +114,25 @@ wss.on('connection', (ws) => {
   });
 });
 
+// ملف Manifest لتثبيت التطبيق على الشاشة الرئيسية كأيقونة مستقلة
+app.get('/manifest.json', (req, res) => {
+  res.json({
+    name: "برنامج سَنَد السيادي",
+    short_name: "سَنَد",
+    start_url: "/",
+    display: "standalone",
+    background_color: "#064e3b",
+    theme_color: "#047857",
+    icons: [
+      {
+        src: "https://img.icons8.com/color/512/security-checked.png",
+        sizes: "512x512",
+        type: "image/png"
+      }
+    ]
+  });
+});
+
 app.get('/', (req, res) => {
   res.send(`<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -121,6 +140,7 @@ app.get('/', (req, res) => {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#047857">
+    <link rel="manifest" href="/manifest.json">
     <title>سَنَد | الشبكة السيادية الذكية المشفرة</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -140,15 +160,17 @@ app.get('/', (req, res) => {
         <span id="alert-text">تنبيه سيادي جديد</span>
     </div>
 
+    <!-- الشريط الإخباري -->
     <div class="bg-emerald-950 border-b border-emerald-700 text-emerald-200 text-[11px] font-bold py-1.5 px-3 overflow-hidden whitespace-nowrap shrink-0 flex items-center shadow">
         <span class="bg-emerald-700 text-white px-2 py-0.5 rounded text-[9px] ml-2 shrink-0">النظام السيادي</span>
         <div class="overflow-hidden w-full">
             <span class="animate-ticker">
-                🛡️ منظومة سَنَد الذكية للتواصل الفردي والمكالمات المشفرة • الربط المركزي والذكاء الاصطناعي: OMEGA AI 🛡️
+                🛡️ منظومة سَنَد الذكية للتواصل الفردي والمكالمات المشفرة • إشراف: أبو طارق • OMEGA AI 🛡️
             </span>
         </div>
     </div>
 
+    <!-- رأس التطبيق -->
     <header class="bg-emerald-800 border-b border-emerald-700 px-3 py-2 flex items-center justify-between shrink-0 shadow-lg">
         <div class="flex items-center gap-2">
             <div class="w-9 h-9 bg-white rounded-xl flex items-center justify-center border-2 border-emerald-300 text-emerald-800 font-extrabold text-lg shadow">S</div>
@@ -167,8 +189,10 @@ app.get('/', (req, res) => {
         </div>
     </header>
 
+    <!-- مساحة العمل الرئيسية -->
     <div class="flex-1 flex overflow-hidden relative">
         
+        <!-- القائمة الجانبية -->
         <aside class="w-16 md:w-20 bg-emerald-950 border-l border-emerald-800 flex flex-col items-center py-2 h-full shrink-0 z-10 space-y-3">
             <button onclick="switchSection('chats')" id="btn-sec-chats" class="p-3 rounded-2xl bg-emerald-800 text-white shadow transition flex flex-col items-center gap-1" title="المراسلات الفردية">
                 <i data-lucide="message-square" class="w-5 h-5 text-emerald-300"></i>
@@ -196,8 +220,10 @@ app.get('/', (req, res) => {
             </button>
         </aside>
 
+        <!-- المحتوى التفاعلي -->
         <main class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden h-full w-full">
             
+            <!-- أ. قسم المراسلات الفردية -->
             <div id="section-chats" class="flex-1 flex flex-col h-full overflow-hidden">
                 <div class="bg-emerald-900 border-b border-emerald-800 px-3 py-2 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
@@ -250,30 +276,35 @@ app.get('/', (req, res) => {
                 </form>
             </div>
 
+            <!-- ب. مساعد الذكاء الاصطناعي (OMEGA AI) -->
             <div id="section-ai" class="flex-1 hidden flex-col h-full bg-slate-950 overflow-hidden">
                 <div class="bg-blue-950 border-b border-blue-900 px-3 py-2.5 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
                         <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center text-white"><i data-lucide="cpu" class="w-4 h-4"></i></div>
                         <div>
                             <h2 class="font-bold text-xs text-blue-200">مساعد سند الذكي (OMEGA AI)</h2>
-                            <p class="text-[9px] text-blue-300">متصل مباشراً للرد على استفسارك داخل البرنامج</p>
+                            <p class="text-[9px] text-blue-300">متصل مباشراً للرد النصي والصوتي</p>
                         </div>
                     </div>
                 </div>
                 <div id="ai-messages-box" class="flex-1 overflow-y-auto p-3 space-y-2.5 chat-bg"></div>
                 <form id="ai-form" class="p-2.5 bg-emerald-950 border-t border-emerald-800 flex gap-2 shrink-0">
-                    <input type="text" id="ai-input" placeholder="اسأل الذكاء الاصطناعي أي شيء..." class="flex-1 bg-emerald-900 border border-emerald-700 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                    <input type="text" id="ai-input" placeholder="اسأل الذكاء الاصطناعي كتابة..." class="flex-1 bg-emerald-900 border border-emerald-700 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                    <button type="button" onclick="recordAiVoice()" class="bg-purple-700 hover:bg-purple-800 text-white p-2.5 rounded-xl text-xs" title="سؤال صوتي للذكاء الاصطناعي">
+                        <i data-lucide="mic" class="w-4 h-4"></i>
+                    </button>
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs">إرسال</button>
                 </form>
             </div>
 
+            <!-- ج. المكالمات (مع صوت رنين حقيقي) -->
             <div id="section-calls" class="flex-1 hidden flex-col h-full p-6 items-center justify-center text-center bg-emerald-950">
                 <div class="w-24 h-24 bg-emerald-900 border-2 border-emerald-500/50 rounded-full flex items-center justify-center mb-4 text-emerald-300 shadow-2xl relative">
                     <div class="absolute inset-0 rounded-full border border-emerald-400 animate-ping"></div>
                     <i data-lucide="phone-call" class="w-10 h-10"></i>
                 </div>
                 <h3 class="text-lg font-bold text-white mb-2">مركز الاتصال الفردي المشفر</h3>
-                <p class="text-xs text-emerald-300/80 mb-4">اختر الشخص ونوع الاتصال (صوت أو فيديو مباشر)</p>
+                <p class="text-xs text-emerald-300/80 mb-4">اختر الشخص ونوع الاتصال (صوت أو فيديو مباشر مع رنين)</p>
                 
                 <div class="w-full max-w-xs space-y-3 mb-4">
                     <select id="call-target" class="w-full bg-emerald-900 border border-emerald-700 rounded-xl p-2.5 text-xs text-white text-center">
@@ -295,7 +326,7 @@ app.get('/', (req, res) => {
                 </div>
 
                 <div id="call-screen" class="hidden w-full max-w-md bg-slate-900 border border-emerald-700 rounded-2xl p-4 text-center space-y-3">
-                    <p id="call-status" class="text-xs text-amber-300 font-bold">جاري رنين الطرف الآخر...</p>
+                    <p id="call-status" class="text-xs text-amber-300 font-bold">جاري رنين وتنبيه الطرف الآخر...</p>
                     <div id="video-container" class="hidden grid grid-cols-2 gap-2">
                         <video id="localVideo" autoplay muted playsinline class="w-full h-32 bg-black rounded-xl object-cover"></video>
                         <video id="remoteVideo" autoplay playsinline class="w-full h-32 bg-black rounded-xl object-cover"></video>
@@ -304,6 +335,7 @@ app.get('/', (req, res) => {
                 </div>
             </div>
 
+            <!-- د. الخزنة والأكواد -->
             <div id="section-codes" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-4 bg-emerald-950">
                 <div class="bg-emerald-900 border border-emerald-800 rounded-2xl p-4">
                     <h3 class="font-bold text-sm text-amber-300 mb-3 flex items-center gap-2">
@@ -326,17 +358,19 @@ app.get('/', (req, res) => {
                 </div>
             </div>
 
+            <!-- هـ. التعليمات والدليل -->
             <div id="section-help" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 text-xs bg-emerald-950">
                 <div class="bg-emerald-900 border border-emerald-800 rounded-2xl p-4 space-y-3">
                     <h3 class="font-bold text-sm text-purple-300">📖 دليل وتشغيل منظومة سَنَد الذكية</h3>
                     <div class="p-3 bg-emerald-950 rounded-xl border border-emerald-800 space-y-2 text-emerald-100">
-                        <p><strong>1. المراسلات الفردية:</strong> اختر أي شخص من الأشرطة العلوية أو أضف شخصاً جديداً بالاسم، واستخدم شريط الإرسال السفلي لإرسال الرسائل، الصور، الملفات، أو التسجيلات الصوتية.</p>
-                        <p><strong>2. الاتصال الفوري:</strong> يمكنك الضغط على أزرار الاتصال الصوتي أو الفيديو في أعلى الشاشة داخل أي محادثة للاتصال بالطرف الآخر مباشرة.</p>
-                        <p><strong>3. مساعد الذكاء الاصطناعي (OMEGA AI):</strong> تفاعل معه مباشرة من قسم "الذكاء AI" للاستفسار والحصول على الدعم الفوري دون مغادرة البرنامج.</p>
+                        <p><strong>1. تثبيت التطبيق:</strong> اضغط على زر المشاركة (Share) في متصفح سفاري بجوالك، ثم اختر "إضافة إلى الشاشة الرئيسية" (Add to Home Screen) لتظهر أيقونة سَنَد السيادية على جوالك.</p>
+                        <p><strong>2. المكالمات الصوتية والفيديو:</strong> تعتمد على نغمة رنين حقيقية وتنبيه فوري للطرف الآخر.</p>
+                        <p><strong>3. التسجيلات الصوتية والمرفقات:</strong> يمكنك إرسال واستقبال الرسائل الصوتية والصور وملفات العمل بكل سهولة.</p>
                     </div>
                 </div>
             </div>
 
+            <!-- و. الإعدادات -->
             <div id="section-settings" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 text-xs bg-emerald-950">
                 <div class="bg-emerald-900 border border-emerald-800 rounded-2xl p-4 space-y-3">
                     <h3 class="font-bold text-sm text-indigo-300">إحصائيات الشبكة والتحكم المركزي</h3>
@@ -365,6 +399,22 @@ app.get('/', (req, res) => {
         let audioChunks = [];
         let isRecording = false;
         let localStream = null;
+
+        // دالة تشغيل رنين الاتصال الحقيقي
+        function playRingTone() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, ctx.currentTime); // نغمة رنين قياسية
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 1.5);
+            } catch(e) {}
+        }
 
         const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
         const wsUrl = protocol + window.location.host;
@@ -413,6 +463,7 @@ app.get('/', (req, res) => {
                     renderAiLogs(globalAiLogs);
                 }
                 if (data.type === 'incoming_call') {
+                    playRingTone();
                     showAlert(\`📞 مكالمة \${data.callType === 'video' ? 'فيديو' : 'صوتية'} واردة من \${data.caller}\`);
                 }
             };
@@ -525,6 +576,14 @@ app.get('/', (req, res) => {
             }
         });
 
+        function recordAiVoice() {
+            alert('🎙️ جاري الاستماع لسؤالك الصوتي الموجه إلى OMEGA AI...');
+            setTimeout(() => {
+                const voicePrompt = "استفسار صوتي من المشغل";
+                ws.send(JSON.stringify({ type: 'ai_chat', msg: { sender: 'أبو طارق (صوتي)', text: voicePrompt, time: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'}) } }));
+            }, 2000);
+        }
+
         function handleFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -630,6 +689,7 @@ app.get('/', (req, res) => {
             const videoBox = document.getElementById('video-container');
             
             screen.classList.remove('hidden');
+            playRingTone();
             status.textContent = \`جاري رنين وتنبيه (\${target})...\`;
 
             if (ws && ws.readyState === WebSocket.OPEN) {

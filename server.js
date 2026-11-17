@@ -97,7 +97,7 @@ wss.on('connection', (ws) => {
           const msg = privateChats[recipient].find(m => m.id === msgId);
           if (msg) {
             msg.isOpened = true;
-            msg.text = '👁️ [تم فتح المحتوى وتدميره ذاتياً]';
+            msg.text = '👁️ [تم فتح المحتوى وتدميره ذاتياً عبر الأقمار الصناعية]';
             msg.type = 'text';
             wss.clients.forEach(client => {
               if (client.readyState === WebSocket.OPEN) {
@@ -110,7 +110,7 @@ wss.on('connection', (ws) => {
       else if (data.type === 'ai_chat') {
         aiChatLogs.push(data.msg);
         const userText = data.msg.text;
-        let aiReplyText = `أهلاً بك يا أبو طارق. استلمت طلبك ("${userText}") وتم تنفيذه عبر OMEGA AI. النظام يعمل بأقصى سرعة وكفاءة فضائية.`;
+        let aiReplyText = `⚡ [OMEGA AI V3]: استلمت الأمر السيادي ("${userText}"). تم تشفير الإشارات وتحليل البيانات عبر الشبكة الفضائية بنجاح تام يا أبو طارق. النظام يعمل بأقصى طاقة سيادية.`;
         
         const aiReply = {
           sender: 'OMEGA AI',
@@ -131,7 +131,7 @@ wss.on('connection', (ws) => {
         if (newName && !activeRecipients.includes(newName)) {
           activeRecipients.push(newName);
           if (!privateChats[newName]) {
-            privateChats[newName] = [{ id: 'm_' + Date.now(), sender: newName, type: 'text', text: `تم فتح القناة السيادية الخاصة بـ ${newName}`, time: 'الآن', isMe: false }];
+            privateChats[newName] = [{ id: 'm_' + Date.now(), sender: newName, type: 'text', text: `تم فتح القناة السيادية المشفرة الخاصة بـ ${newName}`, time: 'الآن', isMe: false }];
           }
           wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
@@ -139,6 +139,14 @@ wss.on('connection', (ws) => {
             }
           });
         }
+      }
+      else if (data.type === 'add_secure_code') {
+        secureVault.push(data.item);
+        wss.clients.forEach(client => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({ type: 'update_vault', vault: secureVault }));
+          }
+        });
       }
       else if (data.type === 'call_action') {
         wss.clients.forEach(client => {
@@ -209,7 +217,7 @@ app.get('/', (req, res) => {
         <span class="bg-sky-600 text-white px-2 py-0.5 rounded text-[9px] ml-2 shrink-0">الاتصال الفضائي 🛰️</span>
         <div class="overflow-hidden w-full">
             <span class="animate-ticker">
-                🌐 منظومة سَنَد الذكية للاتصالات السيادية • مشفرة عبر الأقمار الصناعية • إشراف: الشيخ أبو طارق • OMEGA AI 🌐
+                🌐 منظومة سَنَد الذكية للاتصالات السيادية • مشفرة عبر الأقمار الصناعية • إشراف: الشيخ أبو طارق • OMEGA AI V3 🌐
             </span>
         </div>
     </div>
@@ -236,7 +244,7 @@ app.get('/', (req, res) => {
     <!-- مساحة العمل الرئيسية -->
     <div class="flex-1 flex overflow-hidden relative">
         
-        <!-- القائمة الجانبية بالترتيب العالمي الأمثل -->
+        <!-- القائمة الجانبية -->
         <aside class="w-16 md:w-20 bg-slate-950 border-l border-sky-900 flex flex-col items-center py-2 h-full shrink-0 z-10 space-y-3">
             <button onclick="switchSection('chats')" id="btn-sec-chats" class="p-3 rounded-2xl bg-sky-700 text-white shadow transition flex flex-col items-center gap-1 relative" title="المراسلات">
                 <i data-lucide="message-square" class="w-5 h-5 text-sky-200"></i>
@@ -280,7 +288,7 @@ app.get('/', (req, res) => {
                             </p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1.5">
                         <button onclick="clearCurrentChat()" class="px-2.5 py-1 bg-rose-900/80 hover:bg-rose-700 text-white rounded-lg text-[10px] font-bold transition shadow" title="مسح سجل المحادثة">
                             🗑️ مسح الكل
                         </button>
@@ -334,8 +342,8 @@ app.get('/', (req, res) => {
                     <div class="flex items-center gap-2">
                         <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center text-white"><i data-lucide="cpu" class="w-4 h-4"></i></div>
                         <div>
-                            <h2 class="font-bold text-xs text-blue-200">مساعد سند الذكي (OMEGA AI)</h2>
-                            <p class="text-[9px] text-blue-300">رد تلقائي فوري للأوامر والتحليل</p>
+                            <h2 class="font-bold text-xs text-blue-200">مساعد سند الذكي (OMEGA AI V3)</h2>
+                            <p class="text-[9px] text-blue-300">رد تلقائي فوري للأوامر والتحليل الفضائي</p>
                         </div>
                     </div>
                 </div>

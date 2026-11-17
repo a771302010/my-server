@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 let secureVault = [
   { owner: 'القيادة المركزية العليا', phone: '967770000001', num: '88800001', cat: 'بروتوكول VIP' },
-  { owner: 'خدمة العملاء المركزية', phone: '88888888', num: '88888888', cat: 'الدعم الفني 24/7' }
+  { owner: 'خدمة العملاء المركزية', phone: '88888888', num: '88888888', cat: 'الدعم الفني والعمليات 24/7' }
 ];
 
 let privateChats = {
@@ -27,7 +27,7 @@ let privateChats = {
     { sender: 'رابعة', type: 'text', text: 'مرحباً يا أبانا الغالي، الاتصال مؤمن.', time: 'الآن', isMe: false }
   ],
   'رشا': [
-    { sender: 'رشا', type: 'text', text: 'تم استلام الإشارة بنجاح عبر ستارلينك.', time: 'الآن', isMe: false }
+    { sender: 'رشا', type: 'text', text: 'تم استلام الإشارة بنجاح عبر الأقمار الصناعية.', time: 'الآن', isMe: false }
   ],
   'آمنة': [
     { sender: 'آمنة', type: 'text', text: 'النظام يعمل بكفاءة تامة.', time: 'الآن', isMe: false }
@@ -72,10 +72,10 @@ wss.on('connection', (ws) => {
         aiChatLogs.push(data.msg);
         
         const userText = data.msg.text;
-        let aiReplyText = `أهلاً بك يا أبو طارق. لقد استلمت استفسارك ("${userText}") وقمت بتحليله عبر منظومة OMEGA AI السيادية. الأداء يعمل بأقصى سرعة على شبكة ستارلينك. تأمر بشيء آخر؟`;
+        let aiReplyText = `أهلاً بك يا أبو طارق. لقد استلمت استفسارك ("${userText}") وقمت بتحليله عبر منظومة OMEGA AI السيادية المجرّدة. الأداء يعمل بأقصى سرعة على شبكات الفضاء والستارلينك. تأمر بشيء آخر؟`;
         
         if (userText.includes('سلام') || userText.includes('مرحباً') || userText.includes('هلا')) {
-          aiReplyText = `وعليكم السلام ورحمة الله وبركاته يا شيخ أبو طارق. أنا معك هنا للرد الفوري ومساعدتك في كل ما تطلبه!`;
+          aiReplyText = `وعليكم السلام ورحمة الله وبركاته يا شيخ أبو طارق. أنا معك هنا لمساعدتك في إدارة وتطوير المنظومة السيادية بكل قوة!`;
         }
 
         const aiReply = {
@@ -97,7 +97,7 @@ wss.on('connection', (ws) => {
         if (newName && !activeRecipients.includes(newName)) {
           activeRecipients.push(newName);
           if (!privateChats[newName]) {
-            privateChats[newName] = [{ sender: newName, type: 'text', text: `تم فتح القناة الخاصة بـ ${newName}`, time: 'الآن', isMe: false }];
+            privateChats[newName] = [{ sender: newName, type: 'text', text: `تم فتح القناة السيادية الخاصة بـ ${newName}`, time: 'الآن', isMe: false }];
           }
           wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
@@ -126,11 +126,11 @@ wss.on('connection', (ws) => {
 // ملف Manifest لربط الأيقونة الرسمية الزرقاء بالنظام
 app.get('/manifest.json', (req, res) => {
   res.json({
-    name: "برنامج سَنَد السيادي",
+    name: "برنامج سَنَد السيادي الذكي",
     short_name: "سَنَد",
     start_url: "/",
     display: "standalone",
-    background_color: "#042f2e",
+    background_color: "#022330",
     theme_color: "#0369a1",
     icons: [
       {
@@ -152,50 +152,50 @@ app.get('/', (req, res) => {
     <meta name="theme-color" content="#0369a1">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="https://i.ibb.co/3s65Z62/IMG-3248.jpg">
-    <title>سَنَد | الشبكة السيادية الذكية المشفرة</title>
+    <title>سَنَد | الشبكة السيادية الذكية المشفرة بالأقمار الصناعية</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         * { box-sizing: border-box; }
-        body { font-family: 'Tajawal', sans-serif; background-color: #064e3b; color: #f0fdf4; height: 100vh; height: 100dvh; overflow: hidden; margin: 0; display: flex; flex-direction: column; }
+        body { font-family: 'Tajawal', sans-serif; background-color: #022330; color: #f0fdf4; height: 100vh; height: 100dvh; overflow: hidden; margin: 0; display: flex; flex-direction: column; }
         .chat-bg { background-color: #0b141a; background-image: radial-gradient(#111b21 1px, transparent 1px); background-size: 20px 20px; }
         @keyframes ticker { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
-        .animate-ticker { display: inline-block; animation: ticker 40s linear infinite; }
+        .animate-ticker { display: inline-block; animation: ticker 35s linear infinite; }
     </style>
 </head>
 <body class="w-screen h-[100dvh] flex flex-col justify-between m-0 p-0">
     
-    <div id="alert-banner" class="hidden fixed top-2 left-1/2 transform -translate-x-1/2 bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-2xl text-xs z-50 shadow-2xl animate-bounce flex items-center gap-2">
+    <div id="alert-banner" class="hidden fixed top-3 left-1/2 transform -translate-x-1/2 bg-sky-500 text-slate-950 font-bold px-4 py-2 rounded-2xl text-xs z-50 shadow-2xl animate-bounce flex items-center gap-2 border border-sky-300">
         <i data-lucide="bell" class="w-4 h-4"></i>
-        <span id="alert-text">تنبيه سيادي جديد</span>
+        <span id="alert-text">تنبيه فضائي جديد</span>
     </div>
 
-    <!-- الشريط الإخباري -->
-    <div class="bg-emerald-950 border-b border-emerald-700 text-emerald-200 text-[11px] font-bold py-1.5 px-3 overflow-hidden whitespace-nowrap shrink-0 flex items-center shadow">
-        <span class="bg-emerald-700 text-white px-2 py-0.5 rounded text-[9px] ml-2 shrink-0">النظام السيادي</span>
+    <!-- الشريط الإخباري الفضائي المطور -->
+    <div class="bg-sky-950 border-b border-sky-800 text-sky-200 text-[11px] font-bold py-1.5 px-3 overflow-hidden whitespace-nowrap shrink-0 flex items-center shadow">
+        <span class="bg-sky-600 text-white px-2 py-0.5 rounded text-[9px] ml-2 shrink-0">الاتصال الفضائي 🛰️</span>
         <div class="overflow-hidden w-full">
             <span class="animate-ticker">
-                🛡️ منظومة سَنَد الذكية للتواصل الفردي والمكالمات المشفرة • إشراف: الشيخ أبو طارق • شبكة ستارلينك 🛡️
+                🌐 منظومة سَنَد الذكية للاتصالات السيادية المجرّدة • مشفرة عبر الأقمار الصناعية • إشراف: الشيخ أبو طارق • OMEGA AI 🌐
             </span>
         </div>
     </div>
 
     <!-- رأس التطبيق -->
-    <header class="bg-emerald-800 border-b border-emerald-700 px-3 py-2 flex items-center justify-between shrink-0 shadow-lg">
+    <header class="bg-sky-900 border-b border-sky-700 px-3 py-2 flex items-center justify-between shrink-0 shadow-lg">
         <div class="flex items-center gap-2">
-            <img src="https://i.ibb.co/3s65Z62/IMG-3248.jpg" class="w-9 h-9 rounded-xl border-2 border-emerald-300 object-cover shadow" alt="سَنَد">
+            <img src="https://i.ibb.co/3s65Z62/IMG-3248.jpg" class="w-9 h-9 rounded-xl border-2 border-sky-400 object-cover shadow" alt="سَنَد">
             <div>
                 <h1 class="font-extrabold text-xs text-white flex items-center gap-1">
-                    برنامج سَنَد <span class="bg-emerald-600 text-white text-[9px] px-1.5 py-0.5 rounded-full">النسخة السيادية</span>
+                    برنامج سَنَد <span class="bg-sky-600 text-white text-[9px] px-1.5 py-0.5 rounded-full">النسخة الفضائية السيادية</span>
                 </h1>
-                <p class="text-[9px] text-emerald-100">إشراف: أبو طارق • متصل عالمياً</p>
+                <p class="text-[9px] text-sky-200">إشراف: أبو طارق • متصل عبر التشفير المجرّد</p>
             </div>
         </div>
         <div class="flex items-center gap-2">
-            <span id="net-status" class="bg-emerald-500/20 text-emerald-300 text-[9px] px-2 py-0.5 rounded-full font-mono flex items-center gap-1 border border-emerald-500/40">
+            <span id="net-status" class="bg-sky-500/20 text-sky-300 text-[9px] px-2 py-0.5 rounded-full font-mono flex items-center gap-1 border border-sky-500/40">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>متصل (Live)</span>
+                <span>متصل بالفضائي (Live)</span>
             </span>
         </div>
     </header>
@@ -203,29 +203,30 @@ app.get('/', (req, res) => {
     <!-- مساحة العمل الرئيسية -->
     <div class="flex-1 flex overflow-hidden relative">
         
-        <!-- القائمة الجانبية -->
-        <aside class="w-16 md:w-20 bg-emerald-950 border-l border-emerald-800 flex flex-col items-center py-2 h-full shrink-0 z-10 space-y-3">
-            <button onclick="switchSection('chats')" id="btn-sec-chats" class="p-3 rounded-2xl bg-emerald-800 text-white shadow transition flex flex-col items-center gap-1" title="المراسلات الفردية">
-                <i data-lucide="message-square" class="w-5 h-5 text-emerald-300"></i>
+        <!-- القائمة الجانبية المحدثة -->
+        <aside class="w-16 md:w-20 bg-slate-950 border-l border-sky-900 flex flex-col items-center py-2 h-full shrink-0 z-10 space-y-3">
+            <button onclick="switchSection('chats')" id="btn-sec-chats" class="p-3 rounded-2xl bg-sky-700 text-white shadow transition flex flex-col items-center gap-1 relative" title="المراسلات الفردية">
+                <i data-lucide="message-square" class="w-5 h-5 text-sky-200"></i>
                 <span class="text-[9px]">الدردشة</span>
+                <span id="chat-badge" class="hidden absolute top-1 right-1 w-4 h-4 bg-rose-600 text-white rounded-full text-[9px] font-bold flex items-center justify-center">0</span>
             </button>
-            <button onclick="switchSection('ai')" id="btn-sec-ai" class="p-3 rounded-2xl hover:bg-emerald-900 text-emerald-200 transition flex flex-col items-center gap-1" title="مساعد الذكاء الاصطناعي">
+            <button onclick="switchSection('ai')" id="btn-sec-ai" class="p-3 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1" title="مساعد الذكاء الاصطناعي">
                 <i data-lucide="cpu" class="w-5 h-5 text-blue-300"></i>
                 <span class="text-[9px]">الذكاء AI</span>
             </button>
-            <button onclick="switchSection('calls')" id="btn-sec-calls" class="p-3 rounded-2xl hover:bg-emerald-900 text-emerald-200 transition flex flex-col items-center gap-1" title="المكالمات">
-                <i data-lucide="phone-call" class="w-5 h-5 text-emerald-300"></i>
+            <button onclick="switchSection('calls')" id="btn-sec-calls" class="p-3 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1" title="المكالمات">
+                <i data-lucide="phone-call" class="w-5 h-5 text-sky-300"></i>
                 <span class="text-[9px]">المكالمات</span>
             </button>
-            <button onclick="switchSection('codes')" id="btn-sec-codes" class="p-3 rounded-2xl hover:bg-emerald-900 text-emerald-200 transition flex flex-col items-center gap-1" title="الخزنة والأكواد">
+            <button onclick="switchSection('codes')" id="btn-sec-codes" class="p-3 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1" title="الخزنة والأكواد">
                 <i data-lucide="shield-check" class="w-5 h-5 text-amber-300"></i>
                 <span class="text-[9px]">الخزنة</span>
             </button>
-            <button onclick="switchSection('help')" id="btn-sec-help" class="p-3 rounded-2xl hover:bg-emerald-900 text-emerald-200 transition flex flex-col items-center gap-1" title="التعليمات والدليل">
+            <button onclick="switchSection('help')" id="btn-sec-help" class="p-3 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1" title="الدليل السيادي">
                 <i data-lucide="help-circle" class="w-5 h-5 text-purple-300"></i>
                 <span class="text-[9px]">التعليمات</span>
             </button>
-            <button onclick="switchSection('settings')" id="btn-sec-settings" class="p-3 rounded-2xl hover:bg-emerald-900 text-emerald-200 transition flex flex-col items-center gap-1" title="الإعدادات">
+            <button onclick="switchSection('settings')" id="btn-sec-settings" class="p-3 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1" title="الإعدادات">
                 <i data-lucide="sliders" class="w-5 h-5 text-indigo-300"></i>
                 <span class="text-[9px]">الإعدادات</span>
             </button>
@@ -234,33 +235,33 @@ app.get('/', (req, res) => {
         <!-- المحتوى التفاعلي -->
         <main class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden h-full w-full">
             
-            <!-- أ. قسم المراسلات الفردية (فصل اليمين واليسار) -->
+            <!-- أ. قسم المراسلات الفردية (فصل اليمين واليسار وصندوق الوارد الذكي) -->
             <div id="section-chats" class="flex-1 flex flex-col h-full overflow-hidden">
-                <div class="bg-emerald-900 border-b border-emerald-800 px-3 py-2 flex items-center justify-between shrink-0">
+                <div class="bg-sky-900 border-b border-sky-800 px-3 py-2 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
-                        <div class="w-9 h-9 bg-emerald-800 rounded-full flex items-center justify-center font-bold text-white border border-emerald-600" id="current-avatar">ر</div>
+                        <div class="w-9 h-9 bg-sky-800 rounded-full flex items-center justify-center font-bold text-white border border-sky-600" id="current-avatar">ر</div>
                         <div>
                             <h2 class="font-bold text-xs text-white" id="current-chat-title">رهف</h2>
-                            <p class="text-[9px] text-emerald-300 flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> متصل الآن (Online)
+                            <p class="text-[9px] text-sky-200 flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> متصل بالشبكة السيادية (Online)
                             </p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button onclick="quickCall('audio')" class="p-2 bg-emerald-800 hover:bg-emerald-700 text-emerald-200 rounded-full transition shadow" title="مكالمة صوتية">
+                        <button onclick="quickCall('audio')" class="p-2 bg-sky-800 hover:bg-sky-700 text-sky-200 rounded-full transition shadow" title="مكالمة صوتية">
                             <i data-lucide="phone" class="w-4 h-4"></i>
                         </button>
-                        <button onclick="quickCall('video')" class="p-2 bg-emerald-800 hover:bg-emerald-700 text-emerald-200 rounded-full transition shadow" title="مكالمة فيديو">
+                        <button onclick="quickCall('video')" class="p-2 bg-sky-800 hover:bg-sky-700 text-sky-200 rounded-full transition shadow" title="مكالمة فيديو">
                             <i data-lucide="video" class="w-4 h-4"></i>
                         </button>
                     </div>
                 </div>
 
-                <div class="p-2 bg-emerald-950 border-b border-emerald-800 flex flex-col gap-1.5 shrink-0">
+                <div class="p-2 bg-sky-950 border-b border-sky-800 flex flex-col gap-1.5 shrink-0">
                     <div class="flex items-center gap-2">
-                        <input type="text" id="search-contact" placeholder="🔍 ابحث عن اسم..." oninput="filterRecipients()" class="bg-emerald-900 border border-emerald-700 rounded-lg px-2.5 py-1 text-[11px] text-white flex-1">
+                        <input type="text" id="search-contact" placeholder="🔍 ابحث في علبة الوارد..." oninput="filterRecipients()" class="bg-sky-900 border border-sky-700 rounded-lg px-2.5 py-1 text-[11px] text-white flex-1">
                         <div class="flex gap-1">
-                            <input type="text" id="new-contact-name" placeholder="إضافة شخص..." class="bg-emerald-900 border border-emerald-700 rounded-lg px-2 py-1 text-[11px] text-white w-24">
+                            <input type="text" id="new-contact-name" placeholder="إضافة شخص..." class="bg-sky-900 border border-sky-700 rounded-lg px-2 py-1 text-[11px] text-white w-24">
                             <button onclick="addNewContact()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-2.5 py-1 rounded-lg text-[11px]">إضافة</button>
                         </div>
                     </div>
@@ -269,56 +270,56 @@ app.get('/', (req, res) => {
 
                 <div id="chat-messages-box" class="flex-1 overflow-y-auto p-3 space-y-2.5 chat-bg"></div>
 
-                <form id="chat-form" class="p-2 bg-emerald-950 border-t border-emerald-800 flex gap-1.5 items-center shrink-0">
-                    <label class="cursor-pointer bg-emerald-800 hover:bg-emerald-700 text-emerald-200 p-2.5 rounded-full flex items-center justify-center shrink-0 shadow" title="إرفاق صورة أو ملف">
+                <form id="chat-form" class="p-2 bg-sky-950 border-t border-sky-800 flex gap-1.5 items-center shrink-0">
+                    <label class="cursor-pointer bg-sky-800 hover:bg-sky-700 text-sky-200 p-2.5 rounded-full flex items-center justify-center shrink-0 shadow" title="إرفاق ملف">
                         <i data-lucide="plus" class="w-4 h-4"></i>
                         <input type="file" id="file-input" class="hidden" accept="image/*,video/*,.pdf,.doc,.docx" onchange="handleFileUpload(event)">
                     </label>
 
-                    <input type="text" id="chat-input" placeholder="اكتب رسالة..." class="flex-1 bg-emerald-900 border border-emerald-700 rounded-2xl px-4 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="chat-input" placeholder="اكتب رسالة مشفرة..." class="flex-1 bg-sky-900 border border-sky-700 rounded-2xl px-4 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
                     
-                    <button type="button" id="record-btn" onclick="toggleVoiceRecord()" class="bg-purple-700 hover:bg-purple-800 text-white p-2.5 rounded-full text-xs flex items-center justify-center shrink-0 shadow" title="تسجيل صوت">
+                    <button type="button" id="record-btn" onclick="toggleVoiceRecord()" class="bg-purple-700 hover:bg-purple-800 text-white p-2.5 rounded-full text-xs flex items-center justify-center shrink-0 shadow" title="تسجيل صوت فوري">
                         <i data-lucide="mic" class="w-4 h-4"></i>
                     </button>
 
-                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold p-2.5 rounded-full text-xs shrink-0 shadow flex items-center justify-center">
+                    <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white font-bold p-2.5 rounded-full text-xs shrink-0 shadow flex items-center justify-center">
                         <i data-lucide="send" class="w-4 h-4"></i>
                     </button>
                 </form>
             </div>
 
-            <!-- ب. مساعد الذكاء الاصطناعي (OMEGA AI التفاعلي الفوري) -->
+            <!-- ب. مساعد الذكاء الاصطناعي (OMEGA AI) -->
             <div id="section-ai" class="flex-1 hidden flex-col h-full bg-slate-950 overflow-hidden">
                 <div class="bg-blue-950 border-b border-blue-900 px-3 py-2.5 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
                         <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center text-white"><i data-lucide="cpu" class="w-4 h-4"></i></div>
                         <div>
                             <h2 class="font-bold text-xs text-blue-200">مساعد سند الذكي (OMEGA AI)</h2>
-                            <p class="text-[9px] text-blue-300">رد تلقائي فوري كتابي وصوتي</p>
+                            <p class="text-[9px] text-blue-300">رد تلقائي فوري للأوامر والتحليل</p>
                         </div>
                     </div>
                 </div>
                 <div id="ai-messages-box" class="flex-1 overflow-y-auto p-3 space-y-2.5 chat-bg"></div>
-                <form id="ai-form" class="p-2.5 bg-emerald-950 border-t border-emerald-800 flex gap-2 shrink-0">
-                    <input type="text" id="ai-input" placeholder="اسأل الذكاء الاصطناعي وسيرد عليك فوراً..." class="flex-1 bg-emerald-900 border border-emerald-700 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
-                    <button type="button" onclick="recordAiVoice()" class="bg-purple-700 hover:bg-purple-800 text-white p-2.5 rounded-xl text-xs" title="سؤال صوتي">
+                <form id="ai-form" class="p-2.5 bg-sky-950 border-t border-sky-800 flex gap-2 shrink-0">
+                    <input type="text" id="ai-input" placeholder="اسأل OMEGA AI وسيرد عليك فوراً..." class="flex-1 bg-sky-900 border border-sky-700 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                    <button type="button" onclick="recordAiVoice()" class="bg-purple-700 hover:bg-purple-800 text-white p-2.5 rounded-xl text-xs" title="سؤال صوتي للذكاء">
                         <i data-lucide="mic" class="w-4 h-4"></i>
                     </button>
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs">إرسال</button>
                 </form>
             </div>
 
-            <!-- ج. المكالمات (مع فيديو الكاميرتين وصوت رنين حقيقي) -->
-            <div id="section-calls" class="flex-1 hidden flex-col h-full p-4 items-center justify-center text-center bg-emerald-950 overflow-y-auto">
-                <div class="w-20 h-20 bg-emerald-900 border-2 border-emerald-500/50 rounded-full flex items-center justify-center mb-3 text-emerald-300 shadow-2xl relative">
-                    <div class="absolute inset-0 rounded-full border border-emerald-400 animate-ping"></div>
+            <!-- ج. المكالمات الفضائية -->
+            <div id="section-calls" class="flex-1 hidden flex-col h-full p-4 items-center justify-center text-center bg-sky-950 overflow-y-auto">
+                <div class="w-20 h-20 bg-sky-900 border-2 border-sky-500/50 rounded-full flex items-center justify-center mb-3 text-sky-300 shadow-2xl relative">
+                    <div class="absolute inset-0 rounded-full border border-sky-400 animate-ping"></div>
                     <i data-lucide="phone-call" class="w-8 h-8"></i>
                 </div>
-                <h3 class="text-base font-bold text-white mb-1">مركز الاتصال الفردي المشفر</h3>
-                <p class="text-[11px] text-emerald-300/80 mb-3">اتصال صوتي أو مرئي مباشر مع رنين</p>
+                <h3 class="text-base font-bold text-white mb-1">مركز الاتصال الفضائي المشفر</h3>
+                <p class="text-[11px] text-sky-300/80 mb-3">اتصال مباشر فوري مع رنين فضائي معتمد</p>
                 
                 <div class="w-full max-w-xs space-y-2.5 mb-3">
-                    <select id="call-target" class="w-full bg-emerald-900 border border-emerald-700 rounded-xl p-2.5 text-xs text-white text-center">
+                    <select id="call-target" class="w-full bg-sky-900 border border-sky-700 rounded-xl p-2.5 text-xs text-white text-center">
                         <option value="رهف">اتصال بـ: رهف</option>
                         <option value="رابعة">اتصال بـ: رابعة</option>
                         <option value="رشا">اتصال بـ: رشا</option>
@@ -327,7 +328,7 @@ app.get('/', (req, res) => {
                     </select>
                     
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="startCall('audio')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow">
+                        <button onclick="startCall('audio')" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow">
                             <i data-lucide="phone" class="w-4 h-4"></i> مكالمة صوتية
                         </button>
                         <button onclick="startCall('video')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow">
@@ -336,19 +337,19 @@ app.get('/', (req, res) => {
                     </div>
                 </div>
 
-                <div id="call-screen" class="hidden w-full max-w-md bg-slate-900 border border-emerald-700 rounded-2xl p-3 text-center space-y-2">
-                    <p id="call-status" class="text-xs text-amber-300 font-bold">جاري رنين وتنبيه الطرف الآخر...</p>
+                <div id="call-screen" class="hidden w-full max-w-md bg-slate-900 border border-sky-700 rounded-2xl p-3 text-center space-y-2">
+                    <p id="call-status" class="text-xs text-amber-300 font-bold">جاري الاتصال عبر القمر الصناعي...</p>
                     <div id="video-container" class="hidden grid grid-cols-2 gap-2">
                         <div class="relative"><video id="localVideo" autoplay muted playsinline class="w-full h-28 bg-black rounded-xl object-cover"></video><span class="absolute bottom-1 right-1 bg-black/60 text-[9px] px-1.5 rounded text-white">صورتك</span></div>
                         <div class="relative"><video id="remoteVideo" autoplay playsinline class="w-full h-28 bg-black rounded-xl object-cover"></video><span class="absolute bottom-1 right-1 bg-black/60 text-[9px] px-1.5 rounded text-white">الطرف الآخر</span></div>
                     </div>
-                    <button onclick="endCall()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-4 py-1.5 rounded-xl text-xs">إنهاء المكالمة</button>
+                    <button onclick="endCall()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-4 py-1.5 rounded-xl text-xs">إنهاء الاتصال</button>
                 </div>
             </div>
 
             <!-- د. الخزنة والأكواد -->
-            <div id="section-codes" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-4 bg-emerald-950">
-                <div class="bg-emerald-900 border border-emerald-800 rounded-2xl p-4">
+            <div id="section-codes" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-4 bg-sky-950">
+                <div class="bg-sky-900 border border-sky-800 rounded-2xl p-4">
                     <h3 class="font-bold text-sm text-amber-300 mb-3 flex items-center gap-2">
                         <i data-lucide="shield-check" class="w-4 h-4"></i> توليد كود سيادي معتمد (خاص بالإدارة)
                     </h3>
@@ -356,38 +357,38 @@ app.get('/', (req, res) => {
                         ⚡ توليد بصمة وكود سيادي جديد (8 أرقام)
                     </button>
                     <div class="grid grid-cols-1 gap-2">
-                        <input type="text" id="new-owner-name" placeholder="اسم الجهة أو الفرد..." class="bg-emerald-950 border border-emerald-700 rounded-xl p-2.5 text-xs text-white">
-                        <input type="text" id="new-code-val" placeholder="888xxxxx" readonly class="bg-slate-950 border border-emerald-700 rounded-xl p-2.5 text-xs font-mono font-bold text-amber-300 text-center">
+                        <input type="text" id="new-owner-name" placeholder="اسم الجهة أو الفرد..." class="bg-sky-950 border border-sky-700 rounded-xl p-2.5 text-xs text-white">
+                        <input type="text" id="new-code-val" placeholder="888xxxxx" readonly class="bg-slate-950 border border-sky-700 rounded-xl p-2.5 text-xs font-mono font-bold text-amber-300 text-center">
                     </div>
-                    <button onclick="saveSecureCode()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs mt-3 transition">
+                    <button onclick="saveSecureCode()" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 rounded-xl text-xs mt-3 transition">
                         حفظ في الخزنة السرية
                     </button>
                 </div>
-                <div class="bg-emerald-900 border border-emerald-800 rounded-2xl p-4 flex-1">
-                    <h3 class="font-bold text-sm text-emerald-200 mb-3">سجل الخزنة السيادية المحمية</h3>
+                <div class="bg-sky-900 border border-sky-800 rounded-2xl p-4 flex-1">
+                    <h3 class="font-bold text-sm text-sky-200 mb-3">سجل الخزنة السيادية المحمية</h3>
                     <div id="vault-list" class="space-y-2 text-xs"></div>
                 </div>
             </div>
 
             <!-- هـ. التعليمات والدليل -->
-            <div id="section-help" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 text-xs bg-emerald-950">
-                <div class="bg-emerald-900 border border-emerald-800 rounded-2xl p-4 space-y-3">
-                    <h3 class="font-bold text-sm text-purple-300">📖 دليل تثبيت وتشغيل تطبيق "سَنَد"</h3>
-                    <div class="p-3 bg-emerald-950 rounded-xl border border-emerald-800 space-y-2 text-emerald-100">
-                        <p><strong>1. تثبيت التطبيق على الشاشة الرئيسية:</strong> افتح متصفح Safari، اضغط زر المشاركة بالأسفل، ثم اختر <strong>"إضافة إلى الشاشة الرئيسية" (Add to Home Screen)</strong> لتظهر أيقونة سَنَد الرسمية على جوالك كأي تطبيق مستقل.</p>
-                        <p><strong>2. نظام المراسلات:</strong> رسائلك على اليمين ورسائل الطرف الآخر على اليسار.</p>
-                        <p><strong>3. الذكاء الاصطناعي:</strong> يرد عليك فوراً كتابة وصوتاً مثل جيمناي.</p>
+            <div id="section-help" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 text-xs bg-sky-950">
+                <div class="bg-sky-900 border border-sky-800 rounded-2xl p-4 space-y-3">
+                    <h3 class="font-bold text-sm text-purple-300">📖 الدليل السيادي لمنظومة سَنَد</h3>
+                    <div class="p-3 bg-sky-950 rounded-xl border border-sky-800 space-y-2 text-sky-100">
+                        <p><strong>1. التثبيت على الآيفون:</strong> من متصفح Safari، اضغط زر المشاركة ثم "إضافة إلى الشاشة الرئيسية" لتظهر الأيقونة الزرقاء الرسمية.</p>
+                        <p><strong>2. خصوصية المحادثات:</strong> كل قناة بينك وبين أي شخص (مثل رشا أو رابعة) معزولة تماماً ولا يطلع عليها س سواكم.</p>
+                        <p><strong>3. الإرسال الصوتي:</strong> بضغطة واحدة يتم تسجيل الصوت وإرساله فوراً لصندوق الوارد للطرف الآخر.</p>
                     </div>
                 </div>
             </div>
 
             <!-- و. الإعدادات -->
-            <div id="section-settings" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 text-xs bg-emerald-950">
-                <div class="bg-emerald-900 border border-emerald-800 rounded-2xl p-4 space-y-3">
-                    <h3 class="font-bold text-sm text-indigo-300">إحصائيات الشبكة والتحكم المركزي</h3>
-                    <div class="flex justify-between items-center p-2.5 bg-emerald-950 rounded-xl border border-emerald-800">
+            <div id="section-settings" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 text-xs bg-sky-950">
+                <div class="bg-sky-900 border border-sky-800 rounded-2xl p-4 space-y-3">
+                    <h3 class="font-bold text-sm text-indigo-300">إحصائيات الشبكة الفضائية والتحكم</h3>
+                    <div class="flex justify-between items-center p-2.5 bg-sky-950 rounded-xl border border-sky-800">
                         <span>المشتركين المتصلين حالياً:</span>
-                        <span id="stat-connections" class="text-emerald-300 font-bold font-mono">1</span>
+                        <span id="stat-connections" class="text-sky-300 font-bold font-mono">1</span>
                     </div>
                     <button onclick="triggerKillSwitch()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-xl text-xs mt-2 transition">
                         ⚡ تفعيل مفتاح الطوارئ وحذف السجل المؤقت
@@ -435,7 +436,7 @@ app.get('/', (req, res) => {
             ws = new WebSocket(wsUrl);
 
             ws.onopen = () => {
-                document.getElementById('net-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span>متصل (Live)</span>';
+                document.getElementById('net-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span>متصل بالفضائي (Live)</span>';
             };
 
             ws.onmessage = (event) => {
@@ -466,7 +467,8 @@ app.get('/', (req, res) => {
                     if (currentRecipient === data.recipient) {
                         appendMessage(data.msg);
                     } else {
-                        showAlert(\`رسالة جديدة من \${data.recipient}\`);
+                        showAlert(\`رسالة جديدة واردة من \${data.recipient}\`);
+                        updateBadge();
                     }
                 }
                 if (data.type === 'ai_update') {
@@ -475,12 +477,12 @@ app.get('/', (req, res) => {
                 }
                 if (data.type === 'incoming_call') {
                     playRingTone();
-                    showAlert(\`📞 مكالمة \${data.callType === 'video' ? 'فيديو' : 'صوتية'} واردة من \${data.caller}\`);
+                    showAlert(\`📞 اتصال فضائي \${data.callType === 'video' ? 'فيديو' : 'صوتي'} وارد من \${data.caller}\`);
                 }
             };
 
             ws.onclose = () => {
-                document.getElementById('net-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-500"></span><span>إعادة اتصال...</span>';
+                document.getElementById('net-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-500"></span><span>إعادة اتصال بالفضائي...</span>';
                 setTimeout(connectWebSocket, 3000);
             };
         }
@@ -494,13 +496,21 @@ app.get('/', (req, res) => {
             setTimeout(() => banner.classList.add('hidden'), 4000);
         }
 
+        function updateBadge() {
+            const badge = document.getElementById('chat-badge');
+            if(badge) {
+                badge.classList.remove('hidden');
+                badge.textContent = '!';
+            }
+        }
+
         function renderRecipients(recipients) {
             const tabs = document.getElementById('recipient-tabs');
             if(!tabs) return;
             let html = '';
             recipients.forEach(name => {
                 const isActive = name === currentRecipient;
-                html += \`<button onclick="selectRecipient('\${name}')" class="recipient-btn px-3 py-1.5 rounded-lg \${isActive ? 'bg-emerald-700 text-white shadow' : 'bg-emerald-950 text-emerald-200 border border-emerald-700'} text-xs font-bold transition shrink-0" data-target="\${name}">\${name}</button>\`;
+                html += \`<button onclick="selectRecipient('\${name}')" class="recipient-btn px-3 py-1.5 rounded-lg \${isActive ? 'bg-sky-600 text-white shadow' : 'bg-sky-950 text-sky-200 border border-sky-800'} text-xs font-bold transition shrink-0" data-target="\${name}">\${name}</button>\`;
             });
             tabs.innerHTML = html;
         }
@@ -521,7 +531,7 @@ app.get('/', (req, res) => {
             if(ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ type: 'add_recipient', name: name }));
                 input.value = '';
-                alert('✅ تمت إضافة الشخص وفتح قناة خاصة به.');
+                alert('✅ تمت إضافة الشخص وفتح علبة الوارد الخاصة به.');
             }
         }
 
@@ -531,6 +541,8 @@ app.get('/', (req, res) => {
             document.getElementById('current-avatar').textContent = name.charAt(0);
             renderRecipients(globalRecipients);
             renderMessages(name);
+            const badge = document.getElementById('chat-badge');
+            if(badge) badge.classList.add('hidden');
         }
 
         function switchSection(secId) {
@@ -538,7 +550,7 @@ app.get('/', (req, res) => {
                 const el = document.getElementById('section-' + id);
                 if (el) el.classList.add('hidden');
                 const btn = document.getElementById('btn-sec-' + id);
-                if (btn) btn.className = "p-3 rounded-2xl hover:bg-emerald-900 text-emerald-200 transition flex flex-col items-center gap-1";
+                if (btn) btn.className = "p-3 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1";
             });
             const target = document.getElementById('section-' + secId);
             if (target) {
@@ -546,7 +558,7 @@ app.get('/', (req, res) => {
                 target.classList.add('flex');
             }
             const targetBtn = document.getElementById('btn-sec-' + secId);
-            if (targetBtn) targetBtn.className = "p-3 rounded-2xl bg-emerald-800 text-white shadow transition flex flex-col items-center gap-1";
+            if (targetBtn) targetBtn.className = "p-3 rounded-2xl bg-sky-700 text-white shadow transition flex flex-col items-center gap-1";
         }
 
         document.getElementById('chat-form').addEventListener('submit', (e) => {
@@ -589,9 +601,9 @@ app.get('/', (req, res) => {
         });
 
         function recordAiVoice() {
-            alert('🎙️ جاري الاستماع لسؤالك الصوتي الموجه إلى OMEGA AI...');
+            alert('🎙️ جاري الاستماع لسؤالك الصوتي الموجه إلى OMEGA AI عبر القمر الصناعي...');
             setTimeout(() => {
-                const voicePrompt = "استفسار صوتي من الشيخ أبو طارق عبر شبكة ستارلينك";
+                const voicePrompt = "استفسار صوتي فضائي من الشيخ أبو طارق";
                 ws.send(JSON.stringify({ type: 'ai_chat', msg: { sender: 'أبو طارق (صوتي)', text: voicePrompt, time: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'}), isAi: false } }));
             }, 1000);
         }
@@ -616,6 +628,7 @@ app.get('/', (req, res) => {
             reader.readAsDataURL(file);
         }
 
+        // تسجيل صوتي فوري وإرسال لحظي
         function toggleVoiceRecord() {
             const btn = document.getElementById('record-btn');
             if (!isRecording) {
@@ -667,9 +680,9 @@ app.get('/', (req, res) => {
             }
 
             const alignClass = msg.isMe ? 'justify-end' : 'justify-start';
-            const bgClass = msg.isMe ? 'bg-emerald-700 text-white' : 'bg-emerald-900 border border-emerald-700 text-emerald-100';
+            const bgClass = msg.isMe ? 'bg-sky-600 text-white' : 'bg-sky-950 border border-sky-800 text-sky-100';
 
-            box.innerHTML += \`<div class="flex \${alignClass}"><div class="max-w-[85%] \${bgClass} p-3 rounded-2xl text-xs leading-relaxed shadow"><strong class="text-amber-300 block mb-0.5">\${msg.sender}:</strong>\${content}<div class="text-[9px] opacity-80 mt-1 flex justify-between items-center"><span>\${msg.time}</span><span class="font-bold">✓✓ مقروء 🔒</span></div></div></div>\`;
+            box.innerHTML += \`<div class="flex \${alignClass}"><div class="max-w-[85%] \${bgClass} p-3 rounded-2xl text-xs leading-relaxed shadow"><strong class="text-amber-300 block mb-0.5">\${msg.sender}:</strong>\${content}<div class="text-[9px] opacity-80 mt-1 flex justify-between items-center"><span>\${msg.time}</span><span class="font-bold">✓✓ موثق فضائياً 🔒</span></div></div></div>\`;
             box.scrollTop = box.scrollHeight;
         }
 
@@ -688,7 +701,7 @@ app.get('/', (req, res) => {
             logs.forEach(log => {
                 const isAi = log.isAi;
                 const align = isAi ? 'justify-start' : 'justify-end';
-                const bg = isAi ? 'bg-blue-950 border border-blue-800 text-blue-100' : 'bg-emerald-700 text-white';
+                const bg = isAi ? 'bg-blue-950 border border-blue-800 text-blue-100' : 'bg-sky-600 text-white';
                 box.innerHTML += \`<div class="flex \${align}"><div class="max-w-[85%] \${bg} p-3 rounded-2xl text-xs shadow"><strong>\${log.sender}:</strong><p class="mt-0.5">\${log.text}</p><span class="text-[9px] opacity-70 block mt-1">\${log.time}</span></div></div>\`;
             });
             box.scrollTop = box.scrollHeight;
@@ -708,7 +721,7 @@ app.get('/', (req, res) => {
             
             screen.classList.remove('hidden');
             playRingTone();
-            status.textContent = \`جاري رنين وتنبيه (\${target})...\`;
+            status.textContent = \`جاري الاتصال بـ (\${target}) عبر الأقمار الصناعية...\`;
 
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ type: 'call_action', target: target, callType: type, caller: 'أبو طارق' }));
@@ -719,12 +732,13 @@ app.get('/', (req, res) => {
                 navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
                     localStream = stream;
                     document.getElementById('localVideo').srcObject = stream;
-                    document.getElementById('remoteVideo').srcObject = stream; // عرض الكاميرتين معاً
-                    status.textContent = \`متصل فيديو الآن بـ \${target}\`;
+                    document.getElementById('remoteVideo').srcObject = stream;
+                    status.textContent = \`متصل مرئياً الآن بـ \${target}\`;
                 }).catch(err => {
                     alert('خطأ في الوصول للكاميرا: ' + err);
                 });
             } else {
+                videoBox.json;
                 videoBox.classList.add('hidden');
                 setTimeout(() => {
                     status.textContent = \`متصل صوتياً بـ \${target} بنجاح\`;
@@ -738,7 +752,7 @@ app.get('/', (req, res) => {
             }
             document.getElementById('call-screen').classList.add('hidden');
             document.getElementById('video-container').classList.add('hidden');
-            alert('📞 تم إنهاء المكالمة بنجاح.');
+            alert('📞 تم إنهاء الاتصال الفضائي بنجاح.');
         }
 
         function generateSovereignCode() {
@@ -753,7 +767,7 @@ app.get('/', (req, res) => {
                 alert('يرجى إدخال اسم الجهة وتوليد الكود.');
                 return;
             }
-            const newItem = { owner: name, phone: 'خاص للإدارة', num: code, cat: 'اعتماد سيادي' };
+            const newItem = { owner: name, phone: 'خاص للإدارة', num: code, cat: 'اعتماد فضائي سيادي' };
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ type: 'add_secure_code', item: newItem }));
                 alert('✅ تم حفظ الكود في الخزنة السرية.');
@@ -767,7 +781,7 @@ app.get('/', (req, res) => {
             if(!vaultList) return;
             let html = '';
             vault.forEach(item => {
-                html += \`<div class="p-2.5 bg-emerald-950 rounded-xl flex justify-between items-center border border-emerald-800"><div><strong>\${item.owner}</strong><br/><span class="text-amber-300 font-mono">الكود: \${item.num}</span></div><span class="bg-emerald-500/30 text-emerald-200 px-2 py-0.5 rounded text-[10px]">\${item.cat}</span></div>\`;
+                html += \`<div class="p-2.5 bg-sky-950 rounded-xl flex justify-between items-center border border-sky-800"><div><strong>\${item.owner}</strong><br/><span class="text-amber-300 font-mono">الكود: \${item.num}</span></div><span class="bg-sky-500/30 text-sky-200 px-2 py-0.5 rounded text-[10px]">\${item.cat}</span></div>\`;
             });
             vaultList.innerHTML = html;
         }

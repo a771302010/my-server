@@ -11,7 +11,6 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// قاعدة البيانات السيادية الحية في الذاكرة
 let secureVault = [
   { owner: 'القيادة المركزية العليا', phone: '967770000001', num: '88800001', cat: 'بروتوكول VIP' },
   { owner: 'خدمة العملاء المركزية', phone: '88888888', num: '88888888', cat: 'الدعم الفني 24/7' },
@@ -20,24 +19,24 @@ let secureVault = [
 
 let privateChats = {
   'رهف': [
-    { id: 'm1', sender: 'رهف', type: 'text', text: 'صباح الخير يا أبي الغالي، قناة رهف الفردية مؤمنة بالكامل عبر القمر الصناعي.', time: '10:00 ص', isMe: false }
+    { id: 'm1', sender: 'رهف', type: 'text', text: 'صباح الخير يا أبي الغالي، قناة رهف الفردية مؤمنة بالكامل عبر القمر الصناعي.', time: 'الآن', isMe: false }
   ],
   'رابعة': [
-    { id: 'm2', sender: 'رابعة', type: 'text', text: 'مرحباً يا أبانا، الاتصال السيادي المشفر نشط وجاهز.', time: '10:01 ص', isMe: false }
+    { id: 'm2', sender: 'رابعة', type: 'text', text: 'مرحباً يا أبانا، الاتصال السيادي المشفر نشط وجاهز.', time: 'الآن', isMe: false }
   ],
   'رشا': [
-    { id: 'm3', sender: 'رشا', type: 'text', text: 'تم استلام الإشارة الفضائية بنجاح وبأعلى جودة.', time: '10:02 ص', isMe: false }
+    { id: 'm3', sender: 'رشا', type: 'text', text: 'تم استلام الإشارة الفضائية بنجاح وبأعلى جودة.', time: 'الآن', isMe: false }
   ],
   'آمنة': [
-    { id: 'm4', sender: 'آمنة', type: 'text', text: 'منظومة سَنَد تعمل بكفاءة تامة ومؤمنة 100%.', time: '10:03 ص', isMe: false }
+    { id: 'm4', sender: 'آمنة', type: 'text', text: 'منظومة سَنَد تعمل بكفاءة تامة ومؤمنة 100%.', time: 'الآن', isMe: false }
   ],
   '88888888': [
-    { id: 'm5', sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك يا شيخ أبو طارق في غرفة العمليات السيادية لمنظومة سَنَد.', time: '10:04 ص', isMe: false }
+    { id: 'm5', sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك يا شيخ أبو طارق في غرفة العمليات السيادية.', time: 'الآن', isMe: false }
   ]
 };
 
 let aiChatLogs = [
-  { sender: 'OMEGA AI V4', text: 'أهلاً بك يا أبو طارق. أنا نظام الذكاء الاصطناعي السيادي المدمج في منظومة سَنَد. جاهز لتحليل البيانات، تأمين القنوات، والرد الفوري على أوامرك.', time: 'الآن', isAi: true }
+  { sender: 'OMEGA AI V4', text: 'أهلاً بك يا أبو طارق. أنا نظام الذكاء الاصطناعي السيادي المدمج في منظومة سَنَد. جاهز لتحليل البيانات وتأمين القنوات والرد الفوري.', time: 'الآن', isAi: true }
 ];
 
 let activeRecipients = ['رهف', 'رابعة', 'رشا', 'آمنة', '88888888'];
@@ -55,7 +54,6 @@ function broadcast(payload) {
 wss.on('connection', (ws) => {
   activeConnectionsCount++;
   
-  // إرسال البيانات الكاملة فور الاتصال
   ws.send(JSON.stringify({
     type: 'init',
     vault: secureVault,
@@ -106,10 +104,10 @@ wss.on('connection', (ws) => {
         const q = data.msg.text;
         let reply = '⚡ [OMEGA AI V4]: تم استلام أمرك السيادي ("' + q + '"). تم تشفير الحزمة وإجراء المسح الفضائي الشامل. جميع القنوات مؤمنة بنسبة 100% يا أبو طارق.';
         if (q.includes('حالة') || q.includes('تقرير') || q.includes('فحص')) {
-          reply = '🛰️ [تقرير الحالة الفضائية]: الأقمار الصناعية متصلة بنجاح • التشفير المجرّد نشط • عدد القنوات المؤمنة: ' + activeRecipients.length + ' • الخزنة السيادية محمية بالكامل.';
+          reply = '🛰️ [تقرير الحالة الفضائية]: الأقمار الصناعية متصلة بنجاح • التشفير المجرّد نشط • عدد القنوات المؤمنة: ' + activeRecipients.length;
         } else if (q.includes('كود') || q.includes('رمز')) {
           const code = '888' + Math.floor(10000 + Math.random() * 90000);
-          reply = '🔐 [مولد الأكواد الذكي]: تم توليد كود سيادي مشفر لك: ' + code + ' — يمكنك حفظه في قسم الخزنة.';
+          reply = '🔐 [مولد الأكواد الذكي]: تم توليد كود سيادي مشفر لك: ' + code;
         }
         
         aiChatLogs.push({
@@ -197,13 +195,11 @@ const htmlPage = `<!DOCTYPE html>
 </head>
 <body class="w-screen h-[100dvh] flex flex-col justify-between m-0 p-0">
 
-    <!-- إشعار منبثق -->
     <div id="alert-banner" class="hidden fixed top-4 left-1/2 transform -translate-x-1/2 bg-amber-400 text-slate-950 font-extrabold px-4 py-2.5 rounded-2xl text-xs z-50 shadow-2xl flex items-center gap-2 border-2 border-white">
         <span>🛰️</span>
         <span id="alert-text">تنبيه فضائي جديد</span>
     </div>
 
-    <!-- الشريط الإخباري الفضائي -->
     <div class="bg-sky-950 border-b border-sky-800 text-sky-200 text-[11px] font-bold py-1.5 px-3 overflow-hidden whitespace-nowrap shrink-0 flex items-center shadow">
         <span class="bg-sky-600 text-white px-2 py-0.5 rounded text-[9px] ml-2 shrink-0">الاتصال الفضائي 🛰️</span>
         <div class="overflow-hidden w-full">
@@ -213,7 +209,6 @@ const htmlPage = `<!DOCTYPE html>
         </div>
     </div>
 
-    <!-- رأس التطبيق -->
     <header class="bg-sky-900 border-b border-sky-700 px-3 py-2 flex items-center justify-between shrink-0 shadow-lg">
         <div class="flex items-center gap-2.5">
             <img src="https://i.ibb.co/3s65Z62/IMG-3248.jpg" class="w-10 h-10 rounded-xl border-2 border-sky-400 object-cover shadow" alt="سَنَد">
@@ -232,10 +227,7 @@ const htmlPage = `<!DOCTYPE html>
         </div>
     </header>
 
-    <!-- مساحة العمل الرئيسية -->
     <div class="flex-1 flex overflow-hidden relative">
-        
-        <!-- القائمة الجانبية بأيقونات SVG مدمجة لا تتعطل أبداً -->
         <aside class="w-16 md:w-20 bg-slate-950 border-l border-sky-900 flex flex-col items-center py-2.5 h-full shrink-0 z-10 space-y-2.5 overflow-y-auto">
             <button onclick="switchSection('chats')" id="btn-sec-chats" class="w-14 py-2.5 rounded-2xl bg-sky-700 text-white shadow transition flex flex-col items-center gap-1 relative">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
@@ -244,7 +236,7 @@ const htmlPage = `<!DOCTYPE html>
             </button>
 
             <button onclick="switchSection('ai')" id="btn-sec-ai" class="w-14 py-2.5 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1">
-                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
+                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect></svg>
                 <span class="text-[9px] font-bold">الذكاء AI</span>
             </button>
 
@@ -254,30 +246,27 @@ const htmlPage = `<!DOCTYPE html>
             </button>
 
             <button onclick="switchSection('codes')" id="btn-sec-codes" class="w-14 py-2.5 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1">
-                <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+                <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                 <span class="text-[9px] font-bold">الخزنة</span>
             </button>
 
             <button onclick="switchSection('radar')" id="btn-sec-radar" class="w-14 py-2.5 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1">
-                <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle></svg>
                 <span class="text-[9px] font-bold">الأقمار</span>
             </button>
 
             <button onclick="switchSection('help')" id="btn-sec-help" class="w-14 py-2.5 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1">
-                <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle></svg>
                 <span class="text-[9px] font-bold">التعليمات</span>
             </button>
 
             <button onclick="switchSection('settings')" id="btn-sec-settings" class="w-14 py-2.5 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1">
-                <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle></svg>
                 <span class="text-[9px] font-bold">الإعدادات</span>
             </button>
         </aside>
 
-        <!-- المحتوى التفاعلي -->
         <main class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden h-full w-full">
-            
-            <!-- 1. قسم الدردشة السيادية -->
             <div id="section-chats" class="flex-1 flex flex-col h-full overflow-hidden">
                 <div class="bg-sky-900 border-b border-sky-800 px-3 py-2 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
@@ -302,7 +291,6 @@ const htmlPage = `<!DOCTYPE html>
                     </div>
                 </div>
 
-                <!-- شريط البحث وإضافة القنوات -->
                 <div class="p-2 bg-sky-950 border-b border-sky-800 flex flex-col gap-1.5 shrink-0">
                     <div class="flex items-center gap-1.5">
                         <input type="text" id="search-contact" placeholder="🔍 ابحث في علبة الوارد..." oninput="filterRecipients()" class="bg-sky-900 border border-sky-700 rounded-lg px-2.5 py-1.5 text-[11px] text-white flex-1 focus:outline-none">
@@ -312,40 +300,37 @@ const htmlPage = `<!DOCTYPE html>
                     <div class="flex gap-1.5 overflow-x-auto pb-1" id="recipient-tabs"></div>
                 </div>
 
-                <!-- صندوق الرسائل -->
                 <div id="chat-messages-box" class="flex-1 overflow-y-auto p-3 space-y-2.5 chat-bg"></div>
 
-                <!-- شريط الإرسال السفلي بأزرار واضحة -->
                 <form id="chat-form" class="p-2 bg-sky-950 border-t border-sky-800 flex gap-1.5 items-center shrink-0">
-                    <label class="cursor-pointer bg-sky-800 hover:bg-sky-700 text-white p-2.5 rounded-full flex items-center justify-center shrink-0 shadow" title="إرفاق ملف أو صورة">
+                    <label class="cursor-pointer bg-sky-800 hover:bg-sky-700 text-white p-2.5 rounded-full flex items-center justify-center shrink-0 shadow" title="إرفاق ملف">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                         <input type="file" id="file-input" class="hidden" accept="image/*,video/*,.pdf,.doc,.docx" onchange="handleFileUpload(event)">
                     </label>
 
-                    <button type="button" id="view-once-btn" onclick="toggleViewOnce()" class="bg-sky-900 border border-sky-700 text-sky-200 p-2.5 rounded-full flex items-center justify-center shrink-0 shadow transition" title="رسالة تُفتح مرة واحدة وتُدمر">
+                    <button type="button" id="view-once-btn" onclick="toggleViewOnce()" class="bg-sky-900 border border-sky-700 text-sky-200 p-2.5 rounded-full flex items-center justify-center shrink-0 shadow transition" title="عرض مرة واحدة">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                     </button>
 
-                    <input type="text" id="chat-input" placeholder="اكتب رسالة مشفرة..." class="flex-1 bg-sky-900 border border-sky-700 rounded-2xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-sky-400">
+                    <input type="text" id="chat-input" placeholder="اكتب رسالة مشفرة..." class="flex-1 bg-sky-900 border border-sky-700 rounded-2xl px-3.5 py-2 text-xs text-white focus:outline-none">
                     
-                    <button type="button" id="record-btn" onclick="toggleVoiceRecord()" class="bg-purple-700 hover:bg-purple-600 text-white p-2.5 rounded-full flex items-center justify-center shrink-0 shadow" title="تسجيل رسالة صوتية">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                    <button type="button" id="record-btn" onclick="toggleVoiceRecord()" class="bg-purple-700 hover:bg-purple-600 text-white p-2.5 rounded-full flex items-center justify-center shrink-0 shadow" title="تسجيل صوتي">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path></svg>
                     </button>
 
-                    <button type="submit" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold p-2.5 rounded-full shrink-0 shadow flex items-center justify-center" title="إرسال">
+                    <button type="submit" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold p-2.5 rounded-full shrink-0 shadow flex items-center justify-center">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                     </button>
                 </form>
             </div>
 
-            <!-- 2. قسم الذكاء الاصطناعي OMEGA AI -->
             <div id="section-ai" class="flex-1 hidden flex-col h-full bg-slate-950 overflow-hidden">
                 <div class="bg-blue-950 border-b border-blue-800 px-3 py-2.5 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
                         <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xs">AI</div>
                         <div>
                             <h2 class="font-bold text-xs text-blue-100">مساعد سند الذكي (OMEGA AI V4)</h2>
-                            <p class="text-[9px] text-blue-300">اكتب "تقرير" أو "كود" أو أي أمر سيادي للرد الفوري</p>
+                            <p class="text-[9px] text-blue-300">اكتب "تقرير" أو "كود" لأي أمر سيادي</p>
                         </div>
                     </div>
                 </div>
@@ -356,7 +341,6 @@ const htmlPage = `<!DOCTYPE html>
                 </form>
             </div>
 
-            <!-- 3. قسم المكالمات الفضائية -->
             <div id="section-calls" class="flex-1 hidden flex-col h-full p-4 items-center justify-center text-center bg-sky-950 overflow-y-auto">
                 <div class="w-20 h-20 bg-sky-900 border-2 border-emerald-400 rounded-full flex items-center justify-center mb-3 text-emerald-300 shadow-2xl relative">
                     <svg class="w-9 h-9" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
@@ -374,12 +358,8 @@ const htmlPage = `<!DOCTYPE html>
                     </select>
                     
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="startCall('audio')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs shadow">
-                            📞 مكالمة صوتية
-                        </button>
-                        <button onclick="startCall('video')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs shadow">
-                            📹 مكالمة فيديو
-                        </button>
+                        <button onclick="startCall('audio')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs shadow">📞 مكالمة صوتية</button>
+                        <button onclick="startCall('video')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs shadow">📹 مكالمة فيديو</button>
                     </div>
                 </div>
 
@@ -393,20 +373,15 @@ const htmlPage = `<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- 4. قسم الخزنة والأكواد -->
             <div id="section-codes" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-4 bg-sky-950">
                 <div class="bg-sky-900 border border-sky-700 rounded-2xl p-4 shadow-lg">
                     <h3 class="font-extrabold text-sm text-amber-300 mb-3">🛡️ توليد واعتماد كود سيادي جديد</h3>
-                    <button onclick="generateSovereignCode()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-2.5 rounded-xl text-xs mb-3 transition shadow">
-                        ⚡ توليد بصمة وكود سيادي (8 أرقام)
-                    </button>
+                    <button onclick="generateSovereignCode()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-2.5 rounded-xl text-xs mb-3 transition shadow">⚡ توليد بصمة وكود سيادي (8 أرقام)</button>
                     <div class="grid grid-cols-1 gap-2">
                         <input type="text" id="new-owner-name" placeholder="اسم الجهة أو الفرد..." class="bg-sky-950 border border-sky-700 rounded-xl p-2.5 text-xs text-white">
                         <input type="text" id="new-code-val" placeholder="888xxxxx" readonly class="bg-slate-950 border border-sky-700 rounded-xl p-2.5 text-xs font-mono font-bold text-amber-300 text-center">
                     </div>
-                    <button onclick="saveSecureCode()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2.5 rounded-xl text-xs mt-3 transition shadow">
-                        حفظ في الخزنة السرية
-                    </button>
+                    <button onclick="saveSecureCode()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2.5 rounded-xl text-xs mt-3 transition shadow">حفظ في الخزنة السرية</button>
                 </div>
                 <div class="bg-sky-900 border border-sky-700 rounded-2xl p-4 flex-1 shadow-lg">
                     <h3 class="font-extrabold text-sm text-sky-100 mb-3">🔐 سجل الخزنة السيادية المحمية</h3>
@@ -414,49 +389,36 @@ const htmlPage = `<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- 5. قسم الأقمار الصناعية والرادار -->
             <div id="section-radar" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 bg-sky-950 text-xs">
                 <div class="bg-sky-900 border border-cyan-700 rounded-2xl p-4 space-y-3">
                     <h3 class="font-extrabold text-sm text-cyan-300">🛰️ حالة الربط الفضائي والأقمار الصناعية</h3>
                     <div class="grid grid-cols-2 gap-2 text-center">
-                        <div class="bg-sky-950 p-3 rounded-xl border border-sky-800">
-                            <p class="text-[10px] text-sky-400">القمر الرئيسي</p>
-                            <p class="font-extrabold text-emerald-400 mt-1">SANAD-SAT 1 (نشط)</p>
-                        </div>
-                        <div class="bg-sky-950 p-3 rounded-xl border border-sky-800">
-                            <p class="text-[10px] text-sky-400">قوة الإشارة المشفرة</p>
-                            <p class="font-extrabold text-amber-300 mt-1">99.8% AES-256</p>
-                        </div>
+                        <div class="bg-sky-950 p-3 rounded-xl border border-sky-800"><p class="text-[10px] text-sky-400">القمر الرئيسي</p><p class="font-extrabold text-emerald-400 mt-1">SANAD-SAT 1 (نشط)</p></div>
+                        <div class="bg-sky-950 p-3 rounded-xl border border-sky-800"><p class="text-[10px] text-sky-400">قوة الإشارة المشفرة</p><p class="font-extrabold text-amber-300 mt-1">99.8% AES-256</p></div>
                     </div>
                 </div>
             </div>
 
-            <!-- 6. قسم التعليمات -->
             <div id="section-help" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 text-xs bg-sky-950">
                 <div class="bg-sky-900 border border-sky-700 rounded-2xl p-4 space-y-3">
                     <h3 class="font-extrabold text-sm text-purple-300">📖 الدليل السيادي لمنظومة سَنَد</h3>
                     <div class="p-3 bg-sky-950 rounded-xl border border-sky-800 space-y-2.5 text-sky-100 leading-relaxed">
-                        <p><strong>1. التبديل بين القنوات:</strong> اضغط على أي اسم في الأعلى (رهف، رابعة، رشا، آمنة، أو خدمة العملاء) لفتح المحادثة الفورية.</p>
-                        <p><strong>2. رسائل العرض لمرة واحدة:</strong> اضغط على أيقونة العين بجانب مربع الكتابة قبل الإرسال لتدمير الرسالة فور قراءتها.</p>
-                        <p><strong>3. الذكاء الاصطناعي OMEGA AI:</strong> يدعم الأوامر الفورية وتوليد الأكواد وفحص حالة الشبكة.</p>
+                        <p><strong>1. التبديل بين القنوات:</strong> اضغط على أي اسم في الأعلى (رهف، رابعة، رشا، آمنة، أو خدمة العملاء) لفتح المحادثة.</p>
+                        <p><strong>2. رسائل العرض لمرة واحدة:</strong> اضغط أيقونة العين بجانب زر الإرسال لتدمير الرسالة تلقائياً بعد قراءتها.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- 7. قسم الإعدادات -->
             <div id="section-settings" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 text-xs bg-sky-950">
                 <div class="bg-sky-900 border border-sky-700 rounded-2xl p-4 space-y-3">
-                    <h3 class="font-extrabold text-sm text-indigo-300">⚙️ إحصائيات الشبكة الفضائية والتحكم</h3>
+                    <h3 class="font-extrabold text-sm text-indigo-300">⚙️ إحصائيات الشبكة والتحكم</h3>
                     <div class="flex justify-between items-center p-3 bg-sky-950 rounded-xl border border-sky-800">
-                        <span>المتصلون بالشبكة حالياً:</span>
+                        <span>المتصلون حالياً:</span>
                         <span id="stat-connections" class="text-emerald-400 font-extrabold font-mono text-sm">1</span>
                     </div>
-                    <button onclick="triggerKillSwitch()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-xl text-xs transition shadow">
-                        ⚡ تفعيل مفتاح الطوارئ وتحديث الجلسة
-                    </button>
+                    <button onclick="triggerKillSwitch()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-xl text-xs transition shadow">⚡ تفعيل مفتاح الطوارئ وإعادة تنشيط الجلسة</button>
                 </div>
             </div>
-
         </main>
     </div>
 
@@ -485,7 +447,6 @@ const htmlPage = `<!DOCTYPE html>
         var isViewOnceMode = false;
         var ws = null;
 
-        // تشغيل الواجهة فوراً دون انتظار السيرفر حتى لا تتجمد أبداً
         function initUI() {
             renderVault(globalVaultData);
             renderRecipients(globalRecipients);
@@ -536,7 +497,7 @@ const htmlPage = `<!DOCTYPE html>
                         if (currentRecipient === data.recipient) {
                             appendMessage(data.msg);
                         } else {
-                            showAlert('رسالة جديدة واردة من ' + data.recipient);
+                            showAlert('رسالة جديدة من ' + data.recipient);
                             document.getElementById('chat-badge').classList.remove('hidden');
                         }
                     }
@@ -553,12 +514,12 @@ const htmlPage = `<!DOCTYPE html>
                 }
                 else if (data.type === 'incoming_call') {
                     playRingTone();
-                    showAlert('📞 اتصال فضائي (' + (data.callType === 'video' ? 'فيديو' : 'صوتي') + ') وارد من ' + data.caller);
+                    showAlert('📞 اتصال (' + (data.callType === 'video' ? 'فيديو' : 'صوتي') + ') من ' + data.caller);
                 }
             };
 
             ws.onclose = function() {
-                document.getElementById('net-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400"></span><span>جاري المزامنة...</span>';
+                document.getElementById('net-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400"></span><span>إعادة مزامنة...</span>';
                 setTimeout(connectWebSocket, 3000);
             };
         }
@@ -634,7 +595,7 @@ const htmlPage = `<!DOCTYPE html>
             }
             if (globalRecipients.indexOf(name) === -1) {
                 globalRecipients.push(name);
-                globalChatsData[name] = [{ id: 'm_' + Date.now(), sender: 'النظام السيادي', type: 'text', text: 'تم فتح القناة السيادية المشفرة لـ ' + name, time: 'الآن', isMe: false }];
+                globalChatsData[name] = [{ id: 'm_' + Date.now(), sender: 'النظام السيادي', type: 'text', text: 'تم فتح القناة السيادية لـ ' + name, time: 'الآن', isMe: false }];
                 renderRecipients(globalRecipients);
                 selectRecipient(name);
             }
@@ -658,7 +619,7 @@ const htmlPage = `<!DOCTYPE html>
             var btn = document.getElementById('view-once-btn');
             if (isViewOnceMode) {
                 btn.className = 'bg-amber-500 text-slate-950 p-2.5 rounded-full flex items-center justify-center shrink-0 shadow animate-pulse';
-                showAlert('👁️ وضع العرض لمرة واحدة مفعل الآن');
+                showAlert('👁️ وضع العرض لمرة واحدة مفعل');
             } else {
                 btn.className = 'bg-sky-900 border border-sky-700 text-sky-200 p-2.5 rounded-full flex items-center justify-center shrink-0 shadow transition';
             }
@@ -709,9 +670,6 @@ const htmlPage = `<!DOCTYPE html>
 
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ type: 'ai_chat', msg: msgData }));
-            } else {
-                globalAiLogs.push({ sender: 'OMEGA AI V4', text: '⚡ تم تحليل أمرك محلياً بنجاح: ' + text, time: 'الآن', isAi: true });
-                renderAiLogs(globalAiLogs);
             }
             input.value = '';
         });
@@ -771,8 +729,8 @@ const htmlPage = `<!DOCTYPE html>
                     mediaRecorder.start();
                     isRecording = true;
                     btn.className = 'bg-rose-600 text-white p-2.5 rounded-full flex items-center justify-center shrink-0 animate-ping';
-                }).catch(function(err) {
-                    alert('يرجى السماح بالوصول إلى الميكروفون من المتصفح.');
+                }).catch(function() {
+                    alert('يرجى السماح بالوصول للميكروفون.');
                 });
             } else {
                 mediaRecorder.stop();
@@ -797,13 +755,13 @@ const htmlPage = `<!DOCTYPE html>
                     content = '<p class="text-slate-300 italic mt-0.5">👁️ [تم عرض الرسالة وتدميرها ذاتياً]</p>';
                 } else {
                     var safeText = encodeURIComponent(msg.text);
-                    content = '<div onclick="openViewOnce(\'' + msg.id + '\', \'' + safeText + '\')" class="bg-amber-500/20 border border-amber-400 p-2 rounded-xl cursor-pointer text-amber-300 font-bold mt-1">👁️ رسالة سرية تُفتح لمرة واحدة (اضغط للفتح)</div>';
+                    content = '<div onclick="openViewOnce(\'' + msg.id + '\', \'' + safeText + '\')" class="bg-amber-500/20 border border-amber-400 p-2 rounded-xl cursor-pointer text-amber-300 font-bold mt-1">👁️ رسالة سرية (اضغط للفتح)</div>';
                 }
             } else if (msg.type === 'view_once_media') {
                 if (msg.isOpened) {
                     content = '<p class="text-slate-300 italic mt-0.5">👁️ [تم عرض الملف وتدميره ذاتياً]</p>';
                 } else {
-                    content = '<div onclick="openViewOnceMedia(\'' + msg.id + '\', \'' + msg.url + '\')" class="bg-amber-500/20 border border-amber-400 p-2 rounded-xl cursor-pointer text-amber-300 font-bold mt-1">👁️ ملف سري يُفتح لمرة واحدة (اضغط للفتح)</div>';
+                    content = '<div onclick="openViewOnceMedia(\'' + msg.id + '\', \'' + msg.url + '\')" class="bg-amber-500/20 border border-amber-400 p-2 rounded-xl cursor-pointer text-amber-300 font-bold mt-1">👁️ ملف سري (اضغط للفتح)</div>';
                 }
             } else {
                 content = '<p class="mt-0.5">' + msg.text + '</p>';
@@ -821,7 +779,7 @@ const htmlPage = `<!DOCTYPE html>
                     content +
                     '<div class="text-[9px] opacity-80 mt-1.5 flex justify-between items-center gap-3">' +
                         '<span>' + msg.time + '</span>' +
-                        '<span class="font-bold">✓✓ موثق فضائياً 🔒</span>' +
+                        '<span class="font-bold">✓✓ موثق 🔒</span>' +
                     '</div>' +
                 '</div>' +
             '</div>';
@@ -831,7 +789,7 @@ const htmlPage = `<!DOCTYPE html>
         }
 
         function openViewOnce(msgId, encodedText) {
-            alert('🔐 محتوى الرسالة السرية:\n\n' + decodeURIComponent(encodedText));
+            alert('🔐 محتوى الرسالة:\n\n' + decodeURIComponent(encodedText));
             var msgs = globalChatsData[currentRecipient] || [];
             for (var i = 0; i < msgs.length; i++) {
                 if (msgs[i].id === msgId) {
@@ -864,7 +822,7 @@ const htmlPage = `<!DOCTYPE html>
         }
 
         function deleteMessage(msgId) {
-            if (confirm('هل تريد حذف هذه الرسالة من النظام؟')) {
+            if (confirm('حذف هذه الرسالة؟')) {
                 var el = document.getElementById('msg_box_' + msgId);
                 if (el) el.remove();
                 if (globalChatsData[currentRecipient]) {
@@ -877,7 +835,7 @@ const htmlPage = `<!DOCTYPE html>
         }
 
         function clearCurrentChat() {
-            if (confirm('⚠️ تحذير: هل تريد مسح سجل هذه المحادثة بالكامل؟')) {
+            if (confirm('⚠️ مسح سجل المحادثة بالكامل؟')) {
                 globalChatsData[currentRecipient] = [];
                 renderMessages(currentRecipient);
                 if (ws && ws.readyState === WebSocket.OPEN) {
@@ -925,7 +883,7 @@ const htmlPage = `<!DOCTYPE html>
             
             screen.classList.remove('hidden');
             playRingTone();
-            status.textContent = 'جاري الاتصال بـ (' + target + ') عبر الأقمار الصناعية...';
+            status.textContent = 'جاري الاتصال بـ (' + target + ')...';
 
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ type: 'call_action', target: target, callType: type, caller: 'أبو طارق' }));
@@ -936,9 +894,9 @@ const htmlPage = `<!DOCTYPE html>
                 navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(function(stream) {
                     localStream = stream;
                     document.getElementById('localVideo').srcObject = stream;
-                    status.textContent = 'متصل مرئياً الآن بـ ' + target;
+                    status.textContent = 'متصل مرئياً بـ ' + target;
                 }).catch(function() {
-                    status.textContent = 'متصل مرئياً (الكاميرا غير متاحة في المتصفح)';
+                    status.textContent = 'متصل مرئياً';
                 });
             } else {
                 videoBox.classList.add('hidden');
@@ -965,16 +923,16 @@ const htmlPage = `<!DOCTYPE html>
             var name = document.getElementById('new-owner-name').value.trim();
             var code = document.getElementById('new-code-val').value.trim();
             if (!name || !code) {
-                alert('يرجى إدخال اسم الجهة وتوليد الكود أولاً.');
+                alert('يرجى إدخال اسم الجهة وتوليد الكود.');
                 return;
             }
-            var newItem = { owner: name, phone: 'خاص للإدارة', num: code, cat: 'اعتماد فضائي سيادي' };
+            var newItem = { owner: name, phone: 'خاص للإدارة', num: code, cat: 'اعتماد سيادي' };
             globalVaultData.unshift(newItem);
             renderVault(globalVaultData);
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ type: 'add_secure_code', item: newItem }));
             }
-            alert('✅ تم حفظ الكود في الخزنة السرية بنجاح.');
+            alert('✅ تم حفظ الكود في الخزنة السرية.');
             document.getElementById('new-owner-name').value = '';
             document.getElementById('new-code-val').value = '';
         }
@@ -991,12 +949,11 @@ const htmlPage = `<!DOCTYPE html>
         }
 
         function triggerKillSwitch() {
-            if (confirm('⚠️ هل تريد تأمين القطاع وإعادة تنشيط الجلسة؟')) {
+            if (confirm('إعادة تنشيط الجلسة؟')) {
                 location.reload();
             }
         }
 
-        // تشغيل فوري عند اكتمال تحميل الصفحة
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initUI);
         } else {

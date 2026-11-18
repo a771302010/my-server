@@ -752,7 +752,7 @@ app.get('/', (req, res) => {
                 } else {
                     content = \`<div onclick="openViewOnce('\${msg.id}', \`\${msg.text}\`)" class="bg-amber-500/20 border border-amber-400 p-2 rounded-xl cursor-pointer text-amber-300 font-bold flex items-center gap-2 mt-1">
                         <i data-lucide="eye" class="w-4 h-4 animate-bounce"></i>
-                        <span>رسالة تُفتح لمرة واحدة (اضغط للعرض)</span>
+                        <span>رسالة نصية تُفتح لمرة واحدة (اضغط للعرض)</span>
                     </div>\`;
                 }
             } else if (msg.type === 'view_once_media') {

@@ -131,18 +131,19 @@ const htmlPage = `<!DOCTYPE html>
     </header>
 
     <div class="flex-1 flex overflow-hidden relative">
-        <aside class="w-16 md:w-20 bg-slate-950 border-l border-sky-900 flex flex-col items-center py-2.5 h-full shrink-0 space-y-2">
-            <button onclick="switchSection('chats')" id="btn-chats" class="w-14 py-2 rounded-xl bg-sky-700 text-white text-[9px] font-bold flex flex-col items-center gap-1 shadow">💬 الدردشة</button>
-            <button onclick="switchSection('ai')" id="btn-ai" class="w-14 py-2 rounded-xl hover:bg-sky-900 text-sky-300 text-[9px] font-bold flex flex-col items-center gap-1">🤖 الذكاء AI</button>
-            <button onclick="switchSection('calls')" id="btn-calls" class="w-14 py-2 rounded-xl hover:bg-sky-900 text-sky-300 text-[9px] font-bold flex flex-col items-center gap-1">📞 المكالمات</button>
-            <button onclick="switchSection('codes')" id="btn-codes" class="w-14 py-2 rounded-xl hover:bg-sky-900 text-sky-300 text-[9px] font-bold flex flex-col items-center gap-1">🛡️ الخزنة</button>
-            <button onclick="switchSection('help')" id="btn-help" class="w-14 py-2 rounded-xl hover:bg-sky-900 text-sky-300 text-[9px] font-bold flex flex-col items-center gap-1">📖 التعليمات</button>
-            <button onclick="switchSection('settings')" id="btn-settings" class="w-14 py-2 rounded-xl hover:bg-sky-900 text-sky-300 text-[9px] font-bold flex flex-col items-center gap-1">⚙️ الإعدادات</button>
+        <!-- القائمة الجانبية المحسنة بوضوح ومساحة أكبر -->
+        <aside class="w-24 md:w-28 bg-slate-950 border-l border-sky-900 flex flex-col items-center py-3 h-full shrink-0 space-y-2.5 shadow-xl z-20">
+            <button onclick="switchSection('chats')" id="btn-chats" class="w-20 py-2.5 px-1 rounded-xl bg-sky-700 text-white text-[10px] font-bold flex flex-col items-center gap-1 shadow-md transition-all">💬 الدردشة</button>
+            <button onclick="switchSection('ai')" id="btn-ai" class="w-20 py-2.5 px-1 rounded-xl hover:bg-sky-900 text-sky-300 text-[10px] font-bold flex flex-col items-center gap-1 transition-all">🤖 الذكاء AI</button>
+            <button onclick="switchSection('calls')" id="btn-calls" class="w-20 py-2.5 px-1 rounded-xl hover:bg-sky-900 text-sky-300 text-[10px] font-bold flex flex-col items-center gap-1 transition-all">📞 المكالمات</button>
+            <button onclick="switchSection('codes')" id="btn-codes" class="w-20 py-2.5 px-1 rounded-xl hover:bg-sky-900 text-sky-300 text-[10px] font-bold flex flex-col items-center gap-1 transition-all">🛡️ الخزنة</button>
+            <button onclick="switchSection('help')" id="btn-help" class="w-20 py-2.5 px-1 rounded-xl hover:bg-sky-900 text-sky-300 text-[10px] font-bold flex flex-col items-center gap-1 transition-all">📖 التعليمات</button>
+            <button onclick="switchSection('settings')" id="btn-settings" class="w-20 py-2.5 px-1 rounded-xl hover:bg-sky-900 text-sky-300 text-[10px] font-bold flex flex-col items-center gap-1 transition-all">⚙️ الإعدادات</button>
         </aside>
 
         <main class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden h-full">
             <!-- 1. قسم الدردشة -->
-            <div id="sec-chats" class="flex-1 flex flex-col h-full overflow-hidden">
+            <div id="sec-chats" class="section-pane flex-1 flex flex-col h-full overflow-hidden">
                 <div class="bg-sky-900 border-b border-sky-800 px-3 py-2 flex items-center justify-between shrink-0">
                     <span id="chat-title" class="font-bold text-xs text-white">خدمة العملاء المركزية</span>
                     <div class="flex items-center gap-1.5">
@@ -168,7 +169,7 @@ const htmlPage = `<!DOCTYPE html>
             </div>
 
             <!-- 2. قسم الذكاء الاصطناعي -->
-            <div id="sec-ai" class="flex-1 hidden flex-col h-full bg-slate-950 overflow-hidden">
+            <div id="sec-ai" class="section-pane flex-1 hidden flex-col h-full bg-slate-950 overflow-hidden">
                 <div class="bg-blue-950 px-3 py-2.5 text-xs font-bold text-blue-200 border-b border-blue-900">مساعد سَنَد الذكي (SANAD AI) • مدعوم بالأقمار الصناعية</div>
                 <div id="ai-box" class="flex-1 overflow-y-auto p-3 space-y-2.5 chat-bg text-xs"></div>
                 <form id="ai-form" class="p-2.5 bg-sky-950 border-t border-sky-800 flex gap-2 shrink-0">
@@ -178,7 +179,7 @@ const htmlPage = `<!DOCTYPE html>
             </div>
 
             <!-- 3. قسم المكالمات -->
-            <div id="sec-calls" class="flex-1 hidden flex-col h-full p-4 items-center justify-center text-center bg-sky-950 overflow-y-auto text-xs">
+            <div id="sec-calls" class="section-pane flex-1 hidden flex-col h-full p-4 items-center justify-center text-center bg-sky-950 overflow-y-auto text-xs">
                 <div class="w-16 h-16 bg-sky-900 border border-emerald-400 rounded-full flex items-center justify-center mb-3 text-emerald-300 text-xl shadow-xl">📞</div>
                 <h3 class="font-bold text-sm text-white mb-2">مركز الاتصال الدولي المرئي والصوتي</h3>
                 <p class="text-sky-300 text-[10px] mb-3">اتصال مباشر عالي النقاء عبر الأقمار الصناعية</p>
@@ -200,7 +201,7 @@ const htmlPage = `<!DOCTYPE html>
             </div>
 
             <!-- 4. قسم الخزنة والأكواد -->
-            <div id="sec-codes" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 bg-sky-950 text-xs">
+            <div id="sec-codes" class="section-pane flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 bg-sky-950 text-xs">
                 <div class="bg-sky-900 p-4 rounded-xl border border-sky-700 space-y-2.5 shadow-lg">
                     <h3 class="font-bold text-amber-300">🛡️ توليد وحفظ كود تشفير سيادي جديد</h3>
                     <input type="text" id="vault-owner" placeholder="اسم الجهة أو القطاع الرسمي..." class="w-full bg-sky-950 border border-sky-700 rounded-lg p-2.5 text-white focus:outline-none">
@@ -215,7 +216,7 @@ const htmlPage = `<!DOCTYPE html>
             </div>
 
             <!-- 5. قسم التعليمات والدليل -->
-            <div id="sec-help" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 bg-sky-950 text-xs">
+            <div id="sec-help" class="section-pane flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 bg-sky-950 text-xs">
                 <div class="bg-sky-900 p-4 rounded-xl border border-sky-700 space-y-2.5 shadow-lg">
                     <h3 class="font-bold text-purple-300 text-sm">📖 الدليل الرسمي لمنظومة سَنَد الدولية</h3>
                     <div class="p-3 bg-sky-950 rounded-lg border border-sky-800 space-y-2 text-sky-100 leading-relaxed">
@@ -228,7 +229,7 @@ const htmlPage = `<!DOCTYPE html>
             </div>
 
             <!-- 6. قسم الإعدادات -->
-            <div id="sec-settings" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 bg-sky-950 text-xs">
+            <div id="sec-settings" class="section-pane flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 bg-sky-950 text-xs">
                 <div class="bg-sky-900 p-4 rounded-xl border border-sky-700 space-y-3 shadow-lg">
                     <h3 class="font-bold text-indigo-300 text-sm">⚙️ إحصائيات النظام والتحكم الدولي</h3>
                     <div class="flex justify-between items-center p-3 bg-sky-950 rounded-xl border border-sky-800">
@@ -340,16 +341,28 @@ const htmlPage = `<!DOCTYPE html>
         }
 
         function switchSection(id) {
-            ['chats', 'ai', 'calls', 'codes', 'help', 'settings'].forEach(function(s) {
-                var el = document.getElementById('sec-' + s);
-                if(el) { el.classList.add('hidden'); el.classList.remove('flex'); }
-                var btn = document.getElementById('btn-' + s);
-                if(btn) btn.className = 'w-14 py-2 rounded-xl hover:bg-sky-900 text-sky-300 text-[9px] font-bold flex flex-col items-center gap-1';
-            });
+            var panes = document.getElementsByClassName('section-pane');
+            for(var i = 0; i < panes.length; i++) {
+                panes[i].classList.add('hidden');
+                panes[i].classList.remove('flex');
+            }
             var target = document.getElementById('sec-' + id);
-            if(target) { target.classList.remove('hidden'); target.classList.add('flex'); }
-            var tBtn = document.getElementById('btn-' + id);
-            if(tBtn) tBtn.className = 'w-14 py-2 rounded-xl bg-sky-700 text-white text-[9px] font-bold flex flex-col items-center gap-1 shadow';
+            if(target) {
+                target.classList.remove('hidden');
+                target.classList.add('flex');
+            }
+
+            var btnIds = ['chats', 'ai', 'calls', 'codes', 'help', 'settings'];
+            btnIds.forEach(function(s) {
+                var btn = document.getElementById('btn-' + s);
+                if(btn) {
+                    if(s === id) {
+                        btn.className = 'w-20 py-2.5 px-1 rounded-xl bg-sky-700 text-white text-[10px] font-bold flex flex-col items-center gap-1 shadow-md transition-all';
+                    } else {
+                        btn.className = 'w-20 py-2.5 px-1 rounded-xl hover:bg-sky-900 text-sky-300 text-[10px] font-bold flex flex-col items-center gap-1 transition-all';
+                    }
+                }
+            });
         }
 
         function renderRecipients() {

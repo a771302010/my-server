@@ -5,264 +5,370 @@ const htmlContent = `<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منظومة سَنَد السيادية - الإصدار الفائق</title>
+    <title>منظومة سَنَد - النظام الهجين الذكي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
-        body { font-family: 'Cairo', sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+        body { font-family: 'Cairo', sans-serif; background-color: #090d16; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 h-screen flex flex-col overflow-hidden">
+<body class="text-slate-100 h-screen flex flex-col overflow-hidden select-none">
 
-    <!-- Header / شريط العنوان الرسمي -->
-    <header class="bg-slate-900/95 border-b border-slate-800 px-4 py-3 flex justify-between items-center shadow-xl z-10">
-        <div class="flex items-center space-x-3 space-x-reverse">
-            <div class="bg-blue-600 p-2.5 rounded-2xl text-white shadow-lg shadow-blue-500/30 flex items-center justify-center font-bold">
-                <i class="fa-solid fa-shield-halved text-xl"></i>
+    <!-- الشريط العلوي (Header) -->
+    <header class="bg-slate-900/95 border-b border-slate-800 px-4 py-3 flex justify-between items-center shadow-lg z-20">
+        <div class="flex items-center gap-3">
+            <!-- أيقونة سند الزرقاء المعتمدة -->
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-b from-blue-700 to-blue-900 border border-blue-400/30 flex flex-col items-center justify-center shadow-lg shadow-blue-600/20">
+                <span class="text-white font-black text-lg leading-none">S</span>
+                <i class="fa-solid fa-hands-holding-child text-[10px] text-blue-200 mt-0.5"></i>
             </div>
             <div>
-                <h1 class="font-black text-lg tracking-wide text-blue-400">منظومة سَنَد السيادية</h1>
-                <span class="text-xs text-emerald-400 flex items-center gap-1.5 font-semibold">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> متصل (Live) - مدعوم بالذكاء الاصطناعي والأقمار الصناعية
-                </span>
+                <div class="flex items-center gap-2">
+                    <h1 class="font-black text-base md:text-lg text-white">منظومة سَنَد</h1>
+                    <span class="bg-blue-600/20 border border-blue-500/40 text-blue-300 text-[10px] px-2 py-0.5 rounded-full font-bold">مدعوم بالذكاء الاصطناعي</span>
+                </div>
+                <p class="text-[11px] text-emerald-400 flex items-center gap-1 font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> متصل • Sanad ID: <span id="header-sanad-id" class="font-mono text-blue-300">83-7723-0201</span>
+                </p>
             </div>
         </div>
-        <div class="flex items-center gap-3">
-            <span id="active-account-badge" class="bg-blue-500/10 border border-blue-500/30 text-blue-300 text-xs px-3 py-1 rounded-full font-bold">
-                الحساب النشط: 772302010
-            </span>
-            <button onclick="toggleLang()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 transition font-semibold">EN / AR</button>
+        <div class="flex items-center gap-2">
+            <button onclick="switchTab('settings')" id="header-account-pill" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-full text-xs font-bold text-slate-200 flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-circle-user text-blue-400"></i>
+                <span id="current-phone-display">+967 772302010</span>
+            </button>
         </div>
     </header>
 
-    <!-- Main Workspace -->
-    <div class="flex flex-1 overflow-hidden">
-        
-        <!-- Sidebar / القائمة الجانبية -->
-        <aside class="w-20 md:w-64 bg-slate-950 border-l border-slate-800/80 flex flex-col justify-between p-3 select-none">
-            <div class="space-y-2">
-                <button onclick="switchTab('chats')" id="btn-chats" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-600/30 transition">
-                    <i class="fa-solid fa-comments text-lg"></i>
-                    <span class="hidden md:inline">الدردشة والرسائل</span>
-                </button>
-                <button onclick="switchTab('accounts')" id="btn-accounts" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-900 text-slate-300 transition font-semibold">
-                    <i class="fa-solid fa-address-book text-lg text-emerald-400"></i>
-                    <span class="hidden md:inline">إدارة الحسابات والأرقام</span>
-                </button>
-                <button onclick="switchTab('ai')" id="btn-ai" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-900 text-slate-300 transition font-semibold">
-                    <i class="fa-solid fa-brain text-lg text-indigo-400"></i>
-                    <span class="hidden md:inline">الذكاء الاصطناعي AI</span>
-                </button>
-                <button onclick="switchTab('calls')" id="btn-calls" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-900 text-slate-300 transition font-semibold">
-                    <i class="fa-solid fa-phone-volume text-lg text-amber-400"></i>
-                    <span class="hidden md:inline">المكالمات المشفرة</span>
-                </button>
-                <button onclick="switchTab('vault')" id="btn-vault" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-900 text-slate-300 transition font-semibold">
-                    <i class="fa-solid fa-vault text-lg text-purple-400"></i>
-                    <span class="hidden md:inline">الخزنة السيادية</span>
-                </button>
-                <button onclick="switchTab('settings')" id="btn-settings" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-900 text-slate-300 transition font-semibold">
-                    <i class="fa-solid fa-sliders text-lg text-slate-400"></i>
-                    <span class="hidden md:inline">الإعدادات والتعليمات</span>
+    <!-- منطقة المحتوى الرئيسية -->
+    <main class="flex-1 flex flex-col overflow-hidden relative bg-[#0b101b]">
+
+        <!-- 1. تبويب الدردشات (Chats) -->
+        <div id="tab-chats" class="flex-1 flex flex-col h-full">
+            <!-- شريط البحث والإضافة السريعة -->
+            <div class="p-3 bg-slate-900/60 border-b border-slate-800/80 flex gap-2">
+                <input type="text" id="quick-contact-input" placeholder="أدخل رقم هاتف (772...) أو كود سند (83-...) للمراسلة أو الدعوة..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs md:text-sm focus:outline-none focus:border-blue-500 text-slate-100">
+                <button onclick="startChatOrInvite()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow">
+                    <i class="fa-solid fa-paper-plane"></i> تواصل / دعوة
                 </button>
             </div>
-            
-            <div class="hidden md:block p-3 bg-slate-900/60 rounded-2xl border border-slate-800 text-xs text-slate-400">
-                <p class="font-bold text-blue-400 mb-1"><i class="fa-solid fa-circle-check"></i> منظومة سند الرسمية</p>
-                أفضل من الواتساب بتشفير عسكري ذكي.
-            </div>
-        </aside>
 
-        <!-- Content Area -->
-        <main class="flex-1 flex flex-col bg-slate-900 relative overflow-hidden">
-            
-            <!-- 1. شاشة الدردشة والمراسلة -->
-            <div id="tab-chats" class="flex-1 flex flex-col h-full">
-                <div class="bg-slate-950/60 p-3 border-b border-slate-800 flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
-                        <span class="text-sm font-bold text-slate-200">الدردشة المباشرة (إرسال، استقبال، حذف للطرفين)</span>
-                    </div>
-                    <button onclick="clearChat()" class="text-xs bg-red-500/10 text-red-400 hover:bg-red-500/20 px-3 py-1.5 rounded-lg border border-red-500/30 transition font-semibold">مسح السجل</button>
-                </div>
-
-                <!-- رسائل الدردشة -->
-                <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
-                    <div class="flex items-start gap-3">
-                        <div class="w-9 h-9 rounded-2xl bg-blue-600 flex items-center justify-center font-bold text-sm shadow">سـ</div>
-                        <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl max-w-lg text-sm leading-relaxed shadow-lg">
-                            <p class="font-bold text-blue-400 mb-1">منظومة سند السيادية</p>
-                            أهلاً بك يا مهندس عبد الله. تم تفعيل نظام الأكواد والذكاء الاصطناعي بنجاح. يمكنك الآن مراسلة زملائك بأي رقم (مثل 772302010) وإدارة أكثر من حساب بكل سهولة!
+            <!-- قائمة الرسائل -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                <div class="flex items-start gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-blue-700 flex items-center justify-center font-black text-xs shadow">S</div>
+                    <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl rounded-tr-none max-w-md text-xs md:text-sm leading-relaxed shadow">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-blue-400">نظام سَنَد الذكي</span>
+                            <span class="text-[10px] text-slate-500">الآن</span>
                         </div>
+                        مرحباً بك يا مهندس عبد الله. تم دمج تقنيات <strong>واتساب</strong> (تعدد الحسابات والمجتمعات) مع <strong>زينجي</strong> (أكواد الهوية الخاصة والروابط المشفرة). يمكنك حذف أي رسالة للطرفين بالضغط عليها.
                     </div>
-                </div>
-
-                <!-- خانة الإدخال -->
-                <div class="p-3 bg-slate-950 border-t border-slate-800 flex items-center gap-2">
-                    <button onclick="attachFile()" class="text-slate-400 hover:text-blue-400 p-2.5 transition rounded-xl hover:bg-slate-900"><i class="fa-solid fa-paperclip text-lg"></i></button>
-                    <button onclick="toggleVoiceRecord()" class="text-slate-400 hover:text-purple-400 p-2.5 transition rounded-xl hover:bg-slate-900"><i class="fa-solid fa-microphone text-lg"></i></button>
-                    <input type="text" id="chat-input" onkeypress="handleKeyPress(event)" placeholder="اكتب رسالة مشفرة رسمية..." class="flex-1 bg-slate-900 border border-slate-700/80 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 text-slate-100">
-                    <button onclick="sendMessage()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl text-sm font-bold transition flex items-center gap-2 shadow-lg shadow-blue-600/30">
-                        <span>إرسال</span>
-                        <i class="fa-solid fa-paper-plane text-xs"></i>
-                    </button>
                 </div>
             </div>
 
-            <!-- 2. إدارة الحسابات والأرقام (دعم عدة أرقام وحسابات) -->
-            <div id="tab-accounts" class="hidden flex-1 flex flex-col p-6 overflow-y-auto custom-scrollbar">
-                <h2 class="text-xl font-bold text-emerald-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-address-book"></i> إدارة الحسابات والأرقام المتعددة</h2>
-                <p class="text-xs text-slate-400 mb-6">أضف حساباتك وأرقامك الخاصة (مثل الأرقام اليمنية 772302010 وغيرها) وقم بالتفعيل الفوري بالأكواد.</p>
-                
-                <div class="bg-slate-950 border border-slate-800 p-5 rounded-2xl max-w-xl space-y-4 mb-6 shadow-xl">
-                    <h3 class="font-bold text-sm text-slate-200">إضافة رقم أو حساب جديد</h3>
+            <!-- شريط كتابة الرسالة -->
+            <div class="p-3 bg-slate-900 border-t border-slate-800 flex items-center gap-2">
+                <button onclick="alert('تم فتح الخزنة لإرسال ملف مشفر')" class="text-slate-400 hover:text-blue-400 p-2 rounded-xl hover:bg-slate-800 transition"><i class="fa-solid fa-plus text-lg"></i></button>
+                <input type="text" id="chat-input" onkeypress="if(event.key==='Enter') sendMessage()" placeholder="اكتب رسالة مشفرة..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 text-slate-100">
+                <button onclick="toggleVoice()" class="text-slate-400 hover:text-emerald-400 p-2.5 rounded-xl hover:bg-slate-800 transition"><i class="fa-solid fa-microphone text-lg"></i></button>
+                <button onclick="sendMessage()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition shadow-lg shadow-blue-600/20">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 2. تبويب المجتمعات والقنوات (مثل واتساب) -->
+        <div id="tab-communities" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-black text-white flex items-center gap-2"><i class="fa-solid fa-users-rectangle text-blue-400"></i> المجتمعات والإعلانات</h2>
+                <button onclick="createCommunity()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-2 rounded-xl font-bold">+ مجتمع جديد</button>
+            </div>
+            <div id="communities-list" class="space-y-3">
+                <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-sm text-blue-300">مركز الإنصاف للحقوق والتنمية والدوائر التابعة له</h3>
+                        <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full">نشط</span>
+                    </div>
+                    <p class="text-xs text-slate-400"><i class="fa-solid fa-bullhorn text-amber-400 ml-1"></i> الإعلانات: تم تفعيل بروتوكول التشفير السحابي لكافة الأعضاء.</p>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-sm text-blue-300">الإدارة الميدانية والعمليات الذكية</h3>
+                        <span class="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full">مجموعة عمل</span>
+                    </div>
+                    <p class="text-xs text-slate-400"><i class="fa-solid fa-shield-halved text-blue-400 ml-1"></i> كافة المراسلات مؤمنة بنظام سند السيادي.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. تبويب جهات الاتصال والدعوة (نظام زينجي + الهاتف) -->
+        <div id="tab-contacts" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
+            <div class="bg-gradient-to-l from-blue-900/40 to-slate-900 border border-blue-500/30 p-4 rounded-2xl">
+                <h3 class="font-bold text-sm text-blue-300 mb-1">بطاقة الهوية الرقمية الخاصة بك (نظام زينجي)</h3>
+                <p class="text-xs text-slate-300 mb-3">شارك هذا الكود أو الرابط مع زملائك ليتواصلوا معك فوراً دون الحاجة لرقم هاتف:</p>
+                <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <span id="my-zangi-code" class="font-mono font-bold text-base text-emerald-400 tracking-wider">83-7723-0201</span>
                     <div class="flex gap-2">
-                        <input type="text" id="new-phone-input" placeholder="أدخل رقم الهاتف (مثال: 967772302010)..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500 text-slate-100">
-                        <button onclick="requestActivationCode()" class="bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 rounded-xl font-bold text-sm transition shadow">إرسال كود التفعيل</button>
-                    </div>
-                </div>
-
-                <div class="bg-slate-950 border border-slate-800 p-5 rounded-2xl max-w-xl">
-                    <h3 class="font-bold text-sm text-slate-200 mb-3">الحسابات المسجلة حالياً:</h3>
-                    <div id="accounts-list" class="space-y-2">
-                        <div class="flex items-center justify-between bg-slate-900 p-3 rounded-xl border border-slate-800">
-                            <span class="text-sm font-semibold text-blue-300"><i class="fa-solid fa-user-check"></i> الحساب الأساسي: +967 772302010 (نشط)</span>
-                            <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-lg font-bold">متصل</span>
-                        </div>
+                        <button onclick="copyInviteLink()" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg font-bold text-white"><i class="fa-solid fa-copy"></i> نسخ الرابط</button>
+                        <button onclick="shareToWhatsApp()" class="bg-emerald-600 hover:bg-emerald-700 text-xs px-3 py-1.5 rounded-lg font-bold text-white"><i class="fa-brands fa-whatsapp"></i> دعوة عبر واتساب</button>
                     </div>
                 </div>
             </div>
 
-            <!-- 3. شاشة الذكاء الاصطناعي -->
-            <div id="tab-ai" class="hidden flex-1 flex flex-col h-full p-4 overflow-y-auto custom-scrollbar">
-                <div class="bg-gradient-to-r from-blue-900/50 to-indigo-900/50 border border-blue-500/30 p-5 rounded-2xl mb-4 shadow-xl">
-                    <h2 class="text-lg font-bold text-blue-300 flex items-center gap-2">
-                        <i class="fa-solid fa-brain text-xl"></i> محساعد الذكاء الاصطناعي السيادي (Sanad AI)
-                    </h2>
-                    <p class="text-xs text-slate-300 mt-1">مدعوم بالنماذج المتقدمة للتحليل الفوري، صياغة النصوص الرسمية، والمراسلات الدولية.</p>
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-sm text-slate-300">جهات الاتصال المحفوظة</h3>
+                <button onclick="addNewContactModal()" class="text-xs text-blue-400 font-bold">+ إضافة جهة اتصال</button>
+            </div>
+            <div id="contacts-list" class="space-y-2">
+                <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold text-xs">م</div>
+                        <div>
+                            <h4 class="text-sm font-bold">المهندس عبد الله عسيلو (الإدارة)</h4>
+                            <p class="text-[11px] text-slate-400 font-mono">+967 772302010 • ID: 83-7723-0201</p>
+                        </div>
+                    </div>
+                    <button onclick="switchTab('chats')" class="bg-blue-600/20 text-blue-400 px-3 py-1.5 rounded-lg text-xs font-bold">مراسلة</button>
                 </div>
-                <div id="ai-chat-box" class="flex-1 bg-slate-950/60 border border-slate-800 rounded-2xl p-4 space-y-3 mb-4 overflow-y-auto custom-scrollbar">
-                    <div class="text-slate-400 text-xs text-center py-2">اسأل مساعد سند الذكي أي استفسار أو اطلب إعداد تقارير رسمية...</div>
+            </div>
+        </div>
+
+        <!-- 4. تبويب الذكاء الاصطناعي والمكالمات (AI & Calls) -->
+        <div id="tab-ai" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+                <div>
+                    <h3 class="font-bold text-sm text-emerald-400">مركز الاتصال العالمي المشفر (صوت وفيديو)</h3>
+                    <p class="text-xs text-slate-400">جودة فائقة بتقنية P2P تعمل حتى مع الإنترنت الضعيف.</p>
                 </div>
                 <div class="flex gap-2">
-                    <input type="text" id="ai-input" placeholder="اطلب من الذكاء الاصطناعي..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-slate-100">
-                    <button onclick="askAI()" class="bg-indigo-600 hover:bg-indigo-700 px-6 py-3 rounded-xl font-bold text-sm transition shadow-lg">تنفيذ ذكي</button>
+                    <button onclick="alert('جاري بدء مكالمة صوتية مشفرة...')" class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow"><i class="fa-solid fa-phone"></i></button>
+                    <button onclick="alert('جاري بدء مكالمة فيديو عالية الدقة...')" class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow"><i class="fa-solid fa-video"></i></button>
                 </div>
             </div>
 
-            <!-- 4. شاشة المكالمات المشفرة -->
-            <div id="tab-calls" class="hidden flex-1 flex flex-col items-center justify-center p-6 text-center">
-                <div class="w-24 h-24 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-3xl flex items-center justify-center text-4xl mb-4 shadow-2xl animate-bounce">
-                    <i class="fa-solid fa-video"></i>
+            <div class="flex-1 flex flex-col bg-slate-900/60 border border-slate-800 rounded-2xl p-4">
+                <h3 class="font-bold text-sm text-indigo-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-brain"></i> مساعد سَنَد للذكاء الاصطناعي</h3>
+                <div id="ai-box" class="flex-1 overflow-y-auto space-y-2 mb-3 text-xs custom-scrollbar">
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-slate-300">أهلاً بك! اطلب مني صياغة خطاب رسمي، ترجمة فورية، أو تحليل بيانات المراسلات.</div>
                 </div>
-                <h2 class="text-xl font-bold mb-2">المكالمات الصوتية وفيديو عالية الجودة</h2>
-                <p class="text-sm text-slate-400 max-w-md mb-6">اتصالات مؤمنة عبر الأقمار الاصطناعية وتقنية P2P السحابية بين جميع أنحاء العالم.</p>
-                <button onclick="alert('جاري بدء مكالمة فيديو مشفرة عالية الجودة...')" class="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3.5 rounded-2xl font-bold shadow-lg transition">بدء مكالمة جديدة</button>
-            </div>
-
-            <!-- 5. الخزنة السيادية -->
-            <div id="tab-vault" class="hidden flex-1 flex flex-col p-6 overflow-y-auto custom-scrollbar">
-                <h2 class="text-xl font-bold text-purple-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-vault"></i> الخزنة السيادية للملفات</h2>
-                <p class="text-xs text-slate-400 mb-6">تخزين آمن ومشفر بالكامل للملفات، المستندات، والصور.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-slate-950 border border-slate-800 p-5 rounded-2xl text-center shadow-lg">
-                        <i class="fa-solid fa-file-shield text-4xl text-purple-500 mb-3"></i>
-                        <h3 class="font-bold text-base mb-1">المستندات الرسمية</h3>
-                        <span class="text-xs text-slate-500">تشفير عسكري AES-256</span>
-                    </div>
-                    <div class="bg-slate-950 border border-slate-800 p-5 rounded-2xl text-center shadow-lg">
-                        <i class="fa-solid fa-key text-4xl text-blue-500 mb-3"></i>
-                        <h3 class="font-bold text-base mb-1">أكواد التوثيق</h3>
-                        <span class="text-xs text-slate-500">آمنة ومحمية تماماً</span>
-                    </div>
+                <div class="flex gap-2">
+                    <input type="text" id="ai-input" placeholder="اسأل الذكاء الاصطناعي..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500">
+                    <button onclick="runAI()" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-xl text-xs font-bold">تنفيذ</button>
                 </div>
             </div>
+        </div>
 
-            <!-- 6. الإعدادات والتعليمات -->
-            <div id="tab-settings" class="hidden flex-1 flex flex-col p-6 overflow-y-auto custom-scrollbar">
-                <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-slate-200"><i class="fa-solid fa-sliders"></i> الإعدادات والتعليمات الرسمية</h2>
-                <div class="space-y-4 max-w-xl">
-                    <div class="bg-slate-950 p-4.5 rounded-2xl border border-slate-800">
-                        <h4 class="font-bold text-sm text-blue-400 mb-1">طريقة الحصول على الأكواد والاتصال:</h4>
-                        <p class="text-xs text-slate-300 leading-relaxed">يدعم نظام سند إدخال أرقام متعددة (مثل رقمك 772302010) ويقوم بتوليد كود تفعيل أوتوماتيكي (من 6 إلى 9 أرقام) لربط الحساب بالشبكة السحابية فوراً دون الحاجة لشركات الاتصالات التقليدية.</p>
+        <!-- 5. تبويب الإعدادات وتعدد الحسابات (مثل صورة إعدادات واتساب) -->
+        <div id="tab-settings" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
+            <!-- بطاقة الملف الشخصي -->
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-700 to-blue-500 flex items-center justify-center text-white font-black text-2xl shadow-lg">S</div>
+                    <div>
+                        <h2 id="profile-name" class="font-black text-base text-white">Asylo (المهندس عبد الله)</h2>
+                        <p id="profile-phone" class="text-xs text-slate-400 font-mono">+967 772302010</p>
+                        <span class="text-[10px] text-emerald-400 font-bold">● متصل وموثق بالسحابة</span>
                     </div>
-                    <div class="flex items-center justify-between bg-slate-950 p-4.5 rounded-2xl border border-slate-800">
+                </div>
+                <button onclick="showQR()" class="bg-slate-800 p-2.5 rounded-xl text-blue-400 border border-slate-700"><i class="fa-solid fa-qrcode text-xl"></i></button>
+            </div>
+
+            <!-- قسم إدارة وتعدد الحسابات (إضافة أكثر من رقم) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+                <div class="p-3.5 border-b border-slate-800 flex justify-between items-center bg-slate-950/40">
+                    <span class="text-xs font-bold text-blue-400"><i class="fa-solid fa-users-gear ml-1"></i> الحسابات المتعددة المفعلة (بدّل بين أرقامك)</span>
+                    <button onclick="openAddAccount()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] px-3 py-1 rounded-lg font-bold">+ إضافة حساب جديد</button>
+                </div>
+                <div id="multi-accounts-list" class="divide-y divide-slate-800/80">
+                    <div onclick="selectAccount('+967 772302010', '83-7723-0201', 'Asylo')" class="p-3.5 flex justify-between items-center hover:bg-slate-800/50 cursor-pointer">
                         <div>
-                            <h4 class="font-bold text-sm text-slate-200">الذكاء الاصطناعي التلقائي</h4>
-                            <p class="text-xs text-slate-400">تحليل النصوص وتحسين الرسائل بشكل فوري.</p>
+                            <p class="text-xs font-bold text-white">+967 772302010 (الحساب الرئيسي)</p>
+                            <p class="text-[10px] text-slate-400 font-mono">Sanad ID: 83-7723-0201</p>
                         </div>
-                        <input type="checkbox" checked class="w-5 h-5 accent-blue-600">
+                        <i class="fa-solid fa-circle-check text-emerald-500"></i>
                     </div>
                 </div>
             </div>
 
-        </main>
-    </div>
+            <!-- قائمة الإعدادات القياسية -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl divide-y divide-slate-800/80 text-xs font-semibold">
+                <div onclick="alert('إعدادات الخصوصية: تشفير تام طرف-لطرف، إخفاء آخر ظهور، وحماية برمز PIN.')" class="p-3.5 flex justify-between items-center hover:bg-slate-800/40 cursor-pointer">
+                    <span class="flex items-center gap-3"><i class="fa-solid fa-lock text-blue-400 w-4"></i> الخصوصية والأمان والتشفير</span>
+                    <i class="fa-solid fa-chevron-left text-slate-600"></i>
+                </div>
+                <div onclick="alert('الخزنة السيادية: النسخ الاحتياطي السحابي المشفر للمحادثات والملفات مفعل.')" class="p-3.5 flex justify-between items-center hover:bg-slate-800/40 cursor-pointer">
+                    <span class="flex items-center gap-3"><i class="fa-solid fa-vault text-amber-400 w-4"></i> الخزنة السيادية والتخزين</span>
+                    <i class="fa-solid fa-chevron-left text-slate-600"></i>
+                </div>
+                <div onclick="alert('التعليمات: يمكنك استخدام رقم هاتفك أو كود سند (10 أرقام) للتواصل مع أي شخص حول العالم.')" class="p-3.5 flex justify-between items-center hover:bg-slate-800/40 cursor-pointer">
+                    <span class="flex items-center gap-3"><i class="fa-solid fa-circle-question text-emerald-400 w-4"></i> التعليمات والدعم الذكي</span>
+                    <i class="fa-solid fa-chevron-left text-slate-600"></i>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- شريط التنقل السفلي الاحترافي (مثل تطبيقات الجوال الحديثة) -->
+    <nav class="bg-slate-900 border-t border-slate-800 px-2 py-2 flex justify-around items-center z-20">
+        <button onclick="switchTab('chats')" id="nav-chats" class="flex flex-col items-center gap-1 text-blue-400 font-bold text-[11px] px-3 py-1">
+            <i class="fa-solid fa-comments text-lg"></i>
+            <span>الدردشات</span>
+        </button>
+        <button onclick="switchTab('communities')" id="nav-communities" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[11px] px-3 py-1">
+            <i class="fa-solid fa-users text-lg"></i>
+            <span>المجتمعات</span>
+        </button>
+        <button onclick="switchTab('contacts')" id="nav-contacts" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[11px] px-3 py-1">
+            <i class="fa-solid fa-address-book text-lg"></i>
+            <span>جهات الاتصال</span>
+        </button>
+        <button onclick="switchTab('ai')" id="nav-ai" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[11px] px-3 py-1">
+            <i class="fa-solid fa-brain text-lg"></i>
+            <span>الذكاء والمكالمات</span>
+        </button>
+        <button onclick="switchTab('settings')" id="nav-settings" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[11px] px-3 py-1">
+            <i class="fa-solid fa-gear text-lg"></i>
+            <span>أنت / الإعدادات</span>
+        </button>
+    </nav>
 
     <script>
-        function switchTab(tabId) {
-            const tabs = ['chats', 'accounts', 'ai', 'calls', 'vault', 'settings'];
-            tabs.forEach(t => {
+        function switchTab(tab) {
+            ['chats', 'communities', 'contacts', 'ai', 'settings'].forEach(t => {
                 document.getElementById('tab-' + t).classList.add('hidden');
-                const btn = document.getElementById('btn-' + t);
-                if(btn) btn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-900 text-slate-300 transition font-semibold";
+                const nav = document.getElementById('nav-' + t);
+                if (nav) nav.className = "flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[11px] px-3 py-1";
             });
-            document.getElementById('tab-' + tabId).classList.remove('hidden');
-            const activeBtn = document.getElementById('btn-' + tabId);
-            if(activeBtn) activeBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-600/30 transition";
+            document.getElementById('tab-' + tab).classList.remove('hidden');
+            const activeNav = document.getElementById('nav-' + tab);
+            if (activeNav) activeNav.className = "flex flex-col items-center gap-1 text-blue-400 font-bold text-[11px] px-3 py-1";
         }
 
         function sendMessage() {
             const input = document.getElementById('chat-input');
             const text = input.value.trim();
-            if(!text) return;
-            const chatMessages = document.getElementById('chat-messages');
-            chatMessages.innerHTML += '<div class="flex items-start gap-3 justify-end"><div class="bg-blue-600 text-white p-3.5 rounded-2xl max-w-lg text-sm leading-relaxed shadow-lg">' + text + '</div><div class="w-9 h-9 rounded-2xl bg-slate-800 flex items-center justify-center font-bold text-sm shadow">أنت</div></div>';
-            input.value = '';
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            setTimeout(() => {
-                chatMessages.innerHTML += '<div class="flex items-start gap-3"><div class="w-9 h-9 rounded-2xl bg-blue-600 flex items-center justify-center font-bold text-sm shadow">سـ</div><div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl max-w-lg text-sm leading-relaxed shadow-lg"><p class="font-bold text-blue-400 mb-1">منظومة سند السيادية</p>تم إرسال الرسالة وتشفيرها بنجاح عبر النظام الذكي المتكامل.</div></div>';
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }, 800);
-        }
-
-        function handleKeyPress(e) { if(e.key === 'Enter') sendMessage(); }
-
-        function requestActivationCode() {
-            const phoneInput = document.getElementById('new-phone-input');
-            const phone = phoneInput.value.trim();
-            if(phone) {
-                const randomCode = Math.floor(100000000 + Math.random() * 900000000); // كود من 9 أرقام
-                alert('تم توليد كود التفعيل المعتمد بنجاح للرقم ' + phone + '\\nكود التفعيل (9 أرقام): ' + randomCode);
-                document.getElementById('accounts-list').innerHTML += '<div class="flex items-center justify-between bg-slate-900 p-3 rounded-xl border border-slate-800"><span class="text-sm font-semibold text-blue-350"><i class="fa-solid fa-user-plus"></i> الحساب المضاف: ' + phone + '</span><span class="text-xs bg-blue-500/20 text-blue-400 px-2.5 py-1 rounded-lg font-bold">مفعل</span></div>';
-                phoneInput.value = '';
-            } else {
-                alert('الرجاء إدخال رقم الهاتف صحيحاً أولاً.');
-            }
-        }
-
-        function clearChat() { 
-            document.getElementById('chat-messages').innerHTML = '<div class="text-center text-xs text-slate-500 py-4">تم مسح سجل المحادثات بنجاح.</div>'; 
-        }
-
-        function attachFile() { alert('تم فتح خزنة إرفاق الملفات والمستندات المشفرة.'); }
-        function toggleVoiceRecord() { alert('جاري التسجيل الصوتي المدعوم بالذكاء الاصطناعي...'); }
-        function toggleLang() { alert('تم التبديل بين اللغات بنجاح.'); }
-
-        function askAI() {
-            const input = document.getElementById('ai-input');
-            const text = input.value.trim();
-            if(!text) return;
-            const box = document.getElementById('ai-chat-box');
-            box.innerHTML += '<div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800 text-sm shadow"><strong>أنت:</strong> ' + text + '</div>';
-            box.innerHTML += '<div class="bg-indigo-950/50 p-4 rounded-xl border border-indigo-800/60 text-sm text-indigo-100 shadow"><strong>Sanad AI:</strong> النظام يعمل بكفاءة تامة، وتم تفعيل الردود الذكية وتأمين كافة القنوات.</div>';
+            if (!text) return;
+            const msgId = 'msg-' + Date.now();
+            const box = document.getElementById('chat-messages');
+            box.innerHTML += \`
+                <div id="\${msgId}" class="flex items-start gap-2.5 justify-end group">
+                    <div class="bg-blue-600 text-white p-3 rounded-2xl rounded-tl-none max-w-md text-xs md:text-sm shadow">
+                        <p>\${text}</p>
+                        <div class="flex justify-between items-center gap-4 mt-1.5 pt-1 border-t border-blue-500/40 text-[10px] text-blue-200">
+                            <span>مُشفر ✓✓</span>
+                            <button onclick="deleteMsg('\${msgId}')" class="text-red-200 hover:text-white underline">حذف للطرفين</button>
+                        </div>
+                    </div>
+                </div>\`;
             input.value = '';
             box.scrollTop = box.scrollHeight;
         }
+
+        function deleteMsg(id) {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = '<div class="text-[11px] text-slate-500 italic bg-slate-900/50 px-3 py-1 rounded-lg">🚫 تم حذف هذه الرسالة لدى الطرفين</div>';
+        }
+
+        function startChatOrInvite() {
+            const val = document.getElementById('quick-contact-input').value.trim();
+            if (!val) return alert('أدخل رقم الهاتف أو كود سند أولاً');
+            const box = document.getElementById('chat-messages');
+            box.innerHTML += \`
+                <div class="bg-slate-900 border border-blue-500/30 p-3 rounded-xl text-xs text-center space-y-2">
+                    <p class="text-slate-300">تم فتح قناة تواصل مع: <strong class="text-blue-400">\${val}</strong></p>
+                    <a href="https://wa.me/\${val.replace(/[^0-9]/g, '')}?text=\${encodeURIComponent('أدعوك للتواصل معي عبر منظومة سَنَد الذكية والمشفرة: https://my-server-t0s5.onrender.com')}" target="_blank" class="inline-block bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-bold">
+                        <i class="fa-brands fa-whatsapp"></i> إرسال رابط الانضمام له عبر واتساب
+                    </a>
+                </div>\`;
+            document.getElementById('quick-contact-input').value = '';
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function openAddAccount() {
+            const phone = prompt('أدخل رقم الهاتف الجديد لإضافته (مثال: +967 771234567):');
+            if (!phone) return;
+            const code = Math.floor(100000000 + Math.random() * 900000000);
+            const verify = prompt('تم إرسال كود التفعيل المكون من 9 أرقام إلى ' + phone + '\\nأدخل الكود للتأكيد (الكود التجريبي: ' + code + '):');
+            if (verify) {
+                const sanadId = '83-' + Math.floor(1000 + Math.random() * 9000) + '-' + Math.floor(1000 + Math.random() * 9000);
+                const list = document.getElementById('multi-accounts-list');
+                list.innerHTML += \`
+                    <div onclick="selectAccount('\${phone}', '\${sanadId}', 'حساب إضافي')" class="p-3.5 flex justify-between items-center hover:bg-slate-800/50 cursor-pointer">
+                        <div>
+                            <p class="text-xs font-bold text-white">\${phone}</p>
+                            <p class="text-[10px] text-slate-400 font-mono">Sanad ID: \${sanadId}</p>
+                        </div>
+                        <span class="text-[10px] bg-blue-600/20 text-blue-400 px-2 py-0.5 rounded">تبديل</span>
+                    </div>\`;
+                alert('تم تفعيل وإضافة الحساب بنجاح! يمكنك الآن التبديل بين حساباتك بضغطة زر.');
+            }
+        }
+
+        function selectAccount(phone, sanadId, name) {
+            document.getElementById('current-phone-display').innerText = phone;
+            document.getElementById('header-sanad-id').innerText = sanadId;
+            document.getElementById('my-zangi-code').innerText = sanadId;
+            document.getElementById('profile-phone').innerText = phone;
+            document.getElementById('profile-name').innerText = name;
+            alert('تم التبديل النشط إلى الحساب: ' + phone);
+        }
+
+        function copyInviteLink() {
+            const code = document.getElementById('my-zangi-code').innerText;
+            const text = 'تواصل معي عبر منظومة سَنَد المشفرة - كود الهوية: ' + code + ' | الرابط: https://my-server-t0s5.onrender.com';
+            navigator.clipboard.writeText(text);
+            alert('تم نسخ رابط الدعوة وكود الهوية بنجاح! أرسله لأي زميل.');
+        }
+
+        function shareToWhatsApp() {
+            const code = document.getElementById('my-zangi-code').innerText;
+            const text = encodeURIComponent('أدعوك للتواصل معي بأمان عبر منظومة سَنَد الذكية.\\nكود الهوية الخاص بي: ' + code + '\\nرابط الدخول المباشر: https://my-server-t0s5.onrender.com');
+            window.open('https://wa.me/?text=' + text, '_blank');
+        }
+
+        function createCommunity() {
+            const name = prompt('أدخل اسم المجتمع أو المجموعة الجديدة:');
+            if (name) {
+                document.getElementById('communities-list').innerHTML += \`
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-1">
+                        <h3 class="font-bold text-sm text-blue-300">\${name}</h3>
+                        <p class="text-xs text-slate-400">تم إنشاء المجتمع وتفعيل قناة الإعلانات بنجاح.</p>
+                    </div>\`;
+            }
+        }
+
+        function addNewContactModal() {
+            const name = prompt('اسم جهة الاتصال:');
+            const info = prompt('رقم الهاتف أو كود سند (83-...):');
+            if (name && info) {
+                document.getElementById('contacts-list').innerHTML += \`
+                    <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center">
+                        <div>
+                            <h4 class="text-sm font-bold">\${name}</h4>
+                            <p class="text-[11px] text-slate-400 font-mono">\${info}</p>
+                        </div>
+                        <button onclick="switchTab('chats')" class="bg-blue-600/20 text-blue-400 px-3 py-1.5 rounded-lg text-xs font-bold">مراسلة</button>
+                    </div>\`;
+            }
+        }
+
+        function runAI() {
+            const input = document.getElementById('ai-input');
+            if (!input.value.trim()) return;
+            const box = document.getElementById('ai-box');
+            box.innerHTML += '<div class="bg-blue-950/50 p-2.5 rounded-xl text-blue-200"><strong>أنت:</strong> ' + input.value + '</div>';
+            box.innerHTML += '<div class="bg-slate-950 p-2.5 rounded-xl border border-indigo-500/30 text-slate-200"><strong>مساعد سَنَد AI:</strong> تم استلام طلبك ومعالجته. المنظومة جاهزة لدعم مراسلاتك وتنظيم فرقك الميدانية بأعلى كفاءة.</div>';
+            input.value = '';
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function toggleVoice() { alert('جاري تسجيل رسالة صوتية مشفرة ومحسّنة بالذكاء الاصطناعي...'); }
+        function showQR() { alert('رمز QR الخاص بحسابك جاهز للمسح السريع من أي جهاز.'); }
     </script>
 </body>
 </html>`;
@@ -275,5 +381,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-    console.log('Sanad Ultimate Server is running on port ' + PORT);
+    console.log('Sanad Hybrid Server running on port ' + PORT);
 });

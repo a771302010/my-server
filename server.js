@@ -104,17 +104,6 @@ wss.on('connection', (ws) => {
   });
 });
 
-app.get('/manifest.json', (req, res) => {
-  res.json({
-    name: "منظومة سَنَد الدولية للاتصالات",
-    short_name: "سَنَد",
-    start_url: "/",
-    display: "standalone",
-    background_color: "#021824",
-    theme_color: "#0284c7"
-  });
-});
-
 const htmlPage = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>

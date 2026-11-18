@@ -11,9 +11,10 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// قاعدة البيانات السيادية الحية
 let secureVault = [
   { owner: 'القيادة المركزية العليا', phone: '967770000001', num: '88800001', cat: 'بروتوكول VIP' },
-  { owner: 'خدمة العملاء المركزية', phone: '88888888', num: '88888888', cat: 'الدعم الفني 24/7' },
+  { owner: 'خدمة العملاء المركزية', phone: '88888888', num: '88888888', cat: 'الدعم الفني والعمليات 24/7' },
   { owner: 'قطاع الاتصالات الفضائية', phone: '88800099', num: '88800099', cat: 'تشفير عسكري' }
 ];
 
@@ -31,12 +32,12 @@ let privateChats = {
     { id: 'm4', sender: 'آمنة', type: 'text', text: 'منظومة سَنَد تعمل بكفاءة تامة ومؤمنة 100%.', time: 'الآن', isMe: false }
   ],
   '88888888': [
-    { id: 'm5', sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك يا شيخ أبو طارق في غرفة العمليات السيادية.', time: 'الآن', isMe: false }
+    { id: 'm5', sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك يا شيخ أبو طارق في غرفة العمليات السيادية لمنظومة سَنَد.', time: 'الآن', isMe: false }
   ]
 };
 
 let aiChatLogs = [
-  { sender: 'OMEGA AI V4', text: 'أهلاً بك يا أبو طارق. أنا نظام الذكاء الاصطناعي السيادي المدمج في منظومة سَنَد. جاهز لتحليل البيانات وتأمين القنوات والرد الفوري.', time: 'الآن', isAi: true }
+  { sender: 'OMEGA AI V5', text: 'أهلاً بك يا أبو طارق. أنا نظام الذكاء الاصطناعي السيادي المدمج في منظومة سَنَد. جاهز لتحليل البيانات، تأمين القنوات، والرد الفوري على أوامرك.', time: 'الآن', isAi: true }
 ];
 
 let activeRecipients = ['رهف', 'رابعة', 'رشا', 'آمنة', '88888888'];
@@ -102,7 +103,7 @@ wss.on('connection', (ws) => {
       else if (data.type === 'ai_chat') {
         aiChatLogs.push(data.msg);
         const q = data.msg.text;
-        let reply = '⚡ [OMEGA AI V4]: تم استلام أمرك السيادي ("' + q + '"). تم تشفير الحزمة وإجراء المسح الفضائي الشامل. جميع القنوات مؤمنة بنسبة 100% يا أبو طارق.';
+        let reply = '⚡ [OMEGA AI V5]: تم استلام أمرك السيادي ("' + q + '"). تم تشفير الحزمة وإجراء المسح الفضائي الشامل. جميع القنوات مؤمنة بنسبة 100% يا أبو طارق.';
         if (q.includes('حالة') || q.includes('تقرير') || q.includes('فحص')) {
           reply = '🛰️ [تقرير الحالة الفضائية]: الأقمار الصناعية متصلة بنجاح • التشفير المجرّد نشط • عدد القنوات المؤمنة: ' + activeRecipients.length;
         } else if (q.includes('كود') || q.includes('رمز')) {
@@ -111,7 +112,7 @@ wss.on('connection', (ws) => {
         }
         
         aiChatLogs.push({
-          sender: 'OMEGA AI V4',
+          sender: 'OMEGA AI V5',
           text: reply,
           time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
           isAi: true
@@ -204,7 +205,7 @@ const htmlPage = `<!DOCTYPE html>
         <span class="bg-sky-600 text-white px-2 py-0.5 rounded text-[9px] ml-2 shrink-0">الاتصال الفضائي 🛰️</span>
         <div class="overflow-hidden w-full">
             <span class="animate-ticker">
-                🌐 منظومة سَنَد الذكية للاتصالات السيادية • مشفرة عبر الأقمار الصناعية • إشراف: الشيخ أبو طارق • OMEGA AI V4 🌐
+                🌐 منظومة سَنَد الذكية للاتصالات السيادية • مشفرة عبر الأقمار الصناعية • إشراف: الشيخ أبو طارق • OMEGA AI V5 🌐
             </span>
         </div>
     </div>
@@ -329,7 +330,7 @@ const htmlPage = `<!DOCTYPE html>
                     <div class="flex items-center gap-2">
                         <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xs">AI</div>
                         <div>
-                            <h2 class="font-bold text-xs text-blue-100">مساعد سند الذكي (OMEGA AI V4)</h2>
+                            <h2 class="font-bold text-xs text-blue-100">مساعد سند الذكي (OMEGA AI V5)</h2>
                             <p class="text-[9px] text-blue-300">اكتب "تقرير" أو "كود" لأي أمر سيادي</p>
                         </div>
                     </div>
@@ -437,7 +438,7 @@ const htmlPage = `<!DOCTYPE html>
         ];
         var globalRecipients = ['رهف', 'رابعة', 'رشا', 'آمنة', '88888888'];
         var globalAiLogs = [
-            { sender: 'OMEGA AI V4', text: 'أهلاً بك يا أبو طارق. أنا نظام الذكاء الاصطناعي السيادي المدمج في منظومة سَنَد. جاهز لتحليل البيانات وتأمين القنوات.', time: 'الآن', isAi: true }
+            { sender: 'OMEGA AI V5', text: 'أهلاً بك يا أبو طارق. أنا نظام الذكاء الاصطناعي السيادي المدمج في منظومة سَنَد. جاهز لتحليل البيانات وتأمين القنوات.', time: 'الآن', isAi: true }
         ];
 
         var mediaRecorder = null;
@@ -968,5 +969,5 @@ app.get('/', (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log('Sanad Sovereign Server running on port ' + PORT);
+  console.log('Sanad Sovereign Server V5 running on port ' + PORT);
 });

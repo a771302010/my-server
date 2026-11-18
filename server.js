@@ -12,28 +12,28 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 let secureVault = [
-  { owner: 'الإدارة العامة العليا', phone: '+967770000001', num: '88800001', cat: 'بروتوكول المؤسسة VIP' },
-  { owner: 'خدمة العملاء المركزية', phone: '88888888', num: '88888888', cat: 'الدعم الفني والتشغيل 24/7' },
+  { owner: 'القيادة المركزية العليا', phone: '+967770000001', num: '88800001', cat: 'بروتوكول VIP المؤسسي' },
+  { owner: 'خدمة العملاء المركزية', phone: '88888888', num: '88888888', cat: 'الدعم الفني والتشغيل الدولي 24/7' },
   { owner: 'قطاع التكنولوجيا والاتصالات', phone: '88800099', num: '88800099', cat: 'تشفير بيانات AES-256' }
 ];
 
 let privateChats = {
   'خدمة العملاء المركزية': [
-    { id: 'm1', sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك في منظومة سَنَد الذكية للاتصالات.', time: 'الآن', isMe: false }
+    { id: 'm1', sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك في منظومة سَنَد الدولية للاتصالات المشفرة.', time: 'الآن', isMe: false }
   ],
-  'رهف': [
-    { id: 'm2', sender: 'رهف', type: 'text', text: 'قناة الاتصال الفردية مؤمنة بنجاح.', time: 'الآن', isMe: false }
+  'غرفة العمليات المركزية': [
+    { id: 'm2', sender: 'غرفة العمليات', type: 'text', text: 'قناة التنسيق والعمليات مؤمنة بالكامل.', time: 'الآن', isMe: false }
   ],
-  'رابعة': [
-    { id: 'm3', sender: 'رابعة', type: 'text', text: 'الاتصال مستقر عبر الشبكة الآمنة.', time: 'الآن', isMe: false }
+  'قطاع الأمن السيبراني': [
+    { id: 'm3', sender: 'الأمن السيبراني', type: 'text', text: 'جميع قنوات الاتصال تخضع للتشفير المجرّد.', time: 'الآن', isMe: false }
   ]
 };
 
 let aiChatLogs = [
-  { sender: 'SANAD AI', text: 'أهلاً بك. أنا مساعد الذكاء الاصطناعي المدمج في منظومة سَنَد. جاهز لمعالجة الأوامر والتحليل.', time: 'الآن', isAi: true }
+  { sender: 'SANAD AI', text: 'أهلاً بك. أنا مساعد الذكاء الاصطناعي المدمج في منظومة سَنَد. جاهز لمعالجة الأوامر والتحليل الفوري.', time: 'الآن', isAi: true }
 ];
 
-let activeRecipients = ['خدمة العملاء المركزية', 'رهف', 'رابعة', 'رشا', 'آمنة'];
+let activeRecipients = ['خدمة العملاء المركزية', 'غرفة العمليات المركزية', 'قطاع الأمن السيبراني', 'قطاع الخدمات اللوجستية'];
 let activeConnectionsCount = 0;
 
 function broadcast(payload) {
@@ -77,14 +77,14 @@ wss.on('connection', (ws) => {
       }
       else if (data.type === 'ai_chat') {
         aiChatLogs.push(data.msg);
-        aiChatLogs.push({ sender: 'SANAD AI', text: '⚡ [SANAD AI]: تم تنفيذ المعالجة بنجاح والنظام يعمل بكفاءة.', time: 'الآن', isAi: true });
+        aiChatLogs.push({ sender: 'SANAD AI', text: '⚡ [SANAD AI]: تم تنفيذ المعالجة الرقمية بنجاح عبر الأقمار الصناعية.', time: 'الآن', isAi: true });
         broadcast({ type: 'ai_update', logs: aiChatLogs });
       }
       else if (data.type === 'add_recipient') {
         const name = (data.name || '').trim();
         if (name && !activeRecipients.includes(name)) {
           activeRecipients.push(name);
-          if (!privateChats[name]) privateChats[name] = [{ id: 'm_' + Date.now(), sender: 'النظام', type: 'text', text: 'تم فتح القناة لـ ' + name, time: 'الآن', isMe: false }];
+          if (!privateChats[name]) privateChats[name] = [{ id: 'm_' + Date.now(), sender: 'النظام الدولي', type: 'text', text: 'تم فتح القناة الرسمية لـ ' + name, time: 'الآن', isMe: false }];
           broadcast({ type: 'update_recipients', recipients: activeRecipients, chats: privateChats });
         }
       }
@@ -106,7 +106,7 @@ wss.on('connection', (ws) => {
 
 app.get('/manifest.json', (req, res) => {
   res.json({
-    name: "منظومة سَنَد الذكية للاتصالات",
+    name: "منظومة سَنَد الدولية للاتصالات",
     short_name: "سَنَد",
     start_url: "/",
     display: "standalone",
@@ -131,91 +131,122 @@ const htmlPage = `<!DOCTYPE html>
 </head>
 <body class="w-screen h-[100dvh] flex flex-col justify-between m-0 p-0">
 
-    <header class="bg-sky-900 border-b border-sky-700 px-3 py-2 flex items-center justify-between shrink-0 shadow-lg">
+    <header class="bg-sky-900 border-b border-sky-700 px-3 py-2.5 flex items-center justify-between shrink-0 shadow-lg">
         <div class="flex items-center gap-2">
-            <h1 class="font-extrabold text-xs text-white">منظومة سَنَد <span class="bg-sky-600 text-white text-[9px] px-2 py-0.5 rounded-full">النسخة الدولية الرسمية</span></h1>
+            <h1 class="font-extrabold text-xs text-white" id="app-title">منظومة سَنَد <span class="bg-sky-600 text-white text-[9px] px-2 py-0.5 rounded-full">النسخة الدولية الرسمية</span></h1>
         </div>
-        <span id="net-status" class="bg-emerald-500/20 text-emerald-300 text-[10px] px-2.5 py-1 rounded-full font-bold">متصل (Live)</span>
+        <div class="flex items-center gap-2">
+            <button onclick="toggleLang()" class="bg-sky-800 text-sky-200 text-[10px] font-bold px-2 py-1 rounded border border-sky-600" id="lang-btn">EN / AR</button>
+            <span id="net-status" class="bg-emerald-500/20 text-emerald-300 text-[10px] px-2.5 py-1 rounded-full font-bold">متصل (Live)</span>
+        </div>
     </header>
 
     <div class="flex-1 flex overflow-hidden relative">
-        <aside class="w-16 md:w-20 bg-slate-950 border-l border-sky-900 flex flex-col items-center py-2.5 h-full shrink-0 space-y-2.5">
-            <button onclick="switchSection('chats')" id="btn-chats" class="w-14 py-2.5 rounded-2xl bg-sky-700 text-white text-[10px] font-bold flex flex-col items-center gap-1 shadow">الدردشة</button>
-            <button onclick="switchSection('ai')" id="btn-ai" class="w-14 py-2.5 rounded-2xl hover:bg-sky-900 text-sky-300 text-[10px] font-bold flex flex-col items-center gap-1">الذكاء AI</button>
-            <button onclick="switchSection('calls')" id="btn-calls" class="w-14 py-2.5 rounded-2xl hover:bg-sky-900 text-sky-300 text-[10px] font-bold flex flex-col items-center gap-1">المكالمات</button>
-            <button onclick="switchSection('codes')" id="btn-codes" class="w-14 py-2.5 rounded-2xl hover:bg-sky-900 text-sky-300 text-[10px] font-bold flex flex-col items-center gap-1">الخزنة</button>
+        <aside class="w-16 md:w-20 bg-slate-950 border-l border-sky-900 flex flex-col items-center py-2.5 h-full shrink-0 space-y-2">
+            <button onclick="switchSection('chats')" id="btn-chats" class="w-14 py-2 rounded-xl bg-sky-700 text-white text-[9px] font-bold flex flex-col items-center gap-1 shadow">💬 الدردشة</button>
+            <button onclick="switchSection('ai')" id="btn-ai" class="w-14 py-2 rounded-xl hover:bg-sky-900 text-sky-300 text-[9px] font-bold flex flex-col items-center gap-1">🤖 الذكاء AI</button>
+            <button onclick="switchSection('calls')" id="btn-calls" class="w-14 py-2 rounded-xl hover:bg-sky-900 text-sky-300 text-[9px] font-bold flex flex-col items-center gap-1">📞 المكالمات</button>
+            <button onclick="switchSection('codes')" id="btn-codes" class="w-14 py-2 rounded-xl hover:bg-sky-900 text-sky-300 text-[9px] font-bold flex flex-col items-center gap-1">🛡️ الخزنة</button>
+            <button onclick="switchSection('help')" id="btn-help" class="w-14 py-2 rounded-xl hover:bg-sky-900 text-sky-300 text-[9px] font-bold flex flex-col items-center gap-1">📖 التعليمات</button>
+            <button onclick="switchSection('settings')" id="btn-settings" class="w-14 py-2 rounded-xl hover:bg-sky-900 text-sky-300 text-[9px] font-bold flex flex-col items-center gap-1">⚙️ الإعدادات</button>
         </aside>
 
         <main class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden h-full">
-            <!-- قسم الدردشة -->
+            <!-- 1. قسم الدردشة -->
             <div id="sec-chats" class="flex-1 flex flex-col h-full overflow-hidden">
                 <div class="bg-sky-900 border-b border-sky-800 px-3 py-2 flex items-center justify-between shrink-0">
                     <span id="chat-title" class="font-bold text-xs text-white">خدمة العملاء المركزية</span>
                     <div class="flex items-center gap-1.5">
-                        <button onclick="clearChat()" class="bg-rose-900 text-white px-2 py-1 rounded text-[10px]">مسح</button>
-                        <button onclick="quickCall('audio')" class="p-1.5 bg-sky-800 text-white rounded-full text-[10px]">📞</button>
-                        <button onclick="quickCall('video')" class="p-1.5 bg-sky-800 text-white rounded-full text-[10px]">📹</button>
+                        <button onclick="clearChat()" class="bg-rose-900 hover:bg-rose-800 text-white px-2 py-1 rounded text-[10px]">مسح الكل</button>
+                        <button onclick="quickCall('audio')" class="p-1.5 bg-sky-800 text-white rounded-full">📞</button>
+                        <button onclick="quickCall('video')" class="p-1.5 bg-sky-800 text-white rounded-full">📹</button>
                     </div>
                 </div>
                 <div class="p-2 bg-sky-950 border-b border-sky-800 flex gap-1.5 shrink-0">
-                    <input type="text" id="new-contact" placeholder="إضافة مستخدم جديد..." class="bg-sky-900 border border-sky-700 rounded-lg px-2 py-1 text-xs text-white flex-1">
-                    <button onclick="addContact()" class="bg-amber-500 text-slate-950 font-bold px-3 py-1 rounded-lg text-xs">إضافة</button>
+                    <input type="text" id="new-contact" placeholder="إضافة جهة اتصال جديدة..." class="bg-sky-900 border border-sky-700 rounded-lg px-2 py-1.5 text-xs text-white flex-1 focus:outline-none">
+                    <button onclick="addContact()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs">إضافة</button>
                 </div>
-                <div id="recipient-tabs" class="flex gap-1 p-2 overflow-x-auto bg-sky-950 shrink-0 text-xs"></div>
-                <div id="messages-box" class="flex-1 overflow-y-auto p-3 space-y-2 chat-bg text-xs"></div>
+                <div id="recipient-tabs" class="flex gap-1.5 p-2 overflow-x-auto bg-sky-950 shrink-0 text-xs"></div>
+                <div id="messages-box" class="flex-1 overflow-y-auto p-3 space-y-2.5 chat-bg text-xs"></div>
                 <form id="chat-form" class="p-2 bg-sky-950 border-t border-sky-800 flex gap-1.5 items-center shrink-0">
-                    <label class="cursor-pointer bg-sky-800 text-white p-2 rounded-full text-xs">
+                    <label class="cursor-pointer bg-sky-800 hover:bg-sky-700 text-white p-2 rounded-full text-xs" title="إرفاق ملف">
                         📎 <input type="file" id="file-input" class="hidden" accept="image/*,video/*,.pdf" onchange="sendFile(event)">
                     </label>
-                    <input type="text" id="chat-input" placeholder="اكتب رسالة مشفرة..." class="flex-1 bg-sky-900 border border-sky-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
-                    <button type="button" id="rec-btn" onclick="toggleVoice()" class="bg-purple-700 text-white p-2 rounded-full text-xs">🎤</button>
-                    <button type="submit" class="bg-sky-600 text-white font-bold px-3.5 py-2 rounded-xl text-xs">إرسال</button>
+                    <input type="text" id="chat-input" placeholder="اكتب رسالة مشفرة..." class="flex-1 bg-sky-900 border border-sky-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none">
+                    <button type="button" id="rec-btn" onclick="toggleVoice()" class="bg-purple-700 hover:bg-purple-600 text-white p-2 rounded-full text-xs" title="تسجيل صوت">🎤</button>
+                    <button type="submit" class="bg-sky-600 hover:bg-sky-500 text-white font-bold px-4 py-2 rounded-xl text-xs">إرسال</button>
                 </form>
             </div>
 
-            <!-- قسم الذكاء الاصطناعي -->
+            <!-- 2. قسم الذكاء الاصطناعي -->
             <div id="sec-ai" class="flex-1 hidden flex-col h-full bg-slate-950 overflow-hidden">
-                <div class="bg-blue-950 px-3 py-2 text-xs font-bold text-blue-200">مساعد سَنَد الذكي (SANAD AI)</div>
-                <div id="ai-box" class="flex-1 overflow-y-auto p-3 space-y-2 chat-bg text-xs"></div>
-                <form id="ai-form" class="p-2 bg-sky-950 border-t border-sky-800 flex gap-2 shrink-0">
-                    <input type="text" id="ai-input" placeholder="اسأل مساعد سَنَد الذكي..." class="flex-1 bg-sky-900 border border-sky-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
-                    <button type="submit" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-xl text-xs">إرسال</button>
+                <div class="bg-blue-950 px-3 py-2.5 text-xs font-bold text-blue-200 border-b border-blue-900">مساعد سَنَد الذكي (SANAD AI) • مدعوم بالأقمار الصناعية</div>
+                <div id="ai-box" class="flex-1 overflow-y-auto p-3 space-y-2.5 chat-bg text-xs"></div>
+                <form id="ai-form" class="p-2.5 bg-sky-950 border-t border-sky-800 flex gap-2 shrink-0">
+                    <input type="text" id="ai-input" placeholder="اسأل مساعد سَنَد الذكي..." class="flex-1 bg-sky-900 border border-sky-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-xl text-xs">إرسال</button>
                 </form>
             </div>
 
-            <!-- قسم المكالمات -->
+            <!-- 3. قسم المكالمات -->
             <div id="sec-calls" class="flex-1 hidden flex-col h-full p-4 items-center justify-center text-center bg-sky-950 overflow-y-auto text-xs">
-                <div class="w-16 h-16 bg-sky-900 border border-emerald-400 rounded-full flex items-center justify-center mb-3 text-emerald-300 text-xl">📞</div>
-                <h3 class="font-bold text-sm text-white mb-2">مركز الاتصال المرئي والصوتي</h3>
+                <div class="w-16 h-16 bg-sky-900 border border-emerald-400 rounded-full flex items-center justify-center mb-3 text-emerald-300 text-xl shadow-xl">📞</div>
+                <h3 class="font-bold text-sm text-white mb-2">مركز الاتصال الدولي المرئي والصوتي</h3>
+                <p class="text-sky-300 text-[10px] mb-3">اتصال مباشر عالي النقاء عبر الأقمار الصناعية</p>
                 <select id="call-target" class="w-full max-w-xs bg-sky-900 border border-sky-600 rounded-xl p-2.5 text-xs text-white font-bold mb-3">
                     <option value="خدمة العملاء المركزية">خدمة العملاء المركزية</option>
                 </select>
                 <div class="grid grid-cols-2 gap-2 w-full max-w-xs mb-3">
-                    <button onclick="startCall('audio')" class="bg-emerald-600 text-white font-bold py-2 rounded-xl">📞 صوتي</button>
-                    <button onclick="startCall('video')" class="bg-blue-600 text-white font-bold py-2 rounded-xl">📹 فيديو</button>
+                    <button onclick="startCall('audio')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl shadow">📞 صوتي فوري</button>
+                    <button onclick="startCall('video')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl shadow">📹 فيديو مباشر</button>
                 </div>
-                <div id="call-screen" class="hidden w-full max-w-md bg-slate-900 border border-sky-600 rounded-xl p-3 space-y-2">
-                    <p id="call-status" class="text-amber-300 font-bold">جاري الاتصال...</p>
+                <div id="call-screen" class="hidden w-full max-w-md bg-slate-900 border border-sky-600 rounded-2xl p-3 space-y-2.5 shadow-2xl">
+                    <p id="call-status" class="text-amber-300 font-bold">جاري الاتصال عبر الأقمار الصناعية...</p>
                     <div id="video-box" class="hidden grid grid-cols-2 gap-2">
-                        <video id="localVideo" autoplay muted playsinline class="w-full h-28 bg-black rounded-lg object-cover"></video>
-                        <div class="bg-black rounded-lg flex items-center justify-center h-28 text-sky-300 text-[10px]">الطرف الآخر</div>
+                        <div class="relative"><video id="localVideo" autoplay muted playsinline class="w-full h-28 bg-black rounded-lg object-cover border border-sky-700"></video><span class="absolute bottom-1 right-1 bg-black/70 text-[8px] px-1 rounded text-white">كاميرتك</span></div>
+                        <div class="relative bg-black rounded-lg flex items-center justify-center h-28 border border-sky-700 text-sky-300 text-[10px]">الطرف الآخر (متصل)</div>
                     </div>
-                    <button onclick="endCall()" class="bg-rose-600 text-white font-bold px-4 py-1.5 rounded-lg">إنهاء</button>
+                    <button onclick="endCall()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-5 py-1.5 rounded-xl">إنهاء المكالمة</button>
                 </div>
             </div>
 
-            <!-- قسم الخزنة والأكواد -->
+            <!-- 4. قسم الخزنة والأكواد -->
             <div id="sec-codes" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 bg-sky-950 text-xs">
-                <div class="bg-sky-900 p-4 rounded-xl border border-sky-700 space-y-2">
-                    <h3 class="font-bold text-amber-300">🛡️ توليد وحفظ كود تشفير جديد</h3>
-                    <input type="text" id="vault-owner" placeholder="اسم الجهة أو المستخدم..." class="w-full bg-sky-950 border border-sky-700 rounded-lg p-2 text-white">
-                    <input type="text" id="vault-code" placeholder="888xxxxx" readonly class="w-full bg-slate-950 border border-sky-700 rounded-lg p-2 font-mono font-bold text-amber-300 text-center">
-                    <button onclick="genVaultCode()" class="w-full bg-amber-500 text-slate-950 font-bold py-2 rounded-lg">توليد الرمز</button>
-                    <button onclick="saveVaultCode()" class="w-full bg-sky-600 text-white font-bold py-2 rounded-lg">حفظ في الخزنة وفتح القناة</button>
+                <div class="bg-sky-900 p-4 rounded-xl border border-sky-700 space-y-2.5 shadow-lg">
+                    <h3 class="font-bold text-amber-300">🛡️ توليد وحفظ كود تشفير سيادي جديد</h3>
+                    <input type="text" id="vault-owner" placeholder="اسم الجهة أو القطاع الرسمي..." class="w-full bg-sky-950 border border-sky-700 rounded-lg p-2.5 text-white focus:outline-none">
+                    <input type="text" id="vault-code" placeholder="888xxxxx" readonly class="w-full bg-slate-950 border border-sky-700 rounded-lg p-2.5 font-mono font-bold text-amber-300 text-center">
+                    <button onclick="genVaultCode()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-lg shadow">⚡ توليد رمز معتمد (8 أرقام)</button>
+                    <button onclick="saveVaultCode()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2.5 rounded-lg shadow">حفظ في الخزنة وفتح القناة</button>
                 </div>
-                <div class="bg-sky-900 p-4 rounded-xl border border-sky-700">
-                    <h3 class="font-bold text-white mb-2">سجل الخزنة</h3>
+                <div class="bg-sky-900 p-4 rounded-xl border border-sky-700 shadow-lg">
+                    <h3 class="font-bold text-white mb-2">سجل الخزنة والأكواد المعتمدة</h3>
                     <div id="vault-list" class="space-y-2"></div>
+                </div>
+            </div>
+
+            <!-- 5. قسم التعليمات والدليل -->
+            <div id="sec-help" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 bg-sky-950 text-xs">
+                <div class="bg-sky-900 p-4 rounded-xl border border-sky-700 space-y-2.5 shadow-lg">
+                    <h3 class="font-bold text-purple-300 text-sm">📖 الدليل الرسمي لمنظومة سَنَد الدولية</h3>
+                    <div class="p-3 bg-sky-950 rounded-lg border border-sky-800 space-y-2 text-sky-100 leading-relaxed">
+                        <p><strong>1. المراسلات الفورية:</strong> تواصل مع أي قطاع أو جهة عبر القنوات الآمنة المشفرة.</p>
+                        <p><strong>2. المكالمات المرئية والصوتية:</strong> تظهر صورتك في كاميرا مستقلة بشكل دقيق وفوري.</p>
+                        <p><strong>3. الذكاء الاصطناعي:</strong> مساعد ذكي متطور للتحليل وتقديم التقارير على مدار الساعة.</p>
+                        <p><strong>4. الخزنة السيادية:</strong> إدارة الأكواد الرسمية وحفظها بأعلى معايير الأمان الدولي.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. قسم الإعدادات -->
+            <div id="sec-settings" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 bg-sky-950 text-xs">
+                <div class="bg-sky-900 p-4 rounded-xl border border-sky-700 space-y-3 shadow-lg">
+                    <h3 class="font-bold text-indigo-300 text-sm">⚙️ إحصائيات النظام والتحكم الدولي</h3>
+                    <div class="flex justify-between items-center p-3 bg-sky-950 rounded-xl border border-sky-800">
+                        <span>الأجهزة المتصلة بالشبكة حالياً:</span>
+                        <span id="stat-connections" class="text-emerald-400 font-extrabold font-mono text-sm">1</span>
+                    </div>
+                    <button onclick="triggerReset()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-xl shadow">⚡ إعادة مزامنة وتنشيط الشبكة بالكامل</button>
                 </div>
             </div>
         </main>
@@ -223,11 +254,19 @@ const htmlPage = `<!DOCTYPE html>
 
     <script>
         var currentRecipient = 'خدمة العملاء المركزية';
-        var globalChats = {'خدمة العملاء المركزية': [{id:'m1', sender:'خدمة العملاء المركزية', type:'text', text:'أهلاً بك في منظومة سَنَد الذكية.', time:'الآن', isMe:false}]};
-        var globalVault = [{owner:'القيادة المركزية العليا', num:'88800001', cat:'بروتوكول VIP'}];
-        var globalRecipients = ['خدمة العملاء المركزية', 'رهف', 'رابعة', 'رشا', 'آمنة'];
-        var globalAi = [{sender:'SANAD AI', text:'أهلاً بك. أنا مساعد سَنَد الذكي.', time:'الآن', isAi:true}];
-        var ws = null, mediaRec = null, chunks = [], isRec = false, localStream = null;
+        var globalChats = {
+            'خدمة العملاء المركزية': [{id:'m1', sender:'خدمة العملاء المركزية', type:'text', text:'أهلاً بك في منظومة سَنَد الدولية للاتصالات.', time:'الآن', isMe:false}],
+            'غرفة العمليات المركزية': [{id:'m2', sender:'غرفة العمليات', type:'text', text:'قناة التنسيق والعمليات مؤمنة بالكامل.', time:'الآن', isMe:false}],
+            'قطاع الأمن السيبراني': [{id:'m3', sender:'الأمن السيبراني', type:'text', text:'جميع قنوات الاتصال تخضع للتشفير المجرّد.', time:'الآن', isMe:false}]
+        };
+        var globalVault = [
+            { owner: 'القيادة المركزية العليا', num: '88800001', cat: 'بروتوكول VIP المؤسسي' },
+            { owner: 'خدمة العملاء المركزية', num: '88888888', cat: 'الدعم الفني والتشغيل الدولي 24/7' }
+        ];
+        var globalRecipients = ['خدمة العملاء المركزية', 'غرفة العمليات المركزية', 'قطاع الأمن السيبراني', 'قطاع الخدمات اللوجستية'];
+        var globalAi = [{sender:'SANAD AI', text:'أهلاً بك. أنا مساعد سَنَد الذكي. جاهز للخدمة.', time:'الآن', isAi:true}];
+        
+        var ws = null, mediaRec = null, chunks = [], isRec = false, localStream = null, currentLang = 'ar';
 
         function init() {
             renderRecipients();
@@ -251,6 +290,9 @@ const htmlPage = `<!DOCTYPE html>
                     renderMessages(currentRecipient);
                     renderVault(globalVault);
                     renderAi(globalAi);
+                    document.getElementById('stat-connections').textContent = d.connections;
+                } else if (d.type === 'stats') {
+                    document.getElementById('stat-connections').textContent = d.connections;
                 } else if (d.type === 'private_chat') {
                     if(!globalChats[d.recipient]) globalChats[d.recipient] = [];
                     globalChats[d.recipient].push(d.msg);
@@ -268,18 +310,57 @@ const htmlPage = `<!DOCTYPE html>
                     globalRecipients = d.recipients;
                     globalChats = d.chats;
                     renderRecipients();
+                } else if (d.type === 'incoming_call') {
+                    playTone();
+                    alert('📞 اتصال وارد من ' + d.caller + ' (' + (d.callType === 'video' ? 'فيديو' : 'صوتي') + ')');
                 }
             };
         }
 
+        function playTone() {
+            try {
+                var ctx = new (window.AudioContext || window.webkitAudioContext)();
+                var osc = ctx.createOscillator();
+                var g = ctx.createGain();
+                osc.frequency.setValueAtTime(480, ctx.currentTime);
+                g.gain.setValueAtTime(0.1, ctx.currentTime);
+                osc.connect(g); g.connect(ctx.destination);
+                osc.start(); osc.stop(ctx.currentTime + 1.2);
+            } catch(e) {}
+        }
+
+        function toggleLang() {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            if(currentLang === 'en') {
+                document.getElementById('app-title').innerHTML = 'SANAD SYSTEM <span class="bg-sky-600 text-white text-[9px] px-2 py-0.5 rounded-full">Official International</span>';
+                document.getElementById('btn-chats').textContent = '💬 Chats';
+                document.getElementById('btn-ai').textContent = '🤖 AI';
+                document.getElementById('btn-calls').textContent = '📞 Calls';
+                document.getElementById('btn-codes').textContent = '🛡️ Vault';
+                document.getElementById('btn-help').textContent = '📖 Help';
+                document.getElementById('btn-settings').textContent = '⚙️ Settings';
+            } else {
+                document.getElementById('app-title').innerHTML = 'منظومة سَنَد <span class="bg-sky-600 text-white text-[9px] px-2 py-0.5 rounded-full">النسخة الدولية الرسمية</span>';
+                document.getElementById('btn-chats').textContent = '💬 الدردشة';
+                document.getElementById('btn-ai').textContent = '🤖 الذكاء AI';
+                document.getElementById('btn-calls').textContent = '📞 المكالمات';
+                document.getElementById('btn-codes').textContent = '🛡️ الخزنة';
+                document.getElementById('btn-help').textContent = '📖 التعليمات';
+                document.getElementById('btn-settings').textContent = '⚙️ الإعدادات';
+            }
+        }
+
         function switchSection(id) {
-            ['chats', 'ai', 'calls', 'codes'].forEach(function(s) {
-                document.getElementById('sec-' + s).classList.add('hidden');
-                document.getElementById('btn-' + s).className = 'w-14 py-2.5 rounded-2xl hover:bg-sky-900 text-sky-300 text-[10px] font-bold flex flex-col items-center gap-1';
+            ['chats', 'ai', 'calls', 'codes', 'help', 'settings'].forEach(function(s) {
+                var el = document.getElementById('sec-' + s);
+                if(el) { el.classList.add('hidden'); el.classList.remove('flex'); }
+                var btn = document.getElementById('btn-' + s);
+                if(btn) btn.className = 'w-14 py-2 rounded-xl hover:bg-sky-900 text-sky-300 text-[9px] font-bold flex flex-col items-center gap-1';
             });
-            document.getElementById('sec-' + id).classList.remove('hidden');
-            document.getElementById('sec-' + id).classList.add('flex');
-            document.getElementById('btn-' + id).className = 'w-14 py-2.5 rounded-2xl bg-sky-700 text-white text-[10px] font-bold flex flex-col items-center gap-1 shadow';
+            var target = document.getElementById('sec-' + id);
+            if(target) { target.classList.remove('hidden'); target.classList.add('flex'); }
+            var tBtn = document.getElementById('btn-' + id);
+            if(tBtn) tBtn.className = 'w-14 py-2 rounded-xl bg-sky-700 text-white text-[9px] font-bold flex flex-col items-center gap-1 shadow';
         }
 
         function renderRecipients() {
@@ -289,8 +370,8 @@ const htmlPage = `<!DOCTYPE html>
             box.innerHTML = '';
             var htmlCall = '';
             globalRecipients.forEach(function(r) {
-                var active = r === currentRecipient ? 'bg-sky-600 text-white' : 'bg-sky-900 text-sky-200';
-                box.innerHTML += '<button onclick="selectRecipient(\\'' + r + '\\')" class="px-3 py-1 rounded-lg ' + active + ' font-bold shrink-0">' + r + '</button>';
+                var active = r === currentRecipient ? 'bg-sky-600 text-white shadow' : 'bg-sky-900 text-sky-200 border border-sky-700';
+                box.innerHTML += '<button onclick="selectRecipient(\'' + r + '\')" class="px-3 py-1.5 rounded-lg ' + active + ' font-bold shrink-0 text-xs">' + r + '</button>';
                 htmlCall += '<option value="' + r + '">اتصال بـ: ' + r + '</option>';
             });
             if(sel) sel.innerHTML = htmlCall;
@@ -308,7 +389,7 @@ const htmlPage = `<!DOCTYPE html>
             if(!name) return;
             if(!globalRecipients.includes(name)) {
                 globalRecipients.push(name);
-                if(!globalChats[name]) globalChats[name] = [{id:'m_'+Date.now(), sender:'النظام', type:'text', text:'تم فتح القناة الآمنة لـ ' + name, time:'الآن', isMe:false}];
+                if(!globalChats[name]) globalChats[name] = [{id:'m_'+Date.now(), sender:'النظام الدولي', type:'text', text:'تم فتح القناة الآمنة لـ ' + name, time:'الآن', isMe:false}];
                 renderRecipients();
                 selectRecipient(name);
                 if(ws && ws.readyState === WebSocket.OPEN) {
@@ -323,7 +404,7 @@ const htmlPage = `<!DOCTYPE html>
             var input = document.getElementById('chat-input');
             var text = input.value.trim();
             if(!text) return;
-            var msg = {id: 'm_' + Date.now(), sender: 'أبو طارق', type: 'text', text: text, time: 'الآن', isMe: true};
+            var msg = {id: 'm_' + Date.now(), sender: 'الإدارة المركزية', type: 'text', text: text, time: new Date().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}), isMe: true};
             if(!globalChats[currentRecipient]) globalChats[currentRecipient] = [];
             globalChats[currentRecipient].push(msg);
             renderMessages(currentRecipient);
@@ -338,7 +419,7 @@ const htmlPage = `<!DOCTYPE html>
             var input = document.getElementById('ai-input');
             var text = input.value.trim();
             if(!text) return;
-            var msg = {sender: 'أبو طارق', text: text, time: 'الآن', isAi: false};
+            var msg = {sender: 'المستخدم', text: text, time: new Date().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}), isAi: false};
             globalAi.push(msg);
             renderAi(globalAi);
             if(ws && ws.readyState === WebSocket.OPEN) {
@@ -352,7 +433,7 @@ const htmlPage = `<!DOCTYPE html>
             if(!file) return;
             var reader = new FileReader();
             reader.onload = function(evt) {
-                var msg = {id: 'f_'+Date.now(), sender: 'أبو طارق', type: file.type.startsWith('image/') ? 'image' : 'file', url: evt.target.result, name: file.name, time: 'الآن', isMe: true};
+                var msg = {id: 'f_'+Date.now(), sender: 'الإدارة المركزية', type: file.type.startsWith('image/') ? 'image' : 'file', url: evt.target.result, name: file.name, time: new Date().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}), isMe: true};
                 globalChats[currentRecipient].push(msg);
                 renderMessages(currentRecipient);
                 if(ws && ws.readyState === WebSocket.OPEN) {
@@ -372,7 +453,7 @@ const htmlPage = `<!DOCTYPE html>
                     mediaRec.onstop = function() {
                         var blob = new Blob(chunks, {type: 'audio/mp3'});
                         var url = URL.createObjectURL(blob);
-                        var msg = {id: 'aud_'+Date.now(), sender: 'أبو طارق', type: 'audio', url: url, time: 'الآن', isMe: true};
+                        var msg = {id: 'aud_'+Date.now(), sender: 'الإدارة المركزية', type: 'audio', url: url, time: new Date().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}), isMe: true};
                         globalChats[currentRecipient].push(msg);
                         renderMessages(currentRecipient);
                         if(ws && ws.readyState === WebSocket.OPEN) {
@@ -382,11 +463,11 @@ const htmlPage = `<!DOCTYPE html>
                     mediaRec.start();
                     isRec = true;
                     btn.className = 'bg-rose-600 text-white p-2 rounded-full animate-pulse text-xs';
-                }).catch(function() { alert('يرجى السماح بالميكروفون'); });
+                }).catch(function() { alert('يرجى السماح بالوصول للميكروفون'); });
             } else {
                 mediaRec.stop();
                 isRec = false;
-                btn.className = 'bg-purple-700 text-white p-2 rounded-full text-xs';
+                btn.className = 'bg-purple-700 hover:bg-purple-600 text-white p-2 rounded-full text-xs';
             }
         }
 
@@ -401,7 +482,7 @@ const htmlPage = `<!DOCTYPE html>
                 var content = m.type === 'audio' ? '<audio controls src="'+m.url+'" class="w-full h-8 mt-1"></audio>' :
                               m.type === 'image' ? '<img src="'+m.url+'" class="w-full max-h-36 rounded-lg object-cover mt-1">' :
                               '<p class="mt-1">' + m.text + '</p>';
-                box.innerHTML += '<div class="flex ' + align + '"><div class="max-w-[85%] ' + bg + ' p-2.5 rounded-xl shadow"><strong>' + m.sender + ':</strong>' + content + '<div class="flex justify-between items-center mt-1 text-[9px] opacity-70"><span>' + m.time + '</span><button onclick="delMsg(\\''+m.id+'\\')" class="text-rose-300">حذف</button></div></div></div>';
+                box.innerHTML += '<div class="flex ' + align + '"><div class="max-w-[85%] ' + bg + ' p-3 rounded-xl shadow"><strong>' + m.sender + ':</strong>' + content + '<div class="flex justify-between items-center mt-1 text-[9px] opacity-80"><span>' + m.time + '</span><button onclick="delMsg(\''+m.id+'\')" class="text-rose-300 font-bold hover:underline">حذف</button></div></div></div>';
             });
             box.scrollTop = box.scrollHeight;
         }
@@ -415,7 +496,7 @@ const htmlPage = `<!DOCTYPE html>
         }
 
         function clearChat() {
-            if(confirm('مسح السجل؟')) {
+            if(confirm('هل تريد مسح سجل المحادثة بالكامل؟')) {
                 globalChats[currentRecipient] = [];
                 renderMessages(currentRecipient);
                 if(ws && ws.readyState === WebSocket.OPEN) {
@@ -431,7 +512,7 @@ const htmlPage = `<!DOCTYPE html>
             logs.forEach(function(l) {
                 var align = l.isAi ? 'justify-start' : 'justify-end';
                 var bg = l.isAi ? 'bg-blue-950 border border-blue-800 text-blue-100' : 'bg-sky-600 text-white';
-                box.innerHTML += '<div class="flex ' + align + '"><div class="max-w-[85%] ' + bg + ' p-2.5 rounded-xl shadow"><strong>' + l.sender + ':</strong><p class="mt-1">' + l.text + '</p><span class="text-[9px] opacity-70 block mt-1">' + l.time + '</span></div></div>';
+                box.innerHTML += '<div class="flex ' + align + '"><div class="max-w-[85%] ' + bg + ' p-3 rounded-xl shadow"><strong>' + l.sender + ':</strong><p class="mt-1">' + l.text + '</p><span class="text-[9px] opacity-70 block mt-1">' + l.time + '</span></div></div>';
             });
             box.scrollTop = box.scrollHeight;
         }
@@ -441,7 +522,7 @@ const htmlPage = `<!DOCTYPE html>
             if(!box) return;
             box.innerHTML = '';
             vault.forEach(function(item) {
-                box.innerHTML += '<div class="p-2.5 bg-sky-950 rounded-lg border border-sky-800 flex justify-between items-center"><div><strong class="text-white">' + item.owner + '</strong><br/><span class="text-amber-300 font-mono font-bold">' + item.num + '</span></div><span class="text-[10px] text-sky-300">' + item.cat + '</span></div>';
+                box.innerHTML += '<div class="p-3 bg-sky-950 rounded-xl border border-sky-800 flex justify-between items-center"><div><strong class="text-white">' + item.owner + '</strong><br/><span class="text-amber-300 font-mono font-bold">الرمز: ' + item.num + '</span></div><span class="text-[10px] bg-sky-600/30 text-sky-200 px-2 py-0.5 rounded">' + item.cat + '</span></div>';
             });
         }
 
@@ -453,12 +534,12 @@ const htmlPage = `<!DOCTYPE html>
         function saveVaultCode() {
             var owner = document.getElementById('vault-owner').value.trim();
             var code = document.getElementById('vault-code').value.trim();
-            if(!owner || !code) { alert('أدخل الاسم والرمز'); return; }
-            var item = {owner: owner, num: code, cat: 'اعتماد رسمي'};
+            if(!owner || !code) { alert('يرجى إدخال اسم الجهة وتوليد الكود.'); return; }
+            var item = {owner: owner, num: code, cat: 'اعتماد رسمي دولي'};
             globalVault.unshift(item);
             if(!globalRecipients.includes(owner)) {
                 globalRecipients.push(owner);
-                globalChats[owner] = [{id:'m_'+Date.now(), sender:'النظام', type:'text', text:'تم فتح القناة الآمنة.', time:'الآن', isMe:false}];
+                globalChats[owner] = [{id:'m_'+Date.now(), sender:'النظام الدولي', type:'text', text:'تم فتح القناة الآمنة للقطاع.', time:'الآن', isMe:false}];
             }
             renderVault(globalVault);
             renderRecipients();
@@ -466,7 +547,7 @@ const htmlPage = `<!DOCTYPE html>
                 ws.send(JSON.stringify({type: 'add_secure_code', item: item}));
                 ws.send(JSON.stringify({type: 'add_recipient', name: owner}));
             }
-            alert('تم الحفظ بنجاح');
+            alert('✅ تم الحفظ في الخزنة وفتح القناة بنجاح.');
             document.getElementById('vault-owner').value = '';
             document.getElementById('vault-code').value = '';
         }
@@ -483,13 +564,19 @@ const htmlPage = `<!DOCTYPE html>
             var status = document.getElementById('call-status');
             var vBox = document.getElementById('video-box');
             screen.classList.remove('hidden');
-            status.textContent = 'جاري الاتصال بـ (' + target + ')...';
+            playTone();
+            status.textContent = 'جاري الاتصال بـ (' + target + ') عبر الأقمار الصناعية...';
+            
+            if(ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({type: 'call_action', target: target, callType: type, caller: 'الإدارة المركزية'}));
+            }
+
             if(type === 'video') {
                 vBox.classList.remove('hidden');
                 navigator.mediaDevices.getUserMedia({video:true, audio:true}).then(function(s) {
                     localStream = s;
                     document.getElementById('localVideo').srcObject = s;
-                    status.textContent = 'متصل مرئياً بـ ' + target;
+                    status.textContent = 'متصل مرئياً بـ ' + target + ' (بث مباشر عالي النقاء)';
                 }).catch(function() { status.textContent = 'اتصال مرئي نشط'; });
             } else {
                 vBox.classList.add('hidden');
@@ -500,6 +587,13 @@ const htmlPage = `<!DOCTYPE html>
         function endCall() {
             if(localStream) localStream.getTracks().forEach(function(t) { t.stop(); });
             document.getElementById('call-screen').classList.add('hidden');
+            document.getElementById('video-box').classList.add('hidden');
+        }
+
+        function triggerReset() {
+            if(confirm('إعادة مزامنة الشبكة الدولية بالكامل؟')) {
+                location.reload();
+            }
         }
 
         init();
@@ -512,5 +606,5 @@ app.get('/', (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log('Sanad International Complete Server running on port ' + PORT);
+  console.log('Sanad International Enterprise Server running on port ' + PORT);
 });

@@ -605,8 +605,6 @@ app.get('/', (req, res) => {
   res.send(htmlPage);
 });
 
-    init();
-    </script>
-</body>
-</html>`;
-
+server.listen(PORT, () => {
+  console.log('Sanad International Enterprise Server running on port ' + PORT);
+});

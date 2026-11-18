@@ -19,15 +19,21 @@ let secureVault = [
 
 let privateChats = {
   'خدمة العملاء المركزية': [
-    { id: 'm1', sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك في منصة سَنَد الذكية للاتصالات والذكاء الاصطناعي. النظام يعمل بكفاءة تامة.', time: 'الآن', isMe: false }
+    { id: 'm1', sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك يا أبو طارق في منظومة سَنَد الذكية. النظام يعمل بكفاءة تامة.', time: 'الآن', isMe: false }
+  ],
+  'رهف': [
+    { id: 'm2', sender: 'رهف', type: 'text', text: 'أهلاً يا أبانا الغالي، القناة مؤمنة وجاهزة.', time: 'الآن', isMe: false }
+  ],
+  'رابعة': [
+    { id: 'm3', sender: 'رابعة', type: 'text', text: 'صباح الخير والسرور، الاتصال مستقر.', time: 'الآن', isMe: false }
   ]
 };
 
 let aiChatLogs = [
-  { sender: 'SANAD AI V11', text: 'أهلاً بك يا أبو طارق. أنا مساعد الذكاء الاصطناعي المدمج في منظومة سَنَد. جاهز للخدمة الفورية.', time: 'الآن', isAi: true }
+  { sender: 'SANAD AI', text: 'أهلاً بك يا أبو طارق. أنا مساعد الذكاء الاصطناعي المدمج في منظومة سَنَد. جاهز للخدمة الفورية.', time: 'الآن', isAi: true }
 ];
 
-let activeRecipients = ['خدمة العملاء المركزية'];
+let activeRecipients = ['خدمة العملاء المركزية', 'رهف', 'رابعة', 'رشا', 'آمنة'];
 let activeConnectionsCount = 0;
 
 function broadcast(payload) {
@@ -75,31 +81,16 @@ wss.on('connection', (ws) => {
         privateChats[recipient] = [];
         broadcast({ type: 'update_chats', recipient: recipient, chats: [] });
       }
-      else if (data.type === 'view_once_opened') {
-        const recipient = data.recipient;
-        if (privateChats[recipient]) {
-          const msg = privateChats[recipient].find(m => m.id === data.msgId);
-          if (msg) {
-            msg.isOpened = true;
-            msg.text = '👁️ [تم فتح المحتوى وتدميره ذاتياً بنجاح]';
-            msg.type = 'text';
-            broadcast({ type: 'update_chats', recipient: recipient, chats: privateChats[recipient] });
-          }
-        }
-      }
       else if (data.type === 'ai_chat') {
         aiChatLogs.push(data.msg);
         const q = data.msg.text;
-        let reply = '⚡ [SANAD AI V11]: تم استلام طلبك ("' + q + '"). تم تنفيذ المعالجة الرقمية بنجاح.';
-        if (q.includes('حالة') || q.includes('تقرير') || q.includes('فحص')) {
-          reply = '📊 [تقرير حالة النظام]: الخادم يعمل بامتياز • التشفير نشط • القنوات المفعلة: ' + activeRecipients.length;
-        } else if (q.includes('كود') || q.includes('رمز')) {
-          const code = '888' + Math.floor(10000 + Math.random() * 90000);
-          reply = '🔐 [مولد الأكواد الذكي]: تم توليد واعتماد الرمز الرسمي بنجاح: ' + code;
+        let reply = '⚡ [SANAD AI]: تم استلام طلبك ("' + q + '"). تم تنفيذ المعالجة الرقمية بنجاح.';
+        if (q.includes('حالة') || q.includes('تقرير')) {
+          reply = '📊 [تقرير حالة النظام]: الخادم يعمل بامتياز • التشفير نشط • الأجهزة المتصلة: ' + activeConnectionsCount;
         }
         
         aiChatLogs.push({
-          sender: 'SANAD AI V11',
+          sender: 'SANAD AI',
           text: reply,
           time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
           isAi: true
@@ -115,7 +106,7 @@ wss.on('connection', (ws) => {
               id: 'm_' + Date.now(),
               sender: 'النظام الذكي',
               type: 'text',
-              text: 'تم إنشاء القناة الآمنة والمشفرة لـ (' + newName + ') بنجاح.',
+              text: 'تم إنشاء القناة الآمنة لـ (' + newName + ') بنجاح.',
               time: 'الآن',
               isMe: false
             }];
@@ -192,7 +183,7 @@ const htmlPage = `<!DOCTYPE html>
         <span class="bg-sky-600 text-white px-2 py-0.5 rounded text-[9px] ml-2 shrink-0">التحديث المؤسسي 🌐</span>
         <div class="overflow-hidden w-full">
             <span class="animate-ticker">
-                🚀 منصة سَنَد الذكية للاتصالات • تواصل آمن وسريع • تشفير مؤسسي متقدم • دعم فني متكامل على مدار الساعة 🚀
+                🚀 منصة سَنَد الذكية للاتصالات • تواصل آمن وسريع • تشفير مؤسسي متقدم • إشراف: أبو طارق 🚀
             </span>
         </div>
     </div>
@@ -202,7 +193,7 @@ const htmlPage = `<!DOCTYPE html>
             <img src="https://i.ibb.co/3s65Z62/IMG-3248.jpg" class="w-10 h-10 rounded-xl border-2 border-sky-400 object-cover shadow" alt="سَنَد">
             <div>
                 <h1 class="font-extrabold text-xs text-white flex items-center gap-1.5">
-                    برنامج سَنَد <span class="bg-sky-600 text-white text-[9px] px-2 py-0.5 rounded-full">النسخة V11 الرسمية</span>
+                    برنامج سَنَد <span class="bg-sky-600 text-white text-[9px] px-2 py-0.5 rounded-full">النسخة الرسمية</span>
                 </h1>
                 <p class="text-[10px] text-sky-200">منظومة الاتصالات الرقمية • مدعومة بالذكاء الاصطناعي</p>
             </div>
@@ -236,11 +227,6 @@ const htmlPage = `<!DOCTYPE html>
             <button onclick="switchSection('codes')" id="btn-sec-codes" class="w-14 py-2.5 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1">
                 <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                 <span class="text-[9px] font-bold">الخزنة</span>
-            </button>
-
-            <button onclick="switchSection('radar')" id="btn-sec-radar" class="w-14 py-2.5 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1">
-                <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle></svg>
-                <span class="text-[9px] font-bold">الشبكة</span>
             </button>
 
             <button onclick="switchSection('help')" id="btn-sec-help" class="w-14 py-2.5 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1">
@@ -296,10 +282,6 @@ const htmlPage = `<!DOCTYPE html>
                         <input type="file" id="file-input" class="hidden" accept="image/*,video/*,.pdf,.doc,.docx" onchange="handleFileUpload(event)">
                     </label>
 
-                    <button type="button" id="view-once-btn" onclick="toggleViewOnce()" class="bg-sky-900 border border-sky-700 text-sky-200 p-2.5 rounded-full flex items-center justify-center shrink-0 shadow transition" title="عرض مرة واحدة">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                    </button>
-
                     <input type="text" id="chat-input" placeholder="اكتب رسالة مشفرة..." class="flex-1 bg-sky-900 border border-sky-700 rounded-2xl px-3.5 py-2 text-xs text-white focus:outline-none">
                     
                     <button type="button" id="record-btn" onclick="toggleVoiceRecord()" class="bg-purple-700 hover:bg-purple-600 text-white p-2.5 rounded-full flex items-center justify-center shrink-0 shadow" title="تسجيل صوتي">
@@ -317,14 +299,14 @@ const htmlPage = `<!DOCTYPE html>
                     <div class="flex items-center gap-2">
                         <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xs">AI</div>
                         <div>
-                            <h2 class="font-bold text-xs text-blue-100">مساعد سَنَد الذكي (SANAD AI V11)</h2>
-                            <p class="text-[9px] text-blue-300">اكتب "تقرير" أو "كود" لأي استفسار رسمي</p>
+                            <h2 class="font-bold text-xs text-blue-100">مساعد سَنَد الذكي (SANAD AI)</h2>
+                            <p class="text-[9px] text-blue-300">اكتب "تقرير" لأي استفسار رسمي</p>
                         </div>
                     </div>
                 </div>
                 <div id="ai-messages-box" class="flex-1 overflow-y-auto p-3 space-y-2.5 chat-bg"></div>
                 <form id="ai-form" class="p-2.5 bg-sky-950 border-t border-sky-800 flex gap-2 shrink-0">
-                    <input type="text" id="ai-input" placeholder="اسأل SANAD AI أو اطلب كود تشفير..." class="flex-1 bg-sky-900 border border-sky-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none">
+                    <input type="text" id="ai-input" placeholder="اسأل SANAD AI..." class="flex-1 bg-sky-900 border border-sky-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none">
                     <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-xl text-xs">إرسال</button>
                 </form>
             </div>
@@ -334,11 +316,11 @@ const htmlPage = `<!DOCTYPE html>
                     <svg class="w-9 h-9" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                 </div>
                 <h3 class="text-base font-extrabold text-white mb-1">مركز الاتصال المشفر عالي النقاء</h3>
-                <p class="text-[11px] text-sky-300 mb-4">اتصال صوتي وفيديو مباشر وعالي السرعة</p>
+                <p class="text-[11px] text-sky-300 mb-4">اتصال صوتي وفيديو مباشر</p>
                 
                 <div class="w-full max-w-xs space-y-3 mb-4">
                     <select id="call-target" class="w-full bg-sky-900 border border-sky-600 rounded-xl p-2.5 text-xs text-white font-bold text-center">
-                        <option value="خدمة العملاء المركزية">خدمة العملاء المركزية (88888888)</option>
+                        <option value="خدمة العملاء المركزية">خدمة العملاء المركزية</option>
                     </select>
                     
                     <div class="grid grid-cols-2 gap-2">
@@ -387,8 +369,8 @@ const htmlPage = `<!DOCTYPE html>
                 <div class="bg-sky-900 border border-sky-700 rounded-2xl p-4 space-y-3">
                     <h3 class="font-extrabold text-sm text-purple-300">📖 دليل استخدام منظومة سَنَد الذكية</h3>
                     <div class="p-3 bg-sky-950 rounded-xl border border-sky-800 space-y-2.5 text-sky-100 leading-relaxed">
-                        <p><strong>1. إضافة جهات جديدة:</strong> اكتب اسم المستخدم في علبة الوارد بالأعلى واضغط "إضافة" لفتح قناة دردشة فورية.</p>
-                        <p><strong>2. رسائل العرض لمرة واحدة:</strong> اضغط أيقونة العين لتدمير الرسالة أو الصورة تلقائياً بعد مشاهدتها.</p>
+                        <p><strong>1. إضافة جهات جديدة:</strong> اكتب اسم المستخدم في علبة الوارد بالأعلى واضغط "إضافة".</p>
+                        <p><strong>2. مكالمات الفيديو:</strong> صورتك تظهر بشكل مستقل تماماً عن الطرف الآخر.</p>
                     </div>
                 </div>
             </div>
@@ -415,16 +397,15 @@ const htmlPage = `<!DOCTYPE html>
             { owner: 'الإدارة العامة العليا', num: '88800001', cat: 'بروتوكول المؤسسة VIP' },
             { owner: 'خدمة العملاء المركزية', num: '88888888', cat: 'الدعم الفني 24/7' }
         ];
-        var globalRecipients = ['خدمة العملاء المركزية'];
+        var globalRecipients = ['خدمة العملاء المركزية', 'رهف', 'رابعة', 'رشا', 'آمنة'];
         var globalAiLogs = [
-            { sender: 'SANAD AI V11', text: 'أهلاً بك يا أبو طارق. أنا مساعد الذكاء الاصطناعي المدمج في سَنَد. جاهز للخدمة الفورية.', time: 'الآن', isAi: true }
+            { sender: 'SANAD AI', text: 'أهلاً بك يا أبو طارق. أنا مساعد الذكاء الاصطناعي المدمج في سَنَد. جاهز للخدمة الفورية.', time: 'الآن', isAi: true }
         ];
 
         var mediaRecorder = null;
         var audioChunks = [];
         var isRecording = false;
         var localStream = null;
-        var isViewOnceMode = false;
         var ws = null;
 
         function initUI() {
@@ -605,17 +586,6 @@ const htmlPage = `<!DOCTYPE html>
             document.getElementById('chat-badge').classList.add('hidden');
         }
 
-        function toggleViewOnce() {
-            isViewOnceMode = !isViewOnceMode;
-            var btn = document.getElementById('view-once-btn');
-            if (isViewOnceMode) {
-                btn.className = 'bg-amber-500 text-slate-950 p-2.5 rounded-full flex items-center justify-center shrink-0 shadow animate-pulse';
-                showAlert('👁️ وضع العرض لمرة واحدة مفعل');
-            } else {
-                btn.className = 'bg-sky-900 border border-sky-700 text-sky-200 p-2.5 rounded-full flex items-center justify-center shrink-0 shadow transition';
-            }
-        }
-
         document.getElementById('chat-form').addEventListener('submit', function(e) {
             e.preventDefault();
             var input = document.getElementById('chat-input');
@@ -624,10 +594,9 @@ const htmlPage = `<!DOCTYPE html>
 
             var msgData = {
                 id: 'msg_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-                sender: 'أنت',
-                type: isViewOnceMode ? 'view_once' : 'text',
+                sender: 'أبو طارق',
+                type: 'text',
                 text: text,
-                isOpened: false,
                 time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
                 isMe: true
             };
@@ -640,7 +609,6 @@ const htmlPage = `<!DOCTYPE html>
                 ws.send(JSON.stringify({ type: 'private_chat', recipient: currentRecipient, msg: msgData }));
             }
             input.value = '';
-            if (isViewOnceMode) toggleViewOnce();
         });
 
         document.getElementById('ai-form').addEventListener('submit', function(e) {
@@ -650,7 +618,7 @@ const htmlPage = `<!DOCTYPE html>
             if (!text) return;
 
             var msgData = {
-                sender: 'أنت',
+                sender: 'أبو طارق',
                 text: text,
                 time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
                 isAi: false
@@ -672,11 +640,10 @@ const htmlPage = `<!DOCTYPE html>
             reader.onload = function(e) {
                 var fileData = {
                     id: 'file_' + Date.now(),
-                    sender: 'أنت',
-                    type: isViewOnceMode ? 'view_once_media' : (file.type.indexOf('image/') === 0 ? 'image' : 'file'),
+                    sender: 'أبو طارق',
+                    type: file.type.indexOf('image/') === 0 ? 'image' : 'file',
                     url: e.target.result,
                     name: file.name,
-                    isOpened: false,
                     time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
                     isMe: true
                 };
@@ -687,7 +654,6 @@ const htmlPage = `<!DOCTYPE html>
                 if (ws && ws.readyState === WebSocket.OPEN) {
                     ws.send(JSON.stringify({ type: 'private_chat', recipient: currentRecipient, msg: fileData }));
                 }
-                if (isViewOnceMode) toggleViewOnce();
             };
             reader.readAsDataURL(file);
         }
@@ -704,7 +670,7 @@ const htmlPage = `<!DOCTYPE html>
                         var audioUrl = URL.createObjectURL(audioBlob);
                         var msgData = {
                             id: 'audio_' + Date.now(),
-                            sender: 'أنت',
+                            sender: 'أبو طارق',
                             type: 'audio',
                             url: audioUrl,
                             time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
@@ -741,19 +707,6 @@ const htmlPage = `<!DOCTYPE html>
                 content = '<img src="' + msg.url + '" class="w-full max-h-48 rounded-xl object-cover mt-1 cursor-pointer" onclick="window.open(this.src)">';
             } else if (msg.type === 'file') {
                 content = '<a href="' + msg.url + '" download="' + msg.name + '" class="text-amber-300 underline block mt-1">📁 تنزيل الملف: ' + msg.name + '</a>';
-            } else if (msg.type === 'view_once') {
-                if (msg.isOpened) {
-                    content = '<p class="text-slate-300 italic mt-0.5">👁️ [تم عرض الرسالة وتدميرها ذاتياً]</p>';
-                } else {
-                    var safeText = encodeURIComponent(msg.text);
-                    content = '<div onclick="openViewOnce(\'' + msg.id + '\', \'' + safeText + '\')" class="bg-amber-500/20 border border-amber-400 p-2 rounded-xl cursor-pointer text-amber-300 font-bold mt-1">👁️ رسالة سرية (اضغط للفتح)</div>';
-                }
-            } else if (msg.type === 'view_once_media') {
-                if (msg.isOpened) {
-                    content = '<p class="text-slate-300 italic mt-0.5">👁️ [تم عرض الملف وتدميره ذاتياً]</p>';
-                } else {
-                    content = '<div onclick="openViewOnceMedia(\'' + msg.id + '\', \'' + msg.url + '\')" class="bg-amber-500/20 border border-amber-400 p-2 rounded-xl cursor-pointer text-amber-300 font-bold mt-1">👁️ ملف سري (اضغط للفتح)</div>';
-                }
             } else {
                 content = '<p class="mt-0.5">' + msg.text + '</p>';
             }
@@ -770,46 +723,13 @@ const htmlPage = `<!DOCTYPE html>
                     content +
                     '<div class="text-[9px] opacity-80 mt-1.5 flex justify-between items-center gap-3">' +
                         '<span>' + msg.time + '</span>' +
-                        '<span class="font-bold">✓✓ مشفر 🔒</span>' +
+                        '<span class="font-bold">✓✓ موثق 🔒</span>' +
                     '</div>' +
                 '</div>' +
             '</div>';
 
             box.insertAdjacentHTML('beforeend', html);
             box.scrollTop = box.scrollHeight;
-        }
-
-        function openViewOnce(msgId, encodedText) {
-            alert('🔐 محتوى الرسالة:\n\n' + decodeURIComponent(encodedText));
-            var msgs = globalChatsData[currentRecipient] || [];
-            for (var i = 0; i < msgs.length; i++) {
-                if (msgs[i].id === msgId) {
-                    msgs[i].isOpened = true;
-                    msgs[i].text = '👁️ [تم فتح المحتوى وتدميره ذاتياً]';
-                    msgs[i].type = 'text';
-                }
-            }
-            renderMessages(currentRecipient);
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ type: 'view_once_opened', recipient: currentRecipient, msgId: msgId }));
-            }
-        }
-
-        function openViewOnceMedia(msgId, url) {
-            var win = window.open();
-            if (win) win.document.write('<img src="' + url + '" style="max-width:100%;height:auto;" />');
-            var msgs = globalChatsData[currentRecipient] || [];
-            for (var i = 0; i < msgs.length; i++) {
-                if (msgs[i].id === msgId) {
-                    msgs[i].isOpened = true;
-                    msgs[i].text = '👁️ [تم عرض الملف وتدميره ذاتياً]';
-                    msgs[i].type = 'text';
-                }
-            }
-            renderMessages(currentRecipient);
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ type: 'view_once_opened', recipient: currentRecipient, msgId: msgId }));
-            }
         }
 
         function deleteMessage(msgId) {
@@ -877,7 +797,7 @@ const htmlPage = `<!DOCTYPE html>
             status.textContent = 'جاري الاتصال بـ (' + target + ')...';
 
             if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ type: 'call_action', target: target, callType: type, caller: 'المستخدم' }));
+                ws.send(JSON.stringify({ type: 'call_action', target: target, callType: type, caller: 'أبو طارق' }));
             }
 
             if (type === 'video') {
@@ -967,5 +887,5 @@ app.get('/', (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log('Sanad Smart Server V11 running on port ' + PORT);
+  console.log('Sanad Smart Server running on port ' + PORT);
 });

@@ -24,7 +24,7 @@ let privateChats = {
 };
 
 let aiChatLogs = [
-  { sender: 'SANAD AI V10', text: 'أهلاً بك يا أبو طارق. أنا مساعد الذكاء الاصطناعي المدمج في منظومة سَنَد. جاهز للرد الفوري وتأمين كافة العمليات.', time: 'الآن', isAi: true }
+  { sender: 'SANAD AI V11', text: 'أهلاً بك يا أبو طارق. أنا مساعد الذكاء الاصطناعي المدمج في منظومة سَنَد. جاهز للخدمة الفورية.', time: 'الآن', isAi: true }
 ];
 
 let activeRecipients = ['خدمة العملاء المركزية'];
@@ -90,7 +90,7 @@ wss.on('connection', (ws) => {
       else if (data.type === 'ai_chat') {
         aiChatLogs.push(data.msg);
         const q = data.msg.text;
-        let reply = '⚡ [SANAD AI V10]: تم استلام طلبك ("' + q + '"). تم تنفيذ المعالجة الرقمية وتشفير الحزمة بنجاح.';
+        let reply = '⚡ [SANAD AI V11]: تم استلام طلبك ("' + q + '"). تم تنفيذ المعالجة الرقمية بنجاح.';
         if (q.includes('حالة') || q.includes('تقرير') || q.includes('فحص')) {
           reply = '📊 [تقرير حالة النظام]: الخادم يعمل بامتياز • التشفير نشط • القنوات المفعلة: ' + activeRecipients.length;
         } else if (q.includes('كود') || q.includes('رمز')) {
@@ -99,7 +99,7 @@ wss.on('connection', (ws) => {
         }
         
         aiChatLogs.push({
-          sender: 'SANAD AI V10',
+          sender: 'SANAD AI V11',
           text: reply,
           time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
           isAi: true
@@ -202,7 +202,7 @@ const htmlPage = `<!DOCTYPE html>
             <img src="https://i.ibb.co/3s65Z62/IMG-3248.jpg" class="w-10 h-10 rounded-xl border-2 border-sky-400 object-cover shadow" alt="سَنَد">
             <div>
                 <h1 class="font-extrabold text-xs text-white flex items-center gap-1.5">
-                    برنامج سَنَد <span class="bg-sky-600 text-white text-[9px] px-2 py-0.5 rounded-full">النسخة V10 الرسمية</span>
+                    برنامج سَنَد <span class="bg-sky-600 text-white text-[9px] px-2 py-0.5 rounded-full">النسخة V11 الرسمية</span>
                 </h1>
                 <p class="text-[10px] text-sky-200">منظومة الاتصالات الرقمية • مدعومة بالذكاء الاصطناعي</p>
             </div>
@@ -317,7 +317,7 @@ const htmlPage = `<!DOCTYPE html>
                     <div class="flex items-center gap-2">
                         <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xs">AI</div>
                         <div>
-                            <h2 class="font-bold text-xs text-blue-100">مساعد سَنَد الذكي (SANAD AI V10)</h2>
+                            <h2 class="font-bold text-xs text-blue-100">مساعد سَنَد الذكي (SANAD AI V11)</h2>
                             <p class="text-[9px] text-blue-300">اكتب "تقرير" أو "كود" لأي استفسار رسمي</p>
                         </div>
                     </div>
@@ -417,7 +417,7 @@ const htmlPage = `<!DOCTYPE html>
         ];
         var globalRecipients = ['خدمة العملاء المركزية'];
         var globalAiLogs = [
-            { sender: 'SANAD AI V10', text: 'أهلاً بك يا أبو طارق. أنا مساعد الذكاء الاصطناعي المدمج في سَنَد. جاهز للخدمة الفورية.', time: 'الآن', isAi: true }
+            { sender: 'SANAD AI V11', text: 'أهلاً بك يا أبو طارق. أنا مساعد الذكاء الاصطناعي المدمج في سَنَد. جاهز للخدمة الفورية.', time: 'الآن', isAi: true }
         ];
 
         var mediaRecorder = null;
@@ -967,5 +967,5 @@ app.get('/', (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log('Sanad Smart Server V10 running on port ' + PORT);
+  console.log('Sanad Smart Server V11 running on port ' + PORT);
 });

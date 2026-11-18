@@ -19,12 +19,12 @@ let secureVault = [
 
 let privateChats = {
   'خدمة العملاء المركزية': [
-    { id: 'm1', sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك يا شيخ أبو طارق في غرفة العمليات السيادية لمنظومة سَنَد. النظام جاهز بكامل البنود.', time: 'الآن', isMe: false }
+    { id: 'm1', sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك في غرفة العمليات السيادية لمنظومة سَنَد الذكية. جميع القنوات مؤمنة وجاهزة.', time: 'الآن', isMe: false }
   ]
 };
 
 let aiChatLogs = [
-  { sender: 'OMEGA AI V6', text: 'أهلاً بك يا أبو طارق. أنا نظام الذكاء الاصطناعي السيادي المدمج في منظومة سَنَد. جاهز لتحليل البيانات وتأمين القنوات والرد الفوري.', time: 'الآن', isAi: true }
+  { sender: 'SANAD AI V7', text: 'أهلاً بك. أنا نظام الذكاء الاصطناعي السيادي المدمج في منظومة سَنَد. جاهز لتحليل البيانات، تأمين القنوات، والرد الفوري بأعلى سرعة وأمان.', time: 'الآن', isAi: true }
 ];
 
 let activeRecipients = ['خدمة العملاء المركزية'];
@@ -90,16 +90,16 @@ wss.on('connection', (ws) => {
       else if (data.type === 'ai_chat') {
         aiChatLogs.push(data.msg);
         const q = data.msg.text;
-        let reply = '⚡ [OMEGA AI V6]: تم استلام أمرك السيادي ("' + q + '"). تم تشفير الحزمة وإجراء المسح الفضائي الشامل.';
+        let reply = '⚡ [SANAD AI V7]: تم استلام أمرك السيادي ("' + q + '"). تم تنفيذ المعالجة السريعة وتشفير الحزمة بنجاح.';
         if (q.includes('حالة') || q.includes('تقرير') || q.includes('فحص')) {
-          reply = '🛰️ [تقرير الحالة الفضائية]: الأقمار الصناعية متصلة • التشفير نشط • القنوات المؤمنة: ' + activeRecipients.length;
+          reply = '🛰️ [تقرير الحالة الفضائية]: الأقمار الصناعية متصلة • التشفير نشط • القنوات النشطة: ' + activeRecipients.length;
         } else if (q.includes('كود') || q.includes('رمز')) {
           const code = '888' + Math.floor(10000 + Math.random() * 90000);
-          reply = '🔐 [مولد الأكواد الذكي]: تم توليد كود سيادي مشفر: ' + code;
+          reply = '🔐 [مولد الأكواد الذكي]: تم توليد الكود السيادي بنجاح: ' + code;
         }
         
         aiChatLogs.push({
-          sender: 'OMEGA AI V6',
+          sender: 'SANAD AI V7',
           text: reply,
           time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
           isAi: true
@@ -168,7 +168,7 @@ const htmlPage = `<!DOCTYPE html>
     <meta name="theme-color" content="#0284c7">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="https://i.ibb.co/3s65Z62/IMG-3248.jpg">
-    <title>سَنَد | المنظومة السيادية الذكية بالأقمار الصناعية</title>
+    <title>سَنَد | المنظومة الذكية للاتصالات السيادية</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -192,7 +192,7 @@ const htmlPage = `<!DOCTYPE html>
         <span class="bg-sky-600 text-white px-2 py-0.5 rounded text-[9px] ml-2 shrink-0">الاتصال الفضائي 🛰️</span>
         <div class="overflow-hidden w-full">
             <span class="animate-ticker">
-                🌐 منظومة سَنَد الذكية للاتصالات السيادية • مشفرة عبر الأقمار الصناعية • إشراف: الشيخ أبو طارق • OMEGA AI V6 🌐
+                🌐 منظومة سَنَد الذكية للاتصالات والذكاء الاصطناعي • تشفير عسكري متقدم • أمان تام وسرعة فائقة 🌐
             </span>
         </div>
     </div>
@@ -202,15 +202,15 @@ const htmlPage = `<!DOCTYPE html>
             <img src="https://i.ibb.co/3s65Z62/IMG-3248.jpg" class="w-10 h-10 rounded-xl border-2 border-sky-400 object-cover shadow" alt="سَنَد">
             <div>
                 <h1 class="font-extrabold text-xs text-white flex items-center gap-1.5">
-                    برنامج سَنَد <span class="bg-sky-600 text-white text-[9px] px-2 py-0.5 rounded-full">النسخة الفضائية السيادية</span>
+                    برنامج سَنَد <span class="bg-sky-600 text-white text-[9px] px-2 py-0.5 rounded-full">النسخة السيادية الذكية</span>
                 </h1>
-                <p class="text-[10px] text-sky-200">إشراف: أبو طارق • متصل عبر التشفير المجرّد</p>
+                <p class="text-[10px] text-sky-200">منظومة الاتصالات الآمنة • مدعومة بالذكاء الاصطناعي</p>
             </div>
         </div>
         <div class="flex items-center gap-2">
             <span id="net-status" class="bg-emerald-500/20 text-emerald-300 text-[9px] px-2.5 py-1 rounded-full font-bold flex items-center gap-1.5 border border-emerald-500/40">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>متصل بالفضائي (Live)</span>
+                <span>متصل (Live)</span>
             </span>
         </div>
     </header>
@@ -245,12 +245,12 @@ const htmlPage = `<!DOCTYPE html>
 
             <button onclick="switchSection('help')" id="btn-sec-help" class="w-14 py-2.5 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1">
                 <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle></svg>
-                <span class="text-[9px] font-bold">التعليمات</span>
+                <span class="text-[9px] font-bold">الدليل</span>
             </button>
 
             <button onclick="switchSection('settings')" id="btn-sec-settings" class="w-14 py-2.5 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1">
                 <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle></svg>
-                <span class="text-[9px] font-bold">الإعدادات</span>
+                <span class="text-[9px] font-bold">النظام</span>
             </button>
         </aside>
 
@@ -262,7 +262,7 @@ const htmlPage = `<!DOCTYPE html>
                         <div>
                             <h2 class="font-bold text-xs text-white" id="current-chat-title">خدمة العملاء المركزية</h2>
                             <p class="text-[10px] text-emerald-300 flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> متصل بالشبكة السيادية (Online)
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> قناة مشفرة نشطة (Live)
                             </p>
                         </div>
                     </div>
@@ -281,8 +281,8 @@ const htmlPage = `<!DOCTYPE html>
 
                 <div class="p-2 bg-sky-950 border-b border-sky-800 flex flex-col gap-1.5 shrink-0">
                     <div class="flex items-center gap-1.5">
-                        <input type="text" id="search-contact" placeholder="🔍 ابحث في علبة الوارد..." oninput="filterRecipients()" class="bg-sky-900 border border-sky-700 rounded-lg px-2.5 py-1.5 text-[11px] text-white flex-1 focus:outline-none">
-                        <input type="text" id="new-contact-name" placeholder="أضف شخص/جهة..." class="bg-sky-900 border border-sky-700 rounded-lg px-2 py-1.5 text-[11px] text-white w-28 focus:outline-none">
+                        <input type="text" id="search-contact" placeholder="🔍 بحث في القنوات..." oninput="filterRecipients()" class="bg-sky-900 border border-sky-700 rounded-lg px-2.5 py-1.5 text-[11px] text-white flex-1 focus:outline-none">
+                        <input type="text" id="new-contact-name" placeholder="أضف مستخدم/جهة..." class="bg-sky-900 border border-sky-700 rounded-lg px-2 py-1.5 text-[11px] text-white w-28 focus:outline-none">
                         <button onclick="addNewContact()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold px-2.5 py-1.5 rounded-lg text-[11px] shrink-0">إضافة</button>
                     </div>
                     <div class="flex gap-1.5 overflow-x-auto pb-1" id="recipient-tabs"></div>
@@ -317,14 +317,14 @@ const htmlPage = `<!DOCTYPE html>
                     <div class="flex items-center gap-2">
                         <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xs">AI</div>
                         <div>
-                            <h2 class="font-bold text-xs text-blue-100">مساعد سند الذكي (OMEGA AI V6)</h2>
-                            <p class="text-[9px] text-blue-300">اكتب "تقرير" أو "كود" لأي أمر سيادي</p>
+                            <h2 class="font-bold text-xs text-blue-100">مساعد سَنَد الذكي (SANAD AI V7)</h2>
+                            <p class="text-[9px] text-blue-300">اكتب "تقرير" أو "كود" لأي أمر ذكي</p>
                         </div>
                     </div>
                 </div>
                 <div id="ai-messages-box" class="flex-1 overflow-y-auto p-3 space-y-2.5 chat-bg"></div>
                 <form id="ai-form" class="p-2.5 bg-sky-950 border-t border-sky-800 flex gap-2 shrink-0">
-                    <input type="text" id="ai-input" placeholder="اسأل OMEGA AI أو اطلب كود سيادي..." class="flex-1 bg-sky-900 border border-sky-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none">
+                    <input type="text" id="ai-input" placeholder="اسأل SANAD AI أو اطلب كود تشفير..." class="flex-1 bg-sky-900 border border-sky-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none">
                     <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-xl text-xs">إرسال</button>
                 </form>
             </div>
@@ -333,8 +333,8 @@ const htmlPage = `<!DOCTYPE html>
                 <div class="w-20 h-20 bg-sky-900 border-2 border-emerald-400 rounded-full flex items-center justify-center mb-3 text-emerald-300 shadow-2xl relative">
                     <svg class="w-9 h-9" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                 </div>
-                <h3 class="text-base font-extrabold text-white mb-1">مركز الاتصال الفضائي المشفر</h3>
-                <p class="text-[11px] text-sky-300 mb-4">اتصال مباشر عالي النقاء عبر القنوات السيادية</p>
+                <h3 class="text-base font-extrabold text-white mb-1">مركز الاتصال المشفر عالي النقاء</h3>
+                <p class="text-[11px] text-sky-300 mb-4">اتصال صوتي وفيديو مباشر وعالي السرعة</p>
                 
                 <div class="w-full max-w-xs space-y-3 mb-4">
                     <select id="call-target" class="w-full bg-sky-900 border border-sky-600 rounded-xl p-2.5 text-xs text-white font-bold text-center">
@@ -348,10 +348,10 @@ const htmlPage = `<!DOCTYPE html>
                 </div>
 
                 <div id="call-screen" class="hidden w-full max-w-md bg-slate-900 border border-sky-600 rounded-2xl p-3 text-center space-y-2.5 shadow-2xl">
-                    <p id="call-status" class="text-xs text-amber-300 font-bold">جاري الاتصال عبر القمر الصناعي...</p>
+                    <p id="call-status" class="text-xs text-amber-300 font-bold">جاري الاتصال...</p>
                     <div id="video-container" class="hidden grid grid-cols-2 gap-2">
                         <div class="relative"><video id="localVideo" autoplay muted playsinline class="w-full h-32 bg-black rounded-xl object-cover border border-sky-700"></video><span class="absolute bottom-1 right-1 bg-black/70 text-[9px] px-1.5 rounded text-white">كاميرتك</span></div>
-                        <div class="relative bg-black rounded-xl flex items-center justify-center h-32 border border-sky-700"><span id="remote-status-text" class="text-sky-300 text-[10px] px-2">بانتظار رد الطرف الآخر...</span><span class="absolute bottom-1 right-1 bg-black/70 text-[9px] px-1.5 rounded text-white">الطرف الآخر</span></div>
+                        <div class="relative bg-black rounded-xl flex items-center justify-center h-32 border border-sky-700"><span id="remote-status-text" class="text-sky-300 text-[10px] px-2">بانتظار الطرف الآخر...</span><span class="absolute bottom-1 right-1 bg-black/70 text-[9px] px-1.5 rounded text-white">الطرف الآخر</span></div>
                     </div>
                     <button onclick="endCall()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-5 py-2 rounded-xl text-xs shadow">إنهاء الاتصال</button>
                 </div>
@@ -359,48 +359,48 @@ const htmlPage = `<!DOCTYPE html>
 
             <div id="section-codes" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-4 bg-sky-950">
                 <div class="bg-sky-900 border border-sky-700 rounded-2xl p-4 shadow-lg">
-                    <h3 class="font-extrabold text-sm text-amber-300 mb-3">🛡️ توليد واعتماد كود سيادي جديد</h3>
+                    <h3 class="font-extrabold text-sm text-amber-300 mb-3">🛡️ توليد واعتماد كود تشفير جديد</h3>
                     <button onclick="generateSovereignCode()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-2.5 rounded-xl text-xs mb-3 transition shadow">⚡ توليد بصمة وكود سيادي (8 أرقام)</button>
                     <div class="grid grid-cols-1 gap-2">
-                        <input type="text" id="new-owner-name" placeholder="اسم الجهة أو الفرد..." class="bg-sky-950 border border-sky-700 rounded-xl p-2.5 text-xs text-white">
+                        <input type="text" id="new-owner-name" placeholder="اسم الجهة أو المستخدم..." class="bg-sky-950 border border-sky-700 rounded-xl p-2.5 text-xs text-white">
                         <input type="text" id="new-code-val" placeholder="888xxxxx" readonly class="bg-slate-950 border border-sky-700 rounded-xl p-2.5 text-xs font-mono font-bold text-amber-300 text-center">
                     </div>
-                    <button onclick="saveSecureCode()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2.5 rounded-xl text-xs mt-3 transition shadow">حفظ في الخزنة السرية وإضافة للقنوات</button>
+                    <button onclick="saveSecureCode()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2.5 rounded-xl text-xs mt-3 transition shadow">حفظ في الخزنة وفتح القناة</button>
                 </div>
                 <div class="bg-sky-900 border border-sky-700 rounded-2xl p-4 flex-1 shadow-lg">
-                    <h3 class="font-extrabold text-sm text-sky-100 mb-3">🔐 سجل الخزنة السيادية المحمية</h3>
+                    <h3 class="font-extrabold text-sm text-sky-100 mb-3">🔐 سجل الخزنة والرموز المحمية</h3>
                     <div id="vault-list" class="space-y-2 text-xs"></div>
                 </div>
             </div>
 
             <div id="section-radar" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 bg-sky-950 text-xs">
                 <div class="bg-sky-900 border border-cyan-700 rounded-2xl p-4 space-y-3">
-                    <h3 class="font-extrabold text-sm text-cyan-300">🛰️ حالة الربط الفضائي والأقمار الصناعية</h3>
+                    <h3 class="font-extrabold text-sm text-cyan-300">🛰️ حالة الاتصالات والشبكة العالمية</h3>
                     <div class="grid grid-cols-2 gap-2 text-center">
-                        <div class="bg-sky-950 p-3 rounded-xl border border-sky-800"><p class="text-[10px] text-sky-400">القمر الرئيسي</p><p class="font-extrabold text-emerald-400 mt-1">SANAD-SAT 1 (نشط)</p></div>
-                        <div class="bg-sky-950 p-3 rounded-xl border border-sky-800"><p class="text-[10px] text-sky-400">قوة الإشارة المشفرة</p><p class="font-extrabold text-amber-300 mt-1">99.8% AES-256</p></div>
+                        <div class="bg-sky-950 p-3 rounded-xl border border-sky-800"><p class="text-[10px] text-sky-400">حالة السيرفر</p><p class="font-extrabold text-emerald-400 mt-1">يعمل بكفاءة تامة</p></div>
+                        <div class="bg-sky-950 p-3 rounded-xl border border-sky-800"><p class="text-[10px] text-sky-400">مستوى التشفير</p><p class="font-extrabold text-amber-300 mt-1">AES-256 (نشط)</p></div>
                     </div>
                 </div>
             </div>
 
             <div id="section-help" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 text-xs bg-sky-950">
                 <div class="bg-sky-900 border border-sky-700 rounded-2xl p-4 space-y-3">
-                    <h3 class="font-extrabold text-sm text-purple-300">📖 الدليل السيادي لمنظومة سَنَد</h3>
+                    <h3 class="font-extrabold text-sm text-purple-300">📖 دليل استخدام منظومة سَنَد الذكية</h3>
                     <div class="p-3 bg-sky-950 rounded-xl border border-sky-800 space-y-2.5 text-sky-100 leading-relaxed">
-                        <p><strong>1. إضافة قنوات جديدة:</strong> يمكنك إضافة أي شخص أو جهة مباشرة من زر "إضافة" في أعلى الدردشة أو عبر قسم "الخزنة".</p>
-                        <p><strong>2. رسائل العرض لمرة واحدة:</strong> اضغط أيقونة العين بجانب زر الإرسال لتدمير الرسالة تلقائياً بعد قراءتها.</p>
+                        <p><strong>1. إضافة جهات جديدة:</strong> اكتب اسم المستخدم في علبة الوارد بالأعلى واضغط "إضافة" لفتح قناة دردشة فورية.</p>
+                        <p><strong>2. رسائل العرض لمرة واحدة:</strong> اضغط أيقونة العين لتدمير الرسالة أو الصورة تلقائياً بعد مشاهدتها.</p>
                     </div>
                 </div>
             </div>
 
             <div id="section-settings" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 text-xs bg-sky-950">
                 <div class="bg-sky-900 border border-sky-700 rounded-2xl p-4 space-y-3">
-                    <h3 class="font-extrabold text-sm text-indigo-300">⚙️ إحصائيات الشبكة والتحكم</h3>
+                    <h3 class="font-extrabold text-sm text-indigo-300">⚙️ إحصائيات النظام والتحكم</h3>
                     <div class="flex justify-between items-center p-3 bg-sky-950 rounded-xl border border-sky-800">
-                        <span>المتصلون حالياً:</span>
+                        <span>الأجهزة المتصلة الآن:</span>
                         <span id="stat-connections" class="text-emerald-400 font-extrabold font-mono text-sm">1</span>
                     </div>
-                    <button onclick="triggerKillSwitch()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-xl text-xs transition shadow">⚡ تفعيل مفتاح الطوارئ وإعادة تنشيط الجلسة</button>
+                    <button onclick="triggerKillSwitch()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-xl text-xs transition shadow">⚡ إعادة مزامنة وتنشيط النظام بالكامل</button>
                 </div>
             </div>
         </main>
@@ -409,15 +409,15 @@ const htmlPage = `<!DOCTYPE html>
     <script>
         var currentRecipient = 'خدمة العملاء المركزية';
         var globalChatsData = {
-            'خدمة العملاء المركزية': [{ id: 'm1', sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك يا شيخ أبو طارق في غرفة العمليات السيادية.', time: 'الآن', isMe: false }]
+            'خدمة العملاء المركزية': [{ id: 'm1', sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك في منظومة سَنَد الذكية.', time: 'الآن', isMe: false }]
         };
         var globalVaultData = [
             { owner: 'القيادة المركزية العليا', num: '88800001', cat: 'بروتوكول VIP' },
-            { owner: 'خدمة العملاء المركزية', num: '88888888', cat: 'الدعم الفني والتشغيل 24/7' }
+            { owner: 'خدمة العملاء المركزية', num: '88888888', cat: 'الدعم الفني 24/7' }
         ];
         var globalRecipients = ['خدمة العملاء المركزية'];
         var globalAiLogs = [
-            { sender: 'OMEGA AI V6', text: 'أهلاً بك يا أبو طارق. أنا نظام الذكاء الاصطناعي السيادي المدمج في منظومة سَنَد. جاهز لتحليل البيانات وتأمين القنوات.', time: 'الآن', isAi: true }
+            { sender: 'SANAD AI V7', text: 'أهلاً بك. أنا نظام الذكاء الاصطناعي المدمج في سَنَد. جاهز للخدمة الفورية.', time: 'الآن', isAi: true }
         ];
 
         var mediaRecorder = null;
@@ -441,7 +441,7 @@ const htmlPage = `<!DOCTYPE html>
             ws = new WebSocket(wsUrl);
 
             ws.onopen = function() {
-                document.getElementById('net-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span>متصل بالفضائي (Live)</span>';
+                document.getElementById('net-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span>متصل (Live)</span>';
             };
 
             ws.onmessage = function(event) {
@@ -499,7 +499,7 @@ const htmlPage = `<!DOCTYPE html>
             };
 
             ws.onclose = function() {
-                document.getElementById('net-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400"></span><span>إعادة مزامنة...</span>';
+                document.getElementById('net-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400"></span><span>إعادة اتصال...</span>';
                 setTimeout(connectWebSocket, 3000);
             };
         }
@@ -581,12 +581,12 @@ const htmlPage = `<!DOCTYPE html>
             var input = document.getElementById('new-contact-name');
             var name = input.value.trim();
             if (!name) {
-                alert('يرجى كتابة اسم الشخص أو الجهة أولاً.');
+                alert('يرجى كتابة اسم المستخدم أولاً.');
                 return;
             }
             if (globalRecipients.indexOf(name) === -1) {
                 globalRecipients.push(name);
-                globalChatsData[name] = [{ id: 'm_' + Date.now(), sender: 'النظام السيادي', type: 'text', text: 'تم فتح القناة السيادية المشفرة لـ ' + name, time: 'الآن', isMe: false }];
+                globalChatsData[name] = [{ id: 'm_' + Date.now(), sender: 'النظام الذكي', type: 'text', text: 'تم إنشاء القناة الآمنة لـ ' + name, time: 'الآن', isMe: false }];
                 renderRecipients(globalRecipients);
                 selectRecipient(name);
             }
@@ -624,7 +624,7 @@ const htmlPage = `<!DOCTYPE html>
 
             var msgData = {
                 id: 'msg_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-                sender: 'أبو طارق',
+                sender: 'أنت',
                 type: isViewOnceMode ? 'view_once' : 'text',
                 text: text,
                 isOpened: false,
@@ -650,7 +650,7 @@ const htmlPage = `<!DOCTYPE html>
             if (!text) return;
 
             var msgData = {
-                sender: 'أبو طارق',
+                sender: 'أنت',
                 text: text,
                 time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
                 isAi: false
@@ -672,7 +672,7 @@ const htmlPage = `<!DOCTYPE html>
             reader.onload = function(e) {
                 var fileData = {
                     id: 'file_' + Date.now(),
-                    sender: 'أبو طارق',
+                    sender: 'أنت',
                     type: isViewOnceMode ? 'view_once_media' : (file.type.indexOf('image/') === 0 ? 'image' : 'file'),
                     url: e.target.result,
                     name: file.name,
@@ -704,7 +704,7 @@ const htmlPage = `<!DOCTYPE html>
                         var audioUrl = URL.createObjectURL(audioBlob);
                         var msgData = {
                             id: 'audio_' + Date.now(),
-                            sender: 'أبو طارق',
+                            sender: 'أنت',
                             type: 'audio',
                             url: audioUrl,
                             time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
@@ -770,7 +770,7 @@ const htmlPage = `<!DOCTYPE html>
                     content +
                     '<div class="text-[9px] opacity-80 mt-1.5 flex justify-between items-center gap-3">' +
                         '<span>' + msg.time + '</span>' +
-                        '<span class="font-bold">✓✓ موثق 🔒</span>' +
+                        '<span class="font-bold">✓✓ مشفر 🔒</span>' +
                     '</div>' +
                 '</div>' +
             '</div>';
@@ -877,7 +877,7 @@ const htmlPage = `<!DOCTYPE html>
             status.textContent = 'جاري الاتصال بـ (' + target + ')...';
 
             if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ type: 'call_action', target: target, callType: type, caller: 'أبو طارق' }));
+                ws.send(JSON.stringify({ type: 'call_action', target: target, callType: type, caller: 'المستخدم' }));
             }
 
             if (type === 'video') {
@@ -887,7 +887,7 @@ const htmlPage = `<!DOCTYPE html>
                     document.getElementById('localVideo').srcObject = stream;
                     status.textContent = 'متصل مرئياً بـ ' + target;
                 }).catch(function() {
-                    status.textContent = 'متصل مرئياً';
+                    status.textContent = 'اتصال مرئي نشط';
                 });
             } else {
                 videoBox.classList.add('hidden');
@@ -917,13 +917,13 @@ const htmlPage = `<!DOCTYPE html>
                 alert('يرجى إدخال اسم الجهة وتوليد الكود.');
                 return;
             }
-            var newItem = { owner: name, phone: 'خاص للإدارة', num: code, cat: 'اعتماد سيادي' };
+            var newItem = { owner: name, phone: 'مفعل أمنياً', num: code, cat: 'اعتماد رسمي' };
             globalVaultData.unshift(newItem);
             renderVault(globalVaultData);
             
             if (globalRecipients.indexOf(name) === -1) {
                 globalRecipients.push(name);
-                globalChatsData[name] = [{ id: 'm_' + Date.now(), sender: 'النظام السيادي', type: 'text', text: 'تم فتح القناة المشفرة تلقائياً عبر الخزنة السيادية.', time: 'الآن', isMe: false }];
+                globalChatsData[name] = [{ id: 'm_' + Date.now(), sender: 'النظام الذكي', type: 'text', text: 'تم فتح القناة المشفرة تلقائياً عبر الخزنة.', time: 'الآن', isMe: false }];
                 renderRecipients(globalRecipients);
             }
 
@@ -948,7 +948,7 @@ const htmlPage = `<!DOCTYPE html>
         }
 
         function triggerKillSwitch() {
-            if (confirm('إعادة تنشيط الجلسة؟')) {
+            if (confirm('إعادة مزامنة وتنشيط الجلسة بالكامل؟')) {
                 location.reload();
             }
         }
@@ -967,5 +967,5 @@ app.get('/', (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log('Sanad Sovereign Server V6 running on port ' + PORT);
+  console.log('Sanad Smart Server V7 running on port ' + PORT);
 });

@@ -11,36 +11,23 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// قاعدة البيانات السيادية الحية
 let secureVault = [
   { owner: 'القيادة المركزية العليا', phone: '967770000001', num: '88800001', cat: 'بروتوكول VIP' },
-  { owner: 'خدمة العملاء المركزية', phone: '88888888', num: '88888888', cat: 'الدعم الفني والعمليات 24/7' },
-  { owner: 'قطاع الاتصالات الفضائية', phone: '88800099', num: '88800099', cat: 'تشفير عسكري' }
+  { owner: 'خدمة العملاء المركزية', phone: '88888888', num: '88888888', cat: 'الدعم الفني والتشغيل 24/7' },
+  { owner: 'قطاع الاتصالات الفضائية', phone: '88800099', num: '88800099', cat: 'تشفير عسكري AES-256' }
 ];
 
 let privateChats = {
-  'رهف': [
-    { id: 'm1', sender: 'رهف', type: 'text', text: 'صباح الخير يا أبي الغالي، قناة رهف الفردية مؤمنة بالكامل عبر القمر الصناعي.', time: 'الآن', isMe: false }
-  ],
-  'رابعة': [
-    { id: 'm2', sender: 'رابعة', type: 'text', text: 'مرحباً يا أبانا، الاتصال السيادي المشفر نشط وجاهز.', time: 'الآن', isMe: false }
-  ],
-  'رشا': [
-    { id: 'm3', sender: 'رشا', type: 'text', text: 'تم استلام الإشارة الفضائية بنجاح وبأعلى جودة.', time: 'الآن', isMe: false }
-  ],
-  'آمنة': [
-    { id: 'm4', sender: 'آمنة', type: 'text', text: 'منظومة سَنَد تعمل بكفاءة تامة ومؤمنة 100%.', time: 'الآن', isMe: false }
-  ],
-  '88888888': [
-    { id: 'm5', sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك يا شيخ أبو طارق في غرفة العمليات السيادية لمنظومة سَنَد.', time: 'الآن', isMe: false }
+  'خدمة العملاء المركزية': [
+    { id: 'm1', sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك يا شيخ أبو طارق في غرفة العمليات السيادية لمنظومة سَنَد. النظام جاهز بكامل البنود.', time: 'الآن', isMe: false }
   ]
 };
 
 let aiChatLogs = [
-  { sender: 'OMEGA AI V5', text: 'أهلاً بك يا أبو طارق. أنا نظام الذكاء الاصطناعي السيادي المدمج في منظومة سَنَد. جاهز لتحليل البيانات، تأمين القنوات، والرد الفوري على أوامرك.', time: 'الآن', isAi: true }
+  { sender: 'OMEGA AI V6', text: 'أهلاً بك يا أبو طارق. أنا نظام الذكاء الاصطناعي السيادي المدمج في منظومة سَنَد. جاهز لتحليل البيانات وتأمين القنوات والرد الفوري.', time: 'الآن', isAi: true }
 ];
 
-let activeRecipients = ['رهف', 'رابعة', 'رشا', 'آمنة', '88888888'];
+let activeRecipients = ['خدمة العملاء المركزية'];
 let activeConnectionsCount = 0;
 
 function broadcast(payload) {
@@ -103,16 +90,16 @@ wss.on('connection', (ws) => {
       else if (data.type === 'ai_chat') {
         aiChatLogs.push(data.msg);
         const q = data.msg.text;
-        let reply = '⚡ [OMEGA AI V5]: تم استلام أمرك السيادي ("' + q + '"). تم تشفير الحزمة وإجراء المسح الفضائي الشامل. جميع القنوات مؤمنة بنسبة 100% يا أبو طارق.';
+        let reply = '⚡ [OMEGA AI V6]: تم استلام أمرك السيادي ("' + q + '"). تم تشفير الحزمة وإجراء المسح الفضائي الشامل.';
         if (q.includes('حالة') || q.includes('تقرير') || q.includes('فحص')) {
-          reply = '🛰️ [تقرير الحالة الفضائية]: الأقمار الصناعية متصلة بنجاح • التشفير المجرّد نشط • عدد القنوات المؤمنة: ' + activeRecipients.length;
+          reply = '🛰️ [تقرير الحالة الفضائية]: الأقمار الصناعية متصلة • التشفير نشط • القنوات المؤمنة: ' + activeRecipients.length;
         } else if (q.includes('كود') || q.includes('رمز')) {
           const code = '888' + Math.floor(10000 + Math.random() * 90000);
-          reply = '🔐 [مولد الأكواد الذكي]: تم توليد كود سيادي مشفر لك: ' + code;
+          reply = '🔐 [مولد الأكواد الذكي]: تم توليد كود سيادي مشفر: ' + code;
         }
         
         aiChatLogs.push({
-          sender: 'OMEGA AI V5',
+          sender: 'OMEGA AI V6',
           text: reply,
           time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
           isAi: true
@@ -205,7 +192,7 @@ const htmlPage = `<!DOCTYPE html>
         <span class="bg-sky-600 text-white px-2 py-0.5 rounded text-[9px] ml-2 shrink-0">الاتصال الفضائي 🛰️</span>
         <div class="overflow-hidden w-full">
             <span class="animate-ticker">
-                🌐 منظومة سَنَد الذكية للاتصالات السيادية • مشفرة عبر الأقمار الصناعية • إشراف: الشيخ أبو طارق • OMEGA AI V5 🌐
+                🌐 منظومة سَنَد الذكية للاتصالات السيادية • مشفرة عبر الأقمار الصناعية • إشراف: الشيخ أبو طارق • OMEGA AI V6 🌐
             </span>
         </div>
     </div>
@@ -271,9 +258,9 @@ const htmlPage = `<!DOCTYPE html>
             <div id="section-chats" class="flex-1 flex flex-col h-full overflow-hidden">
                 <div class="bg-sky-900 border-b border-sky-800 px-3 py-2 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
-                        <div class="w-9 h-9 bg-sky-700 rounded-full flex items-center justify-center font-extrabold text-white border-2 border-sky-400 shadow" id="current-avatar">ر</div>
+                        <div class="w-9 h-9 bg-sky-700 rounded-full flex items-center justify-center font-extrabold text-white border-2 border-sky-400 shadow" id="current-avatar">خ</div>
                         <div>
-                            <h2 class="font-bold text-xs text-white" id="current-chat-title">رهف</h2>
+                            <h2 class="font-bold text-xs text-white" id="current-chat-title">خدمة العملاء المركزية</h2>
                             <p class="text-[10px] text-emerald-300 flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> متصل بالشبكة السيادية (Online)
                             </p>
@@ -295,7 +282,7 @@ const htmlPage = `<!DOCTYPE html>
                 <div class="p-2 bg-sky-950 border-b border-sky-800 flex flex-col gap-1.5 shrink-0">
                     <div class="flex items-center gap-1.5">
                         <input type="text" id="search-contact" placeholder="🔍 ابحث في علبة الوارد..." oninput="filterRecipients()" class="bg-sky-900 border border-sky-700 rounded-lg px-2.5 py-1.5 text-[11px] text-white flex-1 focus:outline-none">
-                        <input type="text" id="new-contact-name" placeholder="اسم جديد..." class="bg-sky-900 border border-sky-700 rounded-lg px-2 py-1.5 text-[11px] text-white w-24 focus:outline-none">
+                        <input type="text" id="new-contact-name" placeholder="أضف شخص/جهة..." class="bg-sky-900 border border-sky-700 rounded-lg px-2 py-1.5 text-[11px] text-white w-28 focus:outline-none">
                         <button onclick="addNewContact()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold px-2.5 py-1.5 rounded-lg text-[11px] shrink-0">إضافة</button>
                     </div>
                     <div class="flex gap-1.5 overflow-x-auto pb-1" id="recipient-tabs"></div>
@@ -330,7 +317,7 @@ const htmlPage = `<!DOCTYPE html>
                     <div class="flex items-center gap-2">
                         <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xs">AI</div>
                         <div>
-                            <h2 class="font-bold text-xs text-blue-100">مساعد سند الذكي (OMEGA AI V5)</h2>
+                            <h2 class="font-bold text-xs text-blue-100">مساعد سند الذكي (OMEGA AI V6)</h2>
                             <p class="text-[9px] text-blue-300">اكتب "تقرير" أو "كود" لأي أمر سيادي</p>
                         </div>
                     </div>
@@ -351,11 +338,7 @@ const htmlPage = `<!DOCTYPE html>
                 
                 <div class="w-full max-w-xs space-y-3 mb-4">
                     <select id="call-target" class="w-full bg-sky-900 border border-sky-600 rounded-xl p-2.5 text-xs text-white font-bold text-center">
-                        <option value="رهف">اتصال بـ: رهف</option>
-                        <option value="رابعة">اتصال بـ: رابعة</option>
-                        <option value="رشا">اتصال بـ: رشا</option>
-                        <option value="آمنة">اتصال بـ: آمنة</option>
-                        <option value="88888888">خدمة العملاء (88888888)</option>
+                        <option value="خدمة العملاء المركزية">خدمة العملاء المركزية (88888888)</option>
                     </select>
                     
                     <div class="grid grid-cols-2 gap-2">
@@ -382,7 +365,7 @@ const htmlPage = `<!DOCTYPE html>
                         <input type="text" id="new-owner-name" placeholder="اسم الجهة أو الفرد..." class="bg-sky-950 border border-sky-700 rounded-xl p-2.5 text-xs text-white">
                         <input type="text" id="new-code-val" placeholder="888xxxxx" readonly class="bg-slate-950 border border-sky-700 rounded-xl p-2.5 text-xs font-mono font-bold text-amber-300 text-center">
                     </div>
-                    <button onclick="saveSecureCode()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2.5 rounded-xl text-xs mt-3 transition shadow">حفظ في الخزنة السرية</button>
+                    <button onclick="saveSecureCode()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2.5 rounded-xl text-xs mt-3 transition shadow">حفظ في الخزنة السرية وإضافة للقنوات</button>
                 </div>
                 <div class="bg-sky-900 border border-sky-700 rounded-2xl p-4 flex-1 shadow-lg">
                     <h3 class="font-extrabold text-sm text-sky-100 mb-3">🔐 سجل الخزنة السيادية المحمية</h3>
@@ -404,7 +387,7 @@ const htmlPage = `<!DOCTYPE html>
                 <div class="bg-sky-900 border border-sky-700 rounded-2xl p-4 space-y-3">
                     <h3 class="font-extrabold text-sm text-purple-300">📖 الدليل السيادي لمنظومة سَنَد</h3>
                     <div class="p-3 bg-sky-950 rounded-xl border border-sky-800 space-y-2.5 text-sky-100 leading-relaxed">
-                        <p><strong>1. التبديل بين القنوات:</strong> اضغط على أي اسم في الأعلى (رهف، رابعة، رشا، آمنة، أو خدمة العملاء) لفتح المحادثة.</p>
+                        <p><strong>1. إضافة قنوات جديدة:</strong> يمكنك إضافة أي شخص أو جهة مباشرة من زر "إضافة" في أعلى الدردشة أو عبر قسم "الخزنة".</p>
                         <p><strong>2. رسائل العرض لمرة واحدة:</strong> اضغط أيقونة العين بجانب زر الإرسال لتدمير الرسالة تلقائياً بعد قراءتها.</p>
                     </div>
                 </div>
@@ -424,21 +407,17 @@ const htmlPage = `<!DOCTYPE html>
     </div>
 
     <script>
-        var currentRecipient = 'رهف';
+        var currentRecipient = 'خدمة العملاء المركزية';
         var globalChatsData = {
-            'رهف': [{ id: 'm1', sender: 'رهف', type: 'text', text: 'صباح الخير يا أبي الغالي، قناة رهف الفردية مؤمنة بالكامل عبر القمر الصناعي.', time: 'الآن', isMe: false }],
-            'رابعة': [{ id: 'm2', sender: 'رابعة', type: 'text', text: 'مرحباً يا أبانا، الاتصال السيادي المشفر نشط وجاهز.', time: 'الآن', isMe: false }],
-            'رشا': [{ id: 'm3', sender: 'رشا', type: 'text', text: 'تم استلام الإشارة الفضائية بنجاح وبأعلى جودة.', time: 'الآن', isMe: false }],
-            'آمنة': [{ id: 'm4', sender: 'آمنة', type: 'text', text: 'منظومة سَنَد تعمل بكفاءة تامة ومؤمنة 100%.', time: 'الآن', isMe: false }],
-            '88888888': [{ id: 'm5', sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك يا شيخ أبو طارق في غرفة العمليات السيادية.', time: 'الآن', isMe: false }]
+            'خدمة العملاء المركزية': [{ id: 'm1', sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك يا شيخ أبو طارق في غرفة العمليات السيادية.', time: 'الآن', isMe: false }]
         };
         var globalVaultData = [
             { owner: 'القيادة المركزية العليا', num: '88800001', cat: 'بروتوكول VIP' },
-            { owner: 'خدمة العملاء المركزية', num: '88888888', cat: 'الدعم الفني 24/7' }
+            { owner: 'خدمة العملاء المركزية', num: '88888888', cat: 'الدعم الفني والتشغيل 24/7' }
         ];
-        var globalRecipients = ['رهف', 'رابعة', 'رشا', 'آمنة', '88888888'];
+        var globalRecipients = ['خدمة العملاء المركزية'];
         var globalAiLogs = [
-            { sender: 'OMEGA AI V5', text: 'أهلاً بك يا أبو طارق. أنا نظام الذكاء الاصطناعي السيادي المدمج في منظومة سَنَد. جاهز لتحليل البيانات وتأمين القنوات.', time: 'الآن', isAi: true }
+            { sender: 'OMEGA AI V6', text: 'أهلاً بك يا أبو طارق. أنا نظام الذكاء الاصطناعي السيادي المدمج في منظومة سَنَد. جاهز لتحليل البيانات وتأمين القنوات.', time: 'الآن', isAi: true }
         ];
 
         var mediaRecorder = null;
@@ -579,6 +558,17 @@ const htmlPage = `<!DOCTYPE html>
                 html += '<button type="button" onclick="selectRecipient(\'' + name + '\')" class="px-3 py-1.5 rounded-lg ' + cls + ' text-xs font-bold transition shrink-0">' + name + '</button>';
             }
             tabs.innerHTML = html;
+            updateCallTargets(list);
+        }
+
+        function updateCallTargets(list) {
+            var sel = document.getElementById('call-target');
+            if (!sel) return;
+            var html = '';
+            for (var i = 0; i < list.length; i++) {
+                html += '<option value="' + list[i] + '">اتصال بـ: ' + list[i] + '</option>';
+            }
+            sel.innerHTML = html;
         }
 
         function filterRecipients() {
@@ -591,12 +581,12 @@ const htmlPage = `<!DOCTYPE html>
             var input = document.getElementById('new-contact-name');
             var name = input.value.trim();
             if (!name) {
-                alert('يرجى كتابة اسم الشخص أولاً.');
+                alert('يرجى كتابة اسم الشخص أو الجهة أولاً.');
                 return;
             }
             if (globalRecipients.indexOf(name) === -1) {
                 globalRecipients.push(name);
-                globalChatsData[name] = [{ id: 'm_' + Date.now(), sender: 'النظام السيادي', type: 'text', text: 'تم فتح القناة السيادية لـ ' + name, time: 'الآن', isMe: false }];
+                globalChatsData[name] = [{ id: 'm_' + Date.now(), sender: 'النظام السيادي', type: 'text', text: 'تم فتح القناة السيادية المشفرة لـ ' + name, time: 'الآن', isMe: false }];
                 renderRecipients(globalRecipients);
                 selectRecipient(name);
             }
@@ -930,10 +920,18 @@ const htmlPage = `<!DOCTYPE html>
             var newItem = { owner: name, phone: 'خاص للإدارة', num: code, cat: 'اعتماد سيادي' };
             globalVaultData.unshift(newItem);
             renderVault(globalVaultData);
+            
+            if (globalRecipients.indexOf(name) === -1) {
+                globalRecipients.push(name);
+                globalChatsData[name] = [{ id: 'm_' + Date.now(), sender: 'النظام السيادي', type: 'text', text: 'تم فتح القناة المشفرة تلقائياً عبر الخزنة السيادية.', time: 'الآن', isMe: false }];
+                renderRecipients(globalRecipients);
+            }
+
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ type: 'add_secure_code', item: newItem }));
+                ws.send(JSON.stringify({ type: 'add_recipient', name: name }));
             }
-            alert('✅ تم حفظ الكود في الخزنة السرية.');
+            alert('✅ تم حفظ الكود وفتح القناة بنجاح.');
             document.getElementById('new-owner-name').value = '';
             document.getElementById('new-code-val').value = '';
         }
@@ -969,5 +967,5 @@ app.get('/', (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log('Sanad Sovereign Server V5 running on port ' + PORT);
+  console.log('Sanad Sovereign Server V6 running on port ' + PORT);
 });

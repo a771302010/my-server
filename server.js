@@ -12,19 +12,19 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 let secureVault = [
-  { owner: 'القيادة المركزية العليا', phone: '967770000001', num: '88800001', cat: 'بروتوكول VIP' },
+  { owner: 'الإدارة العامة العليا', phone: '+967770000001', num: '88800001', cat: 'بروتوكول المؤسسة VIP' },
   { owner: 'خدمة العملاء المركزية', phone: '88888888', num: '88888888', cat: 'الدعم الفني والتشغيل 24/7' },
-  { owner: 'قطاع الاتصالات الفضائية', phone: '88800099', num: '88800099', cat: 'تشفير عسكري AES-256' }
+  { owner: 'قطاع التكنولوجيا والاتصالات', phone: '88800099', num: '88800099', cat: 'تشفير بيانات AES-256' }
 ];
 
 let privateChats = {
   'خدمة العملاء المركزية': [
-    { id: 'm1', sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك في غرفة العمليات السيادية لمنظومة سَنَد الذكية. جميع القنوات مؤمنة وجاهزة.', time: 'الآن', isMe: false }
+    { id: 'm1', sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك في منصة سَنَد الذكية للاتصالات والذكاء الاصطناعي. جميع القنوات والخدمات مؤمنة وتعمل بكفاءة تامة.', time: 'الآن', isMe: false }
   ]
 };
 
 let aiChatLogs = [
-  { sender: 'SANAD AI V7', text: 'أهلاً بك. أنا نظام الذكاء الاصطناعي السيادي المدمج في منظومة سَنَد. جاهز لتحليل البيانات، تأمين القنوات، والرد الفوري بأعلى سرعة وأمان.', time: 'الآن', isAi: true }
+  { sender: 'SANAD AI V8', text: 'أهلاً بك. أنا مساعد الذكاء الاصطناعي المدمج في منظومة سَنَد. جاهز للرد الفوري، معالجة البيانات، وتأمين كافة الاتصالات بكفاءة فائقة.', time: 'الآن', isAi: true }
 ];
 
 let activeRecipients = ['خدمة العملاء المركزية'];
@@ -81,7 +81,7 @@ wss.on('connection', (ws) => {
           const msg = privateChats[recipient].find(m => m.id === data.msgId);
           if (msg) {
             msg.isOpened = true;
-            msg.text = '👁️ [تم فتح المحتوى وتدميره ذاتياً عبر الأقمار الصناعية]';
+            msg.text = '👁️ [تم فتح المحتوى وتدميره ذاتياً بنجاح]';
             msg.type = 'text';
             broadcast({ type: 'update_chats', recipient: recipient, chats: privateChats[recipient] });
           }
@@ -90,16 +90,16 @@ wss.on('connection', (ws) => {
       else if (data.type === 'ai_chat') {
         aiChatLogs.push(data.msg);
         const q = data.msg.text;
-        let reply = '⚡ [SANAD AI V7]: تم استلام أمرك السيادي ("' + q + '"). تم تنفيذ المعالجة السريعة وتشفير الحزمة بنجاح.';
+        let reply = '⚡ [SANAD AI V8]: تم استلام طلبك ("' + q + '"). تم تنفيذ المعالجة الرقمية السريعة وتشفير الحزمة بنجاح تام.';
         if (q.includes('حالة') || q.includes('تقرير') || q.includes('فحص')) {
-          reply = '🛰️ [تقرير الحالة الفضائية]: الأقمار الصناعية متصلة • التشفير نشط • القنوات النشطة: ' + activeRecipients.length;
+          reply = '📊 [تقرير حالة النظام]: الخادم يعمل بكفاءة تامة • التشفير نشط • عدد القنوات المفعلة: ' + activeRecipients.length;
         } else if (q.includes('كود') || q.includes('رمز')) {
           const code = '888' + Math.floor(10000 + Math.random() * 90000);
-          reply = '🔐 [مولد الأكواد الذكي]: تم توليد الكود السيادي بنجاح: ' + code;
+          reply = '🔐 [مولد الأكواد الذكي]: تم توليد واعتماد الرمز الرسمي بنجاح: ' + code;
         }
         
         aiChatLogs.push({
-          sender: 'SANAD AI V7',
+          sender: 'SANAD AI V8',
           text: reply,
           time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
           isAi: true
@@ -113,9 +113,9 @@ wss.on('connection', (ws) => {
           if (!privateChats[newName]) {
             privateChats[newName] = [{
               id: 'm_' + Date.now(),
-              sender: 'النظام السيادي',
+              sender: 'النظام الذكي',
               type: 'text',
-              text: 'تم إنشاء وتشفير القناة الفضائية الخاصة بـ (' + newName + ') بنجاح.',
+              text: 'تم إنشاء القناة الآمنة والمشفرة لـ (' + newName + ') بنجاح.',
               time: 'الآن',
               isMe: false
             }];
@@ -143,7 +143,7 @@ wss.on('connection', (ws) => {
 
 app.get('/manifest.json', (req, res) => {
   res.json({
-    name: "برنامج سَنَد السيادي الذكي",
+    name: "برنامج سَنَد الذكي للاتصالات",
     short_name: "سَنَد",
     start_url: "/",
     display: "standalone",
@@ -168,7 +168,7 @@ const htmlPage = `<!DOCTYPE html>
     <meta name="theme-color" content="#0284c7">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="https://i.ibb.co/3s65Z62/IMG-3248.jpg">
-    <title>سَنَد | المنظومة الذكية للاتصالات السيادية</title>
+    <title>سَنَد | المنصة الذكية للاتصالات والذكاء الاصطناعي</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -184,15 +184,15 @@ const htmlPage = `<!DOCTYPE html>
 <body class="w-screen h-[100dvh] flex flex-col justify-between m-0 p-0">
 
     <div id="alert-banner" class="hidden fixed top-4 left-1/2 transform -translate-x-1/2 bg-amber-400 text-slate-950 font-extrabold px-4 py-2.5 rounded-2xl text-xs z-50 shadow-2xl flex items-center gap-2 border-2 border-white">
-        <span>🛰️</span>
-        <span id="alert-text">تنبيه فضائي جديد</span>
+        <span>⚡</span>
+        <span id="alert-text">تنبيه النظام الجديد</span>
     </div>
 
     <div class="bg-sky-950 border-b border-sky-800 text-sky-200 text-[11px] font-bold py-1.5 px-3 overflow-hidden whitespace-nowrap shrink-0 flex items-center shadow">
-        <span class="bg-sky-600 text-white px-2 py-0.5 rounded text-[9px] ml-2 shrink-0">الاتصال الفضائي 🛰️</span>
+        <span class="bg-sky-600 text-white px-2 py-0.5 rounded text-[9px] ml-2 shrink-0">التحديث المؤسسي 🌐</span>
         <div class="overflow-hidden w-full">
             <span class="animate-ticker">
-                🌐 منظومة سَنَد الذكية للاتصالات والذكاء الاصطناعي • تشفير عسكري متقدم • أمان تام وسرعة فائقة 🌐
+                🚀 منصة سَنَد الذكية للاتصالات • تواصل آمن وسريع • تشفير مؤسسي متقدم • دعم فني متكامل على مدار الساعة 🚀
             </span>
         </div>
     </div>
@@ -202,9 +202,9 @@ const htmlPage = `<!DOCTYPE html>
             <img src="https://i.ibb.co/3s65Z62/IMG-3248.jpg" class="w-10 h-10 rounded-xl border-2 border-sky-400 object-cover shadow" alt="سَنَد">
             <div>
                 <h1 class="font-extrabold text-xs text-white flex items-center gap-1.5">
-                    برنامج سَنَد <span class="bg-sky-600 text-white text-[9px] px-2 py-0.5 rounded-full">النسخة السيادية الذكية</span>
+                    برنامج سَنَد <span class="bg-sky-600 text-white text-[9px] px-2 py-0.5 rounded-full">النسخة الذكية الرسمية</span>
                 </h1>
-                <p class="text-[10px] text-sky-200">منظومة الاتصالات الآمنة • مدعومة بالذكاء الاصطناعي</p>
+                <p class="text-[10px] text-sky-200">منظومة الاتصالات الرقمية • مدعومة بالذكاء الاصطناعي</p>
             </div>
         </div>
         <div class="flex items-center gap-2">
@@ -240,7 +240,7 @@ const htmlPage = `<!DOCTYPE html>
 
             <button onclick="switchSection('radar')" id="btn-sec-radar" class="w-14 py-2.5 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1">
                 <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle></svg>
-                <span class="text-[9px] font-bold">الأقمار</span>
+                <span class="text-[9px] font-bold">الشبكة</span>
             </button>
 
             <button onclick="switchSection('help')" id="btn-sec-help" class="w-14 py-2.5 rounded-2xl hover:bg-sky-950 text-sky-200 transition flex flex-col items-center gap-1">
@@ -262,7 +262,7 @@ const htmlPage = `<!DOCTYPE html>
                         <div>
                             <h2 class="font-bold text-xs text-white" id="current-chat-title">خدمة العملاء المركزية</h2>
                             <p class="text-[10px] text-emerald-300 flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> قناة مشفرة نشطة (Live)
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> قناة آمنة نشطة (Online)
                             </p>
                         </div>
                     </div>
@@ -317,8 +317,8 @@ const htmlPage = `<!DOCTYPE html>
                     <div class="flex items-center gap-2">
                         <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xs">AI</div>
                         <div>
-                            <h2 class="font-bold text-xs text-blue-100">مساعد سَنَد الذكي (SANAD AI V7)</h2>
-                            <p class="text-[9px] text-blue-300">اكتب "تقرير" أو "كود" لأي أمر ذكي</p>
+                            <h2 class="font-bold text-xs text-blue-100">مساعد سَنَد الذكي (SANAD AI V8)</h2>
+                            <p class="text-[9px] text-blue-300">اكتب "تقرير" أو "كود" لأي استفسار رسمي</p>
                         </div>
                     </div>
                 </div>
@@ -360,7 +360,7 @@ const htmlPage = `<!DOCTYPE html>
             <div id="section-codes" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-4 bg-sky-950">
                 <div class="bg-sky-900 border border-sky-700 rounded-2xl p-4 shadow-lg">
                     <h3 class="font-extrabold text-sm text-amber-300 mb-3">🛡️ توليد واعتماد كود تشفير جديد</h3>
-                    <button onclick="generateSovereignCode()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-2.5 rounded-xl text-xs mb-3 transition shadow">⚡ توليد بصمة وكود سيادي (8 أرقام)</button>
+                    <button onclick="generateSovereignCode()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-2.5 rounded-xl text-xs mb-3 transition shadow">⚡ توليد بصمة ورمز رسمي (8 أرقام)</button>
                     <div class="grid grid-cols-1 gap-2">
                         <input type="text" id="new-owner-name" placeholder="اسم الجهة أو المستخدم..." class="bg-sky-950 border border-sky-700 rounded-xl p-2.5 text-xs text-white">
                         <input type="text" id="new-code-val" placeholder="888xxxxx" readonly class="bg-slate-950 border border-sky-700 rounded-xl p-2.5 text-xs font-mono font-bold text-amber-300 text-center">
@@ -375,7 +375,7 @@ const htmlPage = `<!DOCTYPE html>
 
             <div id="section-radar" class="flex-1 hidden flex-col h-full p-4 overflow-y-auto space-y-3 bg-sky-950 text-xs">
                 <div class="bg-sky-900 border border-cyan-700 rounded-2xl p-4 space-y-3">
-                    <h3 class="font-extrabold text-sm text-cyan-300">🛰️ حالة الاتصالات والشبكة العالمية</h3>
+                    <h3 class="font-extrabold text-sm text-cyan-300">🌐 حالة الاتصالات والشبكة الرسمية</h3>
                     <div class="grid grid-cols-2 gap-2 text-center">
                         <div class="bg-sky-950 p-3 rounded-xl border border-sky-800"><p class="text-[10px] text-sky-400">حالة السيرفر</p><p class="font-extrabold text-emerald-400 mt-1">يعمل بكفاءة تامة</p></div>
                         <div class="bg-sky-950 p-3 rounded-xl border border-sky-800"><p class="text-[10px] text-sky-400">مستوى التشفير</p><p class="font-extrabold text-amber-300 mt-1">AES-256 (نشط)</p></div>
@@ -412,12 +412,12 @@ const htmlPage = `<!DOCTYPE html>
             'خدمة العملاء المركزية': [{ id: 'm1', sender: 'خدمة العملاء المركزية', type: 'text', text: 'أهلاً بك في منظومة سَنَد الذكية.', time: 'الآن', isMe: false }]
         };
         var globalVaultData = [
-            { owner: 'القيادة المركزية العليا', num: '88800001', cat: 'بروتوكول VIP' },
+            { owner: 'الإدارة العامة العليا', num: '88800001', cat: 'بروتوكول المؤسسة VIP' },
             { owner: 'خدمة العملاء المركزية', num: '88888888', cat: 'الدعم الفني 24/7' }
         ];
         var globalRecipients = ['خدمة العملاء المركزية'];
         var globalAiLogs = [
-            { sender: 'SANAD AI V7', text: 'أهلاً بك. أنا نظام الذكاء الاصطناعي المدمج في سَنَد. جاهز للخدمة الفورية.', time: 'الآن', isAi: true }
+            { sender: 'SANAD AI V8', text: 'أهلاً بك. أنا مساعد الذكاء الاصطناعي المدمج في سَنَد. جاهز للخدمة الفورية.', time: 'الآن', isAi: true }
         ];
 
         var mediaRecorder = null;
@@ -942,7 +942,7 @@ const htmlPage = `<!DOCTYPE html>
             var html = '';
             for (var i = 0; i < vault.length; i++) {
                 var item = vault[i];
-                html += '<div class="p-3 bg-sky-950 rounded-xl flex justify-between items-center border border-sky-800"><div><strong class="text-white">' + item.owner + '</strong><br/><span class="text-amber-300 font-mono font-bold">الكود: ' + item.num + '</span></div><span class="bg-sky-600/30 text-sky-200 px-2.5 py-1 rounded-lg text-[10px] font-bold">' + item.cat + '</span></div>';
+                html += '<div class="p-3 bg-sky-950 rounded-xl flex justify-between items-center border border-sky-800"><div><strong class="text-white">' + item.owner + '</strong><br/><span class="text-amber-300 font-mono font-bold">الرمز: ' + item.num + '</span></div><span class="bg-sky-600/30 text-sky-200 px-2.5 py-1 rounded-lg text-[10px] font-bold">' + item.cat + '</span></div>';
             }
             vaultList.innerHTML = html;
         }
@@ -967,5 +967,5 @@ app.get('/', (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log('Sanad Smart Server V7 running on port ' + PORT);
+  console.log('Sanad Smart Server V8 running on port ' + PORT);
 });

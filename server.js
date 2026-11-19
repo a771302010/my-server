@@ -1,6 +1,9 @@
 const http = require('http');
 const { WebSocketServer } = require('ws');
 
+const sanadIconSvg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='36' fill='%230b4aa2'/><rect y='96' width='180' height='84' rx='24' fill='%23ffffff'/><text x='90' y='72' text-anchor='middle' fill='%23ffffff' font-family='Arial,sans-serif' font-size='64' font-weight='900'>S</text><g fill='%230b4aa2'><circle cx='90' cy='96' r='9'/><path d='M74 122c0-9 7-15 16-15s16 6 16 15v8H74v-8z'/><circle cx='66' cy='101' r='7.5'/><path d='M53 123c0-7 6-12 13-12s13 5 13 12v7H53v-7z'/><circle cx='114' cy='101' r='7.5'/><path d='M101 123c0-7 6-12 13-12s13 5 13 12v7h-26v-7z'/><path d='M26 112c8-2 18 5 28 16 10 11 22 14 36 14s26-3 36-14c10-11 20-18 28-16v28H26v-28z'/></g></svg>`;
+const sanadIconUri = `data:image/svg+xml,${encodeURIComponent(sanadIconSvg)}`;
+
 const htmlContent = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -8,7 +11,10 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0b4aa2">
     <title>سند AI v6.2</title>
+    <link rel="icon" type="image/svg+xml" href="${sanadIconUri}">
+    <link rel="apple-touch-icon" sizes="180x180" href="${sanadIconUri}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -124,7 +130,7 @@ const htmlContent = `<!DOCTYPE html>
                 <div class="flex items-center gap-2 min-w-0">
                     <span id="peer-dot" class="w-2.5 h-2.5 rounded-full bg-slate-600 shrink-0"></span>
                     <span id="peer-title" class="font-bold text-white font-mono truncate">88888888</span>
-                    <span id="peer-status" class="text-[11px] font-bold text-slate-400 shrink-0">غير متصل</span>
+                    <span id="peer-status" class="text-[11px] font-bold text-slate-400 shrink-0 whitespace-nowrap">غير متصل</span>
                 </div>
                 <div class="flex items-center gap-3 shrink-0">
                     <button onclick="summarizeCurrentThread()" class="text-indigo-400 hover:underline font-semibold"><i class="fa-solid fa-sparkles ml-1"></i>تلخيص AI</button>
@@ -1021,11 +1027,11 @@ const htmlContent = `<!DOCTYPE html>
             pTitle.textContent = matchedPeer ? (matchedPeer.name + ' • ' + currentPeer) : currentPeer;
             if (isOn) {
                 dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping';
-                lbl.className = 'text-[11px] font-bold text-emerald-400';
+                lbl.className = 'text-[11px] font-bold text-emerald-400 whitespace-nowrap';
                 lbl.textContent = 'متصل الآن';
             } else {
                 dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-600';
-                lbl.className = 'text-[11px] font-bold text-slate-400';
+                lbl.className = 'text-[11px] font-bold text-slate-400 whitespace-nowrap';
                 lbl.textContent = 'غير متصل';
             }
 

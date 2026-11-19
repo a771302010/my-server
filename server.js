@@ -32,10 +32,10 @@ const htmlContent = `<!DOCTYPE html>
     <!-- الشريط الإخباري الذكي -->
     <div class="bg-blue-950/90 border-b border-blue-800/60 py-1 px-2 overflow-hidden text-[11px] text-blue-200 z-30">
         <div class="ticker-line gap-8 font-semibold">
-            <span>⚡ سند AI v5.1: تجربة متوافقة مع الآيفون والأندرويد والآيباد والكمبيوتر</span>
+            <span>⚡ سند AI v5.2: اتصال هجين (WebSocket + HTTP) لضمان الوصول على جميع الشبكات</span>
             <span>🎙️ إملاء صوتي ذكي + تسجيل صوتي نقي + قراءة فورية للرسائل</span>
             <span>🔄 إعادة إرسال فورية عند عودة الطرف الآخر + ملخص ذكي للمحادثات</span>
-            <span>⚡ سند AI v5.1: تجربة متوافقة مع الآيفون والأندرويد والآيباد والكمبيوتر</span>
+            <span>⚡ سند AI v5.2: اتصال هجين (WebSocket + HTTP) لضمان الوصول على جميع الشبكات</span>
         </div>
     </div>
 
@@ -49,7 +49,7 @@ const htmlContent = `<!DOCTYPE html>
             <div>
                 <div class="flex items-center gap-1.5">
                     <h1 class="font-black text-base md:text-lg text-white leading-none">سند</h1>
-                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v5.1</span>
+                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v5.2</span>
                     <span id="device-badge" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-semibold">---</span>
                 </div>
                 <div class="flex items-center gap-1.5 text-[11px] mt-1">
@@ -275,7 +275,13 @@ const htmlContent = `<!DOCTYPE html>
         let contacts = JSON.parse(localStorage.getItem('sanad5_contacts') || '[{"name":"خدمة العملاء","id":"88888888"}]');
         let currentPeer = '88888888';
         let onlinePeers = new Set();
-        let threads = JSON.parse(localStorage.getItem('sanad5_threads') || '{"88888888":[{"id":"init-1","from":"them","kind":"text","text":"أهلاً بك في سند AI v5.1. جرب الإملاء الصوتي أو التسجيل الصوتي أو المكالمات."}]}');
+        let threads = JSON.parse(localStorage.getItem('sanad5_threads') || '{"88888888":[{"id":"init-1","from":"them","kind":"text","text":"أهلاً بك في سند AI v5.2. الاتصال الهجين جاهز على جميع الشبكات."}]}');
+        const seenEventIds = new Set();
+
+        function markOnlineBadge(modeText) {
+            document.getElementById('ws-dot').className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+            document.getElementById('ws-label').innerText = modeText || 'متصل';
+        }
 
         function playSoftChime() {
             if (!document.getElementById('chk-chime')?.checked) return;
@@ -301,6 +307,88 @@ const htmlContent = `<!DOCTYPE html>
             window.speechSynthesis.speak(utter);
         }
 
+        function handleIncomingPayload(msg) {
+            if (!msg || !msg.type) return;
+            const eid = msg.eventId || msg.msgId || '';
+            if (eid && seenEventIds.has(eid)) return;
+            if (eid) seenEventIds.add(eid);
+
+            if (msg.type === 'online_users') {
+                onlinePeers = new Set(msg.ids || []);
+                renderPresence();
+            } else if (msg.type === 'msg') {
+                const sender = String(msg.from);
+                if (!threads[sender]) threads[sender] = [];
+                threads[sender].push({
+                    id: msg.msgId || ('m-' + Date.now()),
+                    from: 'them',
+                    kind: msg.kind || 'text',
+                    text: msg.text || '',
+                    mediaUrl: msg.mediaUrl || null,
+                    fileName: msg.fileName || ''
+                });
+                playSoftChime();
+                persistAndDraw();
+                if (document.getElementById('chk-autoreply')?.checked && msg.kind === 'text') {
+                    emitPacket(sender, 'text', 'رد تلقائي من سند AI: تم استلام رسالتك وسيتم الرد عليك قريباً.', null, '');
+                }
+            } else if (msg.type === 'msg_del') {
+                const sender = String(msg.from);
+                if (threads[sender]) {
+                    threads[sender] = threads[sender].map(m => m.id === msg.msgId ? { ...m, deleted: true } : m);
+                    persistAndDraw();
+                }
+            } else if (msg.type === 'call_sig') {
+                playSoftChime();
+                onCallSignal(msg);
+            }
+        }
+
+        // قناة HTTP الرديفة لضمان العمل حتى لو تعثّر WebSocket
+        async function postHttpSync(payload) {
+            try {
+                const res = await fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (!ws || ws.readyState !== 1) markOnlineBadge('متصل');
+                    if (Array.isArray(data.onlineIds)) {
+                        onlinePeers = new Set(data.onlineIds);
+                        renderPresence();
+                    }
+                    if (Array.isArray(data.events)) {
+                        data.events.forEach(handleIncomingPayload);
+                    }
+                }
+            } catch {}
+        }
+
+        async function pollHttpSync() {
+            try {
+                const q = encodeURIComponent(myAccts.join(','));
+                const res = await fetch('/api/sync?ids=' + q);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (!ws || ws.readyState !== 1) markOnlineBadge('متصل');
+                    if (Array.isArray(data.onlineIds)) {
+                        onlinePeers = new Set(data.onlineIds);
+                        renderPresence();
+                    }
+                    if (Array.isArray(data.events)) {
+                        data.events.forEach(handleIncomingPayload);
+                    }
+                }
+            } catch {}
+        }
+
+        setInterval(() => {
+            postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
+            pollHttpSync();
+        }, 2500);
+
         let ws;
         let retryTimer = null;
 
@@ -310,13 +398,12 @@ const htmlContent = `<!DOCTYPE html>
             try {
                 ws = new WebSocket(scheme + '//' + location.host);
             } catch {
-                retryTimer = setTimeout(openSocket, 2000);
+                retryTimer = setTimeout(openSocket, 2500);
                 return;
             }
 
             ws.onopen = () => {
-                document.getElementById('ws-dot').className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
-                document.getElementById('ws-label').innerText = 'متصل';
+                markOnlineBadge('متصل');
                 ws.send(JSON.stringify({ type: 'register_ids', ids: myAccts, activeId: activeAcct }));
                 if (rtcConn && rtcConn.iceConnectionState === 'disconnected') {
                     rtcConn.restartIce();
@@ -324,44 +411,13 @@ const htmlContent = `<!DOCTYPE html>
             };
 
             ws.onclose = () => {
-                document.getElementById('ws-dot').className = 'w-2 h-2 rounded-full bg-amber-400';
-                document.getElementById('ws-label').innerText = 'إعادة ربط...';
-                retryTimer = setTimeout(openSocket, 2000);
+                retryTimer = setTimeout(openSocket, 2500);
             };
 
             ws.onmessage = (ev) => {
                 let msg;
                 try { msg = JSON.parse(ev.data); } catch { return; }
-
-                if (msg.type === 'online_users') {
-                    onlinePeers = new Set(msg.ids || []);
-                    renderPresence();
-                } else if (msg.type === 'msg') {
-                    const sender = String(msg.from);
-                    if (!threads[sender]) threads[sender] = [];
-                    threads[sender].push({
-                        id: msg.msgId || ('m-' + Date.now()),
-                        from: 'them',
-                        kind: msg.kind || 'text',
-                        text: msg.text || '',
-                        mediaUrl: msg.mediaUrl || null,
-                        fileName: msg.fileName || ''
-                    });
-                    playSoftChime();
-                    persistAndDraw();
-                    if (document.getElementById('chk-autoreply')?.checked && msg.kind === 'text') {
-                        emitPacket(sender, 'text', 'رد تلقائي من سند AI: تم استلام رسالتك وسيتم الرد عليك قريباً.', null, '');
-                    }
-                } else if (msg.type === 'msg_del') {
-                    const sender = String(msg.from);
-                    if (threads[sender]) {
-                        threads[sender] = threads[sender].map(m => m.id === msg.msgId ? { ...m, deleted: true } : m);
-                        persistAndDraw();
-                    }
-                } else if (msg.type === 'call_sig') {
-                    playSoftChime();
-                    onCallSignal(msg);
-                }
+                handleIncomingPayload(msg);
             };
         }
 
@@ -375,6 +431,16 @@ const htmlContent = `<!DOCTYPE html>
             document.getElementById('ws-label').innerText = 'جاري الربط...';
             if (ws) { try { ws.close(); } catch {} }
             openSocket();
+            postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
+            pollHttpSync();
+        }
+
+        function sendSignalingOrMsg(payload) {
+            const enriched = { ...payload, eventId: payload.eventId || ('ev-' + Date.now() + '-' + Math.floor(Math.random() * 100000)) };
+            if (ws && ws.readyState === 1) {
+                ws.send(JSON.stringify(enriched));
+            }
+            postHttpSync(enriched);
         }
 
         let rtcConn;
@@ -408,9 +474,7 @@ const htmlContent = `<!DOCTYPE html>
                 localStreamObj.getTracks().forEach(t => rtcConn.addTrack(t, localStreamObj));
                 const offer = await rtcConn.createOffer();
                 await rtcConn.setLocalDescription(offer);
-                if (ws && ws.readyState === 1) {
-                    ws.send(JSON.stringify({ type: 'call_sig', to: callPeerId, from: activeAcct, sig: { op: 'offer', mode, sdp: offer } }));
-                }
+                sendSignalingOrMsg({ type: 'call_sig', to: callPeerId, from: activeAcct, sig: { op: 'offer', mode, sdp: offer } });
             } catch {
                 document.getElementById('call-status-msg').innerText = 'يرجى السماح بصلاحية الميكروفون أو الكاميرا';
             }
@@ -452,17 +516,15 @@ const htmlContent = `<!DOCTYPE html>
             await rtcConn.setRemoteDescription(new RTCSessionDescription(pendingCall.sig.sdp));
             const ans = await rtcConn.createAnswer();
             await rtcConn.setLocalDescription(ans);
-            if (ws && ws.readyState === 1) {
-                ws.send(JSON.stringify({ type: 'call_sig', to: pendingCall.from, from: activeAcct, sig: { op: 'answer', sdp: ans } }));
-            }
+            sendSignalingOrMsg({ type: 'call_sig', to: pendingCall.from, from: activeAcct, sig: { op: 'answer', sdp: ans } });
             document.getElementById('call-status-msg').innerText = 'متصل الآن';
         }
 
         function createRTC(mode) {
             rtcConn = new RTCPeerConnection(rtcConfig);
             rtcConn.onicecandidate = (e) => {
-                if (e.candidate && callPeerId && ws && ws.readyState === 1) {
-                    ws.send(JSON.stringify({ type: 'call_sig', to: callPeerId, from: activeAcct, sig: { op: 'ice', candidate: e.candidate } }));
+                if (e.candidate && callPeerId) {
+                    sendSignalingOrMsg({ type: 'call_sig', to: callPeerId, from: activeAcct, sig: { op: 'ice', candidate: e.candidate } });
                 }
             };
             rtcConn.ontrack = (e) => {
@@ -503,8 +565,8 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function endActiveCall() {
-            if (callPeerId && ws && ws.readyState === 1) {
-                ws.send(JSON.stringify({ type: 'call_sig', to: callPeerId, from: activeAcct, sig: { op: 'bye' } }));
+            if (callPeerId) {
+                sendSignalingOrMsg({ type: 'call_sig', to: callPeerId, from: activeAcct, sig: { op: 'bye' } });
             }
             resetCallState();
         }
@@ -608,7 +670,7 @@ const htmlContent = `<!DOCTYPE html>
         function emitPacket(to, kind, text, mediaUrl, fileName, existingMsgId) {
             const cleanTo = String(to).trim();
             if (!cleanTo) return;
-            const liveDelivered = Boolean(ws && ws.readyState === 1 && onlinePeers.has(cleanTo));
+            const liveDelivered = Boolean(onlinePeers.has(cleanTo));
             const msgId = existingMsgId || ('m-' + Date.now() + '-' + Math.floor(Math.random() * 1000));
             if (!threads[cleanTo]) threads[cleanTo] = [];
             if (!existingMsgId) {
@@ -617,9 +679,7 @@ const htmlContent = `<!DOCTYPE html>
                 threads[cleanTo] = threads[cleanTo].map(m => m.id === existingMsgId ? { ...m, delivered: liveDelivered } : m);
             }
             persistAndDraw();
-            if (ws && ws.readyState === 1) {
-                ws.send(JSON.stringify({ type: 'msg', to: cleanTo, from: activeAcct, msgId, kind, text, mediaUrl, fileName }));
-            }
+            sendSignalingOrMsg({ type: 'msg', to: cleanTo, from: activeAcct, msgId, kind, text, mediaUrl, fileName });
         }
 
         function retryMessage(msgId) {
@@ -640,9 +700,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!threads[currentPeer]) return;
             threads[currentPeer] = threads[currentPeer].map(m => m.id === msgId ? { ...m, deleted: true } : m);
             persistAndDraw();
-            if (ws && ws.readyState === 1) {
-                ws.send(JSON.stringify({ type: 'msg_del', to: currentPeer, from: activeAcct, msgId }));
-            }
+            sendSignalingOrMsg({ type: 'msg_del', to: currentPeer, from: activeAcct, msgId });
         }
 
         function clearThreadMsgs() {
@@ -673,7 +731,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!q) return;
             const log = document.getElementById('ai-log');
             log.innerHTML += '<div class="bg-blue-950/50 p-2 rounded-lg text-blue-200"><strong>أنت:</strong> ' + q + '</div>';
-            log.innerHTML += '<div class="bg-slate-900 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> تم استلام طلبك. إذا كان الطرف الآخر غير متصل لحظياً، سيظهر لك خيار إعادة الإرسال بلمسة واحدة متى ما اتصل.</div>';
+            log.innerHTML += '<div class="bg-slate-900 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> تم استلام طلبك. يعمل الإصدار v5.2 بنظام مزامنة هجين (WebSocket + HTTP) لضمان الاستقرار.</div>';
             inp.value = '';
             log.scrollTop = log.scrollHeight;
         }
@@ -697,9 +755,7 @@ const htmlContent = `<!DOCTYPE html>
                 if (Array.isArray(parsed.contacts)) contacts = parsed.contacts;
                 if (parsed.threads && typeof parsed.threads === 'object') threads = parsed.threads;
                 persistAndDraw();
-                if (ws && ws.readyState === 1) {
-                    ws.send(JSON.stringify({ type: 'register_ids', ids: myAccts, activeId: activeAcct }));
-                }
+                sendSignalingOrMsg({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
                 alert('تمت استعادة النسخة الاحتياطية بنجاح.');
             } catch {
                 alert('صيغة النسخة الاحتياطية غير صحيحة.');
@@ -789,9 +845,7 @@ const htmlContent = `<!DOCTYPE html>
         function activateAccount(id) {
             activeAcct = String(id).trim();
             persistAndDraw();
-            if (ws && ws.readyState === 1) {
-                ws.send(JSON.stringify({ type: 'register_ids', ids: myAccts, activeId: activeAcct }));
-            }
+            sendSignalingOrMsg({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
         }
 
         function renderPresence() {
@@ -901,21 +955,96 @@ const htmlContent = `<!DOCTYPE html>
 
         persistAndDraw();
         openSocket();
+        postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
+        pollHttpSync();
     </script>
 </body>
 </html>`;
 
 const PORT = process.env.PORT || 3000;
+const socketsMap = new Map();
+const httpPresence = new Map();
+const httpInbox = new Map();
+
+function touchHttpPresence(ids) {
+    const now = Date.now();
+    ids.forEach(id => {
+        const clean = String(id).trim();
+        if (clean) httpPresence.set(clean, now);
+    });
+}
+
+function getAllOnlineIds() {
+    const now = Date.now();
+    const set = new Set(socketsMap.keys());
+    httpPresence.forEach((ts, id) => {
+        if (now - ts < 10000) set.add(id);
+        else httpPresence.delete(id);
+    });
+    return Array.from(set);
+}
+
+function enqueueHttpEvent(toId, payload) {
+    const clean = String(toId || '').trim();
+    if (!clean) return;
+    const list = httpInbox.get(clean) || [];
+    list.push(payload);
+    if (list.length > 50) list.shift();
+    httpInbox.set(clean, list);
+}
+
+function drainHttpEvents(ids) {
+    const out = [];
+    ids.forEach(id => {
+        const clean = String(id).trim();
+        const list = httpInbox.get(clean);
+        if (list && list.length) {
+            out.push(...list);
+            httpInbox.set(clean, []);
+        }
+    });
+    return out;
+}
+
 const server = http.createServer((req, res) => {
+    const urlObj = new URL(req.url, 'http://' + (req.headers.host || 'localhost'));
+
+    if (urlObj.pathname === '/api/sync' && req.method === 'GET') {
+        const rawIds = (urlObj.searchParams.get('ids') || '').split(',').map(s => s.trim()).filter(Boolean);
+        touchHttpPresence(rawIds);
+        const events = drainHttpEvents(rawIds);
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ onlineIds: getAllOnlineIds(), events }));
+        return;
+    }
+
+    if (urlObj.pathname === '/api/sync' && req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', () => {
+            try {
+                const data = JSON.parse(body || '{}');
+                if (data.type === 'register_ids') {
+                    const list = Array.isArray(data.ids) ? data.ids : [data.activeId].filter(Boolean);
+                    touchHttpPresence(list);
+                } else if (data.to) {
+                    enqueueHttpEvent(data.to, data);
+                }
+            } catch {}
+            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ ok: true, onlineIds: getAllOnlineIds() }));
+        });
+        return;
+    }
+
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(htmlContent);
 });
 
 const wss = new WebSocketServer({ server });
-const socketsMap = new Map();
 
 function broadcastOnline() {
-    const ids = Array.from(socketsMap.keys());
+    const ids = getAllOnlineIds();
     const msg = JSON.stringify({ type: 'online_users', ids });
     wss.clients.forEach(c => {
         if (c.readyState === 1) c.send(msg);
@@ -936,6 +1065,7 @@ wss.on('connection', (ws) => {
             const list = Array.isArray(data.ids) ? data.ids : [data.activeId].filter(Boolean);
             registeredIds = list.map(x => String(x).trim()).filter(Boolean);
             registeredIds.forEach(id => socketsMap.set(id, ws));
+            touchHttpPresence(registeredIds);
             broadcastOnline();
             return;
         }
@@ -944,6 +1074,8 @@ wss.on('connection', (ws) => {
             const dest = socketsMap.get(String(data.to).trim());
             if (dest && dest.readyState === 1) {
                 dest.send(JSON.stringify(data));
+            } else {
+                enqueueHttpEvent(data.to, data);
             }
         }
     });
@@ -957,5 +1089,5 @@ wss.on('connection', (ws) => {
 });
 
 server.listen(PORT, () => {
-    console.log('Sanad AI v5.1 running on port ' + PORT);
+    console.log('Sanad AI v5.2 running on port ' + PORT);
 });

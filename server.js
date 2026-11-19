@@ -6,575 +6,616 @@ const htmlContent = `<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>السند</title>
+    <title>سند</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
-        body { font-family: 'Cairo', sans-serif; background-color: #070b14; }
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
+        body { font-family: 'Cairo', sans-serif; background-color: #060a13; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1d4ed8; border-radius: 9999px; }
     </style>
 </head>
 <body class="text-slate-100 h-screen flex flex-col overflow-hidden select-none">
 
-    <!-- الشريط العلوي: السند -->
-    <header class="bg-slate-900 border-b border-slate-800 px-4 py-2.5 flex justify-between items-center shadow-lg z-20">
+    <!-- الشريط العلوي: سند -->
+    <header class="bg-slate-900/95 border-b border-slate-800 px-4 py-2.5 flex justify-between items-center z-20 shadow-md">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-b from-blue-600 to-blue-900 border border-blue-400/40 flex flex-col items-center justify-center shadow-lg shadow-blue-600/20">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-b from-blue-600 to-blue-950 border border-blue-400/40 flex flex-col items-center justify-center shadow-lg shadow-blue-700/25">
                 <span class="text-white font-black text-lg leading-none">S</span>
                 <i class="fa-solid fa-hands-holding-child text-[9px] text-blue-200 mt-0.5"></i>
             </div>
             <div>
-                <h1 class="font-black text-lg text-white leading-tight">السند</h1>
-                <div class="flex items-center gap-2 text-[11px]">
-                    <span id="ws-status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
-                    <span id="ws-status-text" class="text-slate-300 font-semibold">جاري الربط...</span>
-                    <span class="text-slate-500">|</span>
-                    <span class="text-blue-300 font-mono font-bold" id="my-id-label">36246004</span>
+                <div class="flex items-center gap-2">
+                    <h1 class="font-black text-lg text-white leading-none">سند</h1>
+                    <span class="text-[10px] bg-blue-600/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">v3.0</span>
+                </div>
+                <div class="flex items-center gap-1.5 text-[11px] mt-1">
+                    <span id="conn-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+                    <span id="conn-text" class="text-slate-300 font-semibold">جاري الربط...</span>
+                    <span class="text-slate-600">•</span>
+                    <span id="my-active-id" class="font-mono font-bold text-blue-300">88888888</span>
                 </div>
             </div>
         </div>
 
-        <!-- أزرار اتصال سريع للزميل النشط -->
+        <!-- أزرار اتصال سريع (صوت / فيديو) -->
         <div class="flex items-center gap-2">
-            <button onclick="startMediaCall('audio')" title="مكالمة صوتية" class="w-9 h-9 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white flex items-center justify-center transition">
-                <i class="fa-solid fa-phone text-sm"></i>
+            <button onclick="initiateCall('audio')" title="اتصال صوتي" class="w-9 h-9 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white flex items-center justify-center transition">
+                <i class="fa-solid fa-phone text-xs"></i>
             </button>
-            <button onclick="startMediaCall('video')" title="مكالمة فيديو" class="w-9 h-9 rounded-xl bg-blue-600/20 hover:bg-blue-600 border border-blue-500/40 text-blue-300 hover:text-white flex items-center justify-center transition">
-                <i class="fa-solid fa-video text-sm"></i>
+            <button onclick="initiateCall('video')" title="اتصال فيديو" class="w-9 h-9 rounded-xl bg-blue-600/20 hover:bg-blue-600 border border-blue-500/40 text-blue-300 hover:text-white flex items-center justify-center transition">
+                <i class="fa-solid fa-video text-xs"></i>
             </button>
         </div>
     </header>
 
-    <!-- نافذة المكالمة الصوتية / المرئية المباشرة -->
-    <div id="call-modal" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-between p-6">
-        <div class="text-center mt-4">
-            <p class="text-xs text-blue-400 font-bold mb-1">اتصال مباشر عبر السند (محسّن بالذكاء الاصطناعي)</p>
-            <h2 id="call-peer-title" class="text-xl font-black text-white font-mono">---</h2>
-            <p id="call-state-label" class="text-xs text-emerald-400 mt-1">جاري الاتصال...</p>
+    <!-- شاشة المكالمة الصوتية والمرئية المباشرة -->
+    <div id="call-overlay" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-between p-6">
+        <div class="text-center mt-2">
+            <p class="text-xs text-blue-400 font-bold">اتصال مباشر • سند</p>
+            <h2 id="call-target-display" class="text-xl font-black text-white font-mono mt-1">---</h2>
+            <p id="call-status-label" class="text-xs text-emerald-400 mt-1 font-semibold">جاري الاتصال...</p>
         </div>
 
         <div class="relative w-full max-w-md aspect-video bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden flex items-center justify-center shadow-2xl">
-            <video id="remote-video" autoplay playsinline class="w-full h-full object-cover hidden"></video>
-            <video id="local-video" autoplay playsinline muted class="w-24 h-32 object-cover rounded-2xl border border-blue-500/50 absolute bottom-3 left-3 hidden"></video>
-            <div id="audio-call-avatar" class="flex flex-col items-center gap-3">
-                <div class="w-24 h-24 rounded-full bg-blue-600/20 border border-blue-400/40 flex items-center justify-center text-4xl text-blue-400 animate-pulse">
-                    <i class="fa-solid fa-microphone-lines"></i>
+            <video id="remote-stream-video" autoplay playsinline class="w-full h-full object-cover hidden"></video>
+            <video id="local-stream-video" autoplay playsinline muted class="w-24 h-32 object-cover rounded-2xl border border-blue-500/50 absolute bottom-3 left-3 hidden"></video>
+            <div id="call-audio-badge" class="flex flex-col items-center gap-2.5">
+                <div class="w-20 h-20 rounded-full bg-blue-600/20 border border-blue-400/40 flex items-center justify-center text-3xl text-blue-400 animate-pulse">
+                    <i class="fa-solid fa-waveform-lines"></i>
                 </div>
-                <span class="text-xs text-slate-300 font-semibold">صوت نقي وعالي الوضوح (AI Noise Cancel)</span>
+                <span class="text-xs text-slate-300 font-semibold">تحسين وضوح الصوت والضوضاء بالذكاء الاصطناعي</span>
             </div>
         </div>
 
-        <div class="flex items-center gap-4 mb-6">
-            <button onclick="acceptIncomingCall()" id="btn-accept-call" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3.5 rounded-2xl font-bold text-sm shadow-lg">
-                <i class="fa-solid fa-phone ml-1"></i> رد على المكالمة
+        <div class="flex items-center gap-3 mb-4">
+            <button id="accept-call-btn" onclick="answerIncomingCall()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-2xl font-bold text-xs shadow-lg">
+                <i class="fa-solid fa-phone ml-1"></i> قبول المكالمة
             </button>
-            <button onclick="toggleMuteMic()" id="btn-mute" class="w-12 h-12 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center">
+            <button id="mute-mic-btn" onclick="toggleMicMute()" class="w-12 h-12 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center">
                 <i class="fa-solid fa-microphone"></i>
             </button>
-            <button onclick="endCall()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3.5 rounded-2xl font-bold text-sm shadow-lg">
+            <button onclick="terminateCall()" class="bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-2xl font-bold text-xs shadow-lg">
                 <i class="fa-solid fa-phone-slash ml-1"></i> إنهاء
             </button>
         </div>
     </div>
 
     <!-- المحتوى الرئيسي -->
-    <main class="flex-1 flex flex-col overflow-hidden relative bg-[#090e1a]">
+    <main class="flex-1 flex flex-col overflow-hidden bg-[#080d18]">
 
-        <!-- 1. قسم الدردشة المباشرة والرسائل والصوت -->
-        <div id="tab-chats" class="flex-1 flex flex-col h-full">
+        <!-- 1. قائمة الدردشة -->
+        <section id="sec-chats" class="flex-1 flex flex-col h-full">
             <!-- شريط إدخال رقم/معرّف الزميل وحفظه -->
             <div class="p-2.5 bg-slate-900/80 border-b border-slate-800 space-y-2">
                 <div class="flex gap-2">
-                    <input type="text" id="peer-input" placeholder="معرّف الزميل (8 أرقام) أو رقمه..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm focus:outline-none focus:border-blue-500 text-white font-mono">
-                    <button onclick="openPeerFromInput()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition">فتح</button>
-                    <button onclick="saveActivePeer()" title="حفظ في الجهات" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-400 px-3 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-user-plus"></i></button>
+                    <input type="text" id="chat-peer-input" onkeypress="if(event.key==='Enter') openPeerChat()" placeholder="معرّف الزميل (8 أرقام) أو رقم الجوال..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm text-white font-mono focus:outline-none focus:border-blue-500">
+                    <button onclick="openPeerChat()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition">فتح</button>
+                    <button onclick="quickSavePeer()" title="حفظ في الجهات" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-400 px-3 py-2 rounded-xl text-xs font-bold">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </button>
                 </div>
 
-                <!-- شريط الوصول السريع وحالة الاتصال الفورية -->
-                <div id="quick-peers-bar" class="flex items-center gap-2 overflow-x-auto pb-0.5 text-xs"></div>
+                <!-- شريط الوصول السريع للأرقام المحفوظة -->
+                <div id="saved-quick-chips" class="flex items-center gap-1.5 overflow-x-auto pb-0.5 text-xs"></div>
             </div>
 
-            <!-- شريط حالة الزميل الحالي (متصل الآن / غير متصل) -->
-            <div class="px-4 py-2 bg-slate-950/75 border-b border-slate-800 flex justify-between items-center text-xs">
+            <!-- شريط حالة الزميل النشط (متصل الآن / غير متصل) -->
+            <div class="px-4 py-2 bg-slate-950/80 border-b border-slate-800/90 flex justify-between items-center text-xs">
                 <div class="flex items-center gap-2">
-                    <span id="peer-online-dot" class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
-                    <span class="font-bold text-white font-mono" id="active-peer-id">88888888</span>
-                    <span id="peer-online-label" class="text-[11px] font-bold text-slate-400">غير متصل</span>
+                    <span id="peer-presence-dot" class="w-2.5 h-2.5 rounded-full bg-slate-600"></span>
+                    <span id="active-peer-title" class="font-bold text-white font-mono">88888888</span>
+                    <span id="peer-presence-text" class="text-[11px] font-bold text-slate-400">غير متصل</span>
                 </div>
                 <div class="flex items-center gap-3">
-                    <button onclick="shareInvite()" class="text-blue-400 hover:underline font-semibold"><i class="fa-solid fa-share-nodes ml-1"></i>دعوة</button>
-                    <button onclick="clearChat()" class="text-red-400 hover:underline font-semibold"><i class="fa-solid fa-trash ml-1"></i>مسح</button>
+                    <button onclick="invitePeer()" class="text-blue-400 hover:underline font-semibold"><i class="fa-solid fa-share-nodes ml-1"></i>دعوة</button>
+                    <button onclick="clearActiveMessages()" class="text-red-400 hover:underline font-semibold"><i class="fa-solid fa-trash ml-1"></i>مسح</button>
                 </div>
             </div>
 
-            <!-- صندوق الرسائل والملفات الصوتية -->
-            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar"></div>
+            <!-- صندوق الرسائل والرسائل الصوتية -->
+            <div id="messages-feed" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar"></div>
 
-            <!-- شريط إرسال الرسائل والتسجيل الصوتي المباشر -->
+            <!-- شريط الكتابة والإرسال والتسجيل الصوتي -->
             <div class="p-2.5 bg-slate-900 border-t border-slate-800 flex items-center gap-2">
-                <button onclick="aiPolishMessage()" title="تحسين صياغة الرسالة بالذكاء الاصطناعي" class="text-indigo-400 hover:text-indigo-300 p-2.5 rounded-xl hover:bg-slate-800 transition">
+                <button onclick="improveDraftWithAI()" title="تحسين النص بالذكاء الاصطناعي" class="text-indigo-400 hover:text-indigo-300 p-2.5 rounded-xl hover:bg-slate-800 transition">
                     <i class="fa-solid fa-wand-magic-sparkles text-base"></i>
                 </button>
-                <input type="text" id="msg-text" onkeypress="if(event.key==='Enter') sendTextMessage()" placeholder="اكتب رسالتك..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-blue-500 text-white">
-                <button onclick="toggleAudioRecording()" id="btn-record" title="تسجيل وإرسال صوت واضح" class="bg-slate-800 hover:bg-emerald-600 text-emerald-400 hover:text-white p-2.5 rounded-xl transition">
+                <input type="text" id="composer-input" onkeypress="if(event.key==='Enter') sendChatText()" placeholder="اكتب رسالتك..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                <button id="voice-record-btn" onclick="toggleVoiceNote()" title="تسجيل وإرسال صوت" class="bg-slate-800 hover:bg-emerald-600 text-emerald-400 hover:text-white p-2.5 rounded-xl transition">
                     <i class="fa-solid fa-microphone text-base"></i>
                 </button>
-                <button onclick="sendTextMessage()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition shadow">
+                <button onclick="sendChatText()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition shadow">
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
             </div>
-        </div>
+        </section>
 
-        <!-- 2. قسم جهات الاتصال وحالة المتصلين -->
-        <div id="tab-contacts" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
-            <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl space-y-2.5">
-                <h2 class="text-sm font-black text-emerald-400">إضافة زميل وحفظ رقمه</h2>
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="text" id="new-c-name" placeholder="اسم الزميل" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
-                    <input type="text" id="new-c-id" placeholder="معرّف 8 أرقام أو رقم الجوال" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
-                    <button onclick="addContactBtn()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold">حفظ</button>
-                </div>
-            </div>
-            <div id="contacts-list" class="space-y-2"></div>
-        </div>
-
-        <!-- 3. قسم الحسابات والأرقام -->
-        <div id="tab-accounts" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
+        <!-- 2. قائمة الحسابات -->
+        <section id="sec-accounts" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
-                <h2 class="text-sm font-black text-blue-400">حساباتي وأرقامي في السند</h2>
+                <h2 class="text-sm font-black text-blue-400">إدارة الحسابات والأرقام</h2>
+                <p class="text-[11px] text-slate-400 leading-relaxed">
+                    يمكنك توليد معرّف من <strong>8 أرقام متصلة بدون فواصل</strong> أو إضافة رقم جوال دولي، والتبديل بين حساباتك بسهولة. خدمة العملاء الرسمية: <span class="font-mono text-amber-400 font-bold">88888888</span>.
+                </p>
                 <div class="flex flex-wrap gap-2">
-                    <button onclick="generateNew8Id()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ معرّف جديد (8 أرقام)</button>
-                    <button onclick="addPhoneAcc()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ إضافة رقم جوال</button>
+                    <button onclick="create8DigitAccount()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ توليد معرّف (8 أرقام)</button>
+                    <button onclick="addMobileAccount()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ إضافة رقم جوال</button>
                 </div>
-                <div id="accounts-list" class="space-y-2 pt-2"></div>
+                <div id="accounts-container" class="space-y-2 pt-2"></div>
             </div>
-        </div>
+        </section>
 
-        <!-- 4. قسم الذكاء الاصطناعي والتحسينات والإعدادات -->
-        <div id="tab-ai" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
-            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2">
-                <h2 class="text-sm font-black text-indigo-400"><i class="fa-solid fa-brain ml-1"></i> مساعد السند الذكي</h2>
-                <p class="text-[11px] text-slate-400">تحسين وضوح الصوت، صياغة الرسائل، والرد الذكي التلقائي.</p>
-                <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
-                    <span>الرد التلقائي بالذكاء الاصطناعي عند عدم التواجد</span>
-                    <input type="checkbox" id="auto-ai-reply" class="w-4 h-4 accent-indigo-600">
+        <!-- 3. قائمة الجهات -->
+        <section id="sec-contacts" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
+            <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl space-y-2.5">
+                <h2 class="text-sm font-black text-emerald-400">حفظ جهة اتصال جديدة</h2>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="c-name-input" placeholder="الاسم" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <input type="text" id="c-id-input" placeholder="معرّف 8 أرقام أو رقم الجوال" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
+                    <button onclick="saveContactRow()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold">حفظ</button>
                 </div>
-                <div id="ai-chat-area" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-40 overflow-y-auto text-xs space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">اسأل مساعد السند عن أي شيء...</div>
+            </div>
+            <div id="contacts-container" class="space-y-2"></div>
+        </section>
+
+        <!-- 4. قائمة المكالمات -->
+        <section id="sec-calls" class="hidden flex-1 flex-col items-center justify-center p-6 text-center space-y-4">
+            <div class="w-16 h-16 rounded-2xl bg-blue-600/15 border border-blue-500/30 text-blue-400 flex items-center justify-center text-2xl">
+                <i class="fa-solid fa-phone-volume"></i>
+            </div>
+            <div>
+                <h2 class="text-base font-black text-white">المكالمات الصوتية والمرئية</h2>
+                <p class="text-xs text-slate-400 mt-1 max-w-sm">اتصال مباشر بين الأجهزة المتصلة بالخادم مع تحسين جودة الصوت وتقليل التشويش.</p>
+            </div>
+            <input type="text" id="call-id-input" placeholder="أدخل معرّف 8 أرقام أو رقم الجوال..." class="w-full max-w-xs bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-center font-mono text-white">
+            <div class="flex gap-3">
+                <button onclick="initiateCall('audio', document.getElementById('call-id-input').value.trim())" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-phone"></i> صوتي
+                </button>
+                <button onclick="initiateCall('video', document.getElementById('call-id-input').value.trim())" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-video"></i> فيديو
+                </button>
+            </div>
+        </section>
+
+        <!-- 5. قائمة الذكاء والإعدادات -->
+        <section id="sec-ai" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2.5">
+                <h2 class="text-sm font-black text-indigo-400"><i class="fa-solid fa-brain ml-1"></i> الذكاء الاصطناعي والإعدادات</h2>
+                <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
+                    <span>الرد التلقائي الذكي عند استلام رسالة</span>
+                    <input type="checkbox" id="smart-autoreply-toggle" class="w-4 h-4 accent-indigo-600">
+                </div>
+                <div id="ai-assistant-box" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
+                    <div class="text-slate-400">اسأل مساعد سند عن الصياغة، الترتيب، أو إعدادات الاتصال...</div>
                 </div>
                 <div class="flex gap-2">
-                    <input type="text" id="ai-prompt" onkeypress="if(event.key==='Enter') askAI()" placeholder="اكتب سؤالك..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
-                    <button onclick="askAI()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold">إرسال</button>
+                    <input type="text" id="ai-query-input" onkeypress="if(event.key==='Enter') runAssistant()" placeholder="اكتب سؤالك..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <button onclick="runAssistant()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold">إرسال</button>
                 </div>
             </div>
-        </div>
+        </section>
 
     </main>
 
-    <!-- شريط التنقل السفلي -->
-    <nav class="bg-slate-900 border-t border-slate-800 px-2 py-2 flex justify-around items-center z-20">
-        <button onclick="switchTab('chats')" id="nav-chats" class="flex flex-col items-center gap-1 text-blue-400 font-bold text-[10px] px-2 py-1">
+    <!-- شريط القوائم السفلي -->
+    <nav class="bg-slate-900 border-t border-slate-800 px-1 py-2 flex justify-around items-center z-20">
+        <button onclick="openSection('chats')" id="tabbtn-chats" class="flex flex-col items-center gap-1 text-blue-400 font-bold text-[10px] px-2 py-1">
             <i class="fa-solid fa-comments text-base"></i>
             <span>الدردشة</span>
         </button>
-        <button onclick="switchTab('contacts')" id="nav-contacts" class="flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-2 py-1">
-            <i class="fa-solid fa-address-book text-base"></i>
-            <span>الجهات</span>
-        </button>
-        <button onclick="switchTab('accounts')" id="nav-accounts" class="flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-2 py-1">
+        <button onclick="openSection('accounts')" id="tabbtn-accounts" class="flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-2 py-1">
             <i class="fa-solid fa-id-card text-base"></i>
             <span>الحسابات</span>
         </button>
-        <button onclick="switchTab('ai')" id="nav-ai" class="flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-2 py-1">
+        <button onclick="openSection('contacts')" id="tabbtn-contacts" class="flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-2 py-1">
+            <i class="fa-solid fa-address-book text-base"></i>
+            <span>الجهات</span>
+        </button>
+        <button onclick="openSection('calls')" id="tabbtn-calls" class="flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-2 py-1">
+            <i class="fa-solid fa-phone-volume text-base"></i>
+            <span>المكالمات</span>
+        </button>
+        <button onclick="openSection('ai')" id="tabbtn-ai" class="flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-2 py-1">
             <i class="fa-solid fa-brain text-base"></i>
             <span>الذكاء والإعدادات</span>
         </button>
     </nav>
 
     <script>
-        let myId = localStorage.getItem('sanad_v2_id') || '36246004';
-        let myAccounts = JSON.parse(localStorage.getItem('sanad_v2_accs') || '["36246004"]');
-        let contacts = JSON.parse(localStorage.getItem('sanad_v2_contacts') || '[{"name":"خدمة العملاء","id":"88888888"}]');
-        let activePeer = '88888888';
-        let onlineUsers = new Set();
-        let messagesMap = JSON.parse(localStorage.getItem('sanad_v2_msgs') || '{"88888888":[{"from":"them","type":"text","text":"أهلاً بك في السند. ستظهر هنا حالة زميلك (متصل الآن أو غير متصل) فور فتحه للتطبيق."}]}');
+        let activeAccount = localStorage.getItem('sanad3_active_id') || '88888888';
+        let savedAccounts = JSON.parse(localStorage.getItem('sanad3_accounts') || '["88888888"]');
+        let savedContacts = JSON.parse(localStorage.getItem('sanad3_contacts') || '[{"name":"خدمة العملاء","id":"88888888"}]');
+        let currentPeer = '88888888';
+        let onlineSet = new Set();
+        let threads = JSON.parse(localStorage.getItem('sanad3_threads') || '{"88888888":[{"id":"welcome-1","from":"them","kind":"text","text":"أهلاً بك في سند. أضف معرّفك أو رقمك واحفظ زملاءك لتظهر حالتهم (متصل الآن / غير متصل) مباشرة."}]}');
 
-        // WebSocket للاتصال اللحظي الحقيقي بين الأجهزة
-        let ws;
-        function connectWS() {
-            const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            ws = new WebSocket(proto + '//' + location.host);
+        let socket;
+        function initSocket() {
+            const scheme = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            socket = new WebSocket(scheme + '//' + location.host);
 
-            ws.onopen = () => {
-                document.getElementById('ws-status-dot').className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
-                document.getElementById('ws-status-text').innerText = 'متصل بالخادم';
-                ws.send(JSON.stringify({ type: 'register', userId: myId }));
+            socket.onopen = () => {
+                document.getElementById('conn-dot').className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+                document.getElementById('conn-text').innerText = 'متصل';
+                socket.send(JSON.stringify({ type: 'presence_register', ids: savedAccounts, primaryId: activeAccount }));
             };
 
-            ws.onclose = () => {
-                document.getElementById('ws-status-dot').className = 'w-2 h-2 rounded-full bg-red-500';
-                document.getElementById('ws-status-text').innerText = 'إعادة ربط...';
-                setTimeout(connectWS, 2500);
+            socket.onclose = () => {
+                document.getElementById('conn-dot').className = 'w-2 h-2 rounded-full bg-red-500';
+                document.getElementById('conn-text').innerText = 'إعادة ربط...';
+                setTimeout(initSocket, 2000);
             };
 
-            ws.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                if (data.type === 'presence') {
-                    onlineUsers = new Set(data.onlineIds || []);
-                    renderPresence();
-                } else if (data.type === 'chat_message') {
-                    const sender = data.from;
-                    if (!messagesMap[sender]) messagesMap[sender] = [];
-                    messagesMap[sender].push({
-                        id: data.msgId || ('m-' + Date.now()),
+            socket.onmessage = (ev) => {
+                let payload;
+                try { payload = JSON.parse(ev.data); } catch { return; }
+
+                if (payload.type === 'presence_list') {
+                    onlineSet = new Set(payload.online || []);
+                    refreshPresenceUI();
+                } else if (payload.type === 'direct_msg') {
+                    const sender = String(payload.from);
+                    if (!threads[sender]) threads[sender] = [];
+                    threads[sender].push({
+                        id: payload.msgId || ('m-' + Date.now()),
                         from: 'them',
-                        msgType: data.msgType || 'text',
-                        text: data.text || '',
-                        audioData: data.audioData || null
+                        kind: payload.kind || 'text',
+                        text: payload.text || '',
+                        audioSrc: payload.audioSrc || null
                     });
-                    persist();
-                    if (document.getElementById('auto-ai-reply')?.checked && data.msgType === 'text') {
-                        const reply = 'رسالة تلقائية ذكية من السند: تم استلام رسالتك وسيتم الرد عليك قريباً.';
-                        sendPayloadToPeer(sender, 'text', reply, null);
+                    syncStorageAndRender();
+                    if (document.getElementById('smart-autoreply-toggle')?.checked && payload.kind === 'text') {
+                        dispatchMessage(sender, 'text', 'رد تلقائي من سند: تم استلام رسالتك وسيتم الرد عليك قريباً.', null);
                     }
-                } else if (data.type === 'delete_msg') {
-                    const list = messagesMap[data.from] || [];
-                    messagesMap[data.from] = list.map(m => m.id === data.msgId ? { ...m, deleted: true } : m);
-                    persist();
-                } else if (data.type === 'call_signal') {
-                    handleCallSignal(data);
+                } else if (payload.type === 'delete_direct_msg') {
+                    const sender = String(payload.from);
+                    if (threads[sender]) {
+                        threads[sender] = threads[sender].map(m => m.id === payload.msgId ? { ...m, deleted: true } : m);
+                        syncStorageAndRender();
+                    }
+                } else if (payload.type === 'webrtc_signal') {
+                    onSignalReceived(payload);
                 }
             };
         }
 
-        // WebRTC للمكالمات الصوتية والمرئية المباشرة
-        let pc;
-        let localStream;
-        let incomingCallData = null;
-        let currentCallPeer = null;
-        const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+        // WebRTC للمكالمات الصوتية والمرئية
+        let peerConn;
+        let mediaStream;
+        let pendingOffer = null;
+        let activeCallPeer = null;
+        const rtcServers = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
-        async function startMediaCall(mediaType) {
-            currentCallPeer = activePeer;
-            document.getElementById('call-modal').classList.remove('hidden');
-            document.getElementById('call-peer-title').innerText = currentCallPeer + ' (' + (mediaType === 'video' ? 'فيديو' : 'صوت') + ')';
-            document.getElementById('call-state-label').innerText = 'جاري الرنين على الطرف الآخر...';
-            document.getElementById('btn-accept-call').classList.add('hidden');
-            setupMediaUI(mediaType);
+        async function initiateCall(mode, targetOverride) {
+            const target = (targetOverride || currentPeer || '').trim();
+            if (!target) return alert('حدد رقم أو معرّف الطرف الآخر أولاً.');
+            activeCallPeer = target;
+            document.getElementById('call-overlay').classList.remove('hidden');
+            document.getElementById('call-target-display').innerText = target + ' (' + (mode === 'video' ? 'فيديو' : 'صوت') + ')';
+            document.getElementById('call-status-label').innerText = 'جاري الاتصال...';
+            document.getElementById('accept-call-btn').classList.add('hidden');
+            configureCallView(mode);
 
             try {
-                localStream = await navigator.mediaDevices.getUserMedia({
+                mediaStream = await navigator.mediaDevices.getUserMedia({
                     audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
-                    video: mediaType === 'video'
+                    video: mode === 'video'
                 });
-                if (mediaType === 'video') document.getElementById('local-video').srcObject = localStream;
-                createPeerConnection(mediaType);
-                localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
-                const offer = await pc.createOffer();
-                await pc.setLocalDescription(offer);
-                ws.send(JSON.stringify({ type: 'call_signal', to: currentCallPeer, from: myId, signal: { kind: 'offer', mediaType, sdp: offer } }));
-            } catch (e) {
-                document.getElementById('call-state-label').innerText = 'يرجى السماح بصلاحية الميكروفون/الكاميرا لإتمام الاتصال';
+                if (mode === 'video') document.getElementById('local-stream-video').srcObject = mediaStream;
+                buildPeerConnection(mode);
+                mediaStream.getTracks().forEach(track => peerConn.addTrack(track, mediaStream));
+                const offer = await peerConn.createOffer();
+                await peerConn.setLocalDescription(offer);
+                socket.send(JSON.stringify({ type: 'webrtc_signal', to: activeCallPeer, from: activeAccount, signal: { step: 'offer', mode, sdp: offer } }));
+            } catch {
+                document.getElementById('call-status-label').innerText = 'يرجى السماح بصلاحية الميكروفون أو الكاميرا';
             }
         }
 
-        async function handleCallSignal(data) {
-            const sig = data.signal;
-            if (sig.kind === 'offer') {
-                incomingCallData = data;
-                currentCallPeer = data.from;
-                document.getElementById('call-modal').classList.remove('hidden');
-                document.getElementById('call-peer-title').innerText = data.from + ' (' + (sig.mediaType === 'video' ? 'فيديو' : 'صوت') + ')';
-                document.getElementById('call-state-label').innerText = 'مكالمة واردة الآن...';
-                document.getElementById('btn-accept-call').classList.remove('hidden');
-                setupMediaUI(sig.mediaType);
-            } else if (sig.kind === 'answer' && pc) {
-                await pc.setRemoteDescription(new RTCSessionDescription(sig.sdp));
-                document.getElementById('call-state-label').innerText = 'متصل الآن بصوت واضح';
-            } else if (sig.kind === 'candidate' && pc && sig.candidate) {
-                await pc.addIceCandidate(new RTCIceCandidate(sig.candidate)).catch(() => {});
-            } else if (sig.kind === 'hangup') {
-                closeCallUI();
+        async function onSignalReceived(payload) {
+            const sig = payload.signal;
+            if (!sig) return;
+            if (sig.step === 'offer') {
+                pendingOffer = payload;
+                activeCallPeer = payload.from;
+                document.getElementById('call-overlay').classList.remove('hidden');
+                document.getElementById('call-target-display').innerText = payload.from + ' (' + (sig.mode === 'video' ? 'فيديو' : 'صوت') + ')';
+                document.getElementById('call-status-label').innerText = 'مكالمة واردة...';
+                document.getElementById('accept-call-btn').classList.remove('hidden');
+                configureCallView(sig.mode);
+            } else if (sig.step === 'answer' && peerConn) {
+                await peerConn.setRemoteDescription(new RTCSessionDescription(sig.sdp));
+                document.getElementById('call-status-label').innerText = 'متصل الآن';
+            } else if (sig.step === 'ice' && peerConn && sig.candidate) {
+                await peerConn.addIceCandidate(new RTCIceCandidate(sig.candidate)).catch(() => {});
+            } else if (sig.step === 'end') {
+                cleanupCallView();
             }
         }
 
-        async function acceptIncomingCall() {
-            if (!incomingCallData) return;
-            document.getElementById('btn-accept-call').classList.add('hidden');
-            document.getElementById('call-state-label').innerText = 'جاري فتح الاتصال...';
-            const mediaType = incomingCallData.signal.mediaType;
-            localStream = await navigator.mediaDevices.getUserMedia({
+        async function answerIncomingCall() {
+            if (!pendingOffer) return;
+            document.getElementById('accept-call-btn').classList.add('hidden');
+            document.getElementById('call-status-label').innerText = 'جاري الفتح...';
+            const mode = pendingOffer.signal.mode;
+            mediaStream = await navigator.mediaDevices.getUserMedia({
                 audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
-                video: mediaType === 'video'
+                video: mode === 'video'
             });
-            if (mediaType === 'video') document.getElementById('local-video').srcObject = localStream;
-            createPeerConnection(mediaType);
-            localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
-            await pc.setRemoteDescription(new RTCSessionDescription(incomingCallData.signal.sdp));
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-            ws.send(JSON.stringify({ type: 'call_signal', to: incomingCallData.from, from: myId, signal: { kind: 'answer', sdp: answer } }));
-            document.getElementById('call-state-label').innerText = 'متصل الآن';
+            if (mode === 'video') document.getElementById('local-stream-video').srcObject = mediaStream;
+            buildPeerConnection(mode);
+            mediaStream.getTracks().forEach(track => peerConn.addTrack(track, mediaStream));
+            await peerConn.setRemoteDescription(new RTCSessionDescription(pendingOffer.signal.sdp));
+            const answer = await peerConn.createAnswer();
+            await peerConn.setLocalDescription(answer);
+            socket.send(JSON.stringify({ type: 'webrtc_signal', to: pendingOffer.from, from: activeAccount, signal: { step: 'answer', sdp: answer } }));
+            document.getElementById('call-status-label').innerText = 'متصل الآن';
         }
 
-        function createPeerConnection(mediaType) {
-            pc = new RTCPeerConnection(rtcConfig);
-            pc.onicecandidate = (e) => {
-                if (e.candidate && currentCallPeer) {
-                    ws.send(JSON.stringify({ type: 'call_signal', to: currentCallPeer, from: myId, signal: { kind: 'candidate', candidate: e.candidate } }));
+        function buildPeerConnection(mode) {
+            peerConn = new RTCPeerConnection(rtcServers);
+            peerConn.onicecandidate = (e) => {
+                if (e.candidate && activeCallPeer && socket && socket.readyState === 1) {
+                    socket.send(JSON.stringify({ type: 'webrtc_signal', to: activeCallPeer, from: activeAccount, signal: { step: 'ice', candidate: e.candidate } }));
                 }
             };
-            pc.ontrack = (e) => {
-                if (mediaType === 'video') {
-                    const rv = document.getElementById('remote-video');
+            peerConn.ontrack = (e) => {
+                if (mode === 'video') {
+                    const rv = document.getElementById('remote-stream-video');
                     rv.srcObject = e.streams[0];
                     rv.classList.remove('hidden');
                 } else {
-                    const aud = new Audio();
-                    aud.srcObject = e.streams[0];
-                    aud.play().catch(() => {});
+                    const audioEl = new Audio();
+                    audioEl.srcObject = e.streams[0];
+                    audioEl.play().catch(() => {});
                 }
             };
         }
 
-        function setupMediaUI(mediaType) {
-            const lv = document.getElementById('local-video');
-            const rv = document.getElementById('remote-video');
-            const av = document.getElementById('audio-call-avatar');
-            if (mediaType === 'video') {
+        function configureCallView(mode) {
+            const lv = document.getElementById('local-stream-video');
+            const rv = document.getElementById('remote-stream-video');
+            const ab = document.getElementById('call-audio-badge');
+            if (mode === 'video') {
                 lv.classList.remove('hidden');
-                av.classList.add('hidden');
+                ab.classList.add('hidden');
             } else {
                 lv.classList.add('hidden');
                 rv.classList.add('hidden');
-                av.classList.remove('hidden');
+                ab.classList.remove('hidden');
             }
         }
 
-        function toggleMuteMic() {
-            if (!localStream) return;
-            const track = localStream.getAudioTracks()[0];
-            if (!track) return;
-            track.enabled = !track.enabled;
-            document.getElementById('btn-mute').className = track.enabled
+        function toggleMicMute() {
+            if (!mediaStream) return;
+            const audioTrack = mediaStream.getAudioTracks()[0];
+            if (!audioTrack) return;
+            audioTrack.enabled = !audioTrack.enabled;
+            document.getElementById('mute-mic-btn').className = audioTrack.enabled
                 ? 'w-12 h-12 rounded-2xl bg-slate-800 text-white flex items-center justify-center'
                 : 'w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center';
         }
 
-        function endCall() {
-            if (currentCallPeer && ws && ws.readyState === 1) {
-                ws.send(JSON.stringify({ type: 'call_signal', to: currentCallPeer, from: myId, signal: { kind: 'hangup' } }));
+        function terminateCall() {
+            if (activeCallPeer && socket && socket.readyState === 1) {
+                socket.send(JSON.stringify({ type: 'webrtc_signal', to: activeCallPeer, from: activeAccount, signal: { step: 'end' } }));
             }
-            closeCallUI();
+            cleanupCallView();
         }
 
-        function closeCallUI() {
-            if (pc) { pc.close(); pc = null; }
-            if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
-            document.getElementById('call-modal').classList.add('hidden');
-            document.getElementById('remote-video').classList.add('hidden');
-            document.getElementById('local-video').classList.add('hidden');
-            incomingCallData = null;
-            currentCallPeer = null;
+        function cleanupCallView() {
+            if (peerConn) { peerConn.close(); peerConn = null; }
+            if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
+            document.getElementById('call-overlay').classList.add('hidden');
+            document.getElementById('remote-stream-video').classList.add('hidden');
+            document.getElementById('local-stream-video').classList.add('hidden');
+            pendingOffer = null;
+            activeCallPeer = null;
         }
 
-        // تسجيل وإرسال الأصوات عبر الميكروفون
-        let mediaRecorder;
-        let audioChunks = [];
-        let isRecording = false;
+        // تسجيل وإرسال الرسائل الصوتية
+        let recorder;
+        let recordedChunks = [];
+        let recordingNow = false;
 
-        async function toggleAudioRecording() {
-            const btn = document.getElementById('btn-record');
-            if (!isRecording) {
+        async function toggleVoiceNote() {
+            const btn = document.getElementById('voice-record-btn');
+            if (!recordingNow) {
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({
                         audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
                     });
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
-                    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
-                    mediaRecorder.onstop = () => {
-                        const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                    recorder = new MediaRecorder(stream);
+                    recordedChunks = [];
+                    recorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+                    recorder.onstop = () => {
+                        const blob = new Blob(recordedChunks, { type: 'audio/webm' });
                         const reader = new FileReader();
                         reader.onloadend = () => {
-                            sendPayloadToPeer(activePeer, 'audio', 'رسالة صوتية', reader.result);
+                            dispatchMessage(currentPeer, 'audio', 'رسالة صوتية', reader.result);
                         };
                         reader.readAsDataURL(blob);
                         stream.getTracks().forEach(t => t.stop());
                     };
-                    mediaRecorder.start();
-                    isRecording = true;
+                    recorder.start();
+                    recordingNow = true;
                     btn.className = 'bg-red-600 text-white p-2.5 rounded-xl animate-pulse';
-                } catch (e) {
-                    alert('يرجى السماح بالوصول إلى الميكروفون لإرسال الصوت.');
+                } catch {
+                    alert('يرجى السماح بالوصول إلى الميكروفون.');
                 }
             } else {
-                mediaRecorder.stop();
-                isRecording = false;
+                recorder.stop();
+                recordingNow = false;
                 btn.className = 'bg-slate-800 hover:bg-emerald-600 text-emerald-400 hover:text-white p-2.5 rounded-xl transition';
             }
         }
 
-        function sendPayloadToPeer(to, msgType, text, audioData) {
+        function dispatchMessage(to, kind, text, audioSrc) {
+            const cleanTo = String(to).trim();
+            if (!cleanTo) return;
             const msgId = 'm-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
-            if (!messagesMap[to]) messagesMap[to] = [];
-            messagesMap[to].push({ id: msgId, from: 'me', msgType, text, audioData });
-            persist();
-            if (ws && ws.readyState === 1) {
-                ws.send(JSON.stringify({ type: 'chat_message', to, from: myId, msgId, msgType, text, audioData }));
+            if (!threads[cleanTo]) threads[cleanTo] = [];
+            threads[cleanTo].push({ id: msgId, from: 'me', kind, text, audioSrc });
+            syncStorageAndRender();
+            if (socket && socket.readyState === 1) {
+                socket.send(JSON.stringify({ type: 'direct_msg', to: cleanTo, from: activeAccount, msgId, kind, text, audioSrc }));
             }
         }
 
-        function sendTextMessage() {
-            const input = document.getElementById('msg-text');
-            const text = input.value.trim();
-            if (!text) return;
-            sendPayloadToPeer(activePeer, 'text', text, null);
-            input.value = '';
+        function sendChatText() {
+            const inp = document.getElementById('composer-input');
+            const val = inp.value.trim();
+            if (!val) return;
+            dispatchMessage(currentPeer, 'text', val, null);
+            inp.value = '';
         }
 
-        function deleteMessageForBoth(msgId) {
-            messagesMap[activePeer] = (messagesMap[activePeer] || []).map(m => m.id === msgId ? { ...m, deleted: true } : m);
-            persist();
-            if (ws && ws.readyState === 1) {
-                ws.send(JSON.stringify({ type: 'delete_msg', to: activePeer, from: myId, msgId }));
+        function deleteChatMsg(msgId) {
+            if (!threads[currentPeer]) return;
+            threads[currentPeer] = threads[currentPeer].map(m => m.id === msgId ? { ...m, deleted: true } : m);
+            syncStorageAndRender();
+            if (socket && socket.readyState === 1) {
+                socket.send(JSON.stringify({ type: 'delete_direct_msg', to: currentPeer, from: activeAccount, msgId }));
             }
         }
 
-        function aiPolishMessage() {
-            const input = document.getElementById('msg-text');
-            const raw = input.value.trim();
-            if (!raw) return alert('اكتب نصاً أولاً ليقوم الذكاء الاصطناعي بتحسين صياغته.');
-            input.value = 'تحية طيبة، ' + raw + ' (مرسلة عبر السند)';
+        function clearActiveMessages() {
+            threads[currentPeer] = [];
+            syncStorageAndRender();
         }
 
-        function askAI() {
-            const inp = document.getElementById('ai-prompt');
+        function improveDraftWithAI() {
+            const inp = document.getElementById('composer-input');
+            const txt = inp.value.trim();
+            if (!txt) return alert('اكتب نصاً أولاً لتحسينه.');
+            inp.value = txt + ' — تم الإرسال عبر سند';
+        }
+
+        function runAssistant() {
+            const inp = document.getElementById('ai-query-input');
             const q = inp.value.trim();
             if (!q) return;
-            const area = document.getElementById('ai-chat-area');
-            area.innerHTML += '<div class="bg-blue-950/50 p-2 rounded-lg text-blue-200"><strong>أنت:</strong> ' + q + '</div>';
-            area.innerHTML += '<div class="bg-slate-900 p-2 rounded-lg text-slate-200"><strong>مساعد السند:</strong> تم تفعيل تحسين وضوح الصوت، الربط اللحظي، وحالة المتصلين. للوصول لأعلى كفاءة، افتح الرابط على جهازك وجهاز زميلك معاً.</div>';
+            const box = document.getElementById('ai-assistant-box');
+            box.innerHTML += '<div class="bg-blue-950/50 p-2 rounded-lg text-blue-200"><strong>أنت:</strong> ' + q + '</div>';
+            box.innerHTML += '<div class="bg-slate-900 p-2 rounded-lg text-slate-200"><strong>سند:</strong> تم استلام طلبك. لتظهر حالة "متصل الآن" لدى زميلك، افتح الرابط على كلا الجهازين وسجّل معرّف كل طرف في الآخر.</div>';
             inp.value = '';
-            area.scrollTop = area.scrollHeight;
+            box.scrollTop = box.scrollHeight;
         }
 
-        function switchTab(tab) {
-            ['chats', 'contacts', 'accounts', 'ai'].forEach(t => {
-                document.getElementById('tab-' + t).classList.add('hidden');
-                const n = document.getElementById('nav-' + t);
-                if (n) n.className = "flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-2 py-1";
+        function openSection(sec) {
+            ['chats', 'accounts', 'contacts', 'calls', 'ai'].forEach(s => {
+                document.getElementById('sec-' + s).classList.add('hidden');
+                const btn = document.getElementById('tabbtn-' + s);
+                if (btn) btn.className = 'flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-2 py-1';
             });
-            document.getElementById('tab-' + tab).classList.remove('hidden');
-            const active = document.getElementById('nav-' + tab);
-            if (active) active.className = "flex flex-col items-center gap-1 text-blue-400 font-bold text-[10px] px-2 py-1";
+            document.getElementById('sec-' + sec).classList.remove('hidden');
+            const activeBtn = document.getElementById('tabbtn-' + sec);
+            if (activeBtn) activeBtn.className = 'flex flex-col items-center gap-1 text-blue-400 font-bold text-[10px] px-2 py-1';
         }
 
-        function setActivePeer(id) {
-            if (!id) return;
-            activePeer = id.trim();
-            if (!messagesMap[activePeer]) messagesMap[activePeer] = [];
-            switchTab('chats');
-            persist();
+        function selectPeer(peerId) {
+            const clean = String(peerId || '').trim();
+            if (!clean) return;
+            currentPeer = clean;
+            if (!threads[currentPeer]) threads[currentPeer] = [];
+            openSection('chats');
+            syncStorageAndRender();
         }
 
-        function openPeerFromInput() {
-            const val = document.getElementById('peer-input').value.trim();
-            if (!val) return alert('أدخل معرّف الزميل أو رقمه.');
-            document.getElementById('peer-input').value = '';
-            setActivePeer(val);
+        function openPeerChat() {
+            const inp = document.getElementById('chat-peer-input');
+            const val = inp.value.trim();
+            if (!val) return alert('أدخل معرّف 8 أرقام أو رقم الجوال.');
+            inp.value = '';
+            selectPeer(val);
         }
 
-        function saveActivePeer() {
-            if (contacts.some(c => c.id === activePeer)) return alert('محفوظ مسبقاً.');
-            const name = prompt('اسم الزميل للمعرّف ' + activePeer + ':') || ('زميل ' + activePeer);
-            contacts.push({ name, id: activePeer });
-            persist();
+        function quickSavePeer() {
+            if (!currentPeer) return;
+            if (savedContacts.some(c => c.id === currentPeer)) return alert('الجهة محفوظة مسبقاً.');
+            const name = prompt('اسم جهة الاتصال للرقم ' + currentPeer + ':') || ('جهة ' + currentPeer);
+            savedContacts.push({ name, id: currentPeer });
+            syncStorageAndRender();
         }
 
-        function addContactBtn() {
-            const name = document.getElementById('new-c-name').value.trim();
-            const id = document.getElementById('new-c-id').value.trim();
+        function saveContactRow() {
+            const name = document.getElementById('c-name-input').value.trim();
+            const id = document.getElementById('c-id-input').value.trim();
             if (!name || !id) return alert('أدخل الاسم والمعرّف أو الرقم.');
-            contacts.push({ name, id });
-            document.getElementById('new-c-name').value = '';
-            document.getElementById('new-c-id').value = '';
-            setActivePeer(id);
+            savedContacts.push({ name, id });
+            document.getElementById('c-name-input').value = '';
+            document.getElementById('c-id-input').value = '';
+            selectPeer(id);
         }
 
-        function deleteContact(idx) {
-            contacts.splice(idx, 1);
-            persist();
+        function removeContactRow(idx) {
+            savedContacts.splice(idx, 1);
+            syncStorageAndRender();
         }
 
-        function clearChat() {
-            messagesMap[activePeer] = [];
-            persist();
-        }
-
-        function shareInvite() {
-            const txt = 'تواصل معي على السند عبر المعرّف: ' + myId + ' على الرابط: ' + location.origin;
+        function invitePeer() {
+            const msg = 'تواصل معي على سند عبر المعرّف: ' + activeAccount + ' على الرابط: ' + location.origin;
             if (navigator.share) {
-                navigator.share({ title: 'السند', text: txt, url: location.origin }).catch(() => {});
+                navigator.share({ title: 'سند', text: msg, url: location.origin }).catch(() => {});
             } else if (navigator.clipboard) {
-                navigator.clipboard.writeText(txt);
-                alert('تم نسخ الدعوة: ' + txt);
+                navigator.clipboard.writeText(msg);
+                alert('تم نسخ رابط الدعوة: ' + msg);
             } else {
-                alert(txt);
+                alert(msg);
             }
         }
 
-        function generateNew8Id() {
-            const id8 = Math.floor(10000000 + Math.random() * 90000000).toString();
-            myAccounts.push(id8);
-            switchAccount(id8);
+        function create8DigitAccount() {
+            // 8 أرقام متصلة بدون فواصل
+            const code8 = Math.floor(10000000 + Math.random() * 90000000).toString();
+            if (!savedAccounts.includes(code8)) savedAccounts.push(code8);
+            switchAccount(code8);
         }
 
-        function addPhoneAcc() {
-            const ph = prompt('أدخل رقم الجوال:');
+        function addMobileAccount() {
+            const ph = prompt('أدخل رقم الجوال (مثال: +967772302010):');
             if (!ph || !ph.trim()) return;
-            myAccounts.push(ph.trim());
-            switchAccount(ph.trim());
+            const cleanPh = ph.trim();
+            if (!savedAccounts.includes(cleanPh)) savedAccounts.push(cleanPh);
+            switchAccount(cleanPh);
         }
 
         function switchAccount(id) {
-            myId = id;
-            persist();
-            if (ws && ws.readyState === 1) {
-                ws.send(JSON.stringify({ type: 'register', userId: myId }));
+            activeAccount = String(id).trim();
+            syncStorageAndRender();
+            if (socket && socket.readyState === 1) {
+                socket.send(JSON.stringify({ type: 'presence_register', ids: savedAccounts, primaryId: activeAccount }));
             }
         }
 
-        function renderPresence() {
-            const isOnline = onlineUsers.has(activePeer);
-            const dot = document.getElementById('peer-online-dot');
-            const lbl = document.getElementById('peer-online-label');
+        function refreshPresenceUI() {
+            const isOnline = onlineSet.has(currentPeer);
+            const dot = document.getElementById('peer-presence-dot');
+            const lbl = document.getElementById('peer-presence-text');
             if (isOnline) {
                 dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping';
                 lbl.className = 'text-[11px] font-bold text-emerald-400';
                 lbl.innerText = 'متصل الآن';
             } else {
-                dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-500';
+                dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-600';
                 lbl.className = 'text-[11px] font-bold text-slate-400';
                 lbl.innerText = 'غير متصل';
             }
-            renderContactsAndQuickBar();
-        }
 
-        function renderContactsAndQuickBar() {
-            const qBar = document.getElementById('quick-peers-bar');
-            qBar.innerHTML = contacts.map(c => {
-                const on = onlineUsers.has(c.id);
-                return \`<button onclick="setActivePeer('\${c.id}')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] shrink-0 \${c.id === activePeer ? 'bg-blue-600/30 border-blue-500 text-white font-bold' : 'bg-slate-800/80 border-slate-700 text-slate-300'}">
+            const chips = document.getElementById('saved-quick-chips');
+            chips.innerHTML = savedContacts.map(c => {
+                const on = onlineSet.has(c.id);
+                return \`<button onclick="selectPeer('\${c.id}')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] shrink-0 \${c.id === currentPeer ? 'bg-blue-600/25 border-blue-500 text-white font-bold' : 'bg-slate-800/80 border-slate-700 text-slate-300'}">
                     <span class="w-2 h-2 rounded-full \${on ? 'bg-emerald-400' : 'bg-slate-500'}"></span>
                     <span>\${c.name}</span>
                 </button>\`).join('');
 
-            const cList = document.getElementById('contacts-list');
-            cList.innerHTML = contacts.map((c, idx) => {
-                const on = onlineUsers.has(c.id);
+            const cBox = document.getElementById('contacts-container');
+            cBox.innerHTML = savedContacts.map((c, i) => {
+                const on = onlineSet.has(c.id);
                 return \`<div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center">
                     <div class="flex items-center gap-2.5">
                         <span class="w-2.5 h-2.5 rounded-full \${on ? 'bg-emerald-500' : 'bg-slate-600'}"></span>
@@ -584,63 +625,63 @@ const htmlContent = `<!DOCTYPE html>
                         </div>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="setActivePeer('\${c.id}')" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">مراسلة</button>
-                        <button onclick="deleteContact(\${idx})" class="bg-red-500/10 text-red-400 px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="selectPeer('\${c.id}')" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">مراسلة</button>
+                        <button onclick="removeContactRow(\${i})" class="bg-red-500/10 text-red-400 px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>\`;
             }).join('');
         }
 
-        function renderMessages() {
-            const box = document.getElementById('chat-messages');
-            const list = messagesMap[activePeer] || [];
+        function renderThreadMessages() {
+            const feed = document.getElementById('messages-feed');
+            const list = threads[currentPeer] || [];
             if (!list.length) {
-                box.innerHTML = '<div class="text-center text-xs text-slate-500 py-8">لا توجد رسائل بعد. أرسل رسالة أو تسجيلاً صوتياً أو ابدأ مكالمة.</div>';
+                feed.innerHTML = '<div class="text-center text-xs text-slate-500 py-8">ابدأ المراسلة أو أرسل تسجيلاً صوتياً أو ابدأ مكالمة.</div>';
                 return;
             }
-            box.innerHTML = list.map(m => {
+            feed.innerHTML = list.map(m => {
                 if (m.deleted) {
-                    return '<div class="text-center text-[11px] text-slate-500 italic">🚫 تم حذف الرسالة</div>';
+                    return '<div class="text-center text-[11px] text-slate-500 italic">تم حذف الرسالة</div>';
                 }
-                const isMe = m.from === 'me';
-                const contentHtml = m.msgType === 'audio' && m.audioData
-                    ? \`<audio controls src="\${m.audioData}" class="max-w-full h-9"></audio>\`
+                const mine = m.from === 'me';
+                const bodyHtml = m.kind === 'audio' && m.audioSrc
+                    ? \`<audio controls src="\${m.audioSrc}" class="max-w-full h-9"></audio>\`
                     : \`<p>\${m.text}</p>\`;
-                return \`<div class="flex \${isMe ? 'justify-end' : 'justify-start'}">
-                    <div class="\${isMe ? 'bg-blue-600 text-white rounded-tl-none' : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tr-none'} p-3 rounded-2xl max-w-md text-xs md:text-sm shadow space-y-1">
-                        \${contentHtml}
-                        \${isMe ? \`<div class="flex justify-between items-center gap-3 pt-1 border-t border-blue-400/30 text-[10px] text-blue-100">
-                            <span>تم الإرسال ✓</span>
-                            <button onclick="deleteMessageForBoth('\${m.id}')" class="underline text-red-100">حذف</button>
+                return \`<div class="flex \${mine ? 'justify-end' : 'justify-start'}">
+                    <div class="\${mine ? 'bg-blue-600 text-white rounded-tl-none' : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tr-none'} p-3 rounded-2xl max-w-md text-xs md:text-sm shadow space-y-1">
+                        \${bodyHtml}
+                        \${mine ? \`<div class="flex justify-between items-center gap-3 pt-1 border-t border-blue-400/30 text-[10px] text-blue-100">
+                            <span>مرسلة ✓</span>
+                            <button onclick="deleteChatMsg('\${m.id}')" class="underline text-red-100">حذف</button>
                         </div>\` : ''}
                     </div>
                 </div>\`;
             }).join('');
-            box.scrollTop = box.scrollHeight;
+            feed.scrollTop = feed.scrollHeight;
         }
 
-        function renderAccounts() {
-            const accBox = document.getElementById('accounts-list');
-            accBox.innerHTML = myAccounts.map(a => \`<div onclick="switchAccount('\${a}')" class="bg-slate-950 border \${a === myId ? 'border-blue-500' : 'border-slate-800'} p-3 rounded-xl flex justify-between items-center cursor-pointer">
-                <span class="text-xs font-mono font-bold text-white">\${a}</span>
-                <span class="text-[10px] \${a === myId ? 'text-emerald-400 font-bold' : 'text-slate-400'}">\${a === myId ? 'نشط' : 'تبديل'}</span>
+        function renderAccountsList() {
+            const accBox = document.getElementById('accounts-container');
+            accBox.innerHTML = savedAccounts.map(acc => \`<div onclick="switchAccount('\${acc}')" class="bg-slate-950 border \${acc === activeAccount ? 'border-blue-500' : 'border-slate-800'} p-3 rounded-xl flex justify-between items-center cursor-pointer">
+                <span class="text-xs font-mono font-bold text-white">\${acc}</span>
+                <span class="text-[10px] \${acc === activeAccount ? 'text-emerald-400 font-bold' : 'text-slate-400'}">\${acc === activeAccount ? 'نشط' : 'تبديل'}</span>
             </div>\`).join('');
         }
 
-        function persist() {
-            localStorage.setItem('sanad_v2_id', myId);
-            localStorage.setItem('sanad_v2_accs', JSON.stringify(myAccounts));
-            localStorage.setItem('sanad_v2_contacts', JSON.stringify(contacts));
-            localStorage.setItem('sanad_v2_msgs', JSON.stringify(messagesMap));
-            document.getElementById('my-id-label').innerText = myId;
-            document.getElementById('active-peer-id').innerText = activePeer;
-            renderPresence();
-            renderMessages();
-            renderAccounts();
+        function syncStorageAndRender() {
+            localStorage.setItem('sanad3_active_id', activeAccount);
+            localStorage.setItem('sanad3_accounts', JSON.stringify(savedAccounts));
+            localStorage.setItem('sanad3_contacts', JSON.stringify(savedContacts));
+            localStorage.setItem('sanad3_threads', JSON.stringify(threads));
+            document.getElementById('my-active-id').innerText = activeAccount;
+            document.getElementById('active-peer-title').innerText = currentPeer;
+            refreshPresenceUI();
+            renderThreadMessages();
+            renderAccountsList();
         }
 
-        persist();
-        connectWS();
+        syncStorageAndRender();
+        initSocket();
     </script>
 </body>
 </html>`;
@@ -652,46 +693,50 @@ const server = http.createServer((req, res) => {
 });
 
 const wss = new WebSocketServer({ server });
-const clientsByUserId = new Map();
+const socketsById = new Map();
 
-function broadcastPresence() {
-    const onlineIds = Array.from(clientsByUserId.keys());
-    const payload = JSON.stringify({ type: 'presence', onlineIds });
+function pushPresenceUpdate() {
+    const onlineIds = Array.from(socketsById.keys());
+    const message = JSON.stringify({ type: 'presence_list', online: onlineIds });
     wss.clients.forEach(client => {
-        if (client.readyState === 1) client.send(payload);
+        if (client.readyState === 1) client.send(message);
     });
 }
 
 wss.on('connection', (ws) => {
-    let registeredId = null;
+    let boundIds = [];
 
     ws.on('message', (raw) => {
-        let msg;
-        try { msg = JSON.parse(raw.toString()); } catch { return; }
+        let data;
+        try { data = JSON.parse(raw.toString()); } catch { return; }
 
-        if (msg.type === 'register' && msg.userId) {
-            registeredId = String(msg.userId).trim();
-            clientsByUserId.set(registeredId, ws);
-            broadcastPresence();
+        if (data.type === 'presence_register') {
+            boundIds.forEach(oldId => {
+                if (socketsById.get(oldId) === ws) socketsById.delete(oldId);
+            });
+            const list = Array.isArray(data.ids) ? data.ids : [data.primaryId].filter(Boolean);
+            boundIds = list.map(x => String(x).trim()).filter(Boolean);
+            boundIds.forEach(id => socketsById.set(id, ws));
+            pushPresenceUpdate();
             return;
         }
 
-        if (msg.to) {
-            const targetWs = clientsByUserId.get(String(msg.to).trim());
-            if (targetWs && targetWs.readyState === 1) {
-                targetWs.send(JSON.stringify(msg));
+        if (data.to) {
+            const destWs = socketsById.get(String(data.to).trim());
+            if (destWs && destWs.readyState === 1) {
+                destWs.send(JSON.stringify(data));
             }
         }
     });
 
     ws.on('close', () => {
-        if (registeredId && clientsByUserId.get(registeredId) === ws) {
-            clientsByUserId.delete(registeredId);
-            broadcastPresence();
-        }
+        boundIds.forEach(id => {
+            if (socketsById.get(id) === ws) socketsById.delete(id);
+        });
+        pushPresenceUpdate();
     });
 });
 
 server.listen(PORT, () => {
-    console.log('Al-Sanad real-time server running on port ' + PORT);
+    console.log('Sanad v3.0 running on port ' + PORT);
 });

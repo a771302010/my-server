@@ -32,10 +32,10 @@ const htmlContent = `<!DOCTYPE html>
     <!-- الشريط الإخباري الذكي -->
     <div class="bg-blue-950/90 border-b border-blue-800/60 py-1 px-2 overflow-hidden text-[11px] text-blue-200 z-30 shrink-0">
         <div class="ticker-line gap-8 font-semibold">
-            <span>⚡ سند AI v6.0: الإصدار الشامل المطور — اتصال هجين فوري (WebSocket + HTTP)</span>
+            <span>⚡ سند AI v6.0: دعم تعدد الأرقام والمعرّفات + البحث بالاسم + النسخ التلقائي</span>
             <span>🎙️ إملاء صوتي + تسجيل رسائل صوتية + قراءة ناطقة + مكالمات صوت وفيديو</span>
             <span>🧠 مساعد سند AI: تحسين الصياغة + تلخيص المحادثات + الرد التلقائي الذكي</span>
-            <span>⚡ سند AI v6.0: الإصدار الشامل المطور — اتصال هجين فوري (WebSocket + HTTP)</span>
+            <span>⚡ سند AI v6.0: دعم تعدد الأرقام والمعرّفات + البحث بالاسم + النسخ التلقائي</span>
         </div>
     </div>
 
@@ -111,7 +111,7 @@ const htmlContent = `<!DOCTYPE html>
         <section id="pane-chats" class="flex-1 flex flex-col h-full overflow-hidden">
             <div class="p-2.5 bg-slate-900/80 border-b border-slate-800 space-y-2 shrink-0">
                 <div class="flex gap-2">
-                    <input type="text" id="peer-input" onkeydown="if(event.key==='Enter') openPeerByInput()" placeholder="معرّف الزميل (8 أرقام) أو رقم الجوال..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm text-white font-mono focus:outline-none focus:border-blue-500">
+                    <input type="text" id="peer-input" onkeydown="if(event.key==='Enter') openPeerByInput()" placeholder="اسم جهة اتصال أو معرّف (8 أرقام) أو جوال..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-blue-500">
                     <button onclick="openPeerByInput()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition">فتح</button>
                     <button onclick="saveCurrentPeer()" title="حفظ في الجهات" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-400 px-3 py-2 rounded-xl text-xs font-bold">
                         <i class="fa-solid fa-user-plus"></i>
@@ -159,13 +159,18 @@ const htmlContent = `<!DOCTYPE html>
         <!-- 2. الحسابات -->
         <section id="pane-accounts" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
-                <h2 class="text-sm font-black text-blue-400">إدارة الحسابات والمعرّفات</h2>
+                <h2 class="text-sm font-black text-blue-400">إدارة الحسابات والأرقام المتعددة</h2>
                 <p class="text-[11px] text-slate-400 leading-relaxed">
-                    أنشئ معرّفاً رقمياً من <strong>8 أرقام متصلة</strong> أو فعّل رقم جوالك الدولي للتواصل المباشر من أي جهاز.
+                    أضف أو ولّد <strong>أي عدد من الأرقام أو المعرّفات</strong> (ثالث، رابع، عاشر...) مع نسخ تلقائي لمعرّف الـ 8 أرقام.
                 </p>
                 <div class="flex flex-wrap gap-2">
                     <button onclick="make8DigitId()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ توليد معرّف (8 أرقام)</button>
+                    <button onclick="addCustomNumberAccount()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ إضافة رقم/معرّف مخصص</button>
                     <button onclick="verifyPhoneAccount()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ تفعيل رقم جوال</button>
+                </div>
+                <div id="last-generated-banner" class="hidden bg-emerald-950/50 border border-emerald-700/50 rounded-xl p-2.5 flex items-center justify-between text-xs">
+                    <span id="last-generated-text" class="font-mono font-bold text-emerald-300"></span>
+                    <button onclick="copyStringToClipboard(lastGeneratedCode)" class="bg-emerald-600 text-white px-3 py-1 rounded-lg text-[11px] font-bold">نسخ</button>
                 </div>
                 <div id="accounts-list" class="space-y-2 pt-2"></div>
             </div>
@@ -180,6 +185,10 @@ const htmlContent = `<!DOCTYPE html>
                     <input type="text" id="c-id" placeholder="معرّف 8 أرقام أو رقم الجوال" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
                     <button onclick="addNewContact()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold">حفظ</button>
                 </div>
+            </div>
+            <div class="bg-slate-900/90 border border-slate-800 p-2.5 rounded-xl flex items-center gap-2">
+                <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs pr-1"></i>
+                <input type="text" id="contact-search-input" oninput="renderPresence()" placeholder="ابحث بالاسم أو المعرّف أو الرقم..." class="flex-1 bg-transparent text-xs text-white focus:outline-none">
             </div>
             <div id="contacts-list" class="space-y-2"></div>
         </section>
@@ -221,7 +230,7 @@ const htmlContent = `<!DOCTYPE html>
                     <button onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
                 </div>
                 <div id="ai-log" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">مرحباً بك في سند AI v6.0. اطلب تلخيص محادثة، صياغة رد رسمي، أو مساعدة في ربط الأجهزة.</div>
+                    <div class="text-slate-400">مرحباً بك في سند AI v6.0. يدعم تعدد الأرقام، البحث بالاسم، والنسخ التلقائي.</div>
                 </div>
                 <div class="flex gap-2">
                     <input type="text" id="ai-q" onkeydown="if(event.key==='Enter') askSanadAI()" placeholder="اطلب من سند AI..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
@@ -268,14 +277,32 @@ const htmlContent = `<!DOCTYPE html>
 
         var activeAcct = localStorage.getItem('sanad6_active') || '88888888';
         var myAccts = JSON.parse(localStorage.getItem('sanad6_accts') || '["88888888"]');
+        if (myAccts.indexOf(activeAcct) === -1) myAccts.unshift(activeAcct);
         var contacts = JSON.parse(localStorage.getItem('sanad6_contacts') || '[{"name":"خدمة العملاء","id":"88888888"}]');
         var currentPeer = '88888888';
         var onlinePeers = new Set();
-        var threads = JSON.parse(localStorage.getItem('sanad6_threads') || '{"88888888":[{"id":"init-1","from":"them","kind":"text","text":"أهلاً بك في سند AI v6.0 الشامل. النظام جاهز للمراسلة، الصوت، المرفقات، والمكالمات."}]}');
+        var acctThreads = JSON.parse(localStorage.getItem('sanad6_acct_threads') || '{}');
         var seenEventIds = new Set();
+        var lastGeneratedCode = '';
         var ws;
         var wsConnected = false;
         var httpConnected = false;
+
+        function copyStringToClipboard(txt) {
+            if (!txt) return;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(txt).catch(function() {});
+            }
+        }
+
+        function getThreadMap() {
+            if (!acctThreads[activeAcct]) {
+                acctThreads[activeAcct] = {
+                    '88888888': [{ id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'أهلاً بك في سند AI v6.0. الحساب النشط: ' + activeAcct }]
+                };
+            }
+            return acctThreads[activeAcct];
+        }
 
         function refreshConnectionHeader() {
             var isLive = wsConnected || httpConnected;
@@ -319,10 +346,12 @@ const htmlContent = `<!DOCTYPE html>
                 onlinePeers = new Set(msg.ids);
                 renderPresence();
             } else if (msg.type === 'msg') {
+                var recipient = String(msg.to || activeAcct);
                 var sender = String(msg.from || '');
                 if (!sender) return;
-                if (!threads[sender]) threads[sender] = [];
-                threads[sender].push({
+                if (!acctThreads[recipient]) acctThreads[recipient] = {};
+                if (!acctThreads[recipient][sender]) acctThreads[recipient][sender] = [];
+                acctThreads[recipient][sender].push({
                     id: msg.msgId || ('m-' + Date.now()),
                     from: 'them',
                     kind: msg.kind || 'text',
@@ -333,13 +362,14 @@ const htmlContent = `<!DOCTYPE html>
                 playSoftChime();
                 persistAndDraw();
                 var autoChk = document.getElementById('chk-autoreply');
-                if (autoChk && autoChk.checked && msg.kind === 'text' && sender !== activeAcct) {
-                    emitPacket(sender, 'text', 'رد تلقائي من سند AI: تم استلام رسالتك وسيتم الرد عليك قريباً.', null, '');
+                if (autoChk && autoChk.checked && msg.kind === 'text' && sender !== recipient) {
+                    emitPacket(sender, 'text', 'رد تلقائي من سند AI: تم استلام رسالتك وسيتم الرد عليك قريباً.', null, '', null, recipient);
                 }
             } else if (msg.type === 'msg_del') {
+                var recipientDel = String(msg.to || activeAcct);
                 var delSender = String(msg.from || '');
-                if (threads[delSender]) {
-                    threads[delSender] = threads[delSender].map(function(m) {
+                if (acctThreads[recipientDel] && acctThreads[recipientDel][delSender]) {
+                    acctThreads[recipientDel][delSender] = acctThreads[recipientDel][delSender].map(function(m) {
                         return m.id === msg.msgId ? Object.assign({}, m, { deleted: true }) : m;
                     });
                     persistAndDraw();
@@ -681,25 +711,27 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         // إرسال وإدارة الرسائل
-        function emitPacket(to, kind, text, mediaUrl, fileName, existingMsgId) {
+        function emitPacket(to, kind, text, mediaUrl, fileName, existingMsgId, forcedSender) {
             var cleanTo = String(to || '').trim();
             if (!cleanTo) return;
+            var senderId = forcedSender || activeAcct;
             var liveDelivered = onlinePeers.has(cleanTo);
             var msgId = existingMsgId || ('m-' + Date.now() + '-' + Math.floor(Math.random() * 1000));
-            if (!threads[cleanTo]) threads[cleanTo] = [];
+            if (!acctThreads[senderId]) acctThreads[senderId] = {};
+            if (!acctThreads[senderId][cleanTo]) acctThreads[senderId][cleanTo] = [];
             if (!existingMsgId) {
-                threads[cleanTo].push({ id: msgId, from: 'me', kind: kind, text: text, mediaUrl: mediaUrl, fileName: fileName, delivered: liveDelivered });
+                acctThreads[senderId][cleanTo].push({ id: msgId, from: 'me', kind: kind, text: text, mediaUrl: mediaUrl, fileName: fileName, delivered: liveDelivered });
             } else {
-                threads[cleanTo] = threads[cleanTo].map(function(m) {
+                acctThreads[senderId][cleanTo] = acctThreads[senderId][cleanTo].map(function(m) {
                     return m.id === existingMsgId ? Object.assign({}, m, { delivered: liveDelivered }) : m;
                 });
             }
             persistAndDraw();
-            sendSignalingOrMsg({ type: 'msg', to: cleanTo, from: activeAcct, msgId: msgId, kind: kind, text: text, mediaUrl: mediaUrl, fileName: fileName });
+            sendSignalingOrMsg({ type: 'msg', to: cleanTo, from: senderId, msgId: msgId, kind: kind, text: text, mediaUrl: mediaUrl, fileName: fileName });
         }
 
         function retryMessage(msgId) {
-            var list = threads[currentPeer] || [];
+            var list = getThreadMap()[currentPeer] || [];
             var item = list.find(function(m) { return m.id === msgId; });
             if (!item) return;
             emitPacket(currentPeer, item.kind, item.text, item.mediaUrl, item.fileName, item.id);
@@ -714,8 +746,9 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function deleteChatItem(msgId) {
-            if (!threads[currentPeer]) return;
-            threads[currentPeer] = threads[currentPeer].map(function(m) {
+            var map = getThreadMap();
+            if (!map[currentPeer]) return;
+            map[currentPeer] = map[currentPeer].map(function(m) {
                 return m.id === msgId ? Object.assign({}, m, { deleted: true }) : m;
             });
             persistAndDraw();
@@ -723,7 +756,7 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function clearThreadMsgs() {
-            threads[currentPeer] = [];
+            getThreadMap()[currentPeer] = [];
             persistAndDraw();
         }
 
@@ -739,7 +772,7 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function summarizeCurrentThread() {
-            var list = (threads[currentPeer] || []).filter(function(m) { return !m.deleted && m.kind === 'text'; });
+            var list = (getThreadMap()[currentPeer] || []).filter(function(m) { return !m.deleted && m.kind === 'text'; });
             if (!list.length) return alert('لا توجد رسائل نصية كافية لتلخيصها.');
             var lastFew = list.slice(-5).map(function(m) { return m.text; }).join(' • ');
             setPane('ai');
@@ -754,7 +787,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!q) return;
             var log = document.getElementById('ai-log');
             log.innerHTML += '<div class="bg-blue-950/50 p-2 rounded-lg text-blue-200"><strong>أنت:</strong> ' + q + '</div>';
-            var reply = 'تم استلام طلبك بنجاح. يعمل سند AI v6.0 بنظام المزامنة الهجين الفوري ويمكنك التواصل عبر معرّف 8 أرقام أو رقم الجوال.';
+            var reply = 'تم استلام طلبك بنجاح. يدعم سند AI v6.0 تعدد الأرقام، البحث بالاسم، والنسخ التلقائي.';
             if (q.indexOf('صياغ') !== -1 || q.indexOf('رسالة') !== -1) {
                 reply = 'صياغة مقترحة: «السلام عليكم ورحمة الله وبركاته، نأمل إفادتنا بآخر المستجدات في أقرب وقت ممكن، ولكم جزيل الشكر.»';
             }
@@ -764,7 +797,7 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function exportBackup() {
-            var data = JSON.stringify({ activeAcct: activeAcct, myAccts: myAccts, contacts: contacts, threads: threads });
+            var data = JSON.stringify({ activeAcct: activeAcct, myAccts: myAccts, contacts: contacts, acctThreads: acctThreads });
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(data).then(function() { alert('تم نسخ النسخة الاحتياطية إلى الحافظة.'); });
             } else {
@@ -780,7 +813,7 @@ const htmlContent = `<!DOCTYPE html>
                 if (parsed.activeAcct) activeAcct = parsed.activeAcct;
                 if (Array.isArray(parsed.myAccts)) myAccts = parsed.myAccts;
                 if (Array.isArray(parsed.contacts)) contacts = parsed.contacts;
-                if (parsed.threads && typeof parsed.threads === 'object') threads = parsed.threads;
+                if (parsed.acctThreads && typeof parsed.acctThreads === 'object') acctThreads = parsed.acctThreads;
                 persistAndDraw();
                 sendSignalingOrMsg({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
                 alert('تمت استعادة النسخة الاحتياطية بنجاح.');
@@ -804,7 +837,8 @@ const htmlContent = `<!DOCTYPE html>
             var clean = String(id || '').trim();
             if (!clean) return;
             currentPeer = clean;
-            if (!threads[currentPeer]) threads[currentPeer] = [];
+            var map = getThreadMap();
+            if (!map[currentPeer]) map[currentPeer] = [];
             setPane('chats');
             persistAndDraw();
         }
@@ -812,9 +846,12 @@ const htmlContent = `<!DOCTYPE html>
         function openPeerByInput() {
             var inp = document.getElementById('peer-input');
             var val = inp.value.trim();
-            if (!val) return alert('أدخل معرّف 8 أرقام أو رقم الجوال.');
+            if (!val) return alert('أدخل اسم جهة اتصال أو معرّف 8 أرقام أو رقم الجوال.');
+            var matched = contacts.find(function(c) {
+                return String(c.name || '').trim().toLowerCase() === val.toLowerCase() || String(c.id || '').trim() === val;
+            });
             inp.value = '';
-            choosePeer(val);
+            choosePeer(matched ? matched.id : val);
         }
 
         function saveCurrentPeer() {
@@ -852,10 +889,31 @@ const htmlContent = `<!DOCTYPE html>
             }
         }
 
+        function showGeneratedCodeBanner(code8) {
+            lastGeneratedCode = code8;
+            var banner = document.getElementById('last-generated-banner');
+            var txt = document.getElementById('last-generated-text');
+            if (banner && txt) {
+                txt.textContent = 'المعرّف الجديد: ' + code8;
+                banner.classList.remove('hidden');
+            }
+        }
+
         function make8DigitId() {
             var code8 = Math.floor(10000000 + Math.random() * 90000000).toString();
             if (myAccts.indexOf(code8) === -1) myAccts.push(code8);
+            showGeneratedCodeBanner(code8);
+            copyStringToClipboard(code8);
             activateAccount(code8);
+            alert('تم توليد المعرّف (8 أرقام): ' + code8 + ' وتم نسخه تلقائياً.');
+        }
+
+        function addCustomNumberAccount() {
+            var num = prompt('أدخل أي رقم أو معرّف إضافي لتفعيله:');
+            if (!num || !num.trim()) return;
+            var clean = num.trim();
+            if (myAccts.indexOf(clean) === -1) myAccts.push(clean);
+            activateAccount(clean);
         }
 
         function verifyPhoneAccount() {
@@ -871,6 +929,9 @@ const htmlContent = `<!DOCTYPE html>
 
         function activateAccount(id) {
             activeAcct = String(id).trim();
+            if (myAccts.indexOf(activeAcct) === -1) myAccts.push(activeAcct);
+            getThreadMap();
+            setPane('chats');
             persistAndDraw();
             sendSignalingOrMsg({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
         }
@@ -898,8 +959,20 @@ const htmlContent = `<!DOCTYPE html>
                     '<span>' + c.name + '</span></button>';
             }).join('');
 
+            var searchInp = document.getElementById('contact-search-input');
+            var q = searchInp ? searchInp.value.trim().toLowerCase() : '';
+            var filtered = contacts.filter(function(c) {
+                if (!q) return true;
+                return String(c.name || '').toLowerCase().indexOf(q) !== -1 || String(c.id || '').toLowerCase().indexOf(q) !== -1;
+            });
+
             var cBox = document.getElementById('contacts-list');
-            cBox.innerHTML = contacts.map(function(c, idx) {
+            if (!filtered.length) {
+                cBox.innerHTML = '<div class="text-center text-xs text-slate-500 py-6">لا توجد نتائج مطابقة للبحث.</div>';
+                return;
+            }
+            cBox.innerHTML = filtered.map(function(c) {
+                var realIdx = contacts.indexOf(c);
                 var on = onlinePeers.has(c.id);
                 return '<div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center">' +
                     '<div class="flex items-center gap-2.5">' +
@@ -908,14 +981,14 @@ const htmlContent = `<!DOCTYPE html>
                     '<p class="text-[11px] font-mono ' + (on ? 'text-emerald-400' : 'text-slate-400') + '">' + c.id + ' • ' + (on ? 'متصل الآن' : 'غير متصل') + '</p></div></div>' +
                     '<div class="flex gap-2">' +
                     '<button onclick="choosePeer(\\'' + c.id + '\\')" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">مراسلة</button>' +
-                    '<button onclick="deleteContactAt(' + idx + ')" class="bg-red-500/10 text-red-400 px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>' +
+                    '<button onclick="deleteContactAt(' + realIdx + ')" class="bg-red-500/10 text-red-400 px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>' +
                     '</div></div>';
             }).join('');
         }
 
         function renderMsgs() {
             var box = document.getElementById('msgs-box');
-            var list = threads[currentPeer] || [];
+            var list = getThreadMap()[currentPeer] || [];
             if (!list.length) {
                 box.innerHTML = '<div class="text-center text-xs text-slate-500 py-8">ابدأ المراسلة أو أرسل صوتاً أو مرفقاً أو ابدأ مكالمة.</div>';
                 return;
@@ -966,7 +1039,7 @@ const htmlContent = `<!DOCTYPE html>
             localStorage.setItem('sanad6_active', activeAcct);
             localStorage.setItem('sanad6_accts', JSON.stringify(myAccts));
             localStorage.setItem('sanad6_contacts', JSON.stringify(contacts));
-            localStorage.setItem('sanad6_threads', JSON.stringify(threads));
+            localStorage.setItem('sanad6_acct_threads', JSON.stringify(acctThreads));
             document.getElementById('active-acct-label').textContent = activeAcct;
             document.getElementById('peer-title').textContent = currentPeer;
             renderPresence();

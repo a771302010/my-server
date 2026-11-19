@@ -8,7 +8,7 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>سند AI v6.0</title>
+    <title>سند AI v6.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -32,10 +32,10 @@ const htmlContent = `<!DOCTYPE html>
     <!-- الشريط الإخباري الذكي -->
     <div class="bg-blue-950/90 border-b border-blue-800/60 py-1 px-2 overflow-hidden text-[11px] text-blue-200 z-30 shrink-0">
         <div class="ticker-line gap-8 font-semibold">
-            <span>⚡ سند AI v6.0: تعدد الأرقام والمعرّفات + البحث بالاسم أو الكود + ملفات VCF للهاتف</span>
+            <span>⚡ سند AI v6.1: اتصال هجين فوري ومستقر + تعدد الأرقام + البحث بالاسم أو الكود + ملفات VCF للهاتف</span>
             <span>🎙️ إملاء صوتي + تسجيل رسائل صوتية + قراءة ناطقة + مكالمات صوت وفيديو</span>
             <span>🧠 مساعد سند AI: تحسين الصياغة + تلخيص المحادثات + الرد التلقائي الذكي</span>
-            <span>⚡ سند AI v6.0: تعدد الأرقام والمعرّفات + البحث بالاسم أو الكود + ملفات VCF للهاتف</span>
+            <span>⚡ سند AI v6.1: اتصال هجين فوري ومستقر + تعدد الأرقام + البحث بالاسم أو الكود + ملفات VCF للهاتف</span>
         </div>
     </div>
 
@@ -49,7 +49,7 @@ const htmlContent = `<!DOCTYPE html>
             <div>
                 <div class="flex items-center gap-1.5">
                     <h1 class="font-black text-base md:text-lg text-white leading-none">سند</h1>
-                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v6.0</span>
+                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v6.1</span>
                     <span id="device-badge" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-semibold">---</span>
                 </div>
                 <div class="flex items-center gap-1.5 text-[11px] mt-1">
@@ -75,7 +75,7 @@ const htmlContent = `<!DOCTYPE html>
     <!-- نافذة المكالمات الصوتية والمرئية -->
     <div id="call-modal" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-between p-5">
         <div class="text-center mt-2">
-            <p class="text-xs text-blue-400 font-bold">سند AI v6.0 • مكالمة مباشرة مشفرة</p>
+            <p class="text-xs text-blue-400 font-bold">سند AI v6.1 • مكالمة مباشرة مشفرة</p>
             <h2 id="call-peer-title" class="text-xl font-black text-white font-mono mt-1">---</h2>
             <p id="call-status-msg" class="text-xs text-emerald-400 mt-1 font-semibold">جاري الاتصال...</p>
         </div>
@@ -242,7 +242,7 @@ const htmlContent = `<!DOCTYPE html>
                     <button onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
                 </div>
                 <div id="ai-log" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">مرحباً بك في سند AI v6.0. جاهز لتعدد الأرقام، البحث الذكي، وملفات جهات الاتصال (.vcf).</div>
+                    <div class="text-slate-400">مرحباً بك في سند AI v6.1. اتصال هجين محسن + تعدد الأرقام + بحث ذكي + ملفات (.vcf).</div>
                 </div>
                 <div class="flex gap-2">
                     <input type="text" id="ai-q" onkeydown="if(event.key==='Enter') askSanadAI()" placeholder="اطلب من سند AI..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
@@ -299,6 +299,7 @@ const htmlContent = `<!DOCTYPE html>
         var ws = null;
         var wsConnected = false;
         var httpConnected = false;
+        var reconnectTimer = null;
 
         function copyStringToClipboard(txt, showNotice) {
             if (!txt) return;
@@ -317,16 +318,25 @@ const htmlContent = `<!DOCTYPE html>
         function getThreadMap() {
             if (!acctThreads[activeAcct]) {
                 acctThreads[activeAcct] = {
-                    '88888888': [{ id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'أهلاً بك في سند AI v6.0. الحساب النشط: ' + activeAcct }]
+                    '88888888': [{ id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'أهلاً بك في سند AI v6.1. الحساب النشط: ' + activeAcct }]
                 };
             }
             return acctThreads[activeAcct];
         }
 
         function refreshConnectionHeader() {
-            var isLive = wsConnected || httpConnected;
-            document.getElementById('ws-dot').className = isLive ? 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse' : 'w-2 h-2 rounded-full bg-amber-400';
-            document.getElementById('ws-label').textContent = isLive ? 'متصل' : 'جاري الربط...';
+            var dot = document.getElementById('ws-dot');
+            var lbl = document.getElementById('ws-label');
+            if (wsConnected) {
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+                lbl.textContent = 'متصل فوري';
+            } else if (httpConnected) {
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+                lbl.textContent = 'متصل (مزامنة)';
+            } else {
+                dot.className = 'w-2 h-2 rounded-full bg-amber-400';
+                lbl.textContent = 'جاري الربط...';
+            }
         }
 
         function playSoftChime() {
@@ -357,6 +367,8 @@ const htmlContent = `<!DOCTYPE html>
 
         function applySyncResponse(data) {
             if (!data) return;
+            httpConnected = true;
+            refreshConnectionHeader();
             if (Array.isArray(data.onlineIds)) {
                 onlinePeers = new Set(data.onlineIds);
                 renderPresenceHeaderAndChips();
@@ -413,47 +425,57 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function postHttpSync(payload) {
-            fetch('/api/sync', {
+            return fetch('/api/sync', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             }).then(function(res) {
                 if (!res.ok) return null;
-                httpConnected = true;
-                refreshConnectionHeader();
                 return res.json();
-            }).then(applySyncResponse).catch(function() {});
+            }).then(function(data) {
+                if (data) applySyncResponse(data);
+            }).catch(function() {});
         }
 
         function pollHttpSync() {
             var q = encodeURIComponent(myAccts.join(','));
-            fetch('/api/sync?ids=' + q).then(function(res) {
+            return fetch('/api/sync?ids=' + q).then(function(res) {
                 if (!res.ok) return null;
-                httpConnected = true;
-                refreshConnectionHeader();
                 return res.json();
-            }).then(applySyncResponse).catch(function() {});
+            }).then(function(data) {
+                if (data) applySyncResponse(data);
+            }).catch(function() {});
         }
 
         setInterval(function() {
             postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
             pollHttpSync();
+            if (!wsConnected && !reconnectTimer) {
+                reconnectTimer = setTimeout(function() {
+                    reconnectTimer = null;
+                    openSocket();
+                }, 4000);
+            }
         }, 2500);
 
         function openSocket() {
             try {
                 var scheme = location.protocol === 'https:' ? 'wss:' : 'ws:';
-                ws = new WebSocket(scheme + '//' + location.host);
-                ws.onopen = function() {
+                var nextWs = new WebSocket(scheme + '//' + location.host);
+                ws = nextWs;
+                nextWs.onopen = function() {
+                    if (ws !== nextWs) return;
                     wsConnected = true;
                     refreshConnectionHeader();
-                    ws.send(JSON.stringify({ type: 'register_ids', ids: myAccts, activeId: activeAcct }));
+                    nextWs.send(JSON.stringify({ type: 'register_ids', ids: myAccts, activeId: activeAcct }));
                 };
-                ws.onclose = ws.onerror = function() {
+                nextWs.onclose = nextWs.onerror = function() {
+                    if (ws !== nextWs) return;
                     wsConnected = false;
                     refreshConnectionHeader();
                 };
-                ws.onmessage = function(ev) {
+                nextWs.onmessage = function(ev) {
+                    if (ws !== nextWs) return;
                     try { handleIncomingPayload(JSON.parse(ev.data)); } catch (e) {}
                 };
             } catch (e) {
@@ -464,7 +486,6 @@ const htmlContent = `<!DOCTYPE html>
 
         function reconnectNow() {
             wsConnected = false;
-            httpConnected = false;
             refreshConnectionHeader();
             if (ws) { try { ws.close(); } catch (e) {} }
             openSocket();
@@ -795,7 +816,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!q) return;
             var log = document.getElementById('ai-log');
             log.innerHTML += '<div class="bg-blue-950/50 p-2 rounded-lg text-blue-200"><strong>أنت:</strong> ' + q + '</div>';
-            var reply = 'تم استلام طلبك بنجاح. يدعم سند AI v6.0 تعدد الأرقام، البحث بالاسم أو الكود، وملفات جهات الاتصال (.vcf).';
+            var reply = 'تم استلام طلبك بنجاح. يدعم سند AI v6.1 تعدد الأرقام، البحث بالاسم أو الكود، وملفات جهات الاتصال (.vcf).';
             if (q.indexOf('صياغ') !== -1 || q.indexOf('رسالة') !== -1) {
                 reply = 'صياغة مقترحة: «السلام عليكم ورحمة الله وبركاته، نأمل إفادتنا بآخر المستجدات في أقرب وقت ممكن، ولكم جزيل الشكر.»';
             }
@@ -1261,5 +1282,5 @@ wss.on('connection', (ws) => {
 });
 
 server.listen(PORT, () => {
-    console.log('Sanad AI v6.0 running on port ' + PORT);
+    console.log('Sanad AI v6.1 running on port ' + PORT);
 });

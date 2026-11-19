@@ -32,10 +32,10 @@ const htmlContent = `<!DOCTYPE html>
     <!-- الشريط الإخباري الذكي -->
     <div class="bg-blue-950/90 border-b border-blue-800/60 py-1 px-2 overflow-hidden text-[11px] text-blue-200 z-30 shrink-0">
         <div class="ticker-line gap-8 font-semibold">
-            <span>⚡ سند AI v6.0: دعم تعدد الأرقام والمعرّفات + البحث بالاسم + النسخ التلقائي</span>
+            <span>⚡ سند AI v6.0: تعدد الأرقام والمعرّفات + البحث بالاسم أو الكود + ملفات VCF للهاتف</span>
             <span>🎙️ إملاء صوتي + تسجيل رسائل صوتية + قراءة ناطقة + مكالمات صوت وفيديو</span>
             <span>🧠 مساعد سند AI: تحسين الصياغة + تلخيص المحادثات + الرد التلقائي الذكي</span>
-            <span>⚡ سند AI v6.0: دعم تعدد الأرقام والمعرّفات + البحث بالاسم + النسخ التلقائي</span>
+            <span>⚡ سند AI v6.0: تعدد الأرقام والمعرّفات + البحث بالاسم أو الكود + ملفات VCF للهاتف</span>
         </div>
     </div>
 
@@ -111,7 +111,7 @@ const htmlContent = `<!DOCTYPE html>
         <section id="pane-chats" class="flex-1 flex flex-col h-full overflow-hidden">
             <div class="p-2.5 bg-slate-900/80 border-b border-slate-800 space-y-2 shrink-0">
                 <div class="flex gap-2">
-                    <input type="text" id="peer-input" onkeydown="if(event.key==='Enter') openPeerByInput()" placeholder="اسم جهة اتصال أو معرّف (8 أرقام) أو جوال..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-blue-500">
+                    <input type="text" id="peer-input" oninput="renderQuickSuggestions()" onkeydown="if(event.key==='Enter') openPeerByInput()" placeholder="ابحث بالاسم أو أدخل كود (8 أرقام) أو جوال..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-blue-500">
                     <button onclick="openPeerByInput()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition">فتح</button>
                     <button onclick="saveCurrentPeer()" title="حفظ في الجهات" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-400 px-3 py-2 rounded-xl text-xs font-bold">
                         <i class="fa-solid fa-user-plus"></i>
@@ -127,6 +127,7 @@ const htmlContent = `<!DOCTYPE html>
                     <span id="peer-status" class="text-[11px] font-bold text-slate-400">غير متصل</span>
                 </div>
                 <div class="flex items-center gap-3">
+                    <button onclick="exportVCard(currentPeer, findContactName(currentPeer))" title="حفظ في جهات اتصال الهاتف (.vcf)" class="text-emerald-400 hover:underline font-semibold"><i class="fa-solid fa-address-card ml-1"></i>حفظ للهاتف</button>
                     <button onclick="summarizeCurrentThread()" class="text-indigo-400 hover:underline font-semibold"><i class="fa-solid fa-sparkles ml-1"></i>تلخيص AI</button>
                     <button onclick="shareInviteLink()" class="text-blue-400 hover:underline font-semibold"><i class="fa-solid fa-share-nodes ml-1"></i>دعوة</button>
                     <button onclick="clearThreadMsgs()" class="text-red-400 hover:underline font-semibold"><i class="fa-solid fa-trash ml-1"></i>مسح</button>
@@ -161,16 +162,16 @@ const htmlContent = `<!DOCTYPE html>
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
                 <h2 class="text-sm font-black text-blue-400">إدارة الحسابات والأرقام المتعددة</h2>
                 <p class="text-[11px] text-slate-400 leading-relaxed">
-                    أضف أو ولّد <strong>أي عدد من الأرقام أو المعرّفات</strong> (ثالث، رابع، عاشر...) مع نسخ تلقائي لمعرّف الـ 8 أرقام.
+                    فعّل <strong>أي عدد من الأرقام أو المعرّفات</strong> (ثالث، رابع، عاشر...) ولكل حساب صندوقه المستقل، مع نسخ تلقائي عند توليد كود الـ 8 أرقام.
                 </p>
                 <div class="flex flex-wrap gap-2">
-                    <button onclick="make8DigitId()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ توليد معرّف (8 أرقام)</button>
-                    <button onclick="addCustomNumberAccount()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ إضافة رقم/معرّف مخصص</button>
+                    <button onclick="make8DigitId()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ توليد كود (8 أرقام)</button>
+                    <button onclick="addCustomNumberAccount()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ إضافة رقم/كود مخصص</button>
                     <button onclick="verifyPhoneAccount()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ تفعيل رقم جوال</button>
                 </div>
                 <div id="last-generated-banner" class="hidden bg-emerald-950/50 border border-emerald-700/50 rounded-xl p-2.5 flex items-center justify-between text-xs">
                     <span id="last-generated-text" class="font-mono font-bold text-emerald-300"></span>
-                    <button onclick="copyStringToClipboard(lastGeneratedCode)" class="bg-emerald-600 text-white px-3 py-1 rounded-lg text-[11px] font-bold">نسخ</button>
+                    <button onclick="copyStringToClipboard(lastGeneratedCode, true)" class="bg-emerald-600 text-white px-3 py-1 rounded-lg text-[11px] font-bold">نسخ</button>
                 </div>
                 <div id="accounts-list" class="space-y-2 pt-2"></div>
             </div>
@@ -179,16 +180,27 @@ const htmlContent = `<!DOCTYPE html>
         <!-- 3. الجهات -->
         <section id="pane-contacts" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl space-y-2.5">
-                <h2 class="text-sm font-black text-emerald-400">إضافة جهة اتصال</h2>
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h2 class="text-sm font-black text-emerald-400">إضافة وربط جهات الاتصال</h2>
+                    <div class="flex gap-2">
+                        <input type="file" id="vcf-file-input" accept=".vcf,text/vcard" class="hidden" onchange="importVCardFile(event)">
+                        <button onclick="document.getElementById('vcf-file-input').click()" class="bg-slate-800 hover:bg-slate-700 text-cyan-300 px-3 py-1.5 rounded-xl text-[11px] font-bold">
+                            <i class="fa-solid fa-file-import ml-1"></i>استيراد ملف (.vcf)
+                        </button>
+                        <button onclick="exportAllContactsVCard()" class="bg-slate-800 hover:bg-slate-700 text-emerald-300 px-3 py-1.5 rounded-xl text-[11px] font-bold">
+                            <i class="fa-solid fa-file-export ml-1"></i>تصدير الكل (.vcf)
+                        </button>
+                    </div>
+                </div>
                 <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="text" id="c-name" placeholder="الاسم" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
-                    <input type="text" id="c-id" placeholder="معرّف 8 أرقام أو رقم الجوال" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
+                    <input type="text" id="c-name" placeholder="اسم الصديق أو الجهة" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <input type="text" id="c-id" placeholder="كود خاص (8 أرقام) أو رقم الجوال" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
                     <button onclick="addNewContact()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold">حفظ</button>
                 </div>
             </div>
             <div class="bg-slate-900/90 border border-slate-800 p-2.5 rounded-xl flex items-center gap-2">
                 <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs pr-1"></i>
-                <input type="text" id="contact-search-input" oninput="renderPresence()" placeholder="ابحث بالاسم أو المعرّف أو الرقم..." class="flex-1 bg-transparent text-xs text-white focus:outline-none">
+                <input type="text" id="contact-search-input" oninput="renderContactsList()" placeholder="ابحث عن صديق مخزون بالاسم أو الكود الخاص أو الرقم..." class="flex-1 bg-transparent text-xs text-white focus:outline-none">
             </div>
             <div id="contacts-list" class="space-y-2"></div>
         </section>
@@ -202,7 +214,7 @@ const htmlContent = `<!DOCTYPE html>
                 <h2 class="text-base font-black text-white">مركز المكالمات الصوتية والمرئية</h2>
                 <p class="text-xs text-slate-400 mt-1 max-w-sm">اتصال مباشر عالي الجودة بين الآيفون والأندرويد والآيباد والكمبيوتر.</p>
             </div>
-            <input type="text" id="call-input" placeholder="أدخل معرّف 8 أرقام أو رقم الجوال..." class="w-full max-w-xs bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-center font-mono text-white">
+            <input type="text" id="call-input" placeholder="أدخل كود 8 أرقام أو رقم الجوال..." class="w-full max-w-xs bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-center font-mono text-white">
             <div class="flex gap-3">
                 <button onclick="launchCall('audio', document.getElementById('call-input').value.trim())" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
                     <i class="fa-solid fa-phone"></i> مكالمة صوتية
@@ -230,7 +242,7 @@ const htmlContent = `<!DOCTYPE html>
                     <button onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
                 </div>
                 <div id="ai-log" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">مرحباً بك في سند AI v6.0. يدعم تعدد الأرقام، البحث بالاسم، والنسخ التلقائي.</div>
+                    <div class="text-slate-400">مرحباً بك في سند AI v6.0. جاهز لتعدد الأرقام، البحث الذكي، وملفات جهات الاتصال (.vcf).</div>
                 </div>
                 <div class="flex gap-2">
                     <input type="text" id="ai-q" onkeydown="if(event.key==='Enter') askSanadAI()" placeholder="اطلب من سند AI..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
@@ -284,15 +296,22 @@ const htmlContent = `<!DOCTYPE html>
         var acctThreads = JSON.parse(localStorage.getItem('sanad6_acct_threads') || '{}');
         var seenEventIds = new Set();
         var lastGeneratedCode = '';
-        var ws;
+        var ws = null;
         var wsConnected = false;
         var httpConnected = false;
 
-        function copyStringToClipboard(txt) {
+        function copyStringToClipboard(txt, showNotice) {
             if (!txt) return;
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(txt).catch(function() {});
+                navigator.clipboard.writeText(txt).then(function() {
+                    if (showNotice) alert('تم النسخ: ' + txt);
+                }).catch(function() {});
             }
+        }
+
+        function findContactName(id) {
+            var found = contacts.find(function(c) { return String(c.id).trim() === String(id).trim(); });
+            return found ? found.name : ('جهة ' + id);
         }
 
         function getThreadMap() {
@@ -336,6 +355,18 @@ const htmlContent = `<!DOCTYPE html>
             window.speechSynthesis.speak(utter);
         }
 
+        function applySyncResponse(data) {
+            if (!data) return;
+            if (Array.isArray(data.onlineIds)) {
+                onlinePeers = new Set(data.onlineIds);
+                renderPresenceHeaderAndChips();
+                renderContactsList();
+            }
+            if (Array.isArray(data.events)) {
+                data.events.forEach(handleIncomingPayload);
+            }
+        }
+
         function handleIncomingPayload(msg) {
             if (!msg || !msg.type) return;
             var eid = msg.eventId || msg.msgId || '';
@@ -344,7 +375,8 @@ const htmlContent = `<!DOCTYPE html>
 
             if (msg.type === 'online_users' && Array.isArray(msg.ids)) {
                 onlinePeers = new Set(msg.ids);
-                renderPresence();
+                renderPresenceHeaderAndChips();
+                renderContactsList();
             } else if (msg.type === 'msg') {
                 var recipient = String(msg.to || activeAcct);
                 var sender = String(msg.from || '');
@@ -390,16 +422,7 @@ const htmlContent = `<!DOCTYPE html>
                 httpConnected = true;
                 refreshConnectionHeader();
                 return res.json();
-            }).then(function(data) {
-                if (!data) return;
-                if (Array.isArray(data.onlineIds)) {
-                    onlinePeers = new Set(data.onlineIds);
-                    renderPresence();
-                }
-                if (Array.isArray(data.events)) {
-                    data.events.forEach(handleIncomingPayload);
-                }
-            }).catch(function() {});
+            }).then(applySyncResponse).catch(function() {});
         }
 
         function pollHttpSync() {
@@ -409,16 +432,7 @@ const htmlContent = `<!DOCTYPE html>
                 httpConnected = true;
                 refreshConnectionHeader();
                 return res.json();
-            }).then(function(data) {
-                if (!data) return;
-                if (Array.isArray(data.onlineIds)) {
-                    onlinePeers = new Set(data.onlineIds);
-                    renderPresence();
-                }
-                if (Array.isArray(data.events)) {
-                    data.events.forEach(handleIncomingPayload);
-                }
-            }).catch(function() {});
+            }).then(applySyncResponse).catch(function() {});
         }
 
         setInterval(function() {
@@ -435,18 +449,12 @@ const htmlContent = `<!DOCTYPE html>
                     refreshConnectionHeader();
                     ws.send(JSON.stringify({ type: 'register_ids', ids: myAccts, activeId: activeAcct }));
                 };
-                ws.onclose = function() {
-                    wsConnected = false;
-                    refreshConnectionHeader();
-                };
-                ws.onerror = function() {
+                ws.onclose = ws.onerror = function() {
                     wsConnected = false;
                     refreshConnectionHeader();
                 };
                 ws.onmessage = function(ev) {
-                    try {
-                        handleIncomingPayload(JSON.parse(ev.data));
-                    } catch (e) {}
+                    try { handleIncomingPayload(JSON.parse(ev.data)); } catch (e) {}
                 };
             } catch (e) {
                 wsConnected = false;
@@ -488,7 +496,7 @@ const htmlContent = `<!DOCTYPE html>
 
         function launchCall(mode, explicitTarget) {
             var target = String(explicitTarget || currentPeer || '').trim();
-            if (!target) return alert('حدد معرّف أو رقم الطرف الآخر أولاً.');
+            if (!target) return alert('حدد كود أو رقم الطرف الآخر أولاً.');
             callPeerId = target;
             document.getElementById('call-modal').classList.remove('hidden');
             document.getElementById('call-peer-title').textContent = target + ' (' + (mode === 'video' ? 'فيديو' : 'صوت') + ')';
@@ -787,7 +795,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!q) return;
             var log = document.getElementById('ai-log');
             log.innerHTML += '<div class="bg-blue-950/50 p-2 rounded-lg text-blue-200"><strong>أنت:</strong> ' + q + '</div>';
-            var reply = 'تم استلام طلبك بنجاح. يدعم سند AI v6.0 تعدد الأرقام، البحث بالاسم، والنسخ التلقائي.';
+            var reply = 'تم استلام طلبك بنجاح. يدعم سند AI v6.0 تعدد الأرقام، البحث بالاسم أو الكود، وملفات جهات الاتصال (.vcf).';
             if (q.indexOf('صياغ') !== -1 || q.indexOf('رسالة') !== -1) {
                 reply = 'صياغة مقترحة: «السلام عليكم ورحمة الله وبركاته، نأمل إفادتنا بآخر المستجدات في أقرب وقت ممكن، ولكم جزيل الشكر.»';
             }
@@ -822,6 +830,64 @@ const htmlContent = `<!DOCTYPE html>
             }
         }
 
+        // ملفات جهات الاتصال القياسية (.vcf) للهاتف المحمول
+        function buildVCardString(list) {
+            return list.map(function(c) {
+                var safeName = String(c.name || ('جهة ' + c.id)).replace(/[\r\n]+/g, ' ').trim();
+                var safeId = String(c.id || '').trim();
+                return ['BEGIN:VCARD', 'VERSION:3.0', 'FN:' + safeName, 'TEL;TYPE=CELL:' + safeId, 'NOTE:Sanad AI ID - ' + safeId, 'END:VCARD'].join('\r\n');
+            }).join('\r\n');
+        }
+
+        function downloadVCard(vcfContent, filename) {
+            if (!vcfContent) return;
+            var blob = new Blob([vcfContent], { type: 'text/vcard;charset=utf-8' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+        }
+
+        function exportVCard(id, name) {
+            if (!id) return;
+            downloadVCard(buildVCardString([{ id: id, name: name }]), 'sanad-' + id + '.vcf');
+        }
+
+        function exportAllContactsVCard() {
+            if (!contacts.length) return alert('لا توجد جهات اتصال لتصديرها.');
+            downloadVCard(buildVCardString(contacts), 'sanad-contacts.vcf');
+        }
+
+        function importVCardFile(ev) {
+            var file = ev.target.files && ev.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function() {
+                var text = String(reader.result || '');
+                var blocks = text.split(/END:VCARD/i);
+                var added = 0;
+                blocks.forEach(function(blk) {
+                    var fnMatch = blk.match(/FN[^:]*:([^\r\n]+)/i);
+                    var telMatch = blk.match(/TEL[^:]*:([^\r\n]+)/i);
+                    var rawId = telMatch ? telMatch[1].trim() : '';
+                    if (!rawId) return;
+                    var rawName = fnMatch ? fnMatch[1].trim() : ('جهة ' + rawId);
+                    if (!contacts.some(function(c) { return String(c.id).trim() === rawId; })) {
+                        contacts.push({ name: rawName, id: rawId });
+                        added++;
+                    }
+                });
+                persistAndDraw();
+                alert('تم استيراد ' + added + ' جهة اتصال جديدة من الملف.');
+            };
+            reader.readAsText(file);
+            ev.target.value = '';
+        }
+
         function setPane(p) {
             ['chats', 'accounts', 'contacts', 'calls', 'ai'].forEach(function(item) {
                 document.getElementById('pane-' + item).classList.add('hidden');
@@ -846,9 +912,12 @@ const htmlContent = `<!DOCTYPE html>
         function openPeerByInput() {
             var inp = document.getElementById('peer-input');
             var val = inp.value.trim();
-            if (!val) return alert('أدخل اسم جهة اتصال أو معرّف 8 أرقام أو رقم الجوال.');
+            if (!val) return alert('ابحث بالاسم أو أدخل كود (8 أرقام) أو رقم الجوال.');
+            var q = val.toLowerCase();
             var matched = contacts.find(function(c) {
-                return String(c.name || '').trim().toLowerCase() === val.toLowerCase() || String(c.id || '').trim() === val;
+                return String(c.id || '').trim() === val || String(c.name || '').trim().toLowerCase() === q;
+            }) || contacts.find(function(c) {
+                return String(c.name || '').toLowerCase().indexOf(q) !== -1 || String(c.id || '').toLowerCase().indexOf(q) !== -1;
             });
             inp.value = '';
             choosePeer(matched ? matched.id : val);
@@ -857,7 +926,7 @@ const htmlContent = `<!DOCTYPE html>
         function saveCurrentPeer() {
             if (!currentPeer) return;
             if (contacts.some(function(c) { return c.id === currentPeer; })) return alert('محفوظ مسبقاً.');
-            var name = prompt('اسم جهة الاتصال للرقم ' + currentPeer + ':') || ('جهة ' + currentPeer);
+            var name = prompt('اسم الصديق أو الجهة للرقم ' + currentPeer + ':') || ('جهة ' + currentPeer);
             contacts.push({ name: name, id: currentPeer });
             persistAndDraw();
         }
@@ -865,7 +934,7 @@ const htmlContent = `<!DOCTYPE html>
         function addNewContact() {
             var name = document.getElementById('c-name').value.trim();
             var id = document.getElementById('c-id').value.trim();
-            if (!name || !id) return alert('أدخل الاسم والمعرّف أو الرقم.');
+            if (!name || !id) return alert('أدخل الاسم والكود الخاص أو الرقم.');
             contacts.push({ name: name, id: id });
             document.getElementById('c-name').value = '';
             document.getElementById('c-id').value = '';
@@ -878,7 +947,7 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function shareInviteLink() {
-            var msg = 'تواصل معي على سند AI عبر المعرّف: ' + activeAcct + ' على الرابط: ' + location.origin;
+            var msg = 'تواصل معي على سند AI عبر الكود: ' + activeAcct + ' على الرابط: ' + location.origin;
             if (navigator.share) {
                 navigator.share({ title: 'سند AI', text: msg, url: location.origin }).catch(function() {});
             } else if (navigator.clipboard) {
@@ -894,7 +963,7 @@ const htmlContent = `<!DOCTYPE html>
             var banner = document.getElementById('last-generated-banner');
             var txt = document.getElementById('last-generated-text');
             if (banner && txt) {
-                txt.textContent = 'المعرّف الجديد: ' + code8;
+                txt.textContent = 'الكود الجديد: ' + code8;
                 banner.classList.remove('hidden');
             }
         }
@@ -903,13 +972,13 @@ const htmlContent = `<!DOCTYPE html>
             var code8 = Math.floor(10000000 + Math.random() * 90000000).toString();
             if (myAccts.indexOf(code8) === -1) myAccts.push(code8);
             showGeneratedCodeBanner(code8);
-            copyStringToClipboard(code8);
+            copyStringToClipboard(code8, false);
             activateAccount(code8);
-            alert('تم توليد المعرّف (8 أرقام): ' + code8 + ' وتم نسخه تلقائياً.');
+            alert('تم توليد الكود (8 أرقام): ' + code8 + ' وتم نسخه تلقائياً.');
         }
 
         function addCustomNumberAccount() {
-            var num = prompt('أدخل أي رقم أو معرّف إضافي لتفعيله:');
+            var num = prompt('أدخل أي رقم أو كود إضافي لتفعيله:');
             if (!num || !num.trim()) return;
             var clean = num.trim();
             if (myAccts.indexOf(clean) === -1) myAccts.push(clean);
@@ -936,7 +1005,7 @@ const htmlContent = `<!DOCTYPE html>
             sendSignalingOrMsg({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
         }
 
-        function renderPresence() {
+        function renderPresenceHeaderAndChips() {
             var isOn = onlinePeers.has(currentPeer);
             var dot = document.getElementById('peer-dot');
             var lbl = document.getElementById('peer-status');
@@ -949,16 +1018,27 @@ const htmlContent = `<!DOCTYPE html>
                 lbl.className = 'text-[11px] font-bold text-slate-400';
                 lbl.textContent = 'غير متصل';
             }
+            renderQuickSuggestions();
+        }
 
+        function renderQuickSuggestions() {
+            var peerInp = document.getElementById('peer-input');
+            var filterText = peerInp ? peerInp.value.trim().toLowerCase() : '';
+            var list = contacts.filter(function(c) {
+                if (!filterText) return true;
+                return String(c.name || '').toLowerCase().indexOf(filterText) !== -1 || String(c.id || '').toLowerCase().indexOf(filterText) !== -1;
+            });
             var chips = document.getElementById('quick-chips');
-            chips.innerHTML = '<span class="text-[11px] text-slate-400 shrink-0">وصول سريع:</span>' + contacts.map(function(c) {
+            chips.innerHTML = '<span class="text-[11px] text-slate-400 shrink-0">وصول سريع:</span>' + list.map(function(c) {
                 var on = onlinePeers.has(c.id);
                 return '<button onclick="choosePeer(\\'' + c.id + '\\')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] shrink-0 ' +
                     (c.id === currentPeer ? 'bg-blue-600/25 border-blue-500 text-white font-bold' : 'bg-slate-800/80 border-slate-700 text-slate-300') + '">' +
                     '<span class="w-2 h-2 rounded-full ' + (on ? 'bg-emerald-400' : 'bg-slate-500') + '"></span>' +
                     '<span>' + c.name + '</span></button>';
             }).join('');
+        }
 
+        function renderContactsList() {
             var searchInp = document.getElementById('contact-search-input');
             var q = searchInp ? searchInp.value.trim().toLowerCase() : '';
             var filtered = contacts.filter(function(c) {
@@ -974,13 +1054,14 @@ const htmlContent = `<!DOCTYPE html>
             cBox.innerHTML = filtered.map(function(c) {
                 var realIdx = contacts.indexOf(c);
                 var on = onlinePeers.has(c.id);
-                return '<div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center">' +
-                    '<div class="flex items-center gap-2.5">' +
-                    '<span class="w-2.5 h-2.5 rounded-full ' + (on ? 'bg-emerald-500' : 'bg-slate-600') + '"></span>' +
-                    '<div><p class="text-xs font-bold text-white">' + c.name + '</p>' +
+                return '<div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center gap-2">' +
+                    '<div class="flex items-center gap-2.5 min-w-0">' +
+                    '<span class="w-2.5 h-2.5 rounded-full shrink-0 ' + (on ? 'bg-emerald-500' : 'bg-slate-600') + '"></span>' +
+                    '<div class="truncate"><p class="text-xs font-bold text-white truncate">' + c.name + '</p>' +
                     '<p class="text-[11px] font-mono ' + (on ? 'text-emerald-400' : 'text-slate-400') + '">' + c.id + ' • ' + (on ? 'متصل الآن' : 'غير متصل') + '</p></div></div>' +
-                    '<div class="flex gap-2">' +
+                    '<div class="flex gap-1.5 shrink-0">' +
                     '<button onclick="choosePeer(\\'' + c.id + '\\')" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">مراسلة</button>' +
+                    '<button onclick="exportVCard(\\'' + c.id + '\\', \\'' + String(c.name).replace(/'/g, '') + '\\')" title="حفظ في هاتفك (.vcf)" class="bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-address-card"></i></button>' +
                     '<button onclick="deleteContactAt(' + realIdx + ')" class="bg-red-500/10 text-red-400 px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>' +
                     '</div></div>';
             }).join('');
@@ -1042,7 +1123,8 @@ const htmlContent = `<!DOCTYPE html>
             localStorage.setItem('sanad6_acct_threads', JSON.stringify(acctThreads));
             document.getElementById('active-acct-label').textContent = activeAcct;
             document.getElementById('peer-title').textContent = currentPeer;
-            renderPresence();
+            renderPresenceHeaderAndChips();
+            renderContactsList();
             renderMsgs();
             renderAccts();
         }
@@ -1100,6 +1182,33 @@ function drainHttpEvents(ids) {
     return out;
 }
 
+function routeIncomingPacket(data, ws) {
+    if (!data || typeof data !== 'object') return;
+    if (data.type === 'register_ids') {
+        const list = Array.isArray(data.ids) ? data.ids : [data.activeId].filter(Boolean);
+        const cleanList = list.map(x => String(x).trim()).filter(Boolean);
+        if (ws) {
+            ws._registeredIds.forEach(old => {
+                if (socketsMap.get(old) === ws) socketsMap.delete(old);
+            });
+            ws._registeredIds = cleanList;
+            cleanList.forEach(id => socketsMap.set(id, ws));
+        }
+        touchHttpPresence(cleanList);
+        broadcastOnline();
+        return;
+    }
+
+    if (data.to) {
+        const dest = socketsMap.get(String(data.to).trim());
+        if (dest && dest.readyState === 1) {
+            dest.send(JSON.stringify(data));
+        } else {
+            enqueueHttpEvent(data.to, data);
+        }
+    }
+}
+
 const server = http.createServer((req, res) => {
     const urlObj = new URL(req.url, 'http://' + (req.headers.host || 'localhost'));
 
@@ -1116,20 +1225,7 @@ const server = http.createServer((req, res) => {
         let body = '';
         req.on('data', chunk => { body += chunk.toString(); });
         req.on('end', () => {
-            try {
-                const data = JSON.parse(body || '{}');
-                if (data.type === 'register_ids') {
-                    const list = Array.isArray(data.ids) ? data.ids : [data.activeId].filter(Boolean);
-                    touchHttpPresence(list);
-                } else if (data.to) {
-                    const dest = socketsMap.get(String(data.to).trim());
-                    if (dest && dest.readyState === 1) {
-                        dest.send(JSON.stringify(data));
-                    } else {
-                        enqueueHttpEvent(data.to, data);
-                    }
-                }
-            } catch (e) {}
+            try { routeIncomingPacket(JSON.parse(body || '{}'), null); } catch (e) {}
             res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
             res.end(JSON.stringify({ ok: true, onlineIds: getAllOnlineIds() }));
         });
@@ -1150,36 +1246,14 @@ function broadcastOnline() {
 }
 
 wss.on('connection', (ws) => {
-    let registeredIds = [];
+    ws._registeredIds = [];
 
     ws.on('message', (raw) => {
-        let data;
-        try { data = JSON.parse(raw.toString()); } catch (e) { return; }
-
-        if (data.type === 'register_ids') {
-            registeredIds.forEach(old => {
-                if (socketsMap.get(old) === ws) socketsMap.delete(old);
-            });
-            const list = Array.isArray(data.ids) ? data.ids : [data.activeId].filter(Boolean);
-            registeredIds = list.map(x => String(x).trim()).filter(Boolean);
-            registeredIds.forEach(id => socketsMap.set(id, ws));
-            touchHttpPresence(registeredIds);
-            broadcastOnline();
-            return;
-        }
-
-        if (data.to) {
-            const dest = socketsMap.get(String(data.to).trim());
-            if (dest && dest.readyState === 1) {
-                dest.send(JSON.stringify(data));
-            } else {
-                enqueueHttpEvent(data.to, data);
-            }
-        }
+        try { routeIncomingPacket(JSON.parse(raw.toString()), ws); } catch (e) {}
     });
 
     ws.on('close', () => {
-        registeredIds.forEach(id => {
+        ws._registeredIds.forEach(id => {
             if (socketsMap.get(id) === ws) socketsMap.delete(id);
         });
         broadcastOnline();

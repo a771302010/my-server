@@ -32,10 +32,10 @@ const htmlContent = `<!DOCTYPE html>
     <!-- الشريط الإخباري الذكي -->
     <div class="bg-blue-950/90 border-b border-blue-800/60 py-1 px-2 overflow-hidden text-[11px] text-blue-200 z-30">
         <div class="ticker-line gap-8 font-semibold">
-            <span>⚡ سند AI v5.0: تجربة متوافقة مع الآيفون والأندرويد والآيباد والكمبيوتر</span>
+            <span>⚡ سند AI v5.1: تجربة متوافقة مع الآيفون والأندرويد والآيباد والكمبيوتر</span>
             <span>🎙️ إملاء صوتي ذكي + تسجيل صوتي نقي + قراءة فورية للرسائل</span>
-            <span>🛡️ إعادة اتصال تلقائية عند تغير الشبكة + ملخص ذكي للمحادثات</span>
-            <span>⚡ سند AI v5.0: تجربة متوافقة مع الآيفون والأندرويد والآيباد والكمبيوتر</span>
+            <span>🔄 إعادة إرسال فورية عند عودة الطرف الآخر + ملخص ذكي للمحادثات</span>
+            <span>⚡ سند AI v5.1: تجربة متوافقة مع الآيفون والأندرويد والآيباد والكمبيوتر</span>
         </div>
     </div>
 
@@ -49,7 +49,7 @@ const htmlContent = `<!DOCTYPE html>
             <div>
                 <div class="flex items-center gap-1.5">
                     <h1 class="font-black text-base md:text-lg text-white leading-none">سند</h1>
-                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v5.0</span>
+                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v5.1</span>
                     <span id="device-badge" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-semibold">---</span>
                 </div>
                 <div class="flex items-center gap-1.5 text-[11px] mt-1">
@@ -261,7 +261,6 @@ const htmlContent = `<!DOCTYPE html>
     </nav>
 
     <script>
-        // اكتشاف الجهاز تلقائياً (آيفون / آيباد / أندرويد / كمبيوتر)
         function detectDevice() {
             const ua = navigator.userAgent || '';
             if (/iPad/i.test(ua)) return 'آيباد';
@@ -276,9 +275,8 @@ const htmlContent = `<!DOCTYPE html>
         let contacts = JSON.parse(localStorage.getItem('sanad5_contacts') || '[{"name":"خدمة العملاء","id":"88888888"}]');
         let currentPeer = '88888888';
         let onlinePeers = new Set();
-        let threads = JSON.parse(localStorage.getItem('sanad5_threads') || '{"88888888":[{"id":"init-1","from":"them","kind":"text","text":"أهلاً بك في سند AI v5.0. جرب الإملاء الصوتي أو التسجيل الصوتي أو المكالمات."}]}');
+        let threads = JSON.parse(localStorage.getItem('sanad5_threads') || '{"88888888":[{"id":"init-1","from":"them","kind":"text","text":"أهلاً بك في سند AI v5.1. جرب الإملاء الصوتي أو التسجيل الصوتي أو المكالمات."}]}');
 
-        // نغمة تنبيه ناعمة
         function playSoftChime() {
             if (!document.getElementById('chk-chime')?.checked) return;
             try {
@@ -295,7 +293,6 @@ const htmlContent = `<!DOCTYPE html>
             } catch {}
         }
 
-        // قراءة رسالة صوتياً عبر SpeechSynthesis
         function speakText(txt) {
             if (!('speechSynthesis' in window) || !txt) return;
             window.speechSynthesis.cancel();
@@ -304,7 +301,6 @@ const htmlContent = `<!DOCTYPE html>
             window.speechSynthesis.speak(utter);
         }
 
-        // اتصال WebSocket وإعادة الاتصال التلقائي عند تغير الشبكة
         let ws;
         let retryTimer = null;
 
@@ -381,7 +377,6 @@ const htmlContent = `<!DOCTYPE html>
             openSocket();
         }
 
-        // WebRTC مع خوادم STUN متعددة + دعم إضافة TURN
         let rtcConn;
         let localStreamObj;
         let pendingCall = null;
@@ -524,7 +519,6 @@ const htmlContent = `<!DOCTYPE html>
             callPeerId = null;
         }
 
-        // إملاء صوتي (تحويل الكلام إلى نص)
         let speechRec;
         let dictating = false;
 
@@ -556,7 +550,6 @@ const htmlContent = `<!DOCTYPE html>
             }
         }
 
-        // تسجيل وإرسال صوت متوافق مع الآيفون والأندرويد والكمبيوتر
         function pickSupportedAudioMime() {
             const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/aac'];
             if (typeof MediaRecorder === 'undefined' || !MediaRecorder.isTypeSupported) return '';
@@ -612,16 +605,27 @@ const htmlContent = `<!DOCTYPE html>
             ev.target.value = '';
         }
 
-        function emitPacket(to, kind, text, mediaUrl, fileName) {
+        function emitPacket(to, kind, text, mediaUrl, fileName, existingMsgId) {
             const cleanTo = String(to).trim();
             if (!cleanTo) return;
-            const msgId = 'm-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+            const liveDelivered = Boolean(ws && ws.readyState === 1 && onlinePeers.has(cleanTo));
+            const msgId = existingMsgId || ('m-' + Date.now() + '-' + Math.floor(Math.random() * 1000));
             if (!threads[cleanTo]) threads[cleanTo] = [];
-            threads[cleanTo].push({ id: msgId, from: 'me', kind, text, mediaUrl, fileName });
+            if (!existingMsgId) {
+                threads[cleanTo].push({ id: msgId, from: 'me', kind, text, mediaUrl, fileName, delivered: liveDelivered });
+            } else {
+                threads[cleanTo] = threads[cleanTo].map(m => m.id === existingMsgId ? { ...m, delivered: liveDelivered } : m);
+            }
             persistAndDraw();
             if (ws && ws.readyState === 1) {
                 ws.send(JSON.stringify({ type: 'msg', to: cleanTo, from: activeAcct, msgId, kind, text, mediaUrl, fileName }));
             }
+        }
+
+        function retryMessage(msgId) {
+            const item = (threads[currentPeer] || []).find(m => m.id === msgId);
+            if (!item) return;
+            emitPacket(currentPeer, item.kind, item.text, item.mediaUrl, item.fileName, item.id);
         }
 
         function sendTextMsg() {
@@ -669,7 +673,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!q) return;
             const log = document.getElementById('ai-log');
             log.innerHTML += '<div class="bg-blue-950/50 p-2 rounded-lg text-blue-200"><strong>أنت:</strong> ' + q + '</div>';
-            log.innerHTML += '<div class="bg-slate-900 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> تم استلام طلبك. يمكنك استخدام الإملاء الصوتي أو التسجيل الصوتي أو المكالمات، وتصدير نسخة احتياطية من إعداداتك في أي وقت.</div>';
+            log.innerHTML += '<div class="bg-slate-900 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> تم استلام طلبك. إذا كان الطرف الآخر غير متصل لحظياً، سيظهر لك خيار إعادة الإرسال بلمسة واحدة متى ما اتصل.</div>';
             inp.value = '';
             log.scrollTop = log.scrollHeight;
         }
@@ -805,7 +809,7 @@ const htmlContent = `<!DOCTYPE html>
             }
 
             const chips = document.getElementById('quick-chips');
-            chips.innerHTML = contacts.map(c => {
+            chips.innerHTML = '<span class="text-[11px] text-slate-400 shrink-0">وصول سريع:</span>' + contacts.map(c => {
                 const on = onlinePeers.has(c.id);
                 return \`<button onclick="choosePeer('\${c.id}')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] shrink-0 \${c.id === currentPeer ? 'bg-blue-600/25 border-blue-500 text-white font-bold' : 'bg-slate-800/80 border-slate-700 text-slate-300'}">
                     <span class="w-2 h-2 rounded-full \${on ? 'bg-emerald-400' : 'bg-slate-500'}"></span>
@@ -854,11 +858,16 @@ const htmlContent = `<!DOCTYPE html>
                 const speakBtn = m.kind === 'text' && m.text
                     ? \`<button onclick="speakText('\${String(m.text).replace(/'/g, '')}')" title="قراءة صوتية" class="underline text-blue-100">استماع</button>\`
                     : '';
+                const deliveryLabel = mine
+                    ? (m.delivered === false
+                        ? '<span class="text-amber-200">غير متصل • <button onclick="retryMessage(\'' + m.id + '\')" class="underline">إعادة إرسال</button></span>'
+                        : '<span>مرسلة ✓</span>')
+                    : '<span>واردة</span>';
                 return \`<div class="flex \${mine ? 'justify-end' : 'justify-start'}">
                     <div class="\${mine ? 'bg-blue-600 text-white rounded-tl-none' : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tr-none'} p-3 rounded-2xl max-w-md text-xs md:text-sm shadow space-y-1">
                         \${body}
                         <div class="flex justify-between items-center gap-3 pt-1 border-t \${mine ? 'border-blue-400/30 text-blue-100' : 'border-slate-800 text-slate-400'} text-[10px]">
-                            <span>\${mine ? 'مرسلة ✓' : 'واردة'}</span>
+                            \${deliveryLabel}
                             <div class="flex gap-2">
                                 \${speakBtn}
                                 \${mine ? \`<button onclick="deleteChatItem('\${m.id}')" class="underline text-red-100">حذف</button>\` : ''}
@@ -948,5 +957,5 @@ wss.on('connection', (ws) => {
 });
 
 server.listen(PORT, () => {
-    console.log('Sanad AI v5.0 running on port ' + PORT);
+    console.log('Sanad AI v5.1 running on port ' + PORT);
 });

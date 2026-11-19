@@ -8,7 +8,7 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>سند AI v6.0</title>
+    <title>سند AI v6.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -16,28 +16,9 @@ const htmlContent = `<!DOCTYPE html>
         body { font-family: 'Cairo', sans-serif; background-color: #050912; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1d4ed8; border-radius: 9999px; }
-        @keyframes tickerScroll {
-            0% { transform: translateX(0%); }
-            100% { transform: translateX(-50%); }
-        }
-        .ticker-line {
-            display: inline-flex;
-            white-space: nowrap;
-            animation: tickerScroll 28s linear infinite;
-        }
     </style>
 </head>
 <body class="text-slate-100 h-screen flex flex-col overflow-hidden select-none">
-
-    <!-- الشريط الإخباري الذكي -->
-    <div class="bg-blue-950/90 border-b border-blue-800/60 py-1 px-2 overflow-hidden text-[11px] text-blue-200 z-30 shrink-0">
-        <div class="ticker-line gap-8 font-semibold">
-            <span>⚡ سند AI v6.0: الإصدار الشامل المطور — اتصال هجين فوري (WebSocket + HTTP)</span>
-            <span>🎙️ إملاء صوتي + تسجيل رسائل صوتية + قراءة ناطقة + مكالمات صوت وفيديو</span>
-            <span>🧠 مساعد سند AI: تحسين الصياغة + تلخيص المحادثات + الرد التلقائي الذكي</span>
-            <span>⚡ سند AI v6.0: الإصدار الشامل المطور — اتصال هجين فوري (WebSocket + HTTP)</span>
-        </div>
-    </div>
 
     <!-- الشريط العلوي -->
     <header class="bg-slate-900/95 border-b border-slate-800 px-3.5 py-2.5 flex justify-between items-center z-20 shadow-md shrink-0">
@@ -49,7 +30,7 @@ const htmlContent = `<!DOCTYPE html>
             <div>
                 <div class="flex items-center gap-1.5">
                     <h1 class="font-black text-base md:text-lg text-white leading-none">سند</h1>
-                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v6.0</span>
+                    <span class="text-[10px] bg-emerald-600/25 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">AI v6.5</span>
                     <span id="device-badge" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-semibold">---</span>
                 </div>
                 <div class="flex items-center gap-1.5 text-[11px] mt-1">
@@ -73,32 +54,35 @@ const htmlContent = `<!DOCTYPE html>
     </header>
 
     <!-- نافذة المكالمات الصوتية والمرئية -->
-    <div id="call-modal" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-between p-5">
-        <div class="text-center mt-2">
-            <p class="text-xs text-blue-400 font-bold">سند AI v6.0 • مكالمة مباشرة مشفرة</p>
-            <h2 id="call-peer-title" class="text-xl font-black text-white font-mono mt-1">---</h2>
-            <p id="call-status-msg" class="text-xs text-emerald-400 mt-1 font-semibold">جاري الاتصال...</p>
+    <div id="call-modal" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-between p-4">
+        <div class="text-center mt-1">
+            <p class="text-xs text-blue-400 font-bold">سند AI v6.5 • اتصال مباشر</p>
+            <h2 id="call-peer-title" class="text-lg font-black text-white font-mono mt-0.5">---</h2>
+            <p id="call-status-msg" class="text-xs text-emerald-400 mt-0.5 font-semibold">جاري الاتصال...</p>
         </div>
 
         <div class="relative w-full max-w-md aspect-video bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden flex items-center justify-center shadow-2xl">
-            <video id="remote-video-el" autoplay playsinline class="w-full h-full object-cover hidden"></video>
+            <video id="remote-video-el" autoplay playsinline class="w-full h-full object-cover"></video>
             <video id="local-video-el" autoplay playsinline muted class="w-24 h-32 object-cover rounded-2xl border border-blue-500/50 absolute bottom-3 left-3 hidden"></video>
-            <div id="voice-call-card" class="flex flex-col items-center gap-2.5">
-                <div class="w-20 h-20 rounded-full bg-blue-600/20 border border-blue-400/40 flex items-center justify-center text-3xl text-blue-400 animate-pulse">
+            <div id="voice-call-card" class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-slate-900/80">
+                <div class="w-16 h-16 rounded-full bg-blue-600/20 border border-blue-400/40 flex items-center justify-center text-2xl text-blue-400 animate-pulse">
                     <i class="fa-solid fa-microphone-lines"></i>
                 </div>
-                <span class="text-xs text-slate-300 font-semibold">عزل ضوضاء ذكي وصوت عالي النقاء</span>
+                <span class="text-xs text-slate-300 font-semibold">عزل ضوضاء ذكي وصوت مباشر</span>
             </div>
         </div>
 
-        <div class="flex items-center gap-3 mb-4">
-            <button id="accept-btn" onclick="answerCall()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-2xl font-bold text-xs shadow-lg">
+        <div class="flex items-center gap-2.5 mb-2 flex-wrap justify-center">
+            <button id="accept-btn" onclick="answerCall()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-2xl font-bold text-xs shadow-lg">
                 <i class="fa-solid fa-phone ml-1"></i> رد
             </button>
-            <button id="mute-btn" onclick="toggleMuteTrack()" class="w-12 h-12 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center">
+            <button id="mute-btn" onclick="toggleMuteTrack()" title="كتم الصوت" class="w-11 h-11 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center">
                 <i class="fa-solid fa-microphone"></i>
             </button>
-            <button onclick="endActiveCall()" class="bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-2xl font-bold text-xs shadow-lg">
+            <button id="cam-btn" onclick="toggleVideoTrack()" title="الكاميرا" class="hidden w-11 h-11 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center">
+                <i class="fa-solid fa-video"></i>
+            </button>
+            <button onclick="endActiveCall()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-2xl font-bold text-xs shadow-lg">
                 <i class="fa-solid fa-phone-slash ml-1"></i> إنهاء
             </button>
         </div>
@@ -159,9 +143,9 @@ const htmlContent = `<!DOCTYPE html>
         <!-- 2. الحسابات -->
         <section id="pane-accounts" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
-                <h2 class="text-sm font-black text-blue-400">إدارة الحسابات والمعرّفات</h2>
+                <h2 class="text-sm font-black text-blue-400">إدارة الحسابات والمعرّفات المتعددة</h2>
                 <p class="text-[11px] text-slate-400 leading-relaxed">
-                    أنشئ معرّفاً رقمياً من <strong>8 أرقام متصلة</strong> أو فعّل رقم جوالك الدولي للتواصل المباشر من أي جهاز.
+                    أنشئ عدة معرّفات من <strong>8 أرقام متصلة</strong> أو فعّل أرقام جوال متعددة، ولكل حساب محادثاته الخاصة وحضوره الفوري.
                 </p>
                 <div class="flex flex-wrap gap-2">
                     <button onclick="make8DigitId()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ توليد معرّف (8 أرقام)</button>
@@ -191,7 +175,7 @@ const htmlContent = `<!DOCTYPE html>
             </div>
             <div>
                 <h2 class="text-base font-black text-white">مركز المكالمات الصوتية والمرئية</h2>
-                <p class="text-xs text-slate-400 mt-1 max-w-sm">اتصال مباشر عالي الجودة بين الآيفون والأندرويد والآيباد والكمبيوتر.</p>
+                <p class="text-xs text-slate-400 mt-1 max-w-sm">اتصال مباشر بين الأجهزة مع إمكانية كتم الصوت أو التحكم بالكاميرا.</p>
             </div>
             <input type="text" id="call-input" placeholder="أدخل معرّف 8 أرقام أو رقم الجوال..." class="w-full max-w-xs bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-center font-mono text-white">
             <div class="flex gap-3">
@@ -204,10 +188,23 @@ const htmlContent = `<!DOCTYPE html>
             </div>
         </section>
 
-        <!-- 5. الذكاء والإعدادات -->
+        <!-- 5. الذكاء والإعدادات + السيرفرات البديلة -->
         <section id="pane-ai" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2.5">
-                <h2 class="text-sm font-black text-indigo-400"><i class="fa-solid fa-brain ml-1"></i> مساعد سند AI والإعدادات</h2>
+                <h2 class="text-sm font-black text-indigo-400"><i class="fa-solid fa-brain ml-1"></i> مساعد سند AI والسيرفرات البديلة</h2>
+
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2 text-xs">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-slate-200">السيرفر النشط / الربط البديل</span>
+                        <button onclick="cycleServerEndpoint()" class="text-blue-400 underline font-semibold">تبديل للسيرفر التالي</button>
+                    </div>
+                    <select id="server-select" onchange="onServerSelectChange()" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-mono text-emerald-300"></select>
+                    <div class="flex gap-1.5">
+                        <input type="text" id="custom-srv-input" placeholder="إضافة رابط سيرفر بديل (https://...)" class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white">
+                        <button onclick="addCustomServer()" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold">إضافة</button>
+                    </div>
+                </div>
+
                 <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
                     <span>الرد التلقائي الذكي عند استلام رسالة</span>
                     <input type="checkbox" id="chk-autoreply" class="w-4 h-4 accent-indigo-600">
@@ -216,12 +213,8 @@ const htmlContent = `<!DOCTYPE html>
                     <span>نغمة تنبيه ناعمة عند وصول الرسائل والمكالمات</span>
                     <input type="checkbox" id="chk-chime" checked class="w-4 h-4 accent-blue-600">
                 </div>
-                <div class="flex gap-2 pt-1">
-                    <button onclick="exportBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-download ml-1"></i>تصدير نسخة</button>
-                    <button onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
-                </div>
-                <div id="ai-log" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">مرحباً بك في سند AI v6.0. اطلب تلخيص محادثة، صياغة رد رسمي، أو مساعدة في ربط الأجهزة.</div>
+                <div id="ai-log" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-32 overflow-y-auto text-xs space-y-2 custom-scrollbar">
+                    <div class="text-slate-400">مرحباً بك في سند AI v6.5. يدعم تعدد الحسابات والسيرفرات البديلة والمكالمات والرسائل.</div>
                 </div>
                 <div class="flex gap-2">
                     <input type="text" id="ai-q" onkeydown="if(event.key==='Enter') askSanadAI()" placeholder="اطلب من سند AI..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
@@ -266,16 +259,69 @@ const htmlContent = `<!DOCTYPE html>
         }
         document.getElementById('device-badge').textContent = detectDevice();
 
-        var activeAcct = localStorage.getItem('sanad6_active') || '88888888';
-        var myAccts = JSON.parse(localStorage.getItem('sanad6_accts') || '["88888888"]');
-        var contacts = JSON.parse(localStorage.getItem('sanad6_contacts') || '[{"name":"خدمة العملاء","id":"88888888"}]');
+        var defaultServers = [location.origin, 'https://my-server-t0s5.onrender.com'].filter(function(v, i, a) { return v && a.indexOf(v) === i; });
+        var serverList = JSON.parse(localStorage.getItem('sanad65_servers') || 'null') || defaultServers;
+        var activeServerUrl = localStorage.getItem('sanad65_active_srv') || location.origin;
+
+        function renderServerSelect() {
+            var sel = document.getElementById('server-select');
+            if (!sel) return;
+            sel.innerHTML = serverList.map(function(u) {
+                return '<option value="' + u + '"' + (u === activeServerUrl ? ' selected' : '') + '>' + u + '</option>';
+            }).join('');
+        }
+
+        function addCustomServer() {
+            var inp = document.getElementById('custom-srv-input');
+            var u = (inp.value || '').trim().replace(/\/+$/, '');
+            if (!u || u.indexOf('http') !== 0) return alert('أدخل رابطاً يبدأ بـ https:// أو http://');
+            if (serverList.indexOf(u) === -1) serverList.push(u);
+            activeServerUrl = u;
+            localStorage.setItem('sanad65_servers', JSON.stringify(serverList));
+            localStorage.setItem('sanad65_active_srv', activeServerUrl);
+            inp.value = '';
+            renderServerSelect();
+            reconnectNow();
+        }
+
+        function onServerSelectChange() {
+            activeServerUrl = document.getElementById('server-select').value;
+            localStorage.setItem('sanad65_active_srv', activeServerUrl);
+            reconnectNow();
+        }
+
+        function cycleServerEndpoint() {
+            if (serverList.length < 2) return alert('أضف سيرفراً بديلاً أولاً لتبديل الربط.');
+            var idx = serverList.indexOf(activeServerUrl);
+            activeServerUrl = serverList[(idx + 1) % serverList.length];
+            localStorage.setItem('sanad65_active_srv', activeServerUrl);
+            renderServerSelect();
+            reconnectNow();
+        }
+
+        function getBaseUrl() {
+            return (activeServerUrl || location.origin).replace(/\/+$/, '');
+        }
+
+        var activeAcct = localStorage.getItem('sanad65_active') || '88888888';
+        var myAccts = JSON.parse(localStorage.getItem('sanad65_accts') || '["88888888"]');
+        var contacts = JSON.parse(localStorage.getItem('sanad65_contacts') || '[{"name":"خدمة العملاء","id":"88888888"}]');
         var currentPeer = '88888888';
         var onlinePeers = new Set();
-        var threads = JSON.parse(localStorage.getItem('sanad6_threads') || '{"88888888":[{"id":"init-1","from":"them","kind":"text","text":"أهلاً بك في سند AI v6.0 الشامل. النظام جاهز للمراسلة، الصوت، المرفقات، والمكالمات."}]}');
+        var acctThreads = JSON.parse(localStorage.getItem('sanad65_acct_threads') || '{}');
         var seenEventIds = new Set();
         var ws;
         var wsConnected = false;
         var httpConnected = false;
+
+        function getCurrentThreadMap() {
+            if (!acctThreads[activeAcct]) {
+                acctThreads[activeAcct] = {
+                    '88888888': [{ id: 'init-1', from: 'them', kind: 'text', text: 'أهلاً بك في سند AI v6.5. النظام جاهز للمراسلة، الصوت، الفيديو، وتعدد الحسابات.' }]
+                };
+            }
+            return acctThreads[activeAcct];
+        }
 
         function refreshConnectionHeader() {
             var isLive = wsConnected || httpConnected;
@@ -319,10 +365,12 @@ const htmlContent = `<!DOCTYPE html>
                 onlinePeers = new Set(msg.ids);
                 renderPresence();
             } else if (msg.type === 'msg') {
+                var recipient = String(msg.to || activeAcct);
                 var sender = String(msg.from || '');
                 if (!sender) return;
-                if (!threads[sender]) threads[sender] = [];
-                threads[sender].push({
+                if (!acctThreads[recipient]) acctThreads[recipient] = {};
+                if (!acctThreads[recipient][sender]) acctThreads[recipient][sender] = [];
+                acctThreads[recipient][sender].push({
                     id: msg.msgId || ('m-' + Date.now()),
                     from: 'them',
                     kind: msg.kind || 'text',
@@ -333,13 +381,14 @@ const htmlContent = `<!DOCTYPE html>
                 playSoftChime();
                 persistAndDraw();
                 var autoChk = document.getElementById('chk-autoreply');
-                if (autoChk && autoChk.checked && msg.kind === 'text' && sender !== activeAcct) {
-                    emitPacket(sender, 'text', 'رد تلقائي من سند AI: تم استلام رسالتك وسيتم الرد عليك قريباً.', null, '');
+                if (autoChk && autoChk.checked && msg.kind === 'text' && sender !== recipient) {
+                    emitPacket(sender, 'text', 'رد تلقائي من سند AI: تم استلام رسالتك بنجاح.', null, '', null, recipient);
                 }
             } else if (msg.type === 'msg_del') {
+                var recipientDel = String(msg.to || activeAcct);
                 var delSender = String(msg.from || '');
-                if (threads[delSender]) {
-                    threads[delSender] = threads[delSender].map(function(m) {
+                if (acctThreads[recipientDel] && acctThreads[recipientDel][delSender]) {
+                    acctThreads[recipientDel][delSender] = acctThreads[recipientDel][delSender].map(function(m) {
                         return m.id === msg.msgId ? Object.assign({}, m, { deleted: true }) : m;
                     });
                     persistAndDraw();
@@ -351,7 +400,7 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function postHttpSync(payload) {
-            fetch('/api/sync', {
+            fetch(getBaseUrl() + '/api/sync', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -369,12 +418,15 @@ const htmlContent = `<!DOCTYPE html>
                 if (Array.isArray(data.events)) {
                     data.events.forEach(handleIncomingPayload);
                 }
-            }).catch(function() {});
+            }).catch(function() {
+                httpConnected = false;
+                refreshConnectionHeader();
+            });
         }
 
         function pollHttpSync() {
             var q = encodeURIComponent(myAccts.join(','));
-            fetch('/api/sync?ids=' + q).then(function(res) {
+            fetch(getBaseUrl() + '/api/sync?ids=' + q).then(function(res) {
                 if (!res.ok) return null;
                 httpConnected = true;
                 refreshConnectionHeader();
@@ -388,18 +440,21 @@ const htmlContent = `<!DOCTYPE html>
                 if (Array.isArray(data.events)) {
                     data.events.forEach(handleIncomingPayload);
                 }
-            }).catch(function() {});
+            }).catch(function() {
+                httpConnected = false;
+                refreshConnectionHeader();
+            });
         }
 
         setInterval(function() {
             postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
             pollHttpSync();
-        }, 2500);
+        }, 1500);
 
         function openSocket() {
             try {
-                var scheme = location.protocol === 'https:' ? 'wss:' : 'ws:';
-                ws = new WebSocket(scheme + '//' + location.host);
+                var wsBase = getBaseUrl().replace(/^https:/, 'wss:').replace(/^http:/, 'ws:');
+                ws = new WebSocket(wsBase);
                 ws.onopen = function() {
                     wsConnected = true;
                     refreshConnectionHeader();
@@ -449,10 +504,12 @@ const htmlContent = `<!DOCTYPE html>
         var localStreamObj = null;
         var pendingCall = null;
         var callPeerId = null;
+        var pendingIce = [];
         var rtcConfig = {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' }
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' }
             ]
         };
 
@@ -460,6 +517,7 @@ const htmlContent = `<!DOCTYPE html>
             var target = String(explicitTarget || currentPeer || '').trim();
             if (!target) return alert('حدد معرّف أو رقم الطرف الآخر أولاً.');
             callPeerId = target;
+            pendingIce = [];
             document.getElementById('call-modal').classList.remove('hidden');
             document.getElementById('call-peer-title').textContent = target + ' (' + (mode === 'video' ? 'فيديو' : 'صوت') + ')';
             document.getElementById('call-status-msg').textContent = 'جاري الاتصال...';
@@ -468,10 +526,14 @@ const htmlContent = `<!DOCTYPE html>
 
             navigator.mediaDevices.getUserMedia({
                 audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
-                video: mode === 'video' ? { facingMode: 'user' } : false
+                video: mode === 'video' ? { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } } : false
             }).then(function(stream) {
                 localStreamObj = stream;
-                if (mode === 'video') document.getElementById('local-video-el').srcObject = localStreamObj;
+                if (mode === 'video') {
+                    var lv = document.getElementById('local-video-el');
+                    lv.srcObject = localStreamObj;
+                    lv.play().catch(function() {});
+                }
                 createRTC(mode);
                 localStreamObj.getTracks().forEach(function(t) { rtcConn.addTrack(t, localStreamObj); });
                 return rtcConn.createOffer();
@@ -490,6 +552,7 @@ const htmlContent = `<!DOCTYPE html>
             if (sig.op === 'offer') {
                 pendingCall = msg;
                 callPeerId = msg.from;
+                pendingIce = [];
                 document.getElementById('call-modal').classList.remove('hidden');
                 document.getElementById('call-peer-title').textContent = msg.from + ' (' + (sig.mode === 'video' ? 'فيديو' : 'صوت') + ')';
                 document.getElementById('call-status-msg').textContent = 'مكالمة واردة...';
@@ -498,12 +561,25 @@ const htmlContent = `<!DOCTYPE html>
             } else if (sig.op === 'answer' && rtcConn) {
                 rtcConn.setRemoteDescription(new RTCSessionDescription(sig.sdp)).then(function() {
                     document.getElementById('call-status-msg').textContent = 'متصل الآن';
+                    flushPendingIce();
                 }).catch(function() {});
-            } else if (sig.op === 'ice' && rtcConn && sig.candidate) {
-                rtcConn.addIceCandidate(new RTCIceCandidate(sig.candidate)).catch(function() {});
+            } else if (sig.op === 'ice' && sig.candidate) {
+                if (rtcConn && rtcConn.remoteDescription) {
+                    rtcConn.addIceCandidate(new RTCIceCandidate(sig.candidate)).catch(function() {});
+                } else {
+                    pendingIce.push(sig.candidate);
+                }
             } else if (sig.op === 'bye') {
                 resetCallState();
             }
+        }
+
+        function flushPendingIce() {
+            if (!rtcConn || !pendingIce.length) return;
+            pendingIce.forEach(function(cand) {
+                rtcConn.addIceCandidate(new RTCIceCandidate(cand)).catch(function() {});
+            });
+            pendingIce = [];
         }
 
         function answerCall() {
@@ -511,16 +587,22 @@ const htmlContent = `<!DOCTYPE html>
             document.getElementById('accept-btn').classList.add('hidden');
             document.getElementById('call-status-msg').textContent = 'جاري الفتح...';
             var mode = pendingCall.sig.mode;
+            setCallVisualMode(mode);
             navigator.mediaDevices.getUserMedia({
                 audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
-                video: mode === 'video' ? { facingMode: 'user' } : false
+                video: mode === 'video' ? { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } } : false
             }).then(function(stream) {
                 localStreamObj = stream;
-                if (mode === 'video') document.getElementById('local-video-el').srcObject = localStreamObj;
+                if (mode === 'video') {
+                    var lv = document.getElementById('local-video-el');
+                    lv.srcObject = localStreamObj;
+                    lv.play().catch(function() {});
+                }
                 createRTC(mode);
                 localStreamObj.getTracks().forEach(function(t) { rtcConn.addTrack(t, localStreamObj); });
                 return rtcConn.setRemoteDescription(new RTCSessionDescription(pendingCall.sig.sdp));
             }).then(function() {
+                flushPendingIce();
                 return rtcConn.createAnswer();
             }).then(function(ans) {
                 return rtcConn.setLocalDescription(ans).then(function() { return ans; });
@@ -531,20 +613,34 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function createRTC(mode) {
+            if (rtcConn) { try { rtcConn.close(); } catch (e) {} }
             rtcConn = new RTCPeerConnection(rtcConfig);
             rtcConn.onicecandidate = function(e) {
                 if (e.candidate && callPeerId) {
                     sendSignalingOrMsg({ type: 'call_sig', to: callPeerId, from: activeAcct, sig: { op: 'ice', candidate: e.candidate } });
                 }
             };
+            rtcConn.onconnectionstatechange = function() {
+                if (!rtcConn) return;
+                if (rtcConn.connectionState === 'connected') {
+                    document.getElementById('call-status-msg').textContent = 'متصل الآن';
+                } else if (rtcConn.connectionState === 'failed' || rtcConn.connectionState === 'disconnected') {
+                    document.getElementById('call-status-msg').textContent = 'الشبكة غير مستقرة — جاري المحاولة...';
+                }
+            };
             rtcConn.ontrack = function(e) {
-                if (mode === 'video') {
+                var stream = (e.streams && e.streams[0]) || new MediaStream([e.track]);
+                if (e.track.kind === 'video' || mode === 'video') {
                     var rv = document.getElementById('remote-video-el');
-                    rv.srcObject = e.streams[0];
-                    rv.classList.remove('hidden');
-                } else {
+                    rv.srcObject = stream;
+                    rv.muted = false;
+                    rv.play().catch(function() {});
+                    document.getElementById('voice-call-card').classList.add('hidden');
+                }
+                if (e.track.kind === 'audio') {
                     var aud = new Audio();
-                    aud.srcObject = e.streams[0];
+                    aud.srcObject = stream;
+                    aud.autoplay = true;
                     aud.play().catch(function() {});
                 }
             };
@@ -554,13 +650,17 @@ const htmlContent = `<!DOCTYPE html>
             var lv = document.getElementById('local-video-el');
             var rv = document.getElementById('remote-video-el');
             var vc = document.getElementById('voice-call-card');
+            var camBtn = document.getElementById('cam-btn');
             if (mode === 'video') {
                 lv.classList.remove('hidden');
+                rv.classList.remove('hidden');
                 vc.classList.add('hidden');
+                camBtn.classList.remove('hidden');
             } else {
                 lv.classList.add('hidden');
                 rv.classList.add('hidden');
                 vc.classList.remove('hidden');
+                camBtn.classList.add('hidden');
             }
         }
 
@@ -570,8 +670,18 @@ const htmlContent = `<!DOCTYPE html>
             if (!tr) return;
             tr.enabled = !tr.enabled;
             document.getElementById('mute-btn').className = tr.enabled
-                ? 'w-12 h-12 rounded-2xl bg-slate-800 text-white flex items-center justify-center'
-                : 'w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center';
+                ? 'w-11 h-11 rounded-2xl bg-slate-800 text-white flex items-center justify-center'
+                : 'w-11 h-11 rounded-2xl bg-amber-600 text-white flex items-center justify-center';
+        }
+
+        function toggleVideoTrack() {
+            if (!localStreamObj) return;
+            var vtr = localStreamObj.getVideoTracks()[0];
+            if (!vtr) return;
+            vtr.enabled = !vtr.enabled;
+            document.getElementById('cam-btn').className = vtr.enabled
+                ? 'w-11 h-11 rounded-2xl bg-slate-800 text-white flex items-center justify-center'
+                : 'w-11 h-11 rounded-2xl bg-amber-600 text-white flex items-center justify-center';
         }
 
         function endActiveCall() {
@@ -584,9 +694,10 @@ const htmlContent = `<!DOCTYPE html>
         function resetCallState() {
             if (rtcConn) { rtcConn.close(); rtcConn = null; }
             if (localStreamObj) { localStreamObj.getTracks().forEach(function(t) { t.stop(); }); localStreamObj = null; }
+            pendingIce = [];
             document.getElementById('call-modal').classList.add('hidden');
-            document.getElementById('remote-video-el').classList.add('hidden');
-            document.getElementById('local-video-el').classList.add('hidden');
+            document.getElementById('remote-video-el').srcObject = null;
+            document.getElementById('local-video-el').srcObject = null;
             pendingCall = null;
             callPeerId = null;
         }
@@ -624,7 +735,7 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function pickSupportedAudioMime() {
-            var candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/aac'];
+            var candidates = ['audio/mp4', 'audio/aac', 'audio/webm;codecs=opus', 'audio/webm'];
             if (typeof MediaRecorder === 'undefined' || !MediaRecorder.isTypeSupported) return '';
             for (var i = 0; i < candidates.length; i++) {
                 if (MediaRecorder.isTypeSupported(candidates[i])) return candidates[i];
@@ -647,7 +758,7 @@ const htmlContent = `<!DOCTYPE html>
                     audioBlobs = [];
                     mediaRec.ondataavailable = function(e) { if (e.data && e.data.size > 0) audioBlobs.push(e.data); };
                     mediaRec.onstop = function() {
-                        var finalType = mediaRec.mimeType || mimeType || 'audio/webm';
+                        var finalType = mediaRec.mimeType || mimeType || 'audio/mp4';
                         var blob = new Blob(audioBlobs, { type: finalType });
                         var reader = new FileReader();
                         reader.onloadend = function() { emitPacket(currentPeer, 'audio', 'رسالة صوتية', reader.result, 'voice-note'); };
@@ -681,25 +792,27 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         // إرسال وإدارة الرسائل
-        function emitPacket(to, kind, text, mediaUrl, fileName, existingMsgId) {
+        function emitPacket(to, kind, text, mediaUrl, fileName, existingMsgId, forcedSender) {
             var cleanTo = String(to || '').trim();
             if (!cleanTo) return;
+            var senderId = forcedSender || activeAcct;
             var liveDelivered = onlinePeers.has(cleanTo);
             var msgId = existingMsgId || ('m-' + Date.now() + '-' + Math.floor(Math.random() * 1000));
-            if (!threads[cleanTo]) threads[cleanTo] = [];
+            if (!acctThreads[senderId]) acctThreads[senderId] = {};
+            if (!acctThreads[senderId][cleanTo]) acctThreads[senderId][cleanTo] = [];
             if (!existingMsgId) {
-                threads[cleanTo].push({ id: msgId, from: 'me', kind: kind, text: text, mediaUrl: mediaUrl, fileName: fileName, delivered: liveDelivered });
+                acctThreads[senderId][cleanTo].push({ id: msgId, from: 'me', kind: kind, text: text, mediaUrl: mediaUrl, fileName: fileName, delivered: liveDelivered });
             } else {
-                threads[cleanTo] = threads[cleanTo].map(function(m) {
+                acctThreads[senderId][cleanTo] = acctThreads[senderId][cleanTo].map(function(m) {
                     return m.id === existingMsgId ? Object.assign({}, m, { delivered: liveDelivered }) : m;
                 });
             }
             persistAndDraw();
-            sendSignalingOrMsg({ type: 'msg', to: cleanTo, from: activeAcct, msgId: msgId, kind: kind, text: text, mediaUrl: mediaUrl, fileName: fileName });
+            sendSignalingOrMsg({ type: 'msg', to: cleanTo, from: senderId, msgId: msgId, kind: kind, text: text, mediaUrl: mediaUrl, fileName: fileName });
         }
 
         function retryMessage(msgId) {
-            var list = threads[currentPeer] || [];
+            var list = getCurrentThreadMap()[currentPeer] || [];
             var item = list.find(function(m) { return m.id === msgId; });
             if (!item) return;
             emitPacket(currentPeer, item.kind, item.text, item.mediaUrl, item.fileName, item.id);
@@ -714,8 +827,9 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function deleteChatItem(msgId) {
-            if (!threads[currentPeer]) return;
-            threads[currentPeer] = threads[currentPeer].map(function(m) {
+            var map = getCurrentThreadMap();
+            if (!map[currentPeer]) return;
+            map[currentPeer] = map[currentPeer].map(function(m) {
                 return m.id === msgId ? Object.assign({}, m, { deleted: true }) : m;
             });
             persistAndDraw();
@@ -723,7 +837,7 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function clearThreadMsgs() {
-            threads[currentPeer] = [];
+            getCurrentThreadMap()[currentPeer] = [];
             persistAndDraw();
         }
 
@@ -739,7 +853,7 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function summarizeCurrentThread() {
-            var list = (threads[currentPeer] || []).filter(function(m) { return !m.deleted && m.kind === 'text'; });
+            var list = (getCurrentThreadMap()[currentPeer] || []).filter(function(m) { return !m.deleted && m.kind === 'text'; });
             if (!list.length) return alert('لا توجد رسائل نصية كافية لتلخيصها.');
             var lastFew = list.slice(-5).map(function(m) { return m.text; }).join(' • ');
             setPane('ai');
@@ -754,39 +868,13 @@ const htmlContent = `<!DOCTYPE html>
             if (!q) return;
             var log = document.getElementById('ai-log');
             log.innerHTML += '<div class="bg-blue-950/50 p-2 rounded-lg text-blue-200"><strong>أنت:</strong> ' + q + '</div>';
-            var reply = 'تم استلام طلبك بنجاح. يعمل سند AI v6.0 بنظام المزامنة الهجين الفوري ويمكنك التواصل عبر معرّف 8 أرقام أو رقم الجوال.';
-            if (q.indexOf('صياغ') !== -1 || q.indexOf('رسالة') !== -1) {
-                reply = 'صياغة مقترحة: «السلام عليكم ورحمة الله وبركاته، نأمل إفادتنا بآخر المستجدات في أقرب وقت ممكن، ولكم جزيل الشكر.»';
+            var reply = 'يعمل سند AI v6.5 بنظام تعدد الحسابات والسيرفرات البديلة والمزامنة السريعة والمكالمات.';
+            if (q.indexOf('سيرفر') !== -1 || q.indexOf('ربط') !== -1) {
+                reply = 'يمكنك إضافة سيرفر بديل من قسم الذكاء والإعدادات أو التبديل بين السيرفرات فوراً عند الحاجة.';
             }
             log.innerHTML += '<div class="bg-slate-900 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> ' + reply + '</div>';
             inp.value = '';
             log.scrollTop = log.scrollHeight;
-        }
-
-        function exportBackup() {
-            var data = JSON.stringify({ activeAcct: activeAcct, myAccts: myAccts, contacts: contacts, threads: threads });
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(data).then(function() { alert('تم نسخ النسخة الاحتياطية إلى الحافظة.'); });
-            } else {
-                prompt('انسخ بيانات النسخة الاحتياطية:', data);
-            }
-        }
-
-        function importBackup() {
-            var raw = prompt('الصق بيانات النسخة الاحتياطية هنا:');
-            if (!raw) return;
-            try {
-                var parsed = JSON.parse(raw);
-                if (parsed.activeAcct) activeAcct = parsed.activeAcct;
-                if (Array.isArray(parsed.myAccts)) myAccts = parsed.myAccts;
-                if (Array.isArray(parsed.contacts)) contacts = parsed.contacts;
-                if (parsed.threads && typeof parsed.threads === 'object') threads = parsed.threads;
-                persistAndDraw();
-                sendSignalingOrMsg({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
-                alert('تمت استعادة النسخة الاحتياطية بنجاح.');
-            } catch (e) {
-                alert('صيغة النسخة الاحتياطية غير صحيحة.');
-            }
         }
 
         function setPane(p) {
@@ -804,7 +892,8 @@ const htmlContent = `<!DOCTYPE html>
             var clean = String(id || '').trim();
             if (!clean) return;
             currentPeer = clean;
-            if (!threads[currentPeer]) threads[currentPeer] = [];
+            var map = getCurrentThreadMap();
+            if (!map[currentPeer]) map[currentPeer] = [];
             setPane('chats');
             persistAndDraw();
         }
@@ -841,9 +930,9 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function shareInviteLink() {
-            var msg = 'تواصل معي على سند AI عبر المعرّف: ' + activeAcct + ' على الرابط: ' + location.origin;
+            var msg = 'تواصل معي على سند AI عبر المعرّف: ' + activeAcct + ' على الرابط: ' + getBaseUrl();
             if (navigator.share) {
-                navigator.share({ title: 'سند AI', text: msg, url: location.origin }).catch(function() {});
+                navigator.share({ title: 'سند AI', text: msg, url: getBaseUrl() }).catch(function() {});
             } else if (navigator.clipboard) {
                 navigator.clipboard.writeText(msg);
                 alert('تم نسخ الدعوة: ' + msg);
@@ -871,6 +960,8 @@ const htmlContent = `<!DOCTYPE html>
 
         function activateAccount(id) {
             activeAcct = String(id).trim();
+            getCurrentThreadMap();
+            setPane('chats');
             persistAndDraw();
             sendSignalingOrMsg({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
         }
@@ -915,7 +1006,7 @@ const htmlContent = `<!DOCTYPE html>
 
         function renderMsgs() {
             var box = document.getElementById('msgs-box');
-            var list = threads[currentPeer] || [];
+            var list = getCurrentThreadMap()[currentPeer] || [];
             if (!list.length) {
                 box.innerHTML = '<div class="text-center text-xs text-slate-500 py-8">ابدأ المراسلة أو أرسل صوتاً أو مرفقاً أو ابدأ مكالمة.</div>';
                 return;
@@ -963,10 +1054,10 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function persistAndDraw() {
-            localStorage.setItem('sanad6_active', activeAcct);
-            localStorage.setItem('sanad6_accts', JSON.stringify(myAccts));
-            localStorage.setItem('sanad6_contacts', JSON.stringify(contacts));
-            localStorage.setItem('sanad6_threads', JSON.stringify(threads));
+            localStorage.setItem('sanad65_active', activeAcct);
+            localStorage.setItem('sanad65_accts', JSON.stringify(myAccts));
+            localStorage.setItem('sanad65_contacts', JSON.stringify(contacts));
+            localStorage.setItem('sanad65_acct_threads', JSON.stringify(acctThreads));
             document.getElementById('active-acct-label').textContent = activeAcct;
             document.getElementById('peer-title').textContent = currentPeer;
             renderPresence();
@@ -974,6 +1065,7 @@ const htmlContent = `<!DOCTYPE html>
             renderAccts();
         }
 
+        renderServerSelect();
         persistAndDraw();
         openSocket();
         postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
@@ -999,7 +1091,7 @@ function getAllOnlineIds() {
     const now = Date.now();
     const set = new Set(socketsMap.keys());
     httpPresence.forEach((ts, id) => {
-        if (now - ts < 12000) set.add(id);
+        if (now - ts < 15000) set.add(id);
         else httpPresence.delete(id);
     });
     return Array.from(set);
@@ -1010,7 +1102,7 @@ function enqueueHttpEvent(toId, payload) {
     if (!clean) return;
     const list = httpInbox.get(clean) || [];
     list.push(payload);
-    if (list.length > 60) list.shift();
+    if (list.length > 80) list.shift();
     httpInbox.set(clean, list);
 }
 
@@ -1028,6 +1120,15 @@ function drainHttpEvents(ids) {
 }
 
 const server = http.createServer((req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    if (req.method === 'OPTIONS') {
+        res.writeHead(204);
+        res.end();
+        return;
+    }
+
     const urlObj = new URL(req.url, 'http://' + (req.headers.host || 'localhost'));
 
     if (urlObj.pathname === '/api/sync' && req.method === 'GET') {
@@ -1114,5 +1215,5 @@ wss.on('connection', (ws) => {
 });
 
 server.listen(PORT, () => {
-    console.log('Sanad AI v6.0 running on port ' + PORT);
+    console.log('Sanad AI v6.5 running on port ' + PORT);
 });

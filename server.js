@@ -12,7 +12,7 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0b4aa2">
-    <title>سند AI v6.8</title>
+    <title>سند AI v6.9</title>
     <link rel="icon" type="image/svg+xml" href="${sanadIconUri}">
     <link rel="apple-touch-icon" sizes="180x180" href="${sanadIconUri}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -41,10 +41,10 @@ const htmlContent = `<!DOCTYPE html>
     <!-- الشريط الإخباري الذكي الواضح -->
     <div class="bg-blue-700 border-b border-blue-300/50 py-1.5 px-2.5 overflow-hidden text-xs text-white z-30 shrink-0 shadow">
         <div class="ticker-line gap-8 font-bold tracking-wide">
-            <span>⚡ سند AI v6.8: مزامنة فورية للرسائل والمكالمات + إشارات استلام وقراءة خضراء + حذف من عندي أو من الجميع</span>
+            <span>⚡ سند AI v6.9: رسائل نصية وصوتية فورية + فيديو طولي 9:16 واضح + صوت مكالمات مستقر + تنقل حر بين المحادثات</span>
             <span>📞 اتصال صوتي وفيديو مباشر من الدردشة والجهات + فحص أرقام المشتركين + تعدد الأرقام والحسابات</span>
             <span>🧠 مركز سند AI الشامل: تحسين الصياغة + تلخيص + استخراج مهام + ردود ذكية + رد تلقائي</span>
-            <span>⚡ سند AI v6.8: مزامنة فورية للرسائل والمكالمات + إشارات استلام وقراءة خضراء + حذف من عندي أو من الجميع</span>
+            <span>⚡ سند AI v6.9: رسائل نصية وصوتية فورية + فيديو طولي 9:16 واضح + صوت مكالمات مستقر + تنقل حر بين المحادثات</span>
         </div>
     </div>
 
@@ -58,7 +58,7 @@ const htmlContent = `<!DOCTYPE html>
             <div>
                 <div class="flex items-center gap-1.5">
                     <h1 class="font-black text-base md:text-lg text-white leading-none">سند</h1>
-                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v6.8</span>
+                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v6.9</span>
                     <span id="device-badge" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-semibold">---</span>
                 </div>
                 <div class="flex items-center gap-1.5 text-[11px] mt-1">
@@ -90,28 +90,34 @@ const htmlContent = `<!DOCTYPE html>
         <span class="bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-lg text-[10px] font-bold shrink-0">فتح</span>
     </div>
 
-    <!-- نافذة المكالمات الصوتية والمرئية -->
-    <div id="call-modal" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-between p-5">
-        <div class="text-center mt-2">
-            <p class="text-xs text-blue-400 font-bold">سند AI v6.8 • اتصال مباشر سريع</p>
-            <h2 id="call-peer-title" class="text-xl font-black text-white font-mono mt-1">---</h2>
-            <p id="call-status-msg" class="text-xs text-emerald-400 mt-1 font-semibold">جاري الاتصال...</p>
+    <!-- نافذة المكالمات الصوتية والمرئية الطولية 9:16 -->
+    <div id="call-modal" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-between p-4">
+        <div class="text-center mt-1">
+            <p class="text-xs text-blue-400 font-bold">سند AI v6.9 • اتصال مباشر سريع</p>
+            <h2 id="call-peer-title" class="text-lg font-black text-white font-mono mt-0.5">---</h2>
+            <p id="call-status-msg" class="text-xs text-emerald-400 mt-0.5 font-semibold">جاري الاتصال...</p>
         </div>
 
-        <div class="relative w-full max-w-md aspect-video bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden flex items-center justify-center shadow-2xl">
+        <div class="relative w-full max-w-sm flex-1 my-3 max-h-[68vh] aspect-[9/16] bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden flex items-center justify-center shadow-2xl">
             <video id="remote-video-el" autoplay playsinline class="w-full h-full object-cover hidden"></video>
-            <video id="local-video-el" autoplay playsinline muted class="w-24 h-24 object-cover rounded-2xl border-2 border-blue-400/70 shadow-lg absolute bottom-3 left-3 hidden"></video>
-            <div id="voice-call-card" class="flex flex-col items-center gap-2.5">
+            <video id="local-video-el" autoplay playsinline muted class="w-24 h-36 object-cover rounded-2xl border-2 border-blue-400/80 shadow-lg absolute bottom-3 left-3 hidden"></video>
+            <div id="voice-call-card" class="flex flex-col items-center gap-2.5 px-4 text-center">
                 <div class="w-20 h-20 rounded-full bg-blue-600/20 border border-blue-400/40 flex items-center justify-center text-3xl text-blue-400 animate-pulse">
                     <i class="fa-solid fa-microphone-lines"></i>
                 </div>
                 <span class="text-xs text-slate-300 font-semibold">صوت ثنائي الاتجاه وعزل ضوضاء ذكي</span>
+                <button onclick="forceUnmuteAudio()" class="bg-emerald-600/25 border border-emerald-400/40 text-emerald-300 px-3 py-1 rounded-xl text-[11px] font-bold">
+                    <i class="fa-solid fa-volume-high ml-1"></i> تنشيط الصوت
+                </button>
             </div>
         </div>
 
-        <div class="flex items-center gap-3 mb-4">
+        <div class="flex items-center gap-3 mb-2">
             <button id="accept-btn" onclick="answerCall()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-2xl font-bold text-xs shadow-lg animate-bounce">
                 <i class="fa-solid fa-phone ml-1"></i> رد الآن
+            </button>
+            <button id="switch-cam-btn" onclick="switchCameraFacing()" title="تبديل الكاميرا" class="w-12 h-12 rounded-2xl bg-slate-800 hover:bg-slate-700 text-blue-300 flex items-center justify-center">
+                <i class="fa-solid fa-camera-rotate"></i>
             </button>
             <button id="mute-btn" onclick="toggleMuteTrack()" class="w-12 h-12 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center">
                 <i class="fa-solid fa-microphone"></i>
@@ -140,7 +146,7 @@ const htmlContent = `<!DOCTYPE html>
         <section id="pane-chats" class="flex-1 flex flex-col h-full overflow-hidden">
             <div class="p-2.5 bg-slate-900/80 border-b border-slate-800 space-y-2 shrink-0">
                 <div class="flex gap-2">
-                    <input type="text" id="peer-input" oninput="onTopPeerSearchInput()" onkeydown="if(event.key==='Enter') openPeerByInput()" placeholder="بحث آلي بالاسم أو الكود (8 أرقام) أو جوال..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-blue-500">
+                    <input type="text" id="peer-input" oninput="onTopPeerSearchInput()" onkeydown="if(event.key==='Enter') { event.preventDefault(); openPeerByInput(); }" placeholder="بحث آلي بالاسم أو الكود (8 أرقام) أو جوال..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-blue-500">
                     <button onclick="openPeerByInput()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition">فتح</button>
                     <button onclick="saveCurrentPeer()" title="حفظ في الجهات" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-400 px-3 py-2 rounded-xl text-xs font-bold">
                         <i class="fa-solid fa-user-plus"></i>
@@ -280,7 +286,7 @@ const htmlContent = `<!DOCTYPE html>
                     <button onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
                 </div>
                 <div id="ai-log" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">مرحباً بك في سند AI v6.8. مزامنة مستقرة، صوت واضح في المكالمات، إرسال فوري للرسائل، وفحص أرقام المشتركين.</div>
+                    <div class="text-slate-400">مرحباً بك في سند AI v6.9. مزامنة مستقرة، صوت واضح في المكالمات، فيديو طولي 9:16، وإرسال فوري للرسائل.</div>
                 </div>
                 <div class="flex gap-2">
                     <input type="text" id="ai-q" onkeydown="if(event.key==='Enter') askSanadAI()" placeholder="اطلب من سند AI (صياغة، تلخيص، مهام، أفكار)..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
@@ -408,7 +414,7 @@ const htmlContent = `<!DOCTYPE html>
         function getThreadMap() {
             if (!acctThreads[activeAcct]) {
                 acctThreads[activeAcct] = {
-                    '88888888': [{ id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'أهلاً بك في سند AI v6.8. الحساب النشط: ' + activeAcct }]
+                    '88888888': [{ id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'أهلاً بك في سند AI v6.9. الحساب النشط: ' + activeAcct }]
                 };
             }
             return acctThreads[activeAcct];
@@ -659,11 +665,14 @@ const htmlContent = `<!DOCTYPE html>
             postHttpSync(enriched);
         }
 
-        // المكالمات الصوتية والمرئية السريعة مع إصلاح الصوت والنافذة الصغيرة
+        // المكالمات الصوتية والمرئية الطولية 9:16 مع ثبات الصوت وتبديل الكاميرا
         var rtcConn = null;
         var localStreamObj = null;
+        var remoteStreamObj = null;
         var pendingCall = null;
         var callPeerId = null;
+        var activeCallMode = 'audio';
+        var facingModeCurrent = 'user';
         var rtcConfig = {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
@@ -671,7 +680,26 @@ const htmlContent = `<!DOCTYPE html>
             ]
         };
 
+        function forceUnmuteAudio() {
+            var audEl = document.getElementById('remote-audio-el');
+            if (audEl) {
+                if (remoteStreamObj && audEl.srcObject !== remoteStreamObj) {
+                    audEl.srcObject = remoteStreamObj;
+                }
+                audEl.muted = false;
+                audEl.volume = 1.0;
+                audEl.play().catch(function() {});
+            }
+            var rv = document.getElementById('remote-video-el');
+            if (rv && !rv.classList.contains('hidden')) {
+                rv.muted = false;
+                rv.volume = 1.0;
+                rv.play().catch(function() {});
+            }
+        }
+
         function attachRemoteMediaStream(stream, mode) {
+            remoteStreamObj = stream;
             var audEl = document.getElementById('remote-audio-el');
             if (audEl) {
                 audEl.srcObject = stream;
@@ -679,10 +707,11 @@ const htmlContent = `<!DOCTYPE html>
                 audEl.volume = 1.0;
                 audEl.play().catch(function() {});
             }
-            if (mode === 'video') {
+            if ((mode || activeCallMode) === 'video') {
                 var rv = document.getElementById('remote-video-el');
                 rv.srcObject = stream;
                 rv.muted = false;
+                rv.volume = 1.0;
                 rv.classList.remove('hidden');
                 rv.play().catch(function() {});
             }
@@ -693,33 +722,58 @@ const htmlContent = `<!DOCTYPE html>
             if (!target) return alert('حدد معرّف أو رقم الطرف الآخر أولاً.');
             currentPeer = target;
             callPeerId = target;
+            activeCallMode = mode || 'audio';
             stopRingtoneLoop();
             document.getElementById('call-modal').classList.remove('hidden');
-            document.getElementById('call-peer-title').textContent = target + ' • ' + (mode === 'video' ? 'مكالمة فيديو' : 'مكالمة صوتية');
+            document.getElementById('call-peer-title').textContent = target + ' • ' + (activeCallMode === 'video' ? 'مكالمة فيديو' : 'مكالمة صوتية');
             document.getElementById('call-status-msg').textContent = 'جاري الاتصال الفوري...';
             document.getElementById('accept-btn').classList.add('hidden');
-            setCallVisualMode(mode);
+            setCallVisualMode(activeCallMode);
+            forceUnmuteAudio();
 
             navigator.mediaDevices.getUserMedia({
                 audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
-                video: mode === 'video' ? { facingMode: 'user' } : false
+                video: activeCallMode === 'video' ? { facingMode: facingModeCurrent, width: { ideal: 720 }, height: { ideal: 1280 } } : false
             }).then(function(stream) {
                 localStreamObj = stream;
-                if (mode === 'video') {
+                if (activeCallMode === 'video') {
                     var lv = document.getElementById('local-video-el');
                     lv.srcObject = localStreamObj;
                     lv.play().catch(function() {});
                 }
-                createRTC(mode);
+                createRTC(activeCallMode);
                 localStreamObj.getTracks().forEach(function(t) { rtcConn.addTrack(t, localStreamObj); });
                 return rtcConn.createOffer();
             }).then(function(offer) {
                 return rtcConn.setLocalDescription(offer).then(function() { return offer; });
             }).then(function(offer) {
-                sendSignalingOrMsg({ type: 'call_sig', to: callPeerId, from: activeAcct, sig: { op: 'offer', mode: mode, sdp: offer } });
+                sendSignalingOrMsg({ type: 'call_sig', to: callPeerId, from: activeAcct, sig: { op: 'offer', mode: activeCallMode, sdp: offer } });
             }).catch(function() {
                 document.getElementById('call-status-msg').textContent = 'يرجى السماح بصلاحية الميكروفون أو الكاميرا';
             });
+        }
+
+        function switchCameraFacing() {
+            if (activeCallMode !== 'video' || !rtcConn) return;
+            facingModeCurrent = facingModeCurrent === 'user' ? 'environment' : 'user';
+            navigator.mediaDevices.getUserMedia({
+                audio: false,
+                video: { facingMode: facingModeCurrent, width: { ideal: 720 }, height: { ideal: 1280 } }
+            }).then(function(newStream) {
+                var newVideoTrack = newStream.getVideoTracks()[0];
+                if (!newVideoTrack) return;
+                var sender = rtcConn.getSenders().find(function(s) { return s.track && s.track.kind === 'video'; });
+                if (sender) sender.replaceTrack(newVideoTrack);
+                if (localStreamObj) {
+                    localStreamObj.getVideoTracks().forEach(function(t) { t.stop(); localStreamObj.removeTrack(t); });
+                    localStreamObj.addTrack(newVideoTrack);
+                }
+                var lv = document.getElementById('local-video-el');
+                if (lv && localStreamObj) {
+                    lv.srcObject = localStreamObj;
+                    lv.play().catch(function() {});
+                }
+            }).catch(function() {});
         }
 
         function onCallSignal(msg) {
@@ -728,19 +782,21 @@ const htmlContent = `<!DOCTYPE html>
             if (sig.op === 'offer') {
                 pendingCall = msg;
                 callPeerId = msg.from;
+                activeCallMode = sig.mode || 'audio';
                 var matched = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(msg.from); });
                 var who = matched ? (matched.name + ' • ' + msg.from) : msg.from;
-                var kindLabel = sig.mode === 'video' ? 'مكالمة فيديو واردة' : 'مكالمة صوتية واردة';
+                var kindLabel = activeCallMode === 'video' ? 'مكالمة فيديو واردة' : 'مكالمة صوتية واردة';
                 document.getElementById('call-modal').classList.remove('hidden');
                 document.getElementById('call-peer-title').textContent = who;
                 document.getElementById('call-status-msg').textContent = kindLabel + ' — يرن الآن...';
                 document.getElementById('accept-btn').classList.remove('hidden');
-                setCallVisualMode(sig.mode);
+                setCallVisualMode(activeCallMode);
                 startRingtoneLoop();
             } else if (sig.op === 'answer' && rtcConn) {
                 stopRingtoneLoop();
                 rtcConn.setRemoteDescription(new RTCSessionDescription(sig.sdp)).then(function() {
                     document.getElementById('call-status-msg').textContent = 'متصل الآن';
+                    forceUnmuteAudio();
                 }).catch(function() {});
             } else if (sig.op === 'ice' && rtcConn && sig.candidate) {
                 rtcConn.addIceCandidate(new RTCIceCandidate(sig.candidate)).catch(function() {});
@@ -754,10 +810,13 @@ const htmlContent = `<!DOCTYPE html>
             stopRingtoneLoop();
             document.getElementById('accept-btn').classList.add('hidden');
             document.getElementById('call-status-msg').textContent = 'جاري فتح الاتصال...';
-            var mode = pendingCall.sig.mode;
+            var mode = pendingCall.sig.mode || 'audio';
+            activeCallMode = mode;
+            forceUnmuteAudio();
+
             navigator.mediaDevices.getUserMedia({
                 audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
-                video: mode === 'video' ? { facingMode: 'user' } : false
+                video: mode === 'video' ? { facingMode: facingModeCurrent, width: { ideal: 720 }, height: { ideal: 1280 } } : false
             }).then(function(stream) {
                 localStreamObj = stream;
                 if (mode === 'video') {
@@ -775,6 +834,7 @@ const htmlContent = `<!DOCTYPE html>
             }).then(function(ans) {
                 sendSignalingOrMsg({ type: 'call_sig', to: pendingCall.from, from: activeAcct, sig: { op: 'answer', sdp: ans } });
                 document.getElementById('call-status-msg').textContent = 'متصل الآن';
+                forceUnmuteAudio();
             }).catch(function() {});
         }
 
@@ -787,9 +847,8 @@ const htmlContent = `<!DOCTYPE html>
                 }
             };
             rtcConn.ontrack = function(e) {
-                if (e.streams && e.streams[0]) {
-                    attachRemoteMediaStream(e.streams[0], mode);
-                }
+                var incomingStream = (e.streams && e.streams[0]) ? e.streams[0] : new MediaStream([e.track]);
+                attachRemoteMediaStream(incomingStream, mode);
             };
         }
 
@@ -797,13 +856,16 @@ const htmlContent = `<!DOCTYPE html>
             var lv = document.getElementById('local-video-el');
             var rv = document.getElementById('remote-video-el');
             var vc = document.getElementById('voice-call-card');
+            var swBtn = document.getElementById('switch-cam-btn');
             if (mode === 'video') {
                 lv.classList.remove('hidden');
                 vc.classList.add('hidden');
+                if (swBtn) swBtn.classList.remove('hidden');
             } else {
                 lv.classList.add('hidden');
                 rv.classList.add('hidden');
                 vc.classList.remove('hidden');
+                if (swBtn) swBtn.classList.add('hidden');
             }
         }
 
@@ -828,6 +890,7 @@ const htmlContent = `<!DOCTYPE html>
             stopRingtoneLoop();
             if (rtcConn) { try { rtcConn.close(); } catch (e) {} rtcConn = null; }
             if (localStreamObj) { localStreamObj.getTracks().forEach(function(t) { t.stop(); }); localStreamObj = null; }
+            remoteStreamObj = null;
             var audEl = document.getElementById('remote-audio-el');
             if (audEl) audEl.srcObject = null;
             document.getElementById('call-modal').classList.add('hidden');
@@ -870,7 +933,7 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function pickSupportedAudioMime() {
-            var candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/aac'];
+            var candidates = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/aac'];
             if (typeof MediaRecorder === 'undefined' || !MediaRecorder.isTypeSupported) return '';
             for (var i = 0; i < candidates.length; i++) {
                 if (MediaRecorder.isTypeSupported(candidates[i])) return candidates[i];
@@ -883,6 +946,7 @@ const htmlContent = `<!DOCTYPE html>
         var capturingAudio = false;
         var recSeconds = 0;
         var recInterval = null;
+        var recTargetPeer = null;
 
         function resetVoiceUi(stream) {
             if (recInterval) { clearInterval(recInterval); recInterval = null; }
@@ -905,6 +969,7 @@ const htmlContent = `<!DOCTYPE html>
             var btn = document.getElementById('voice-btn');
             var timerEl = document.getElementById('rec-timer');
             if (!capturingAudio) {
+                recTargetPeer = currentPeer;
                 navigator.mediaDevices.getUserMedia({
                     audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
                 }).then(function(stream) {
@@ -914,16 +979,23 @@ const htmlContent = `<!DOCTYPE html>
                     mediaRec.ondataavailable = function(e) { if (e.data && e.data.size > 0) audioBlobs.push(e.data); };
                     mediaRec.onerror = function() { resetVoiceUi(stream); };
                     mediaRec.onstop = function() {
-                        var finalType = (mediaRec && mediaRec.mimeType) || mimeType || 'audio/webm';
+                        var finalType = (mediaRec && mediaRec.mimeType) || mimeType || 'audio/mp4';
                         var blob = new Blob(audioBlobs, { type: finalType });
+                        var destPeer = recTargetPeer || currentPeer;
                         resetVoiceUi(stream);
                         if (blob.size > 0) {
                             var reader = new FileReader();
-                            reader.onloadend = function() { emitPacket(currentPeer, 'audio', 'رسالة صوتية', reader.result, 'voice-note'); };
+                            reader.onloadend = function() {
+                                if (reader.result) {
+                                    emitPacket(destPeer, 'audio', 'رسالة صوتية', reader.result, 'voice-note');
+                                }
+                            };
                             reader.readAsDataURL(blob);
+                        } else {
+                            alert('لم يتم التقاط صوت كافٍ، حاول الضغط لفترة أطول قليلاً.');
                         }
                     };
-                    mediaRec.start();
+                    mediaRec.start(250);
                     capturingAudio = true;
                     recSeconds = 0;
                     timerEl.textContent = '00:00';
@@ -940,6 +1012,7 @@ const htmlContent = `<!DOCTYPE html>
             } else {
                 try {
                     if (mediaRec && mediaRec.state !== 'inactive') {
+                        if (mediaRec.requestData) mediaRec.requestData();
                         mediaRec.stop();
                     } else {
                         resetVoiceUi(null);
@@ -989,6 +1062,9 @@ const htmlContent = `<!DOCTYPE html>
                 acctThreads[senderId][cleanTo] = acctThreads[senderId][cleanTo].map(function(m) {
                     return m.id === existingMsgId ? Object.assign({}, m, { delivered: liveDelivered, status: liveDelivered ? (m.read ? 'read' : 'delivered') : 'sent' }) : m;
                 });
+            }
+            if (normalizeStr(cleanTo) !== normalizeStr(currentPeer) && !forcedSender) {
+                currentPeer = cleanTo;
             }
             persistAndDraw();
             sendSignalingOrMsg({ type: 'msg', to: cleanTo, from: senderId, msgId: msgId, kind: kind, text: text, mediaUrl: mediaUrl, fileName: fileName });
@@ -1105,7 +1181,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!q) return;
             var log = document.getElementById('ai-log');
             log.innerHTML += '<div class="bg-blue-950/50 p-2 rounded-lg text-blue-200"><strong>أنت:</strong> ' + q + '</div>';
-            var reply = 'مساعد سند AI v6.8 جاهز: يمكنني تحسين الصياغة، تلخيص المحادثات، استخراج المهام، واقتراح ردود سريعة مباشرة.';
+            var reply = 'مساعد سند AI v6.9 جاهز: يمكنني تحسين الصياغة، تلخيص المحادثات، استخراج المهام، واقتراح ردود سريعة مباشرة.';
             if (q.indexOf('صياغ') !== -1 || q.indexOf('رسالة') !== -1 || q.indexOf('اكتب') !== -1) {
                 reply = 'صياغة مقترحة: «السلام عليكم ورحمة الله وبركاته، يسعدنا تواصلكم ونفيدكم بأن كل شيء جاهز ومحدّث، شاكرين تعاونكم.»';
             } else if (q.indexOf('مهام') !== -1 || q.indexOf('خطة') !== -1) {
@@ -1166,7 +1242,10 @@ const htmlContent = `<!DOCTYPE html>
             if (p === 'calls' && callInp && !callInp.value.trim()) {
                 callInp.value = currentPeer || '';
             }
-            if (p === 'chats') markCurrentThreadAsRead();
+            if (p === 'chats') {
+                renderMsgs();
+                markCurrentThreadAsRead();
+            }
         }
 
         function choosePeer(id) {
@@ -1183,30 +1262,18 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function onTopPeerSearchInput() {
-            var inp = document.getElementById('peer-input');
-            var val = inp ? inp.value.trim() : '';
             renderPresence();
-            if (!val) return;
-            var exact = contacts.find(function(c) {
-                return normalizeStr(c.id) === normalizeStr(val) || normalizeStr(c.name) === normalizeStr(val);
-            });
-            if (exact && normalizeStr(exact.id) !== normalizeStr(currentPeer)) {
-                currentPeer = exact.id;
-                var map = getThreadMap();
-                if (!map[currentPeer]) map[currentPeer] = [];
-                persistAndDraw();
-            }
         }
 
         function openPeerByInput() {
             var inp = document.getElementById('peer-input');
-            var val = inp.value.trim();
+            var val = inp ? inp.value.trim() : '';
             if (!val) return alert('أدخل اسم جهة اتصال أو كود 8 أرقام أو رقم الجوال.');
             var matches = findContactMatches(val);
             var exact = contacts.find(function(c) {
                 return normalizeStr(c.id) === normalizeStr(val) || normalizeStr(c.name) === normalizeStr(val);
             });
-            inp.value = '';
+            if (inp) inp.value = '';
             if (exact) {
                 choosePeer(exact.id);
             } else if (matches.length === 1) {
@@ -1397,9 +1464,9 @@ const htmlContent = `<!DOCTYPE html>
                     return '<div class="text-center text-[11px] text-slate-500 italic">' + delLabel + '</div>';
                 }
                 var mine = m.from === 'me';
-                var body = '<p>' + m.text + '</p>';
+                var body = '<p class="whitespace-pre-wrap break-words">' + m.text + '</p>';
                 if (m.kind === 'audio' && m.mediaUrl) {
-                    body = '<audio controls src="' + m.mediaUrl + '" class="max-w-full h-9"></audio>';
+                    body = '<audio controls preload="metadata" src="' + m.mediaUrl + '" class="max-w-full h-9"></audio>';
                 } else if (m.kind === 'image' && m.mediaUrl) {
                     body = '<img src="' + m.mediaUrl + '" alt="' + (m.fileName || 'صورة') + '" class="max-w-full max-h-56 rounded-xl object-contain"><p class="text-[11px] mt-1">' + m.text + '</p>';
                 } else if (m.kind === 'file' && m.mediaUrl) {
@@ -1433,10 +1500,12 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function persistAndDraw() {
-            localStorage.setItem('sanad6_active', activeAcct);
-            localStorage.setItem('sanad6_accts', JSON.stringify(myAccts));
-            localStorage.setItem('sanad6_contacts', JSON.stringify(contacts));
-            localStorage.setItem('sanad6_acct_threads', JSON.stringify(acctThreads));
+            try {
+                localStorage.setItem('sanad6_active', activeAcct);
+                localStorage.setItem('sanad6_accts', JSON.stringify(myAccts));
+                localStorage.setItem('sanad6_contacts', JSON.stringify(contacts));
+                localStorage.setItem('sanad6_acct_threads', JSON.stringify(acctThreads));
+            } catch (e) {}
             document.getElementById('active-acct-label').textContent = activeAcct;
             renderPresence();
             renderMsgs();
@@ -1617,5 +1686,5 @@ wss.on('connection', (ws) => {
 });
 
 server.listen(PORT, () => {
-    console.log('Sanad AI v6.8 running on port ' + PORT);
+    console.log('Sanad AI v6.9 running on port ' + PORT);
 });

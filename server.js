@@ -12,7 +12,7 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0b4aa2">
-    <title>سند AI v6.5</title>
+    <title>سند AI v6.7</title>
     <link rel="icon" type="image/svg+xml" href="${sanadIconUri}">
     <link rel="apple-touch-icon" sizes="180x180" href="${sanadIconUri}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -29,19 +29,22 @@ const htmlContent = `<!DOCTYPE html>
         .ticker-line {
             display: inline-flex;
             white-space: nowrap;
-            animation: tickerScroll 28s linear infinite;
+            animation: tickerScroll 26s linear infinite;
         }
     </style>
 </head>
 <body class="text-slate-100 h-screen flex flex-col overflow-hidden select-none">
 
-    <!-- الشريط الإخباري الذكي -->
-    <div class="bg-blue-950/90 border-b border-blue-800/60 py-1 px-2 overflow-hidden text-[11px] text-blue-200 z-30 shrink-0">
-        <div class="ticker-line gap-8 font-semibold">
-            <span>⚡ سند AI v6.5: إشارات استلام وقراءة خضراء + حذف من عندي أو من الجميع + رنين مكالمات فوري</span>
-            <span>📞 اتصال مباشر من الجهات صوت وفيديو + تسجيل صوتي بعدّاد + تعدد الجوالات المفتوحة</span>
+    <!-- عنصر صوت المكالمات الثابت -->
+    <audio id="remote-audio-el" autoplay playsinline class="hidden"></audio>
+
+    <!-- الشريط الإخباري الذكي الواضح -->
+    <div class="bg-blue-700 border-b border-blue-400/50 py-1.5 px-2.5 overflow-hidden text-xs text-white z-30 shrink-0 shadow">
+        <div class="ticker-line gap-8 font-bold tracking-wide">
+            <span>⚡ سند AI v6.7: إشارات استلام وقراءة خضراء + حذف من عندي أو من الجميع + رنين مكالمات فوري</span>
+            <span>📞 ربط مباشر من الجهات للدردشة والصوت والفيديو + فحص أرقام المشتركين + تعدد الأرقام والحسابات</span>
             <span>🧠 مركز سند AI الشامل: تحسين الصياغة + تلخيص + استخراج مهام + ردود ذكية + رد تلقائي</span>
-            <span>⚡ سند AI v6.5: إشارات استلام وقراءة خضراء + حذف من عندي أو من الجميع + رنين مكالمات فوري</span>
+            <span>⚡ سند AI v6.7: إشارات استلام وقراءة خضراء + حذف من عندي أو من الجميع + رنين مكالمات فوري</span>
         </div>
     </div>
 
@@ -55,7 +58,7 @@ const htmlContent = `<!DOCTYPE html>
             <div>
                 <div class="flex items-center gap-1.5">
                     <h1 class="font-black text-base md:text-lg text-white leading-none">سند</h1>
-                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v6.5</span>
+                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v6.7</span>
                     <span id="device-badge" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-semibold">---</span>
                 </div>
                 <div class="flex items-center gap-1.5 text-[11px] mt-1">
@@ -90,19 +93,19 @@ const htmlContent = `<!DOCTYPE html>
     <!-- نافذة المكالمات الصوتية والمرئية -->
     <div id="call-modal" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-between p-5">
         <div class="text-center mt-2">
-            <p class="text-xs text-blue-400 font-bold">سند AI v6.5 • اتصال مباشر سريع</p>
+            <p class="text-xs text-blue-400 font-bold">سند AI v6.7 • اتصال مباشر سريع</p>
             <h2 id="call-peer-title" class="text-xl font-black text-white font-mono mt-1">---</h2>
             <p id="call-status-msg" class="text-xs text-emerald-400 mt-1 font-semibold">جاري الاتصال...</p>
         </div>
 
         <div class="relative w-full max-w-md aspect-video bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden flex items-center justify-center shadow-2xl">
             <video id="remote-video-el" autoplay playsinline class="w-full h-full object-cover hidden"></video>
-            <video id="local-video-el" autoplay playsinline muted class="w-24 h-32 object-cover rounded-2xl border border-blue-500/50 absolute bottom-3 left-3 hidden"></video>
+            <video id="local-video-el" autoplay playsinline muted class="w-24 h-24 object-cover rounded-2xl border-2 border-blue-400/70 shadow-lg absolute bottom-3 left-3 hidden"></video>
             <div id="voice-call-card" class="flex flex-col items-center gap-2.5">
                 <div class="w-20 h-20 rounded-full bg-blue-600/20 border border-blue-400/40 flex items-center justify-center text-3xl text-blue-400 animate-pulse">
                     <i class="fa-solid fa-microphone-lines"></i>
                 </div>
-                <span class="text-xs text-slate-300 font-semibold">عزل ضوضاء ذكي واستجابة فورية</span>
+                <span class="text-xs text-slate-300 font-semibold">صوت ثنائي الاتجاه وعزل ضوضاء ذكي</span>
             </div>
         </div>
 
@@ -177,7 +180,7 @@ const htmlContent = `<!DOCTYPE html>
                 <button onclick="polishDraft()" title="تحسين الصياغة بالذكاء الاصطناعي" class="text-indigo-400 hover:text-indigo-300 p-2 rounded-xl hover:bg-slate-800 transition">
                     <i class="fa-solid fa-wand-magic-sparkles text-base"></i>
                 </button>
-                <input type="text" id="msg-box-input" onkeydown="if(event.key==='Enter') sendTextMsg()" placeholder="اكتب رسالتك..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                <input type="text" id="msg-box-input" onkeydown="if(event.key==='Enter') { event.preventDefault(); sendTextMsg(); }" placeholder="اكتب رسالتك..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
                 <span id="rec-timer" class="hidden text-[11px] font-mono font-bold text-red-400 px-1">00:00</span>
                 <button id="voice-btn" onclick="toggleVoiceCapture()" title="تسجيل رسالة صوتية" class="bg-slate-800 hover:bg-emerald-600 text-emerald-400 hover:text-white p-2.5 rounded-xl transition">
                     <i class="fa-solid fa-microphone text-base"></i>
@@ -191,13 +194,16 @@ const htmlContent = `<!DOCTYPE html>
         <!-- 2. الحسابات -->
         <section id="pane-accounts" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
-                <h2 class="text-sm font-black text-blue-400">إدارة الحسابات والأرقام المتعددة</h2>
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-black text-blue-400">إدارة الحسابات والأرقام المتعددة</h2>
+                    <span id="accounts-count-badge" class="text-[11px] font-mono text-blue-300 bg-blue-950/60 px-2.5 py-0.5 rounded-full">1 رقم</span>
+                </div>
                 <p class="text-[11px] text-slate-400 leading-relaxed">
-                    أضف أو ولّد <strong>أي عدد من الأرقام أو المعرّفات</strong> لاستخدامها على جوال واحد أو أكثر في نفس الوقت مع نسخ تلقائي للكود.
+                    يمكنك توليد أو إضافة <strong>أكثر من رقم أو معرّف</strong> واستخدامها في نفس الوقت عبر الأجهزة، مع نسخ تلقائي للكود.
                 </p>
                 <div class="flex flex-wrap gap-2">
                     <button onclick="make8DigitId()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ توليد معرّف (8 أرقام)</button>
-                    <button onclick="addCustomNumberAccount()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ إضافة رقم/معرّف مخصص</button>
+                    <button onclick="addCustomNumberAccount()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ إضافة رقم/معرّف إضافي</button>
                     <button onclick="verifyPhoneAccount()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ تفعيل رقم جوال</button>
                 </div>
                 <div id="last-generated-banner" class="hidden bg-emerald-950/50 border border-emerald-700/50 rounded-xl p-2.5 flex items-center justify-between text-xs">
@@ -211,7 +217,12 @@ const htmlContent = `<!DOCTYPE html>
         <!-- 3. الجهات -->
         <section id="pane-contacts" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl space-y-2.5">
-                <h2 class="text-sm font-black text-emerald-400">حفظ وتنظيم جهة اتصال</h2>
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-black text-emerald-400">حفظ وتنظيم جهة اتصال</h2>
+                    <button onclick="scanNumbersForSanad()" class="bg-blue-600/20 hover:bg-blue-600 border border-blue-500/40 text-blue-300 hover:text-white px-3 py-1 rounded-lg text-[11px] font-bold transition">
+                        <i class="fa-solid fa-user-check ml-1"></i>فحص أرقام في سند
+                    </button>
+                </div>
                 <div class="flex flex-col sm:flex-row gap-2">
                     <input type="text" id="c-name" onkeydown="if(event.key==='Enter') addNewContact()" placeholder="الاسم" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
                     <input type="text" id="c-id" onkeydown="if(event.key==='Enter') addNewContact()" placeholder="معرّف 8 أرقام أو رقم الجوال" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
@@ -235,14 +246,14 @@ const htmlContent = `<!DOCTYPE html>
             </div>
             <div>
                 <h2 class="text-base font-black text-white">مركز المكالمات الصوتية والمرئية</h2>
-                <p class="text-xs text-slate-400 mt-1 max-w-sm">اتصل مباشرة من الجهات أو أدخل أي رقم/معرّف لبدء مكالمة صوت أو فيديو فورية.</p>
+                <p class="text-xs text-slate-400 mt-1 max-w-sm">الرقم النشط في الدردشة جاهز تلقائياً، أو أدخل أي رقم/معرّف لبدء اتصال فوري.</p>
             </div>
             <input type="text" id="call-input" placeholder="أدخل معرّف 8 أرقام أو رقم الجوال..." class="w-full max-w-xs bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-center font-mono text-white">
             <div class="flex gap-3">
-                <button onclick="launchCall('audio', document.getElementById('call-input').value.trim())" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+                <button onclick="launchCall('audio', (document.getElementById('call-input').value.trim() || currentPeer))" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
                     <i class="fa-solid fa-phone"></i> مكالمة صوتية
                 </button>
-                <button onclick="launchCall('video', document.getElementById('call-input').value.trim())" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+                <button onclick="launchCall('video', (document.getElementById('call-input').value.trim() || currentPeer))" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
                     <i class="fa-solid fa-video"></i> مكالمة فيديو
                 </button>
             </div>
@@ -269,7 +280,7 @@ const htmlContent = `<!DOCTYPE html>
                     <button onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
                 </div>
                 <div id="ai-log" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">مرحباً بك في سند AI v6.5. يضم إشارات الاستلام والقراءة الخضراء، الحذف من عندي أو من الجميع، رنين المكالمات، والاتصال المباشر من الجهات.</div>
+                    <div class="text-slate-400">مرحباً بك في سند AI v6.7. صوت واضح في المكالمات، إرسال فوري للرسائل، شريط إخباري بارز، وفحص أرقام المشتركين.</div>
                 </div>
                 <div class="flex gap-2">
                     <input type="text" id="ai-q" onkeydown="if(event.key==='Enter') askSanadAI()" placeholder="اطلب من سند AI (صياغة، تلخيص، مهام، أفكار)..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
@@ -369,6 +380,24 @@ const htmlContent = `<!DOCTYPE html>
             return contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(cleanId); });
         }
 
+        function scanNumbersForSanad() {
+            var sample = contacts.map(function(c) { return c.id; }).join(', ');
+            var raw = prompt('ألصق أرقاماً أو معرّفات (مفصولة بفاصلة أو سطر) لفحص المشتركين/المتصلين في سند AI:', sample);
+            if (raw === null) return;
+            var tokens = raw.split(/[\s,،\n]+/).map(function(x) { return x.trim(); }).filter(Boolean);
+            if (!tokens.length) return alert('لم يتم إدخال أي أرقام للفحص.');
+            var matchedOnline = [];
+            tokens.forEach(function(num) {
+                var found = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(num); });
+                if (!found) {
+                    upsertContact('رقم ' + num, num);
+                }
+                if (onlinePeers.has(num)) matchedOnline.push(num);
+            });
+            renderPresence();
+            alert('تم فحص ' + tokens.length + ' رقم. المتصلون حالياً في سند AI: ' + (matchedOnline.length ? matchedOnline.join(', ') : 'لا يوجد متصلون الآن، وتم حفظ الأرقام في الجهات.'));
+        }
+
         function copyStringToClipboard(txt) {
             if (!txt) return;
             if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -379,7 +408,7 @@ const htmlContent = `<!DOCTYPE html>
         function getThreadMap() {
             if (!acctThreads[activeAcct]) {
                 acctThreads[activeAcct] = {
-                    '88888888': [{ id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'أهلاً بك في سند AI v6.5. الحساب النشط: ' + activeAcct }]
+                    '88888888': [{ id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'أهلاً بك في سند AI v6.7. الحساب النشط: ' + activeAcct }]
                 };
             }
             return acctThreads[activeAcct];
@@ -535,7 +564,7 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function postHttpSync(payload) {
-            fetch('/api/sync', {
+            return fetch('/api/sync', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -558,7 +587,7 @@ const htmlContent = `<!DOCTYPE html>
 
         function pollHttpSync() {
             var q = encodeURIComponent(myAccts.join(','));
-            fetch('/api/sync?ids=' + q).then(function(res) {
+            return fetch('/api/sync?ids=' + q).then(function(res) {
                 if (!res.ok) return null;
                 httpConnected = true;
                 refreshConnectionHeader();
@@ -578,7 +607,7 @@ const htmlContent = `<!DOCTYPE html>
         setInterval(function() {
             postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
             pollHttpSync();
-        }, 2000);
+        }, 1800);
 
         function openSocket() {
             try {
@@ -628,7 +657,7 @@ const htmlContent = `<!DOCTYPE html>
             postHttpSync(enriched);
         }
 
-        // المكالمات الصوتية والمرئية السريعة مع الرنين
+        // المكالمات الصوتية والمرئية السريعة مع إصلاح الصوت والنافذة الصغيرة
         var rtcConn = null;
         var localStreamObj = null;
         var pendingCall = null;
@@ -639,6 +668,23 @@ const htmlContent = `<!DOCTYPE html>
                 { urls: 'stun:stun1.l.google.com:19302' }
             ]
         };
+
+        function attachRemoteMediaStream(stream, mode) {
+            var audEl = document.getElementById('remote-audio-el');
+            if (audEl) {
+                audEl.srcObject = stream;
+                audEl.muted = false;
+                audEl.volume = 1.0;
+                audEl.play().catch(function() {});
+            }
+            if (mode === 'video') {
+                var rv = document.getElementById('remote-video-el');
+                rv.srcObject = stream;
+                rv.muted = false;
+                rv.classList.remove('hidden');
+                rv.play().catch(function() {});
+            }
+        }
 
         function launchCall(mode, explicitTarget) {
             var target = String(explicitTarget || currentPeer || '').trim();
@@ -657,7 +703,11 @@ const htmlContent = `<!DOCTYPE html>
                 video: mode === 'video' ? { facingMode: 'user' } : false
             }).then(function(stream) {
                 localStreamObj = stream;
-                if (mode === 'video') document.getElementById('local-video-el').srcObject = localStreamObj;
+                if (mode === 'video') {
+                    var lv = document.getElementById('local-video-el');
+                    lv.srcObject = localStreamObj;
+                    lv.play().catch(function() {});
+                }
                 createRTC(mode);
                 localStreamObj.getTracks().forEach(function(t) { rtcConn.addTrack(t, localStreamObj); });
                 return rtcConn.createOffer();
@@ -708,7 +758,11 @@ const htmlContent = `<!DOCTYPE html>
                 video: mode === 'video' ? { facingMode: 'user' } : false
             }).then(function(stream) {
                 localStreamObj = stream;
-                if (mode === 'video') document.getElementById('local-video-el').srcObject = localStreamObj;
+                if (mode === 'video') {
+                    var lv = document.getElementById('local-video-el');
+                    lv.srcObject = localStreamObj;
+                    lv.play().catch(function() {});
+                }
                 createRTC(mode);
                 localStreamObj.getTracks().forEach(function(t) { rtcConn.addTrack(t, localStreamObj); });
                 return rtcConn.setRemoteDescription(new RTCSessionDescription(pendingCall.sig.sdp));
@@ -723,6 +777,7 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function createRTC(mode) {
+            if (rtcConn) { try { rtcConn.close(); } catch (e) {} }
             rtcConn = new RTCPeerConnection(rtcConfig);
             rtcConn.onicecandidate = function(e) {
                 if (e.candidate && callPeerId) {
@@ -730,14 +785,8 @@ const htmlContent = `<!DOCTYPE html>
                 }
             };
             rtcConn.ontrack = function(e) {
-                if (mode === 'video') {
-                    var rv = document.getElementById('remote-video-el');
-                    rv.srcObject = e.streams[0];
-                    rv.classList.remove('hidden');
-                } else {
-                    var aud = new Audio();
-                    aud.srcObject = e.streams[0];
-                    aud.play().catch(function() {});
+                if (e.streams && e.streams[0]) {
+                    attachRemoteMediaStream(e.streams[0], mode);
                 }
             };
         }
@@ -775,8 +824,10 @@ const htmlContent = `<!DOCTYPE html>
 
         function resetCallState() {
             stopRingtoneLoop();
-            if (rtcConn) { rtcConn.close(); rtcConn = null; }
+            if (rtcConn) { try { rtcConn.close(); } catch (e) {} rtcConn = null; }
             if (localStreamObj) { localStreamObj.getTracks().forEach(function(t) { t.stop(); }); localStreamObj = null; }
+            var audEl = document.getElementById('remote-audio-el');
+            if (audEl) audEl.srcObject = null;
             document.getElementById('call-modal').classList.add('hidden');
             document.getElementById('remote-video-el').classList.add('hidden');
             document.getElementById('local-video-el').classList.add('hidden');
@@ -784,7 +835,7 @@ const htmlContent = `<!DOCTYPE html>
             callPeerId = null;
         }
 
-        // الإملاء الصوتي والتسجيل الصوتي بعدّاد والمرفقات
+        // الإملاء الصوتي والتسجيل الصوتي المستقر والمرفقات
         var speechRec = null;
         var dictating = false;
 
@@ -831,6 +882,17 @@ const htmlContent = `<!DOCTYPE html>
         var recSeconds = 0;
         var recInterval = null;
 
+        function resetVoiceUi(stream) {
+            if (recInterval) { clearInterval(recInterval); recInterval = null; }
+            var timerEl = document.getElementById('rec-timer');
+            var btn = document.getElementById('voice-btn');
+            if (timerEl) timerEl.classList.add('hidden');
+            if (btn) btn.className = 'bg-slate-800 hover:bg-emerald-600 text-emerald-400 hover:text-white p-2.5 rounded-xl transition';
+            if (stream) { stream.getTracks().forEach(function(t) { t.stop(); }); }
+            capturingAudio = false;
+            mediaRec = null;
+        }
+
         function formatTimer(sec) {
             var m = String(Math.floor(sec / 60)).padStart(2, '0');
             var s = String(sec % 60).padStart(2, '0');
@@ -848,13 +910,16 @@ const htmlContent = `<!DOCTYPE html>
                     mediaRec = mimeType ? new MediaRecorder(stream, { mimeType: mimeType }) : new MediaRecorder(stream);
                     audioBlobs = [];
                     mediaRec.ondataavailable = function(e) { if (e.data && e.data.size > 0) audioBlobs.push(e.data); };
+                    mediaRec.onerror = function() { resetVoiceUi(stream); };
                     mediaRec.onstop = function() {
-                        var finalType = mediaRec.mimeType || mimeType || 'audio/webm';
+                        var finalType = (mediaRec && mediaRec.mimeType) || mimeType || 'audio/webm';
                         var blob = new Blob(audioBlobs, { type: finalType });
-                        var reader = new FileReader();
-                        reader.onloadend = function() { emitPacket(currentPeer, 'audio', 'رسالة صوتية', reader.result, 'voice-note'); };
-                        reader.readAsDataURL(blob);
-                        stream.getTracks().forEach(function(t) { t.stop(); });
+                        resetVoiceUi(stream);
+                        if (blob.size > 0) {
+                            var reader = new FileReader();
+                            reader.onloadend = function() { emitPacket(currentPeer, 'audio', 'رسالة صوتية', reader.result, 'voice-note'); };
+                            reader.readAsDataURL(blob);
+                        }
                     };
                     mediaRec.start();
                     capturingAudio = true;
@@ -867,14 +932,19 @@ const htmlContent = `<!DOCTYPE html>
                     }, 1000);
                     btn.className = 'bg-red-600 text-white p-2.5 rounded-xl animate-pulse';
                 }).catch(function() {
+                    resetVoiceUi(null);
                     alert('يرجى السماح بالوصول إلى الميكروفون.');
                 });
             } else {
-                if (recInterval) { clearInterval(recInterval); recInterval = null; }
-                timerEl.classList.add('hidden');
-                mediaRec.stop();
-                capturingAudio = false;
-                btn.className = 'bg-slate-800 hover:bg-emerald-600 text-emerald-400 hover:text-white p-2.5 rounded-xl transition';
+                try {
+                    if (mediaRec && mediaRec.state !== 'inactive') {
+                        mediaRec.stop();
+                    } else {
+                        resetVoiceUi(null);
+                    }
+                } catch (e) {
+                    resetVoiceUi(null);
+                }
             }
         }
 
@@ -891,13 +961,13 @@ const htmlContent = `<!DOCTYPE html>
             ev.target.value = '';
         }
 
-        // إرسال وإدارة الرسائل مع إشارات الاستلام والقراءة والحذف المزدوج
+        // إرسال وإدارة الرسائل الفورية مع إشارات الاستلام والقراءة والحذف المزدوج
         function emitPacket(to, kind, text, mediaUrl, fileName, existingMsgId, forcedSender) {
             var cleanTo = String(to || '').trim();
             if (!cleanTo) return;
             var senderId = forcedSender || activeAcct;
             var liveDelivered = onlinePeers.has(cleanTo);
-            var msgId = existingMsgId || ('m-' + Date.now() + '-' + Math.floor(Math.random() * 1000));
+            var msgId = existingMsgId || ('m-' + Date.now() + '-' + Math.floor(Math.random() * 10000));
             if (!acctThreads[senderId]) acctThreads[senderId] = {};
             if (!acctThreads[senderId][cleanTo]) acctThreads[senderId][cleanTo] = [];
             var entry = {
@@ -931,11 +1001,12 @@ const htmlContent = `<!DOCTYPE html>
 
         function sendTextMsg() {
             var inp = document.getElementById('msg-box-input');
+            if (!inp) return;
             var val = inp.value.trim();
             if (!val) return;
-            emitPacket(currentPeer, 'text', val, null, '');
             inp.value = '';
             document.getElementById('smart-replies-bar').classList.add('hidden');
+            emitPacket(currentPeer, 'text', val, null, '');
         }
 
         function openDeleteModal(msgId, isMine) {
@@ -1032,11 +1103,11 @@ const htmlContent = `<!DOCTYPE html>
             if (!q) return;
             var log = document.getElementById('ai-log');
             log.innerHTML += '<div class="bg-blue-950/50 p-2 rounded-lg text-blue-200"><strong>أنت:</strong> ' + q + '</div>';
-            var reply = 'مساعد سند AI v6.5 جاهز: يمكنني تحسين الصياغة، تلخيص المحادثات، استخراج المهام، واقتراح ردود سريعة مباشرة.';
+            var reply = 'مساعد سند AI v6.7 جاهز: يمكنني تحسين الصياغة، تلخيص المحادثات، استخراج المهام، واقتراح ردود سريعة مباشرة.';
             if (q.indexOf('صياغ') !== -1 || q.indexOf('رسالة') !== -1 || q.indexOf('اكتب') !== -1) {
                 reply = 'صياغة مقترحة: «السلام عليكم ورحمة الله وبركاته، يسعدنا تواصلكم ونفيدكم بأن كل شيء جاهز ومحدّث، شاكرين تعاونكم.»';
             } else if (q.indexOf('مهام') !== -1 || q.indexOf('خطة') !== -1) {
-                reply = 'خطة سريعة: 1) تأكيد وصول الرسائل (✓✓ خضراء). 2) تجربة الاتصال الصوتي والمرئي من الجهات. 3) اختبار الحذف لدى الجميع.';
+                reply = 'خطة سريعة: 1) تأكد من وضوح الصوت في المكالمات. 2) اختبر إرسال واستقبال الرسائل الفورية. 3) جرّب فحص أرقام المشتركين في سند.';
             }
             log.innerHTML += '<div class="bg-slate-900 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> ' + reply + '</div>';
             inp.value = '';
@@ -1089,6 +1160,10 @@ const htmlContent = `<!DOCTYPE html>
             document.getElementById('pane-' + p).classList.remove('hidden');
             var activeBtn = document.getElementById('btn-' + p);
             if (activeBtn) activeBtn.className = 'flex flex-col items-center gap-1 text-blue-400 font-bold text-[10px] px-2 py-1';
+            var callInp = document.getElementById('call-input');
+            if (p === 'calls' && callInp && !callInp.value.trim()) {
+                callInp.value = currentPeer || '';
+            }
             if (p === 'chats') markCurrentThreadAsRead();
         }
 
@@ -1096,6 +1171,8 @@ const htmlContent = `<!DOCTYPE html>
             var clean = String(id || '').trim();
             if (!clean) return;
             currentPeer = clean;
+            var callInp = document.getElementById('call-input');
+            if (callInp) callInp.value = clean;
             var map = getThreadMap();
             if (!map[currentPeer]) map[currentPeer] = [];
             setPane('chats');
@@ -1277,11 +1354,12 @@ const htmlContent = `<!DOCTYPE html>
             }
             cBox.innerHTML = filtered.map(function(c) {
                 var on = onlinePeers.has(c.id);
+                var subTag = on ? 'مشترك • متصل الآن' : 'محفوظ في سند';
                 return '<div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center gap-2">' +
                     '<div class="flex items-center gap-2.5 min-w-0">' +
                     '<span class="w-2.5 h-2.5 rounded-full shrink-0 ' + (on ? 'bg-emerald-500' : 'bg-slate-600') + '"></span>' +
                     '<div class="truncate"><p class="text-xs font-bold text-white truncate">' + c.name + '</p>' +
-                    '<p class="text-[11px] font-mono ' + (on ? 'text-emerald-400' : 'text-slate-400') + '">' + c.id + ' • ' + (on ? 'متصل الآن' : 'غير متصل') + '</p></div></div>' +
+                    '<p class="text-[11px] font-mono ' + (on ? 'text-emerald-400' : 'text-slate-400') + '">' + c.id + ' • ' + subTag + '</p></div></div>' +
                     '<div class="flex gap-1.5 shrink-0">' +
                     '<button onclick="launchCall(\\'audio\\', \\'' + c.id + '\\')" title="اتصال صوتي" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-phone"></i></button>' +
                     '<button onclick="launchCall(\\'video\\', \\'' + c.id + '\\')" title="مكالمة فيديو" class="bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-video"></i></button>' +
@@ -1342,6 +1420,8 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function renderAccts() {
+            var badge = document.getElementById('accounts-count-badge');
+            if (badge) badge.textContent = myAccts.length + (myAccts.length === 1 ? ' رقم' : ' أرقام');
             var box = document.getElementById('accounts-list');
             box.innerHTML = myAccts.map(function(id) {
                 return '<div onclick="activateAccount(\\'' + id + '\\')" class="bg-slate-950 border ' + (id === activeAcct ? 'border-blue-500' : 'border-slate-800') + ' p-3 rounded-xl flex justify-between items-center cursor-pointer">' +
@@ -1535,5 +1615,5 @@ wss.on('connection', (ws) => {
 });
 
 server.listen(PORT, () => {
-    console.log('Sanad AI v6.5 running on port ' + PORT);
+    console.log('Sanad AI v6.7 running on port ' + PORT);
 });

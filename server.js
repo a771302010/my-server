@@ -12,7 +12,7 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0b4aa2">
-    <title>سند AI v6.7</title>
+    <title>سند AI v6.8</title>
     <link rel="icon" type="image/svg+xml" href="${sanadIconUri}">
     <link rel="apple-touch-icon" sizes="180x180" href="${sanadIconUri}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -39,12 +39,12 @@ const htmlContent = `<!DOCTYPE html>
     <audio id="remote-audio-el" autoplay playsinline class="hidden"></audio>
 
     <!-- الشريط الإخباري الذكي الواضح -->
-    <div class="bg-blue-700 border-b border-blue-400/50 py-1.5 px-2.5 overflow-hidden text-xs text-white z-30 shrink-0 shadow">
+    <div class="bg-blue-700 border-b border-blue-300/50 py-1.5 px-2.5 overflow-hidden text-xs text-white z-30 shrink-0 shadow">
         <div class="ticker-line gap-8 font-bold tracking-wide">
-            <span>⚡ سند AI v6.7: إشارات استلام وقراءة خضراء + حذف من عندي أو من الجميع + رنين مكالمات فوري</span>
-            <span>📞 ربط مباشر من الجهات للدردشة والصوت والفيديو + فحص أرقام المشتركين + تعدد الأرقام والحسابات</span>
+            <span>⚡ سند AI v6.8: مزامنة فورية للرسائل والمكالمات + إشارات استلام وقراءة خضراء + حذف من عندي أو من الجميع</span>
+            <span>📞 اتصال صوتي وفيديو مباشر من الدردشة والجهات + فحص أرقام المشتركين + تعدد الأرقام والحسابات</span>
             <span>🧠 مركز سند AI الشامل: تحسين الصياغة + تلخيص + استخراج مهام + ردود ذكية + رد تلقائي</span>
-            <span>⚡ سند AI v6.7: إشارات استلام وقراءة خضراء + حذف من عندي أو من الجميع + رنين مكالمات فوري</span>
+            <span>⚡ سند AI v6.8: مزامنة فورية للرسائل والمكالمات + إشارات استلام وقراءة خضراء + حذف من عندي أو من الجميع</span>
         </div>
     </div>
 
@@ -58,7 +58,7 @@ const htmlContent = `<!DOCTYPE html>
             <div>
                 <div class="flex items-center gap-1.5">
                     <h1 class="font-black text-base md:text-lg text-white leading-none">سند</h1>
-                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v6.7</span>
+                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v6.8</span>
                     <span id="device-badge" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-semibold">---</span>
                 </div>
                 <div class="flex items-center gap-1.5 text-[11px] mt-1">
@@ -82,7 +82,7 @@ const htmlContent = `<!DOCTYPE html>
     </header>
 
     <!-- بانر تنبيه الرسائل الواردة -->
-    <div id="live-toast" onclick="jumpToToastChat()" class="hidden fixed top-14 left-3 right-3 max-w-md mx-auto bg-blue-900/95 border border-blue-400/50 text-white px-3.5 py-2.5 rounded-2xl shadow-2xl z-40 flex items-center justify-between gap-2 cursor-pointer text-xs">
+    <div id="live-toast" onclick="jumpToToastChat()" class="hidden fixed top-16 left-3 right-3 max-w-md mx-auto bg-blue-900/95 border border-blue-400/50 text-white px-3.5 py-2.5 rounded-2xl shadow-2xl z-40 flex items-center justify-between gap-2 cursor-pointer text-xs">
         <div class="min-w-0">
             <p id="toast-sender" class="font-black text-blue-200 truncate">رسالة جديدة</p>
             <p id="toast-body" class="text-slate-100 truncate">---</p>
@@ -93,7 +93,7 @@ const htmlContent = `<!DOCTYPE html>
     <!-- نافذة المكالمات الصوتية والمرئية -->
     <div id="call-modal" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-between p-5">
         <div class="text-center mt-2">
-            <p class="text-xs text-blue-400 font-bold">سند AI v6.7 • اتصال مباشر سريع</p>
+            <p class="text-xs text-blue-400 font-bold">سند AI v6.8 • اتصال مباشر سريع</p>
             <h2 id="call-peer-title" class="text-xl font-black text-white font-mono mt-1">---</h2>
             <p id="call-status-msg" class="text-xs text-emerald-400 mt-1 font-semibold">جاري الاتصال...</p>
         </div>
@@ -280,7 +280,7 @@ const htmlContent = `<!DOCTYPE html>
                     <button onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
                 </div>
                 <div id="ai-log" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">مرحباً بك في سند AI v6.7. صوت واضح في المكالمات، إرسال فوري للرسائل، شريط إخباري بارز، وفحص أرقام المشتركين.</div>
+                    <div class="text-slate-400">مرحباً بك في سند AI v6.8. مزامنة مستقرة، صوت واضح في المكالمات، إرسال فوري للرسائل، وفحص أرقام المشتركين.</div>
                 </div>
                 <div class="flex gap-2">
                     <input type="text" id="ai-q" onkeydown="if(event.key==='Enter') askSanadAI()" placeholder="اطلب من سند AI (صياغة، تلخيص، مهام، أفكار)..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
@@ -384,7 +384,7 @@ const htmlContent = `<!DOCTYPE html>
             var sample = contacts.map(function(c) { return c.id; }).join(', ');
             var raw = prompt('ألصق أرقاماً أو معرّفات (مفصولة بفاصلة أو سطر) لفحص المشتركين/المتصلين في سند AI:', sample);
             if (raw === null) return;
-            var tokens = raw.split(/[\s,،\n]+/).map(function(x) { return x.trim(); }).filter(Boolean);
+            var tokens = raw.split(/[\\s,،\\n]+/).map(function(x) { return x.trim(); }).filter(Boolean);
             if (!tokens.length) return alert('لم يتم إدخال أي أرقام للفحص.');
             var matchedOnline = [];
             tokens.forEach(function(num) {
@@ -408,7 +408,7 @@ const htmlContent = `<!DOCTYPE html>
         function getThreadMap() {
             if (!acctThreads[activeAcct]) {
                 acctThreads[activeAcct] = {
-                    '88888888': [{ id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'أهلاً بك في سند AI v6.7. الحساب النشط: ' + activeAcct }]
+                    '88888888': [{ id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'أهلاً بك في سند AI v6.8. الحساب النشط: ' + activeAcct }]
                 };
             }
             return acctThreads[activeAcct];
@@ -575,6 +575,8 @@ const htmlContent = `<!DOCTYPE html>
                 return res.json();
             }).then(function(data) {
                 if (!data) return;
+                httpConnected = true;
+                refreshConnectionHeader();
                 if (Array.isArray(data.onlineIds)) {
                     onlinePeers = new Set(data.onlineIds);
                     renderPresence();
@@ -594,6 +596,8 @@ const htmlContent = `<!DOCTYPE html>
                 return res.json();
             }).then(function(data) {
                 if (!data) return;
+                httpConnected = true;
+                refreshConnectionHeader();
                 if (Array.isArray(data.onlineIds)) {
                     onlinePeers = new Set(data.onlineIds);
                     renderPresence();
@@ -607,7 +611,8 @@ const htmlContent = `<!DOCTYPE html>
         setInterval(function() {
             postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
             pollHttpSync();
-        }, 1800);
+            if (!ws || ws.readyState > 1) openSocket();
+        }, 2000);
 
         function openSocket() {
             try {
@@ -638,9 +643,6 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function reconnectNow() {
-            wsConnected = false;
-            httpConnected = false;
-            refreshConnectionHeader();
             if (ws) { try { ws.close(); } catch (e) {} }
             openSocket();
             postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
@@ -1049,7 +1051,7 @@ const htmlContent = `<!DOCTYPE html>
             var inp = document.getElementById('msg-box-input');
             var raw = inp.value.trim();
             if (!raw) return alert('اكتب نصاً أولاً لتحسين صياغته.');
-            var cleaned = raw.replace(/\s+/g, ' ');
+            var cleaned = raw.replace(/\\s+/g, ' ');
             if (cleaned.indexOf('السلام') !== 0 && cleaned.length < 40) {
                 cleaned = 'تحية طيبة، ' + cleaned;
             }
@@ -1103,7 +1105,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!q) return;
             var log = document.getElementById('ai-log');
             log.innerHTML += '<div class="bg-blue-950/50 p-2 rounded-lg text-blue-200"><strong>أنت:</strong> ' + q + '</div>';
-            var reply = 'مساعد سند AI v6.7 جاهز: يمكنني تحسين الصياغة، تلخيص المحادثات، استخراج المهام، واقتراح ردود سريعة مباشرة.';
+            var reply = 'مساعد سند AI v6.8 جاهز: يمكنني تحسين الصياغة، تلخيص المحادثات، استخراج المهام، واقتراح ردود سريعة مباشرة.';
             if (q.indexOf('صياغ') !== -1 || q.indexOf('رسالة') !== -1 || q.indexOf('اكتب') !== -1) {
                 reply = 'صياغة مقترحة: «السلام عليكم ورحمة الله وبركاته، يسعدنا تواصلكم ونفيدكم بأن كل شيء جاهز ومحدّث، شاكرين تعاونكم.»';
             } else if (q.indexOf('مهام') !== -1 || q.indexOf('خطة') !== -1) {
@@ -1475,7 +1477,7 @@ function getAllOnlineIds() {
         if (sockSet && sockSet.size > 0) set.add(id);
     });
     httpPresence.forEach((ts, id) => {
-        if (now - ts < 12000) set.add(id);
+        if (now - ts < 15000) set.add(id);
         else httpPresence.delete(id);
     });
     return Array.from(set);
@@ -1615,5 +1617,5 @@ wss.on('connection', (ws) => {
 });
 
 server.listen(PORT, () => {
-    console.log('Sanad AI v6.7 running on port ' + PORT);
+    console.log('Sanad AI v6.8 running on port ' + PORT);
 });

@@ -682,6 +682,19 @@ const htmlContent = `<!DOCTYPE html>
             if (!ws || ws.readyState > 1) openSocket();
         }, 2000);
 
+        // محاولات ربط سريعة في البداية للمساعدة على إيقاظ الخادم وإظهار حالة الاتصال
+        var fastWakeAttempts = 0;
+        var fastWakeTimer = setInterval(function() {
+            fastWakeAttempts += 1;
+            if (wsConnected || httpConnected || fastWakeAttempts > 6) {
+                clearInterval(fastWakeTimer);
+                return;
+            }
+            if (!ws || ws.readyState > 1) openSocket();
+            postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
+            pollHttpSync();
+        }, 1600);
+
         window.addEventListener('online', function() {
             reconnectNow();
         });
@@ -1732,6 +1745,12 @@ function drainHttpEvents(ids) {
 
 const server = http.createServer((req, res) => {
     const urlObj = new URL(req.url, 'http://' + (req.headers.host || 'localhost'));
+
+    if (urlObj.pathname === '/healthz') {
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ ok: true, onlineIds: getAllOnlineIds() }));
+        return;
+    }
 
     if (urlObj.pathname === '/api/sync' && req.method === 'GET') {
         const rawIds = (urlObj.searchParams.get('ids') || '').split(',').map(s => s.trim()).filter(Boolean);

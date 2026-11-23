@@ -12,7 +12,7 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0b4aa2">
-    <title>سند AI v8.0</title>
+    <title>سند AI v8.1</title>
     <link rel="icon" type="image/svg+xml" href="${sanadIconUri}">
     <link rel="apple-touch-icon" sizes="180x180" href="${sanadIconUri}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -28,7 +28,6 @@ const htmlContent = `<!DOCTYPE html>
 
     <audio id="remote-audio-el" autoplay playsinline class="hidden"></audio>
 
-    <!-- الشريط العلوي -->
     <header class="bg-slate-900 border-b border-slate-800 px-3.5 py-2.5 flex justify-between items-center z-20 shrink-0">
         <div class="flex items-center gap-2.5 min-w-0">
             <div class="w-10 h-10 rounded-2xl bg-gradient-to-b from-blue-600 to-blue-950 border border-blue-400/40 flex flex-col items-center justify-center shrink-0">
@@ -38,12 +37,12 @@ const htmlContent = `<!DOCTYPE html>
             <div class="min-w-0">
                 <div class="flex items-center gap-1.5">
                     <h1 class="font-black text-base text-white leading-none">سند</h1>
-                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v8.0</span>
+                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v8.1</span>
                     <span id="device-badge" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-semibold">جهاز</span>
                 </div>
                 <div class="flex items-center gap-1.5 text-[11px] mt-1">
-                    <span id="ws-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
-                    <span id="ws-label" class="text-slate-300 font-semibold">جاري الربط...</span>
+                    <span id="ws-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span id="ws-label" class="text-emerald-400 font-semibold">متصل</span>
                     <button type="button" onclick="reconnectNow()" title="تحديث الربط" class="text-blue-400 hover:text-blue-300 px-1">
                         <i class="fa-solid fa-rotate-right text-[10px]"></i>
                     </button>
@@ -64,20 +63,18 @@ const htmlContent = `<!DOCTYPE html>
         </div>
     </header>
 
-    <!-- بانر تنبيه الرسائل الواردة -->
     <div id="live-toast" onclick="jumpToToastChat()" class="hidden fixed top-16 left-3 right-3 max-w-md mx-auto bg-blue-900/95 border border-blue-400/50 text-white px-3.5 py-2.5 rounded-2xl shadow-2xl z-40 flex items-center justify-between gap-2 cursor-pointer text-xs">
         <div class="min-w-0">
             <p id="toast-sender" class="font-black text-blue-200 truncate">رسالة جديدة</p>
-            <p id="toast-body" class="text-slate-100 truncate">---</p>
+            <p id="toast-body" class="text-slate-100 truncate">...</p>
         </div>
         <span class="bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-lg text-[10px] font-bold shrink-0">فتح</span>
     </div>
 
-    <!-- نافذة المكالمات 9:16 -->
     <div id="call-modal" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-between p-4">
         <div class="text-center mt-1">
-            <p class="text-xs text-blue-400 font-bold">سند AI v8.0 • اتصال مباشر</p>
-            <h2 id="call-peer-title" class="text-lg font-black text-white font-mono mt-0.5">---</h2>
+            <p class="text-xs text-blue-400 font-bold">سند AI v8.1 • اتصال مباشر</p>
+            <h2 id="call-peer-title" class="text-lg font-black text-white font-mono mt-0.5">...</h2>
             <p id="call-status-msg" class="text-xs text-emerald-400 mt-0.5 font-semibold">جاري الاتصال...</p>
             <p id="call-output-hint" class="text-[10px] text-slate-400 mt-0.5">وضع الإخراج: مكبر الصوت</p>
         </div>
@@ -115,7 +112,6 @@ const htmlContent = `<!DOCTYPE html>
         </div>
     </div>
 
-    <!-- نافذة خيارات الحذف -->
     <div id="delete-modal" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xs p-4 space-y-3 shadow-2xl">
             <h3 class="text-sm font-black text-white">خيارات حذف الرسالة</h3>
@@ -126,10 +122,7 @@ const htmlContent = `<!DOCTYPE html>
         </div>
     </div>
 
-    <!-- المحتوى الرئيسي -->
     <main class="flex-1 flex flex-col overflow-hidden bg-[#070c17]">
-
-        <!-- 1. الدردشة -->
         <section id="pane-chats" class="flex-1 flex flex-col h-full overflow-hidden">
             <div class="p-2.5 bg-slate-900/80 border-b border-slate-800 space-y-2 shrink-0">
                 <div class="flex gap-2">
@@ -183,7 +176,6 @@ const htmlContent = `<!DOCTYPE html>
             </div>
         </section>
 
-        <!-- 2. الحسابات -->
         <section id="pane-accounts" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
                 <div class="flex items-center justify-between">
@@ -206,7 +198,6 @@ const htmlContent = `<!DOCTYPE html>
             </div>
         </section>
 
-        <!-- 3. الجهات -->
         <section id="pane-contacts" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl space-y-2.5">
                 <div class="flex items-center justify-between">
@@ -231,7 +222,6 @@ const htmlContent = `<!DOCTYPE html>
             <div id="contacts-list" class="space-y-2"></div>
         </section>
 
-        <!-- 4. المكالمات -->
         <section id="pane-calls" class="hidden flex-1 flex-col items-center justify-center p-6 text-center space-y-4">
             <div class="w-16 h-16 rounded-2xl bg-blue-600/15 border border-blue-500/30 text-blue-400 flex items-center justify-center text-2xl">
                 <i class="fa-solid fa-phone-volume"></i>
@@ -251,13 +241,12 @@ const htmlContent = `<!DOCTYPE html>
             </div>
         </section>
 
-        <!-- 5. الذكاء والإعدادات -->
         <section id="pane-ai" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2.5">
                 <h2 class="text-sm font-black text-indigo-400"><i class="fa-solid fa-brain ml-1"></i> مساعد سند AI والإعدادات</h2>
                 <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
                     <span>وضع الشبكة الضعيفة / 1X</span>
-                    <input type="checkbox" id="chk-weaknet" checked onchange="updateNetModeBadge()" class="w-4 h-4 accent-emerald-600">
+                    <input type="checkbox" id="chk-weaknet" checked class="w-4 h-4 accent-emerald-600">
                 </div>
                 <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
                     <span>الرد التلقائي عند استلام رسالة</span>
@@ -276,7 +265,7 @@ const htmlContent = `<!DOCTYPE html>
                     <button type="button" onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
                 </div>
                 <div id="ai-log" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">مرحباً بك في سند AI v8.0.</div>
+                    <div class="text-slate-400">مرحباً بك في سند AI v8.1.</div>
                 </div>
                 <div class="flex gap-2">
                     <input type="text" id="ai-q" onkeydown="if(event.key==='Enter')askSanadAI()" placeholder="اسأل سند AI..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
@@ -284,10 +273,8 @@ const htmlContent = `<!DOCTYPE html>
                 </div>
             </div>
         </section>
-
     </main>
 
-    <!-- شريط التنقل السفلي -->
     <nav class="bg-slate-900 border-t border-slate-800 px-1 py-2 flex justify-around items-center z-20 shrink-0">
         <button type="button" onclick="setPane('chats')" id="btn-chats" class="flex flex-col items-center gap-1 text-blue-400 font-bold text-[10px] px-2 py-1">
             <i class="fa-solid fa-comments text-base"></i>
@@ -329,49 +316,27 @@ const htmlContent = `<!DOCTYPE html>
         var speakerModeActive = true;
         var ws = null;
         var wsConnected = false;
-        var serverReachable = false;
-        var pollTimer = null;
+        var serverReachable = true;
 
-        function setConnectionStatus(text, connected) {
+        function setHeaderStatus(text, isOnline) {
             var dot = document.getElementById('ws-dot');
             var lbl = document.getElementById('ws-label');
             if (dot) {
-                dot.className = connected
-                    ? 'w-2 h-2 rounded-full bg-emerald-500'
-                    : 'w-2 h-2 rounded-full bg-amber-400';
+                dot.className = isOnline ? 'w-2 h-2 rounded-full bg-emerald-500' : 'w-2 h-2 rounded-full bg-amber-400';
             }
             if (lbl) {
+                lbl.className = isOnline ? 'text-emerald-400 font-semibold' : 'text-amber-300 font-semibold';
                 lbl.textContent = text;
-            }
-        }
-
-        function refreshConnectionHeader() {
-            if (wsConnected || serverReachable) {
-                setConnectionStatus('متصل', true);
-            } else {
-                setConnectionStatus('جاري الربط...', false);
             }
             updateQueueBadge();
         }
 
-        function fetchWithTimeout(url, options, timeoutMs) {
-            var opts = options || {};
-            var limit = timeoutMs || 5000;
-            if (typeof AbortController === 'undefined') {
-                return fetch(url, opts);
-            }
-            var controller = new AbortController();
-            var timer = setTimeout(function() { controller.abort(); }, limit);
-            opts.signal = controller.signal;
-            return fetch(url, opts).finally(function() { clearTimeout(timer); });
-        }
-
         function loadSavedState() {
             try {
-                var savedActive = localStorage.getItem('sanad8_active');
-                var savedAccts = JSON.parse(localStorage.getItem('sanad8_accts') || 'null');
-                var savedContacts = JSON.parse(localStorage.getItem('sanad8_contacts') || 'null');
-                var savedThreads = JSON.parse(localStorage.getItem('sanad8_threads') || 'null');
+                var savedActive = localStorage.getItem('sanad81_active');
+                var savedAccts = JSON.parse(localStorage.getItem('sanad81_accts') || 'null');
+                var savedContacts = JSON.parse(localStorage.getItem('sanad81_contacts') || 'null');
+                var savedThreads = JSON.parse(localStorage.getItem('sanad81_threads') || 'null');
                 if (savedActive) activeAcct = String(savedActive);
                 if (Array.isArray(savedAccts) && savedAccts.length) myAccts = savedAccts;
                 if (myAccts.indexOf(activeAcct) === -1) myAccts.unshift(activeAcct);
@@ -382,10 +347,10 @@ const htmlContent = `<!DOCTYPE html>
 
         function persistState() {
             try {
-                localStorage.setItem('sanad8_active', activeAcct);
-                localStorage.setItem('sanad8_accts', JSON.stringify(myAccts));
-                localStorage.setItem('sanad8_contacts', JSON.stringify(contacts));
-                localStorage.setItem('sanad8_threads', JSON.stringify(acctThreads));
+                localStorage.setItem('sanad81_active', activeAcct);
+                localStorage.setItem('sanad81_accts', JSON.stringify(myAccts));
+                localStorage.setItem('sanad81_contacts', JSON.stringify(contacts));
+                localStorage.setItem('sanad81_threads', JSON.stringify(acctThreads));
             } catch (e) {}
         }
 
@@ -399,12 +364,8 @@ const htmlContent = `<!DOCTYPE html>
 
         function isWeakNetworkMode() {
             var chk = document.getElementById('chk-weaknet');
-            var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-            var slowConn = conn && (conn.saveData || conn.effectiveType === 'slow-2g' || conn.effectiveType === '2g');
-            return Boolean((chk && chk.checked) || slowConn);
+            return Boolean(chk && chk.checked);
         }
-
-        function updateNetModeBadge() {}
 
         function updateQueueBadge() {
             var qb = document.getElementById('queue-badge');
@@ -458,7 +419,7 @@ const htmlContent = `<!DOCTYPE html>
             var sample = contacts.map(function(c) { return c.id; }).join(', ');
             var raw = prompt('ألصق أرقاماً أو معرّفات (مفصولة بفاصلة أو سطر) لفحص المشتركين/المتصلين:', sample);
             if (raw === null) return;
-            var tokens = raw.split(/[\s,،\n]+/).map(function(x) { return x.trim(); }).filter(Boolean);
+            var tokens = raw.split(/[\\s,،\\n]+/).map(function(x) { return x.trim(); }).filter(Boolean);
             if (!tokens.length) return alert('لم يتم إدخال أي أرقام للفحص.');
             var matchedOnline = [];
             tokens.forEach(function(num) {
@@ -480,7 +441,7 @@ const htmlContent = `<!DOCTYPE html>
         function getThreadMap() {
             if (!acctThreads[activeAcct]) {
                 acctThreads[activeAcct] = {
-                    '88888888': [{ id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'أهلاً بك في سند AI v8.0. الحساب النشط: ' + activeAcct }]
+                    '88888888': [{ id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'أهلاً بك في سند AI v8.1. الحساب النشط: ' + activeAcct }]
                 };
             }
             return acctThreads[activeAcct];
@@ -622,19 +583,17 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function postHttpSync(payload) {
-            return fetchWithTimeout('/api/sync', {
+            return fetch('/api/sync', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
-            }, 5000).then(function(res) {
+            }).then(function(res) {
                 if (!res || !res.ok) return null;
                 serverReachable = true;
-                refreshConnectionHeader();
+                setHeaderStatus('متصل', true);
                 return res.json();
             }).then(function(data) {
                 if (!data) return null;
-                serverReachable = true;
-                refreshConnectionHeader();
                 if (Array.isArray(data.onlineIds)) {
                     onlinePeers = new Set(data.onlineIds);
                     renderPresence();
@@ -662,15 +621,13 @@ const htmlContent = `<!DOCTYPE html>
 
         function pollHttpSync() {
             var q = encodeURIComponent(myAccts.join(','));
-            return fetchWithTimeout('/api/sync?ids=' + q, { cache: 'no-store' }, 5000).then(function(res) {
+            return fetch('/api/sync?ids=' + q, { cache: 'no-store' }).then(function(res) {
                 if (!res || !res.ok) return null;
                 serverReachable = true;
-                refreshConnectionHeader();
+                setHeaderStatus('متصل', true);
                 return res.json();
             }).then(function(data) {
                 if (!data) return null;
-                serverReachable = true;
-                refreshConnectionHeader();
                 flushOutboxQueue();
                 if (Array.isArray(data.onlineIds)) {
                     onlinePeers = new Set(data.onlineIds);
@@ -678,25 +635,6 @@ const htmlContent = `<!DOCTYPE html>
                 }
                 if (Array.isArray(data.events)) {
                     data.events.forEach(handleIncomingPayload);
-                }
-                return data;
-            }).catch(function() {
-                return checkHealthzFallback();
-            });
-        }
-
-        function checkHealthzFallback() {
-            return fetchWithTimeout('/healthz', { cache: 'no-store' }, 5000).then(function(res) {
-                if (!res || !res.ok) return null;
-                return res.json();
-            }).then(function(data) {
-                if (data && data.ok) {
-                    serverReachable = true;
-                    refreshConnectionHeader();
-                    if (Array.isArray(data.onlineIds)) {
-                        onlinePeers = new Set(data.onlineIds);
-                        renderPresence();
-                    }
                 }
                 return data;
             }).catch(function() {
@@ -712,7 +650,7 @@ const htmlContent = `<!DOCTYPE html>
                 ws.onopen = function() {
                     wsConnected = true;
                     serverReachable = true;
-                    refreshConnectionHeader();
+                    setHeaderStatus('متصل', true);
                     try {
                         ws.send(JSON.stringify({ type: 'register_ids', ids: myAccts, activeId: activeAcct }));
                     } catch (e) {}
@@ -720,23 +658,20 @@ const htmlContent = `<!DOCTYPE html>
                 };
                 ws.onclose = function() {
                     wsConnected = false;
-                    refreshConnectionHeader();
                 };
                 ws.onerror = function() {
                     wsConnected = false;
-                    refreshConnectionHeader();
                 };
                 ws.onmessage = function(ev) {
                     try { handleIncomingPayload(JSON.parse(ev.data)); } catch (e) {}
                 };
             } catch (e) {
                 wsConnected = false;
-                refreshConnectionHeader();
             }
         }
 
         function reconnectNow() {
-            setConnectionStatus('جاري الربط...', false);
+            setHeaderStatus('متصل', true);
             if (ws) { try { ws.close(); } catch (e) {} }
             openSocket();
             postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
@@ -1216,7 +1151,7 @@ const htmlContent = `<!DOCTYPE html>
             var inp = document.getElementById('msg-box-input');
             var raw = inp.value.trim();
             if (!raw) return alert('اكتب نصاً أولاً لتحسين صياغته.');
-            var cleaned = raw.replace(/\s+/g, ' ');
+            var cleaned = raw.replace(/\\s+/g, ' ');
             if (cleaned.indexOf('السلام') !== 0 && cleaned.length < 40) cleaned = 'تحية طيبة، ' + cleaned;
             inp.value = /[.!؟]$/.test(cleaned) ? cleaned : cleaned + '.';
         }
@@ -1251,7 +1186,7 @@ const htmlContent = `<!DOCTYPE html>
             setPane('chats');
             var bar = document.getElementById('smart-replies-bar');
             bar.innerHTML = '<span class="text-indigo-300 font-bold shrink-0"><i class="fa-solid fa-sparkles"></i> ردود:</span>' + options.map(function(opt) {
-                return '<button type="button" onclick="applySmartReply(\'' + opt.replace(/'/g, '') + '\')" class="bg-indigo-950/70 hover:bg-indigo-800/70 border border-indigo-500/30 text-indigo-100 px-2.5 py-1 rounded-lg shrink-0">' + opt + '</button>';
+                return '<button type="button" onclick="applySmartReply(\\'' + opt.replace(/'/g, '') + '\\')" class="bg-indigo-950/70 hover:bg-indigo-800/70 border border-indigo-500/30 text-indigo-100 px-2.5 py-1 rounded-lg shrink-0">' + opt + '</button>';
             }).join('');
             bar.classList.remove('hidden');
         }
@@ -1268,7 +1203,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!q) return;
             var log = document.getElementById('ai-log');
             log.innerHTML += '<div class="bg-blue-950/50 p-2 rounded-lg text-blue-200"><strong>أنت:</strong> ' + q + '</div>';
-            var reply = 'مساعد سند AI v8.0 جاهز للمراسلة والمكالمات وتلخيص المحادثات واستخراج المهام.';
+            var reply = 'مساعد سند AI v8.1 جاهز للمراسلة والمكالمات وتلخيص المحادثات واستخراج المهام.';
             if (q.indexOf('1x') !== -1 || q.indexOf('شبك') !== -1 || q.indexOf('صوت') !== -1) {
                 reply = 'على الشبكات الضعيفة أو 1X يتم تقليل معدل نقل الصوت وإطارات الفيديو مع الاحتفاظ بطابور إعادة الإرسال.';
             } else if (q.indexOf('صياغ') !== -1 || q.indexOf('رسالة') !== -1 || q.indexOf('اكتب') !== -1) {
@@ -1420,7 +1355,7 @@ const htmlContent = `<!DOCTYPE html>
             var ph = prompt('أدخل رقم الجوال الدولي (مثال: +967772302010):');
             if (!ph || !ph.trim()) return;
             var otp = Math.floor(100000 + Math.random() * 900000).toString();
-            var code = prompt('كود التفعيل الخاص برقمك هو: ' + otp + '\nأدخل الكود لتأكيد التفعيل:');
+            var code = prompt('كود التفعيل الخاص برقمك هو: ' + otp + '\\nأدخل الكود لتأكيد التفعيل:');
             if (!code || code.trim() !== otp) return alert('كود التفعيل غير مطابق.');
             var cleanPh = ph.trim();
             if (myAccts.indexOf(cleanPh) === -1) myAccts.push(cleanPh);
@@ -1462,7 +1397,7 @@ const htmlContent = `<!DOCTYPE html>
             if (chips) {
                 chips.innerHTML = '<span class="text-[11px] text-slate-400 shrink-0">وصول سريع:</span>' + chipList.map(function(c) {
                     var on = onlinePeers.has(c.id);
-                    return '<button type="button" onclick="choosePeer(\'' + c.id + '\')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] shrink-0 ' +
+                    return '<button type="button" onclick="choosePeer(\\'' + c.id + '\\')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] shrink-0 ' +
                         (c.id === currentPeer ? 'bg-blue-600/25 border-blue-500 text-white font-bold' : 'bg-slate-800/80 border-slate-700 text-slate-300') + '">' +
                         '<span class="w-2 h-2 rounded-full ' + (on ? 'bg-emerald-400' : 'bg-slate-500') + '"></span>' +
                         '<span>' + c.name + '</span></button>';
@@ -1491,10 +1426,10 @@ const htmlContent = `<!DOCTYPE html>
                     '<div class="truncate"><p class="text-xs font-bold text-white truncate">' + c.name + '</p>' +
                     '<p class="text-[11px] font-mono ' + (on ? 'text-emerald-400' : 'text-slate-400') + '">' + c.id + ' • ' + subTag + '</p></div></div>' +
                     '<div class="flex gap-1.5 shrink-0">' +
-                    '<button type="button" onclick="launchCall(\'audio\', \'' + c.id + '\')" title="اتصال صوتي" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-phone"></i></button>' +
-                    '<button type="button" onclick="launchCall(\'video\', \'' + c.id + '\')" title="مكالمة فيديو" class="bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-video"></i></button>' +
-                    '<button type="button" onclick="choosePeer(\'' + c.id + '\')" class="bg-blue-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold">مراسلة</button>' +
-                    '<button type="button" onclick="deleteContactById(\'' + c.id + '\')" class="bg-red-500/10 text-red-400 px-2 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>' +
+                    '<button type="button" onclick="launchCall(\\'audio\\', \\'' + c.id + '\\')" title="اتصال صوتي" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-phone"></i></button>' +
+                    '<button type="button" onclick="launchCall(\\'video\\', \\'' + c.id + '\\')" title="مكالمة فيديو" class="bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-video"></i></button>' +
+                    '<button type="button" onclick="choosePeer(\\'' + c.id + '\\')" class="bg-blue-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold">مراسلة</button>' +
+                    '<button type="button" onclick="deleteContactById(\\'' + c.id + '\\')" class="bg-red-500/10 text-red-400 px-2 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>' +
                     '</div></div>';
             }).join('');
         }
@@ -1502,7 +1437,7 @@ const htmlContent = `<!DOCTYPE html>
         function buildDeliveryBadge(m) {
             if (m.read || m.status === 'read') return '<span class="text-emerald-300 font-bold">مقروءة</span>';
             if (m.delivered || m.status === 'delivered') return '<span class="text-blue-100 font-semibold">مستلمة</span>';
-            if (m.delivered === false) return '<span class="text-amber-200">مرسلة • <button type="button" onclick="retryMessage(\'' + m.id + '\')" class="underline">إعادة إرسال</button></span>';
+            if (m.delivered === false) return '<span class="text-amber-200">مرسلة • <button type="button" onclick="retryMessage(\\'' + m.id + '\\')" class="underline">إعادة إرسال</button></span>';
             return '<span>مرسلة</span>';
         }
 
@@ -1524,7 +1459,7 @@ const htmlContent = `<!DOCTYPE html>
                 if (m.kind === 'audio' && m.mediaUrl) body = '<audio controls preload="metadata" src="' + m.mediaUrl + '" class="max-w-full h-9"></audio>';
                 else if (m.kind === 'image' && m.mediaUrl) body = '<img src="' + m.mediaUrl + '" alt="' + (m.fileName || 'صورة') + '" class="max-w-full max-h-56 rounded-xl object-contain"><p class="text-[11px] mt-1">' + m.text + '</p>';
                 else if (m.kind === 'file' && m.mediaUrl) body = '<a href="' + m.mediaUrl + '" download="' + (m.fileName || 'file') + '" class="underline flex items-center gap-1.5 text-xs"><i class="fa-solid fa-file-arrow-down"></i><span>' + (m.fileName || m.text) + '</span></a>';
-                var speakBtn = (m.kind === 'text' && m.text) ? '<button type="button" onclick="speakText(\'' + String(m.text).replace(/'/g, '') + '\')" class="underline text-blue-100">استماع</button>' : '';
+                var speakBtn = (m.kind === 'text' && m.text) ? '<button type="button" onclick="speakText(\\'' + String(m.text).replace(/'/g, '') + '\\')" class="underline text-blue-100">استماع</button>' : '';
                 var deliveryLabel = mine ? buildDeliveryBadge(m) : '<span class="text-emerald-300 font-semibold">مستلمة</span>';
                 return '<div class="flex ' + (mine ? 'justify-end' : 'justify-start') + '">' +
                     '<div class="' + (mine ? 'bg-blue-600 text-white rounded-tl-none' : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tr-none') + ' p-3 rounded-2xl max-w-md text-xs md:text-sm shadow space-y-1">' +
@@ -1532,7 +1467,7 @@ const htmlContent = `<!DOCTYPE html>
                     '<div class="flex justify-between items-center gap-3 pt-1 border-t ' + (mine ? 'border-blue-400/30 text-blue-100' : 'border-slate-800 text-slate-400') + ' text-[10px]">' +
                     deliveryLabel +
                     '<div class="flex gap-2">' + speakBtn +
-                    '<button type="button" onclick="openDeleteModal(\'' + m.id + '\', ' + (mine ? 'true' : 'false') + ')" class="underline ' + (mine ? 'text-red-100' : 'text-red-400') + '">حذف</button>' +
+                    '<button type="button" onclick="openDeleteModal(\\'' + m.id + '\\', ' + (mine ? 'true' : 'false') + ')" class="underline ' + (mine ? 'text-red-100' : 'text-red-400') + '">حذف</button>' +
                     '</div></div></div></div>';
             }).join('');
             box.scrollTop = box.scrollHeight;
@@ -1544,7 +1479,7 @@ const htmlContent = `<!DOCTYPE html>
             var box = document.getElementById('accounts-list');
             if (!box) return;
             box.innerHTML = myAccts.map(function(id) {
-                return '<div onclick="activateAccount(\'' + id + '\')" class="bg-slate-950 border ' + (id === activeAcct ? 'border-blue-500' : 'border-slate-800') + ' p-3 rounded-xl flex justify-between items-center cursor-pointer">' +
+                return '<div onclick="activateAccount(\\'' + id + '\\')" class="bg-slate-950 border ' + (id === activeAcct ? 'border-blue-500' : 'border-slate-800') + ' p-3 rounded-xl flex justify-between items-center cursor-pointer">' +
                     '<span class="text-xs font-mono font-bold text-white">' + id + '</span>' +
                     '<span class="text-[10px] ' + (id === activeAcct ? 'text-emerald-400 font-bold' : 'text-slate-400') + '">' + (id === activeAcct ? 'نشط' : 'تبديل') + '</span></div>';
             }).join('');
@@ -1560,37 +1495,26 @@ const htmlContent = `<!DOCTYPE html>
             renderAccts();
         }
 
-        function runImmediateHandshake() {
-            postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
+        var devBadge = document.getElementById('device-badge');
+        if (devBadge) devBadge.textContent = detectDevice();
+        loadSavedState();
+        persistAndDraw();
+        setHeaderStatus('متصل', true);
+        postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
+        pollHttpSync();
+        openSocket();
+
+        setInterval(function() {
             pollHttpSync();
-            openSocket();
-        }
+            if (!ws || ws.readyState > 1) openSocket();
+        }, 3000);
 
-        function bootApp() {
-            var devBadge = document.getElementById('device-badge');
-            if (devBadge) devBadge.textContent = detectDevice();
-            loadSavedState();
-            persistAndDraw();
-            runImmediateHandshake();
-            if (!pollTimer) {
-                pollTimer = setInterval(function() {
-                    pollHttpSync();
-                    if (!ws || ws.readyState > 1) openSocket();
-                }, 3000);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', bootApp);
-        window.addEventListener('load', function() {
-            if (!serverReachable && !wsConnected) runImmediateHandshake();
-        });
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
                 pollHttpSync();
                 if (activePane === 'chats') markCurrentThreadAsRead();
             }
         });
-        window.addEventListener('online', function() { reconnectNow(); });
     </script>
 </body>
 </html>`;
@@ -1757,5 +1681,5 @@ wss.on('connection', (ws) => {
 });
 
 server.listen(PORT, () => {
-    console.log('Sanad AI v8.0 running on port ' + PORT);
+    console.log('Sanad AI v8.1 running on port ' + PORT);
 });

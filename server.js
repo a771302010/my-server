@@ -78,6 +78,7 @@ const htmlContent = `<!DOCTYPE html>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
         body { font-family: 'Cairo', sans-serif; background-color: #0b131e; color: #e6eef5; }
+        button, a { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e6078; border-radius: 9999px; }
         .sanad-pane { display: none; height: 100%; width: 100%; overflow-y: auto; }
@@ -168,6 +169,23 @@ const htmlContent = `<!DOCTYPE html>
             } catch (e) {}
         })();
 
+        function escapeHtml(str) {
+            return String(str === undefined || str === null ? '' : str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function escapeJsSingle(str) {
+            return String(str === undefined || str === null ? '' : str)
+                .replace(/\\\\/g, '\\\\\\\\')
+                .replace(/'/g, "\\\\'")
+                .replace(/\\n/g, ' ')
+                .replace(/\\r/g, '');
+        }
+
         var SANAD_TAB_LABELS = {
             chats: 'الدردشة',
             groups: 'المجموعات',
@@ -181,6 +199,7 @@ const htmlContent = `<!DOCTYPE html>
         function applySanadPaneDisplay(tabName) {
             var target = SANAD_TAB_LABELS[tabName] ? tabName : 'chats';
             window.__sanadCurrentTab = target;
+            if (typeof activePane !== 'undefined') activePane = target;
             var ids = ['chats', 'groups', 'accounts', 'contacts', 'calls', 'ai'];
             for (var i = 0; i < ids.length; i++) {
                 var k = ids[i];
@@ -200,8 +219,8 @@ const htmlContent = `<!DOCTYPE html>
                 }
                 if (btn) {
                     btn.className = isTarget
-                        ? 'flex flex-col items-center gap-0.5 text-teal-300 font-extrabold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0'
-                        : 'flex flex-col items-center gap-0.5 text-slate-400 font-semibold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0';
+                        ? 'flex flex-col items-center gap-0.5 text-teal-300 font-extrabold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0 cursor-pointer'
+                        : 'flex flex-col items-center gap-0.5 text-slate-400 font-semibold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0 cursor-pointer';
                 }
             }
             var tabBadge = document.getElementById('current-tab-badge');
@@ -209,20 +228,23 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function setPane(p) {
-            applySanadPaneDisplay(p);
+            var target = SANAD_TAB_LABELS[p] ? p : 'chats';
+            applySanadPaneDisplay(target);
             try {
-                if (location.hash !== '#tab-' + p) {
-                    history.replaceState(null, '', '#tab-' + p);
+                if (location.hash !== '#tab-' + target) {
+                    history.replaceState(null, '', '#tab-' + target);
                 }
             } catch (e) {}
             if (typeof onSanadTabActivated === 'function') {
-                try { onSanadTabActivated(p); } catch (e) {}
+                setTimeout(function() {
+                    try { onSanadTabActivated(target); } catch (e) {}
+                }, 0);
             }
         }
 
         window.addEventListener('hashchange', function() {
             var h = String(location.hash || '').replace(/^#tab-/, '');
-            if (SANAD_TAB_LABELS[h]) applySanadPaneDisplay(h);
+            if (SANAD_TAB_LABELS[h]) setPane(h);
         });
     </script>
 
@@ -517,7 +539,7 @@ const htmlContent = `<!DOCTYPE html>
                         <button type="button" onclick="saveExternalAiConfig()" class="text-[11px] bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 px-2.5 py-1 rounded-lg font-bold">حفظ الإعداد</button>
                     </div>
                     <input type="password" id="ai-api-key" placeholder="مفتاح API اختياري (يُحفظ محلياً فقط)" class="w-full bg-[#0f1b29] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
-                    <input type="text" id="ai-api-endpoint" placeholder="رابط نقطة النهاية (اختياري: .../v1/chat/completions)" class="w-full bg-[#0f1b29] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
+                    <input type="text" id="ai-api-endpoint" placeholder="رابط API اختياري (مثال: .../v1/chat)" class="w-full bg-[#0f1b29] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
                 </div>
                 <div class="grid grid-cols-2 gap-2 pt-1">
                     <button type="button" onclick="extractTasksFromThread()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-list-check ml-1"></i>استخراج مهام</button>
@@ -541,27 +563,27 @@ const htmlContent = `<!DOCTYPE html>
     </main>
 
     <nav class="bg-[#0f1b29]/95 border-t border-slate-800 px-0.5 py-2 flex justify-around items-center z-20 shrink-0">
-        <a href="#tab-chats" onclick="setPane('chats'); return false;" id="btn-chats" class="flex flex-col items-center gap-0.5 text-teal-300 font-extrabold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0">
+        <a href="#tab-chats" onclick="setPane('chats'); return false;" id="btn-chats" class="flex flex-col items-center gap-0.5 text-teal-300 font-extrabold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0 cursor-pointer">
             <i class="fa-solid fa-comments text-sm"></i>
             <span>الدردشة</span>
         </a>
-        <a href="#tab-groups" onclick="setPane('groups'); return false;" id="btn-groups" class="flex flex-col items-center gap-0.5 text-slate-400 font-semibold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0">
+        <a href="#tab-groups" onclick="setPane('groups'); return false;" id="btn-groups" class="flex flex-col items-center gap-0.5 text-slate-400 font-semibold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0 cursor-pointer">
             <i class="fa-solid fa-users text-sm"></i>
             <span>المجموعات</span>
         </a>
-        <a href="#tab-accounts" onclick="setPane('accounts'); return false;" id="btn-accounts" class="flex flex-col items-center gap-0.5 text-slate-400 font-semibold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0">
+        <a href="#tab-accounts" onclick="setPane('accounts'); return false;" id="btn-accounts" class="flex flex-col items-center gap-0.5 text-slate-400 font-semibold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0 cursor-pointer">
             <i class="fa-solid fa-id-card text-sm"></i>
             <span>الحسابات</span>
         </a>
-        <a href="#tab-contacts" onclick="setPane('contacts'); return false;" id="btn-contacts" class="flex flex-col items-center gap-0.5 text-slate-400 font-semibold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0">
+        <a href="#tab-contacts" onclick="setPane('contacts'); return false;" id="btn-contacts" class="flex flex-col items-center gap-0.5 text-slate-400 font-semibold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0 cursor-pointer">
             <i class="fa-solid fa-address-book text-sm"></i>
             <span>الجهات</span>
         </a>
-        <a href="#tab-calls" onclick="setPane('calls'); return false;" id="btn-calls" class="flex flex-col items-center gap-0.5 text-slate-400 font-semibold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0">
+        <a href="#tab-calls" onclick="setPane('calls'); return false;" id="btn-calls" class="flex flex-col items-center gap-0.5 text-slate-400 font-semibold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0 cursor-pointer">
             <i class="fa-solid fa-phone-volume text-sm"></i>
             <span>المكالمات</span>
         </a>
-        <a href="#tab-ai" onclick="setPane('ai'); return false;" id="btn-ai" class="flex flex-col items-center gap-0.5 text-slate-400 font-semibold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0">
+        <a href="#tab-ai" onclick="setPane('ai'); return false;" id="btn-ai" class="flex flex-col items-center gap-0.5 text-slate-400 font-semibold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0 cursor-pointer">
             <i class="fa-solid fa-brain text-sm"></i>
             <span>الذكاء</span>
         </a>
@@ -596,17 +618,16 @@ const htmlContent = `<!DOCTYPE html>
         function onSanadTabActivated(p) {
             activePane = p;
             if (p === 'groups') renderGroupsList();
-            if (p === 'accounts') renderAccts();
-            if (p === 'contacts') renderPresence();
-            if (p === 'calls') {
+            else if (p === 'accounts') renderAccts();
+            else if (p === 'contacts') renderPresence();
+            else if (p === 'calls') {
                 var callInp = document.getElementById('call-input');
                 if (callInp && !callInp.value.trim() && currentPeer && currentPeer !== DEFAULT_PEER && !findGroupById(currentPeer)) {
                     var foundPeer = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(currentPeer); });
                     callInp.value = foundPeer ? (foundPeer.name + ' • ' + foundPeer.id) : currentPeer;
                 }
                 onCallDialInput();
-            }
-            if (p === 'chats') {
+            } else if (p === 'chats') {
                 renderMsgs();
                 markCurrentThreadAsRead();
             }
@@ -654,9 +675,10 @@ const htmlContent = `<!DOCTYPE html>
                 if (myAccts.indexOf(activeAcct) === -1) myAccts.unshift(activeAcct);
                 if (Array.isArray(savedContacts) && savedContacts.length) {
                     contacts = savedContacts.map(function(c) {
+                        if (!c || typeof c !== 'object') return null;
                         if (String(c.id).trim() === '88888888') return { name: DEFAULT_PEER, id: DEFAULT_PEER };
-                        return c;
-                    });
+                        return { name: String(c.name || c.id || ''), id: String(c.id || '') };
+                    }).filter(function(c) { return c && c.id; });
                 }
                 if (!contacts.some(function(c) { return c.id === DEFAULT_PEER; })) {
                     contacts.unshift({ name: DEFAULT_PEER, id: DEFAULT_PEER });
@@ -824,9 +846,9 @@ const htmlContent = `<!DOCTYPE html>
             }
             box.innerHTML = list.map(function(c) {
                 var picked = selectedGroupMembers.has(c.id);
-                return '<button type="button" onclick="toggleGroupMemberPick(\\'' + c.id + '\\')" class="px-2.5 py-1 rounded-lg border text-[11px] font-bold ' +
+                return '<button type="button" onclick="toggleGroupMemberPick(\\'' + escapeJsSingle(c.id) + '\\')" class="px-2.5 py-1 rounded-lg border text-[11px] font-bold ' +
                     (picked ? 'bg-teal-950/80 border-teal-700/70 text-teal-100' : 'bg-[#080f18] border-slate-800 text-slate-300') + '">' +
-                    (picked ? '✓ ' : '') + c.name + ' <span class="font-mono text-[10px]">(' + c.id + ')</span></button>';
+                    (picked ? '✓ ' : '') + escapeHtml(c.name) + ' <span class="font-mono text-[10px]">(' + escapeHtml(c.id) + ')</span></button>';
             }).join('');
         }
 
@@ -864,9 +886,9 @@ const htmlContent = `<!DOCTYPE html>
             box.innerHTML = sanadGroups.map(function(g) {
                 var mCount = Array.isArray(g.members) ? g.members.length : 1;
                 return '<div class="bg-[#0f1b29] border border-slate-800 p-3 rounded-xl flex justify-between items-center gap-2">' +
-                    '<div class="min-w-0"><p class="text-xs font-black text-white truncate"><i class="fa-solid fa-users text-teal-300 ml-1"></i>' + g.name + '</p>' +
-                    '<p class="text-[11px] font-mono text-slate-400 truncate">' + g.id + ' • ' + mCount + ' أعضاء</p></div>' +
-                    '<button type="button" onclick="choosePeer(\\'' + g.id + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">دخول المجموعة</button></div>';
+                    '<div class="min-w-0"><p class="text-xs font-black text-white truncate"><i class="fa-solid fa-users text-teal-300 ml-1"></i>' + escapeHtml(g.name) + '</p>' +
+                    '<p class="text-[11px] font-mono text-slate-400 truncate">' + escapeHtml(g.id) + ' • ' + mCount + ' أعضاء</p></div>' +
+                    '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(g.id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">دخول المجموعة</button></div>';
             }).join('');
         }
 
@@ -945,10 +967,12 @@ const htmlContent = `<!DOCTYPE html>
 
         function speakText(txt) {
             if (!('speechSynthesis' in window) || !txt) return;
-            window.speechSynthesis.cancel();
-            var utter = new SpeechSynthesisUtterance(txt);
-            utter.lang = 'ar-SA';
-            window.speechSynthesis.speak(utter);
+            try {
+                window.speechSynthesis.cancel();
+                var utter = new SpeechSynthesisUtterance(txt);
+                utter.lang = 'ar-SA';
+                window.speechSynthesis.speak(utter);
+            } catch (e) {}
         }
 
         function sendReadReceiptIfViewing(peerId, msgId) {
@@ -1234,8 +1258,8 @@ const htmlContent = `<!DOCTYPE html>
             }
             if (sugBox) {
                 sugBox.innerHTML = matches.map(function(c) {
-                    return '<button type="button" onclick="selectCallSuggestion(\\'' + c.id + '\\', \\'' + String(c.name).replace(/'/g, '') + '\\')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg text-[11px] font-bold">' +
-                        c.name + ' • <span class="font-mono text-teal-200">' + c.id + '</span></button>';
+                    return '<button type="button" onclick="selectCallSuggestion(\\'' + escapeJsSingle(c.id) + '\\', \\'' + escapeJsSingle(c.name) + '\\')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg text-[11px] font-bold">' +
+                        escapeHtml(c.name) + ' • <span class="font-mono text-teal-200">' + escapeHtml(c.id) + '</span></button>';
                 }).join('');
             }
         }
@@ -1466,25 +1490,29 @@ const htmlContent = `<!DOCTYPE html>
             if (!SR) return alert('الإملاء الصوتي المباشر غير مدعوم في هذا المتصفح.');
             var btn = document.getElementById('dictate-btn');
             if (!dictating) {
-                speechRec = new SR();
-                speechRec.lang = 'ar-SA';
-                speechRec.interimResults = false;
-                speechRec.onresult = function(ev) {
-                    var transcript = (ev.results && ev.results[0] && ev.results[0][0]) ? ev.results[0][0].transcript : '';
-                    if (transcript) {
-                        var inp = document.getElementById('msg-box-input');
-                        inp.value = (inp.value ? inp.value + ' ' : '') + transcript;
-                    }
-                };
-                speechRec.onend = function() {
+                try {
+                    speechRec = new SR();
+                    speechRec.lang = 'ar-SA';
+                    speechRec.interimResults = false;
+                    speechRec.onresult = function(ev) {
+                        var transcript = (ev.results && ev.results[0] && ev.results[0][0]) ? ev.results[0][0].transcript : '';
+                        if (transcript) {
+                            var inp = document.getElementById('msg-box-input');
+                            inp.value = (inp.value ? inp.value + ' ' : '') + transcript;
+                        }
+                    };
+                    speechRec.onend = function() {
+                        dictating = false;
+                        btn.className = 'text-slate-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition';
+                    };
+                    speechRec.start();
+                    dictating = true;
+                    btn.className = 'bg-[#164e63] text-white p-2 rounded-xl animate-pulse';
+                } catch (e) {
                     dictating = false;
-                    btn.className = 'text-slate-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition';
-                };
-                speechRec.start();
-                dictating = true;
-                btn.className = 'bg-[#164e63] text-white p-2 rounded-xl animate-pulse';
+                }
             } else {
-                speechRec.stop();
+                try { if (speechRec) speechRec.stop(); } catch (e) {}
                 dictating = false;
             }
         }
@@ -1766,8 +1794,8 @@ const htmlContent = `<!DOCTYPE html>
             var topic = (qInp && qInp.value.trim()) ? qInp.value.trim() : ('تحديثات ' + currentPeer);
             var log = document.getElementById('ai-log');
             var output = mode === 'promo'
-                ? ('<strong>رسالة عملاء (' + topic + '):</strong> أهلاً بك، نشاركك أحدث التفاصيل حول «' + topic + '» مع تجربة سريعة ومباشرة عبر سند AI. تواصل معنا لأي استفسار أو حجز.')
-                : ('<strong>تقرير متابعة (' + currentPeer + '):</strong> المحور: ' + topic + ' • الحالة: قيد المتابعة • الخطوة التالية: تأكيد التفاصيل وإرسال التحديث النهائي.');
+                ? ('<strong>رسالة عملاء (' + escapeHtml(topic) + '):</strong> أهلاً بك، نشاركك أحدث التفاصيل حول «' + escapeHtml(topic) + '» مع تجربة سريعة ومباشرة عبر سند AI. تواصل معنا لأي استفسار أو حجز.')
+                : ('<strong>تقرير متابعة (' + escapeHtml(currentPeer) + '):</strong> المحور: ' + escapeHtml(topic) + ' • الحالة: قيد المتابعة • الخطوة التالية: تأكيد التفاصيل وإرسال التحديث النهائي.');
             log.innerHTML += '<div class="bg-[#0f1b29] border border-teal-800/50 p-2 rounded-lg text-slate-100">' + output + '</div>';
             log.scrollTop = log.scrollHeight;
         }
@@ -1778,7 +1806,7 @@ const htmlContent = `<!DOCTYPE html>
             var lastFew = list.slice(-6).map(function(m) { return (m.from === 'me' ? 'أنت: ' : 'الطرف: ') + m.text; }).join(' • ');
             setPane('ai');
             var log = document.getElementById('ai-log');
-            log.innerHTML += '<div class="bg-[#080f18] border border-teal-800/50 p-2 rounded-lg text-slate-200"><strong>ملخص (' + currentPeer + '):</strong> ' + lastFew + '</div>';
+            log.innerHTML += '<div class="bg-[#080f18] border border-teal-800/50 p-2 rounded-lg text-slate-200"><strong>ملخص (' + escapeHtml(currentPeer) + '):</strong> ' + escapeHtml(lastFew) + '</div>';
             log.scrollTop = log.scrollHeight;
         }
 
@@ -1787,7 +1815,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!list.length) return alert('لا توجد رسائل نصية لاستخراج المهام منها.');
             var tasks = list.slice(-5).map(function(m, idx) { return (idx + 1) + '. متابعة: ' + m.text; }).join(' | ');
             var log = document.getElementById('ai-log');
-            log.innerHTML += '<div class="bg-[#080f18] border border-slate-800 p-2 rounded-lg text-emerald-200"><strong>مهام (' + currentPeer + '):</strong> ' + tasks + '</div>';
+            log.innerHTML += '<div class="bg-[#080f18] border border-slate-800 p-2 rounded-lg text-emerald-200"><strong>مهام (' + escapeHtml(currentPeer) + '):</strong> ' + escapeHtml(tasks) + '</div>';
             log.scrollTop = log.scrollHeight;
         }
 
@@ -1802,7 +1830,7 @@ const htmlContent = `<!DOCTYPE html>
             setPane('chats');
             var bar = document.getElementById('smart-replies-bar');
             bar.innerHTML = '<span class="text-teal-200 font-bold shrink-0">ردود:</span>' + options.map(function(opt) {
-                return '<button type="button" onclick="applySmartReply(\\'' + opt.replace(/'/g, '') + '\\')" class="bg-[#0f1b29] hover:bg-slate-800 border border-slate-700 text-slate-100 px-2.5 py-1 rounded-lg shrink-0">' + opt + '</button>';
+                return '<button type="button" onclick="applySmartReply(\\'' + escapeJsSingle(opt) + '\\')" class="bg-[#0f1b29] hover:bg-slate-800 border border-slate-700 text-slate-100 px-2.5 py-1 rounded-lg shrink-0">' + escapeHtml(opt) + '</button>';
             }).join('');
             bar.classList.remove('hidden');
         }
@@ -1818,7 +1846,7 @@ const htmlContent = `<!DOCTYPE html>
             var q = inp.value.trim();
             if (!q) return;
             var log = document.getElementById('ai-log');
-            log.innerHTML += '<div class="bg-teal-950/60 border border-teal-800/50 p-2 rounded-lg text-teal-100"><strong>أنت:</strong> ' + q + '</div>';
+            log.innerHTML += '<div class="bg-teal-950/60 border border-teal-800/50 p-2 rounded-lg text-teal-100"><strong>أنت:</strong> ' + escapeHtml(q) + '</div>';
 
             var kEl = document.getElementById('ai-api-key');
             var eEl = document.getElementById('ai-api-endpoint');
@@ -1842,7 +1870,7 @@ const htmlContent = `<!DOCTYPE html>
                     var content = (d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content)
                         ? d.choices[0].message.content
                         : 'تم استلام الاستجابة من النموذج الخارجي.';
-                    log.innerHTML += '<div class="bg-[#0f1b29] border border-slate-800 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> ' + content + '</div>';
+                    log.innerHTML += '<div class="bg-[#0f1b29] border border-slate-800 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> ' + escapeHtml(content) + '</div>';
                     log.scrollTop = log.scrollHeight;
                 }).catch(function() {
                     log.innerHTML += '<div class="bg-[#0f1b29] border border-slate-800 p-2 rounded-lg text-amber-200"><strong>سند AI:</strong> تعذر الوصول للنموذج الخارجي، تأكد من الرابط والمفتاح.</div>';
@@ -1860,14 +1888,14 @@ const htmlContent = `<!DOCTYPE html>
             } else if (q.indexOf('سند') !== -1 || q.indexOf('@') !== -1) {
                 reply = 'اكتب @سند متبوعاً بطلبك (مثل: @سند لخص النقاش أو @سند خطوات) وسيظهر الرد الذكي مباشرة داخل المحادثة.';
             }
-            log.innerHTML += '<div class="bg-[#0f1b29] border border-slate-800 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> ' + reply + '</div>';
+            log.innerHTML += '<div class="bg-[#0f1b29] border border-slate-800 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> ' + escapeHtml(reply) + '</div>';
             inp.value = '';
             log.scrollTop = log.scrollHeight;
         }
 
         function exportBackup() {
             var data = JSON.stringify({ activeAcct: activeAcct, myAccts: myAccts, contacts: contacts, sanadGroups: sanadGroups, acctThreads: acctThreads, pinnedByThread: pinnedByThread });
-            if (navigator.clipboard) navigator.clipboard.writeText(data).then(function() { alert('تم نسخ النسخة الاحتياطية إلى الحافظة.'); });
+            if (navigator.clipboard) navigator.clipboard.writeText(data).then(function() { alert('تم نسخ النسخة الاحتياطية إلى الحافظة.'); }).catch(function() { prompt('انسخ بيانات النسخة الاحتياطية:', data); });
             else prompt('انسخ بيانات النسخة الاحتياطية:', data);
         }
 
@@ -1961,7 +1989,7 @@ const htmlContent = `<!DOCTYPE html>
         function shareInviteLink() {
             var msg = 'تواصل معي على سند AI عبر المعرّف: ' + activeAcct + ' على الرابط: ' + location.origin;
             if (navigator.share) navigator.share({ title: 'سند AI', text: msg, url: location.origin }).catch(function() {});
-            else if (navigator.clipboard) { navigator.clipboard.writeText(msg); alert('تم نسخ الدعوة: ' + msg); }
+            else if (navigator.clipboard) { navigator.clipboard.writeText(msg).catch(function() {}); alert('تم نسخ الدعوة: ' + msg); }
             else alert(msg);
         }
 
@@ -2044,16 +2072,16 @@ const htmlContent = `<!DOCTYPE html>
             var chips = document.getElementById('quick-chips');
             if (chips) {
                 var grpChips = sanadGroups.map(function(g) {
-                    return '<button type="button" onclick="choosePeer(\\'' + g.id + '\\')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] shrink-0 ' +
+                    return '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(g.id) + '\\')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] shrink-0 ' +
                         (g.id === currentPeer ? 'bg-teal-950/80 border-teal-700/70 text-white font-bold' : 'bg-slate-800/85 border-slate-700 text-slate-200') + '">' +
-                        '<i class="fa-solid fa-users text-[10px] text-teal-300"></i><span>' + g.name + '</span></button>';
+                        '<i class="fa-solid fa-users text-[10px] text-teal-300"></i><span>' + escapeHtml(g.name) + '</span></button>';
                 }).join('');
                 chips.innerHTML = '<span class="text-[11px] text-slate-400 shrink-0">وصول سريع:</span>' + grpChips + chipList.map(function(c) {
                     var on = onlinePeers.has(c.id);
-                    return '<button type="button" onclick="choosePeer(\\'' + c.id + '\\')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] shrink-0 ' +
+                    return '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(c.id) + '\\')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] shrink-0 ' +
                         (c.id === currentPeer ? 'bg-[#164e63] border-teal-600 text-white font-bold' : 'bg-slate-800/85 border-slate-700 text-slate-200') + '">' +
                         '<span class="w-2 h-2 rounded-full ' + (on ? 'bg-emerald-400' : 'bg-slate-500') + '"></span>' +
-                        '<span>' + c.name + '</span></button>';
+                        '<span>' + escapeHtml(c.name) + '</span></button>';
                 }).join('');
             }
 
@@ -2074,16 +2102,16 @@ const htmlContent = `<!DOCTYPE html>
                 var on = onlinePeers.has(c.id);
                 var subTag = on ? 'متصل الآن' : 'محفوظ';
                 var metaText = c.id === DEFAULT_PEER ? subTag : (c.id + ' • ' + subTag);
-                var delBtn = c.id === DEFAULT_PEER ? '' : '<button type="button" onclick="deleteContactById(\\'' + c.id + '\\')" class="bg-rose-950/60 border border-rose-900/50 text-rose-300 px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>';
+                var delBtn = c.id === DEFAULT_PEER ? '' : '<button type="button" onclick="deleteContactById(\\'' + escapeJsSingle(c.id) + '\\')" class="bg-rose-950/60 border border-rose-900/50 text-rose-300 px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>';
                 return '<div class="bg-[#0f1b29] border border-slate-800 p-3 rounded-xl flex justify-between items-center gap-2">' +
                     '<div class="flex items-center gap-2.5 min-w-0">' +
                     '<span class="w-2.5 h-2.5 rounded-full shrink-0 ' + (on ? 'bg-emerald-400' : 'bg-slate-600') + '"></span>' +
-                    '<div class="truncate"><p class="text-xs font-bold text-white truncate">' + c.name + '</p>' +
-                    '<p class="text-[11px] font-mono ' + (on ? 'text-emerald-300' : 'text-slate-400') + '">' + metaText + '</p></div></div>' +
+                    '<div class="truncate"><p class="text-xs font-bold text-white truncate">' + escapeHtml(c.name) + '</p>' +
+                    '<p class="text-[11px] font-mono ' + (on ? 'text-emerald-300' : 'text-slate-400') + '">' + escapeHtml(metaText) + '</p></div></div>' +
                     '<div class="flex gap-1.5 shrink-0">' +
-                    '<button type="button" onclick="launchCall(\\'audio\\', \\'' + c.id + '\\')" title="اتصال صوتي" class="bg-slate-800 hover:bg-emerald-700 border border-slate-700 text-emerald-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-phone"></i></button>' +
-                    '<button type="button" onclick="launchCall(\\'video\\', \\'' + c.id + '\\')" title="مكالمة فيديو" class="bg-slate-800 hover:bg-[#164e63] border border-slate-700 text-teal-200 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-video"></i></button>' +
-                    '<button type="button" onclick="choosePeer(\\'' + c.id + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-2.5 py-1.5 rounded-lg text-xs font-bold">مراسلة</button>' +
+                    '<button type="button" onclick="launchCall(\\'audio\\', \\'' + escapeJsSingle(c.id) + '\\')" title="اتصال صوتي" class="bg-slate-800 hover:bg-emerald-700 border border-slate-700 text-emerald-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-phone"></i></button>' +
+                    '<button type="button" onclick="launchCall(\\'video\\', \\'' + escapeJsSingle(c.id) + '\\')" title="مكالمة فيديو" class="bg-slate-800 hover:bg-[#164e63] border border-slate-700 text-teal-200 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-video"></i></button>' +
+                    '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(c.id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-2.5 py-1.5 rounded-lg text-xs font-bold">مراسلة</button>' +
                     delBtn +
                     '</div></div>';
             }).join('');
@@ -2091,10 +2119,10 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function buildDeliveryBadge(m) {
-            if (m.read || m.status === 'read') return '<span class="text-emerald-200 font-bold">تم قراءتها</span>';
-            if (m.delivered || m.status === 'delivered') return '<span class="text-teal-100 font-semibold">مستلمة</span>';
-            if (m.delivered === false) return '<span class="text-amber-200">مرسلة • <button type="button" onclick="retryMessage(\\'' + m.id + '\\')" class="underline">إعادة إرسال</button></span>';
-            return '<span>مرسلة</span>';
+            if (m.read || m.status === 'read') return '<span class="text-emerald-200 font-bold shrink-0">تم قراءتها</span>';
+            if (m.delivered || m.status === 'delivered') return '<span class="text-teal-100 font-semibold shrink-0">مستلمة</span>';
+            if (m.delivered === false) return '<span class="text-amber-200 shrink-0">مرسلة • <button type="button" onclick="retryMessage(\\'' + escapeJsSingle(m.id) + '\\')" class="underline">إعادة إرسال</button></span>';
+            return '<span class="shrink-0">مرسلة</span>';
         }
 
         function renderMsgs() {
@@ -2121,24 +2149,24 @@ const htmlContent = `<!DOCTYPE html>
             box.innerHTML = list.map(function(m) {
                 if (m.deleted) {
                     var delLabel = m.deletedBy === 'all' ? 'تم حذف الرسالة لدى الجميع' : 'تم حذف الرسالة من جهازك';
-                    return '<div class="text-center text-[11px] text-slate-500 italic">' + delLabel + '</div>';
+                    return '<div class="text-center text-[11px] text-slate-500 italic">' + escapeHtml(delLabel) + '</div>';
                 }
                 var mine = m.from === 'me';
-                var senderTag = (!mine && m.senderName) ? '<p class="text-[10px] font-bold text-teal-200 mb-0.5">' + m.senderName + '</p>' : '';
-                var body = '<p class="whitespace-pre-wrap break-words">' + m.text + '</p>';
-                if (m.kind === 'audio' && m.mediaUrl) body = '<div class="space-y-1"><audio controls preload="metadata" src="' + m.mediaUrl + '" class="max-w-full h-9"></audio><p class="text-[10px] opacity-85">' + (m.text || 'رسالة صوتية') + '</p></div>';
-                else if (m.kind === 'image' && m.mediaUrl) body = '<img src="' + m.mediaUrl + '" alt="' + (m.fileName || 'صورة') + '" class="max-w-full max-h-56 rounded-xl object-contain"><p class="text-[11px] mt-1">' + m.text + '</p>';
-                else if (m.kind === 'file' && m.mediaUrl) body = '<a href="' + m.mediaUrl + '" download="' + (m.fileName || 'file') + '" class="underline flex items-center gap-1.5 text-xs"><i class="fa-solid fa-file-arrow-down"></i><span>' + (m.fileName || m.text) + '</span></a>';
-                var speakBtn = (m.kind === 'text' && m.text) ? '<button type="button" onclick="speakText(\\'' + String(m.text).replace(/'/g, '') + '\\')" class="underline ' + (mine ? 'text-teal-100 hover:text-white' : 'text-slate-200 hover:text-white') + '">استماع</button>' : '';
-                var pinBtn = '<button type="button" onclick="pinThreadMsg(\\'' + m.id + '\\')" class="underline ' + (mine ? 'text-teal-100 hover:text-white' : 'text-amber-200 hover:text-white') + '">تثبيت</button>';
-                var deliveryLabel = mine ? buildDeliveryBadge(m) : '<span class="text-emerald-300 font-semibold">مستلمة</span>';
+                var senderTag = (!mine && m.senderName) ? '<p class="text-[10px] font-bold text-teal-200 mb-0.5">' + escapeHtml(m.senderName) + '</p>' : '';
+                var body = '<p class="whitespace-pre-wrap break-words">' + escapeHtml(m.text) + '</p>';
+                if (m.kind === 'audio' && m.mediaUrl) body = '<div class="space-y-1"><audio controls preload="metadata" src="' + escapeHtml(m.mediaUrl) + '" class="max-w-full h-9"></audio><p class="text-[10px] opacity-85">' + escapeHtml(m.text || 'رسالة صوتية') + '</p></div>';
+                else if (m.kind === 'image' && m.mediaUrl) body = '<img src="' + escapeHtml(m.mediaUrl) + '" alt="' + escapeHtml(m.fileName || 'صورة') + '" class="max-w-full max-h-56 rounded-xl object-contain"><p class="text-[11px] mt-1">' + escapeHtml(m.text) + '</p>';
+                else if (m.kind === 'file' && m.mediaUrl) body = '<a href="' + escapeHtml(m.mediaUrl) + '" download="' + escapeHtml(m.fileName || 'file') + '" class="underline flex items-center gap-1.5 text-xs"><i class="fa-solid fa-file-arrow-down"></i><span>' + escapeHtml(m.fileName || m.text) + '</span></a>';
+                var speakBtn = (m.kind === 'text' && m.text) ? '<button type="button" onclick="speakText(\\'' + escapeJsSingle(m.text) + '\\')" class="underline ' + (mine ? 'text-teal-100 hover:text-white' : 'text-slate-200 hover:text-white') + '">استماع</button>' : '';
+                var pinBtn = '<button type="button" onclick="pinThreadMsg(\\'' + escapeJsSingle(m.id) + '\\')" class="underline ' + (mine ? 'text-teal-100 hover:text-white' : 'text-amber-200 hover:text-white') + '">تثبيت</button>';
+                var deliveryLabel = mine ? buildDeliveryBadge(m) : '<span class="text-emerald-300 font-semibold shrink-0">مستلمة</span>';
                 return '<div class="flex ' + (mine ? 'justify-end' : 'justify-start') + '">' +
                     '<div class="' + (mine ? 'bg-[#164e63] border border-teal-700/50 text-white rounded-tl-none' : 'bg-[#0f1b29] border border-slate-800 text-slate-100 rounded-tr-none') + ' p-3 rounded-2xl max-w-md text-xs md:text-sm shadow space-y-1">' +
                     senderTag + body +
-                    '<div class="flex justify-between items-center gap-2 pt-1 border-t ' + (mine ? 'border-teal-200/20 text-teal-100' : 'border-slate-800 text-slate-400') + ' text-[10px]">' +
+                    '<div class="flex justify-between items-center flex-wrap gap-x-3 gap-y-1 pt-1.5 border-t ' + (mine ? 'border-teal-200/20 text-teal-100' : 'border-slate-800 text-slate-400') + ' text-[10px]">' +
                     deliveryLabel +
-                    '<div class="flex gap-1.5 shrink-0">' + pinBtn + speakBtn +
-                    '<button type="button" onclick="openDeleteModal(\\'' + m.id + '\\', ' + (mine ? 'true' : 'false') + ')" class="underline ' + (mine ? 'text-teal-100 hover:text-white' : 'text-rose-300 hover:text-rose-200') + '">حذف</button>' +
+                    '<div class="flex items-center gap-2.5 shrink-0">' + pinBtn + speakBtn +
+                    '<button type="button" onclick="openDeleteModal(\\'' + escapeJsSingle(m.id) + '\\', ' + (mine ? 'true' : 'false') + ')" class="underline ' + (mine ? 'text-teal-100 hover:text-white' : 'text-rose-300 hover:text-rose-200') + '">حذف</button>' +
                     '</div></div></div></div>';
             }).join('');
             if (!q) box.scrollTop = box.scrollHeight;
@@ -2150,8 +2178,8 @@ const htmlContent = `<!DOCTYPE html>
             var box = document.getElementById('accounts-list');
             if (!box) return;
             box.innerHTML = myAccts.map(function(id) {
-                return '<div onclick="activateAccount(\\'' + id + '\\')" class="bg-[#080f18] border ' + (id === activeAcct ? 'border-teal-600' : 'border-slate-800') + ' p-3 rounded-xl flex justify-between items-center cursor-pointer">' +
-                    '<span class="text-xs font-mono font-bold text-white">' + id + '</span>' +
+                return '<div onclick="activateAccount(\\'' + escapeJsSingle(id) + '\\')" class="bg-[#080f18] border ' + (id === activeAcct ? 'border-teal-600' : 'border-slate-800') + ' p-3 rounded-xl flex justify-between items-center cursor-pointer">' +
+                    '<span class="text-xs font-mono font-bold text-white">' + escapeHtml(id) + '</span>' +
                     '<span class="text-[10px] ' + (id === activeAcct ? 'text-teal-200 font-bold' : 'text-slate-400') + '">' + (id === activeAcct ? 'نشط' : 'تبديل') + '</span></div>';
             }).join('');
         }
@@ -2162,16 +2190,29 @@ const htmlContent = `<!DOCTYPE html>
             if (acctLbl) acctLbl.textContent = activeAcct;
             updateNetBadge();
             updateQueueBadge();
-            renderPresence();
-            renderMsgs();
-            renderAccts();
-            renderGroupsList();
+            if (activePane === 'chats') {
+                renderPresence();
+                renderMsgs();
+            } else if (activePane === 'groups') {
+                renderGroupsList();
+            } else if (activePane === 'accounts') {
+                renderAccts();
+            } else if (activePane === 'contacts') {
+                renderPresence();
+            } else if (activePane === 'calls') {
+                onCallDialInput();
+            }
         }
 
         var devBadge = document.getElementById('device-badge');
         if (devBadge) devBadge.textContent = detectDevice();
         loadSavedState();
-        persistAndDraw();
+        var acctLblInit = document.getElementById('active-acct-label');
+        if (acctLblInit) acctLblInit.textContent = activeAcct;
+        updateNetBadge();
+        updateQueueBadge();
+        renderPresence();
+        renderMsgs();
         applySanadPaneDisplay(window.__sanadCurrentTab || 'chats');
         setHeaderStatus('متصل', true);
         postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
@@ -2199,9 +2240,10 @@ const httpPresence = new Map();
 const httpInbox = new Map();
 
 function touchHttpPresence(ids) {
+    if (!Array.isArray(ids)) return;
     const now = Date.now();
     ids.forEach(id => {
-        const clean = String(id).trim();
+        const clean = String(id || '').trim();
         if (clean) httpPresence.set(clean, now);
     });
 }
@@ -2219,30 +2261,36 @@ function getAllOnlineIds() {
     return Array.from(set);
 }
 
-function registerSocketForId(id, ws) {
-    let set = socketsMap.get(id);
+function registerSocketForId(id, clientWs) {
+    const clean = String(id || '').trim();
+    if (!clean) return;
+    let set = socketsMap.get(clean);
     if (!set) {
         set = new Set();
-        socketsMap.set(id, set);
+        socketsMap.set(clean, set);
     }
-    set.add(ws);
+    set.add(clientWs);
 }
 
-function unregisterSocketForId(id, ws) {
-    const set = socketsMap.get(id);
+function unregisterSocketForId(id, clientWs) {
+    const clean = String(id || '').trim();
+    const set = socketsMap.get(clean);
     if (!set) return;
-    set.delete(ws);
-    if (set.size === 0) socketsMap.delete(id);
+    set.delete(clientWs);
+    if (set.size === 0) socketsMap.delete(clean);
 }
 
 function sendToIdSockets(toId, payloadStr) {
-    const set = socketsMap.get(toId);
+    const clean = String(toId || '').trim();
+    const set = socketsMap.get(clean);
     let sent = false;
     if (set && set.size > 0) {
         set.forEach(client => {
-            if (client.readyState === 1) {
-                client.send(payloadStr);
-                sent = true;
+            if (client && client.readyState === 1) {
+                try {
+                    client.send(payloadStr);
+                    sent = true;
+                } catch (e) {}
             }
         });
     }
@@ -2260,8 +2308,9 @@ function enqueueHttpEvent(toId, payload) {
 
 function drainHttpEvents(ids) {
     const out = [];
+    if (!Array.isArray(ids)) return out;
     ids.forEach(id => {
-        const clean = String(id).trim();
+        const clean = String(id || '').trim();
         const list = httpInbox.get(clean);
         if (list && list.length) {
             out.push(...list);
@@ -2272,63 +2321,77 @@ function drainHttpEvents(ids) {
 }
 
 const server = http.createServer((req, res) => {
-    const urlObj = new URL(req.url, 'http://' + (req.headers.host || 'localhost'));
+    try {
+        const urlObj = new URL(req.url || '/', 'http://' + (req.headers.host || 'localhost'));
 
-    if (urlObj.pathname === '/manifest.json') {
-        res.writeHead(200, { 'Content-Type': 'application/manifest+json; charset=utf-8' });
-        res.end(manifestPayload);
-        return;
-    }
+        if (urlObj.pathname === '/manifest.json') {
+            res.writeHead(200, { 'Content-Type': 'application/manifest+json; charset=utf-8' });
+            res.end(manifestPayload);
+            return;
+        }
 
-    if (
-        urlObj.pathname === '/icon.svg' ||
-        urlObj.pathname === '/apple-touch-icon.png' ||
-        urlObj.pathname === '/apple-touch-icon-precomposed.png'
-    ) {
-        res.writeHead(200, { 'Content-Type': 'image/svg+xml; charset=utf-8', 'Cache-Control': 'public, max-age=86400' });
-        res.end(sanadIconSvg);
-        return;
-    }
+        if (
+            urlObj.pathname === '/icon.svg' ||
+            urlObj.pathname === '/apple-touch-icon.png' ||
+            urlObj.pathname === '/apple-touch-icon-precomposed.png'
+        ) {
+            res.writeHead(200, { 'Content-Type': 'image/svg+xml; charset=utf-8', 'Cache-Control': 'public, max-age=86400' });
+            res.end(sanadIconSvg);
+            return;
+        }
 
-    if (urlObj.pathname === '/healthz') {
-        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-        res.end(JSON.stringify({ ok: true, onlineIds: getAllOnlineIds() }));
-        return;
-    }
-
-    if (urlObj.pathname === '/api/sync' && req.method === 'GET') {
-        const rawIds = (urlObj.searchParams.get('ids') || '').split(',').map(s => s.trim()).filter(Boolean);
-        touchHttpPresence(rawIds);
-        const events = drainHttpEvents(rawIds);
-        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-        res.end(JSON.stringify({ onlineIds: getAllOnlineIds(), events }));
-        return;
-    }
-
-    if (urlObj.pathname === '/api/sync' && req.method === 'POST') {
-        let body = '';
-        req.on('data', chunk => { body += chunk.toString(); });
-        req.on('end', () => {
-            try {
-                const data = JSON.parse(body || '{}');
-                if (data.type === 'register_ids') {
-                    const list = Array.isArray(data.ids) ? data.ids : [data.activeId].filter(Boolean);
-                    touchHttpPresence(list);
-                    broadcastOnline();
-                } else if (data.to) {
-                    const destId = String(data.to).trim();
-                    const deliveredLive = sendToIdSockets(destId, JSON.stringify(data));
-                    if (!deliveredLive) enqueueHttpEvent(destId, data);
-                }
-            } catch (e) {}
+        if (urlObj.pathname === '/healthz') {
             res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
             res.end(JSON.stringify({ ok: true, onlineIds: getAllOnlineIds() }));
-        });
-        return;
-    }
+            return;
+        }
 
-    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-    res.end(htmlContent);
+        if (urlObj.pathname === '/api/sync' && req.method === 'GET') {
+            const rawIds = (urlObj.searchParams.get('ids') || '').split(',').map(s => s.trim()).filter(Boolean);
+            touchHttpPresence(rawIds);
+            const events = drainHttpEvents(rawIds);
+            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ onlineIds: getAllOnlineIds(), events }));
+            return;
+        }
+
+        if (urlObj.pathname === '/api/sync' && req.method === 'POST') {
+            let body = '';
+            req.on('data', chunk => {
+                body += chunk.toString();
+                if (body.length > 5 * 1024 * 1024) {
+                    try { req.destroy(); } catch (e) {}
+                }
+            });
+            req.on('end', () => {
+                try {
+                    const data = JSON.parse(body || '{}');
+                    if (data && data.type === 'register_ids') {
+                        const list = Array.isArray(data.ids) ? data.ids : [data.activeId].filter(Boolean);
+                        touchHttpPresence(list);
+                        broadcastOnline();
+                    } else if (data && data.to) {
+                        const destId = String(data.to).trim();
+                        const deliveredLive = sendToIdSockets(destId, JSON.stringify(data));
+                        if (!deliveredLive) enqueueHttpEvent(destId, data);
+                    }
+                } catch (e) {}
+                if (!res.writableEnded) {
+                    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+                    res.end(JSON.stringify({ ok: true, onlineIds: getAllOnlineIds() }));
+                }
+            });
+            return;
+        }
+
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(htmlContent);
+    } catch (e) {
+        if (!res.writableEnded) {
+            res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ ok: false }));
+        }
+    }
 });
 
 const wss = new WebSocketServer({ server });
@@ -2336,22 +2399,25 @@ const wss = new WebSocketServer({ server });
 function broadcastOnline() {
     const msg = JSON.stringify({ type: 'online_users', ids: getAllOnlineIds() });
     wss.clients.forEach(c => {
-        if (c.readyState === 1) c.send(msg);
+        if (c && c.readyState === 1) {
+            try { c.send(msg); } catch (e) {}
+        }
     });
 }
 
-wss.on('connection', (ws) => {
+wss.on('connection', (clientWs) => {
     let registeredIds = [];
 
-    ws.on('message', (raw) => {
+    clientWs.on('message', (raw) => {
         let data;
         try { data = JSON.parse(raw.toString()); } catch (e) { return; }
+        if (!data || typeof data !== 'object') return;
 
         if (data.type === 'register_ids') {
-            registeredIds.forEach(old => unregisterSocketForId(old, ws));
+            registeredIds.forEach(old => unregisterSocketForId(old, clientWs));
             const list = Array.isArray(data.ids) ? data.ids : [data.activeId].filter(Boolean);
-            registeredIds = list.map(x => String(x).trim()).filter(Boolean);
-            registeredIds.forEach(id => registerSocketForId(id, ws));
+            registeredIds = list.map(x => String(x || '').trim()).filter(Boolean);
+            registeredIds.forEach(id => registerSocketForId(id, clientWs));
             touchHttpPresence(registeredIds);
             broadcastOnline();
             return;
@@ -2364,10 +2430,12 @@ wss.on('connection', (ws) => {
         }
     });
 
-    ws.on('close', () => {
-        registeredIds.forEach(id => unregisterSocketForId(id, ws));
+    clientWs.on('close', () => {
+        registeredIds.forEach(id => unregisterSocketForId(id, clientWs));
         broadcastOnline();
     });
+
+    clientWs.on('error', () => {});
 });
 
 server.listen(PORT, () => {

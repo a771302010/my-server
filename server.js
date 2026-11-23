@@ -37,12 +37,12 @@ const htmlContent = `<!DOCTYPE html>
       cursor: pointer;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
   </style>
 </head>
 <body>
 
-  <!-- الشريط العلوي -->
   <header class="bg-slate-900/95 border-b border-slate-800 px-3.5 py-2.5 flex items-center justify-between shrink-0">
     <div class="flex items-center gap-2.5 min-w-0">
       <div class="w-10 h-10 rounded-2xl bg-blue-700 border border-blue-400/40 flex items-center justify-center font-black text-lg text-white shrink-0">
@@ -65,25 +65,22 @@ const htmlContent = `<!DOCTYPE html>
     </div>
 
     <div class="flex items-center gap-1.5 shrink-0">
-      <button type="button" onclick="openTab('calls')" title="مكالمة صوتية" class="w-9 h-9 rounded-xl bg-emerald-600/20 border border-emerald-500/40 text-emerald-300 flex items-center justify-center">
+      <button type="button" data-open-tab="calls" title="مكالمة صوتية" class="w-9 h-9 rounded-xl bg-emerald-600/20 border border-emerald-500/40 text-emerald-300 flex items-center justify-center">
         <i class="fa-solid fa-phone text-xs"></i>
       </button>
-      <button type="button" onclick="openTab('calls')" title="مكالمة فيديو" class="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-300 flex items-center justify-center">
+      <button type="button" data-open-tab="calls" title="مكالمة فيديو" class="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-300 flex items-center justify-center">
         <i class="fa-solid fa-video text-xs"></i>
       </button>
     </div>
   </header>
 
-  <!-- شريط الأخبار والتنبيه الذكي -->
   <div class="bg-blue-950/60 border-b border-blue-800/40 px-3 py-1.5 text-[11px] text-blue-100 shrink-0 truncate">
     <i class="fa-solid fa-bolt text-amber-300 ml-1"></i>
     <span>سند AI: منصة متكاملة للمراسلة، المجموعات، الحسابات، الجهات، المكالمات، والذكاء الاصطناعي.</span>
   </div>
 
-  <!-- حاوية الأقسام -->
   <main class="flex-1 min-h-0 relative overflow-hidden">
 
-    <!-- 1. الدردشة -->
     <section id="pane-chats" class="tab-pane active-pane">
       <div class="p-2.5 bg-slate-900/70 border-b border-slate-800 flex gap-2 shrink-0">
         <input id="peer-search-input" type="text" placeholder="ابحث بالاسم أو الكود أو الرقم..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500" />
@@ -117,7 +114,6 @@ const htmlContent = `<!DOCTYPE html>
       </div>
     </section>
 
-    <!-- 2. المجموعات -->
     <section id="pane-groups" class="tab-pane p-4 space-y-3">
       <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3">
         <div class="flex items-center justify-between">
@@ -131,7 +127,6 @@ const htmlContent = `<!DOCTYPE html>
       </div>
     </section>
 
-    <!-- 3. الحسابات -->
     <section id="pane-accounts" class="tab-pane p-4 space-y-3">
       <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3">
         <div class="flex items-center justify-between">
@@ -147,7 +142,6 @@ const htmlContent = `<!DOCTYPE html>
       </div>
     </section>
 
-    <!-- 4. الجهات -->
     <section id="pane-contacts" class="tab-pane p-4 space-y-3">
       <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3">
         <div class="flex items-center justify-between">
@@ -163,7 +157,6 @@ const htmlContent = `<!DOCTYPE html>
       </div>
     </section>
 
-    <!-- 5. المكالمات -->
     <section id="pane-calls" class="tab-pane p-4 space-y-3">
       <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-4 text-center">
         <div class="w-14 h-14 mx-auto rounded-2xl bg-blue-600/15 border border-blue-500/30 text-blue-400 flex items-center justify-center text-2xl">
@@ -186,7 +179,6 @@ const htmlContent = `<!DOCTYPE html>
       </div>
     </section>
 
-    <!-- 6. الذكاء -->
     <section id="pane-ai" class="tab-pane p-4 space-y-3">
       <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3">
         <h2 class="text-sm font-black text-indigo-400"><i class="fa-solid fa-brain ml-1"></i> سند للذكاء الاصطناعي (AI)</h2>
@@ -202,31 +194,30 @@ const htmlContent = `<!DOCTYPE html>
 
   </main>
 
-  <!-- شريط التنقل السفلي -->
-  <nav id="bottom-tabs-nav" class="bg-slate-900/95 border-t border-slate-800 px-1 py-2 flex justify-around items-center shrink-0">
-    <button type="button" id="tab-btn-chats" onclick="openTab('chats')" class="nav-item-btn flex flex-col items-center gap-1 text-blue-400 font-bold text-[10px] px-2 py-1">
-      <i class="fa-solid fa-comments text-base"></i>
-      <span>الدردشة</span>
+  <nav id="bottom-tabs-nav" class="bg-slate-900/95 border-t border-slate-800 px-1 pt-2 pb-5 flex justify-around items-center shrink-0">
+    <button type="button" data-open-tab="chats" id="tab-btn-chats" class="nav-item-btn flex flex-col items-center gap-1 text-blue-400 font-bold text-[10px] px-2 py-1">
+      <i class="fa-solid fa-comments text-base pointer-events-none"></i>
+      <span class="pointer-events-none">الدردشة</span>
     </button>
-    <button type="button" id="tab-btn-groups" onclick="openTab('groups')" class="nav-item-btn flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-2 py-1">
-      <i class="fa-solid fa-users text-base"></i>
-      <span>المجموعات</span>
+    <button type="button" data-open-tab="groups" id="tab-btn-groups" class="nav-item-btn flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-2 py-1">
+      <i class="fa-solid fa-users text-base pointer-events-none"></i>
+      <span class="pointer-events-none">المجموعات</span>
     </button>
-    <button type="button" id="tab-btn-accounts" onclick="openTab('accounts')" class="nav-item-btn flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-2 py-1">
-      <i class="fa-solid fa-id-card text-base"></i>
-      <span>الحسابات</span>
+    <button type="button" data-open-tab="accounts" id="tab-btn-accounts" class="nav-item-btn flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-2 py-1">
+      <i class="fa-solid fa-id-card text-base pointer-events-none"></i>
+      <span class="pointer-events-none">الحسابات</span>
     </button>
-    <button type="button" id="tab-btn-contacts" onclick="openTab('contacts')" class="nav-item-btn flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-2 py-1">
-      <i class="fa-solid fa-address-book text-base"></i>
-      <span>الجهات</span>
+    <button type="button" data-open-tab="contacts" id="tab-btn-contacts" class="nav-item-btn flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-2 py-1">
+      <i class="fa-solid fa-address-book text-base pointer-events-none"></i>
+      <span class="pointer-events-none">الجهات</span>
     </button>
-    <button type="button" id="tab-btn-calls" onclick="openTab('calls')" class="nav-item-btn flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-2 py-1">
-      <i class="fa-solid fa-phone-volume text-base"></i>
-      <span>المكالمات</span>
+    <button type="button" data-open-tab="calls" id="tab-btn-calls" class="nav-item-btn flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-2 py-1">
+      <i class="fa-solid fa-phone-volume text-base pointer-events-none"></i>
+      <span class="pointer-events-none">المكالمات</span>
     </button>
-    <button type="button" id="tab-btn-ai" onclick="openTab('ai')" class="nav-item-btn flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-2 py-1">
-      <i class="fa-solid fa-brain text-base"></i>
-      <span>الذكاء</span>
+    <button type="button" data-open-tab="ai" id="tab-btn-ai" class="nav-item-btn flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-2 py-1">
+      <i class="fa-solid fa-brain text-base pointer-events-none"></i>
+      <span class="pointer-events-none">الذكاء</span>
     </button>
   </nav>
 
@@ -241,6 +232,7 @@ const htmlContent = `<!DOCTYPE html>
     };
 
     let currentTab = 'chats';
+    let lastTouchSwitchTs = 0;
     let activeAccount = 'حساب سند';
     let accountsList = ['حساب سند'];
     let groupsList = [];
@@ -260,7 +252,7 @@ const htmlContent = `<!DOCTYPE html>
       panes.forEach((pane) => {
         const isMatch = pane.id === 'pane-' + target;
         pane.classList.toggle('active-pane', isMatch);
-        pane.style.display = isMatch ? 'flex' : 'none';
+        pane.style.setProperty('display', isMatch ? 'flex' : 'none', 'important');
       });
 
       Object.keys(TAB_NAMES).forEach((key) => {
@@ -276,6 +268,23 @@ const htmlContent = `<!DOCTYPE html>
       if (target === 'groups') renderGroups();
       if (target === 'accounts') renderAccounts();
       if (target === 'contacts') renderContacts();
+    }
+
+    function bindTabEvents() {
+      const buttons = document.querySelectorAll('[data-open-tab]');
+      buttons.forEach((btn) => {
+        const key = btn.getAttribute('data-open-tab');
+        btn.addEventListener('touchend', function(ev) {
+          ev.preventDefault();
+          lastTouchSwitchTs = Date.now();
+          openTab(key);
+        }, { passive: false });
+        btn.addEventListener('click', function(ev) {
+          if (Date.now() - lastTouchSwitchTs < 450) return;
+          ev.preventDefault();
+          openTab(key);
+        });
+      });
     }
 
     function sendChatMessage() {
@@ -448,6 +457,7 @@ const htmlContent = `<!DOCTYPE html>
         .replace(/'/g, '&#39;');
     }
 
+    bindTabEvents();
     openTab('chats');
   </script>
 </body>

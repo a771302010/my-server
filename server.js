@@ -12,7 +12,7 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0b4aa2">
-    <title>سند AI v7.0</title>
+    <title>سند AI v7.1</title>
     <link rel="icon" type="image/svg+xml" href="${sanadIconUri}">
     <link rel="apple-touch-icon" sizes="180x180" href="${sanadIconUri}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -41,10 +41,10 @@ const htmlContent = `<!DOCTYPE html>
     <!-- الشريط الإخباري الذكي الواضح -->
     <div class="bg-blue-700 border-b border-blue-300/50 py-1.5 px-2.5 overflow-hidden text-xs text-white z-30 shrink-0 shadow">
         <div class="ticker-line gap-8 font-bold tracking-wide">
-            <span>⚡ سند AI v7.0: وضع الشبكة الضعيفة 1X + ضغط صوتي للمكالمات + تبديل وضع السماعة/المكبر + طابور رسائل تلقائي</span>
+            <span>⚡ سند AI v7.1: مزامنة هجينة فورية + وضع الشبكة الضعيفة 1X + ضغط صوتي للمكالمات + تبديل السماعة/المكبر</span>
             <span>📞 اتصال صوتي وفيديو طولي 9:16 مباشر + فحص أرقام المشتركين + تعدد الأرقام والحسابات</span>
             <span>🧠 مركز سند AI الشامل: تحسين الصياغة + تلخيص + استخراج مهام + ردود ذكية + رد تلقائي</span>
-            <span>⚡ سند AI v7.0: وضع الشبكة الضعيفة 1X + ضغط صوتي للمكالمات + تبديل وضع السماعة/المكبر + طابور رسائل تلقائي</span>
+            <span>⚡ سند AI v7.1: مزامنة هجينة فورية + وضع الشبكة الضعيفة 1X + ضغط صوتي للمكالمات + تبديل السماعة/المكبر</span>
         </div>
     </div>
 
@@ -58,7 +58,7 @@ const htmlContent = `<!DOCTYPE html>
             <div>
                 <div class="flex items-center gap-1.5 flex-wrap">
                     <h1 class="font-black text-base md:text-lg text-white leading-none">سند</h1>
-                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v7.0</span>
+                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v7.1</span>
                     <span id="device-badge" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-semibold">---</span>
                     <span id="net-mode-badge" class="text-[10px] bg-emerald-950/80 text-emerald-300 border border-emerald-700/40 px-2 py-0.5 rounded-full font-bold">1X/مرن</span>
                 </div>
@@ -95,7 +95,7 @@ const htmlContent = `<!DOCTYPE html>
     <!-- نافذة المكالمات الصوتية والمرئية الطولية 9:16 -->
     <div id="call-modal" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-between p-4">
         <div class="text-center mt-1">
-            <p class="text-xs text-blue-400 font-bold">سند AI v7.0 • اتصال مباشر سريع</p>
+            <p class="text-xs text-blue-400 font-bold">سند AI v7.1 • اتصال مباشر سريع</p>
             <h2 id="call-peer-title" class="text-lg font-black text-white font-mono mt-0.5">---</h2>
             <p id="call-status-msg" class="text-xs text-emerald-400 mt-0.5 font-semibold">جاري الاتصال...</p>
             <p id="call-output-hint" class="text-[10px] text-slate-400 mt-0.5">وضع الإخراج: مكبر الصوت (تبديل السماعة يعتمد أيضاً على نظام الهاتف/المتصفح)</p>
@@ -296,7 +296,7 @@ const htmlContent = `<!DOCTYPE html>
                     <button onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
                 </div>
                 <div id="ai-log" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">مرحباً بك في سند AI v7.0. تحسينات الشبكات الضعيفة 1X، ضغط صوتي للمكالمات، طابور إرسال مرن، وتبديل السماعة/المكبر.</div>
+                    <div class="text-slate-400">مرحباً بك في سند AI v7.1. مزامنة هجينة فورية، وضع الشبكة الضعيفة 1X، ضغط صوتي للمكالمات، وطابور إرسال مرن.</div>
                 </div>
                 <div class="flex gap-2">
                     <input type="text" id="ai-q" onkeydown="if(event.key==='Enter') askSanadAI()" placeholder="اطلب من سند AI (صياغة، تلخيص، مهام، شبكة 1X)..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
@@ -454,7 +454,7 @@ const htmlContent = `<!DOCTYPE html>
         function getThreadMap() {
             if (!acctThreads[activeAcct]) {
                 acctThreads[activeAcct] = {
-                    '88888888': [{ id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'أهلاً بك في سند AI v7.0. الحساب النشط: ' + activeAcct }]
+                    '88888888': [{ id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'أهلاً بك في سند AI v7.1. الحساب النشط: ' + activeAcct }]
                 };
             }
             return acctThreads[activeAcct];
@@ -463,7 +463,13 @@ const htmlContent = `<!DOCTYPE html>
         function refreshConnectionHeader() {
             var isLive = wsConnected || httpConnected;
             document.getElementById('ws-dot').className = isLive ? 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse' : 'w-2 h-2 rounded-full bg-amber-400';
-            document.getElementById('ws-label').textContent = isLive ? 'متصل' : 'جاري الربط...';
+            if (wsConnected) {
+                document.getElementById('ws-label').textContent = 'متصل';
+            } else if (httpConnected) {
+                document.getElementById('ws-label').textContent = 'متصل (مزامنة)';
+            } else {
+                document.getElementById('ws-label').textContent = 'جاري الربط...';
+            }
             updateQueueBadge();
         }
 
@@ -682,7 +688,6 @@ const htmlContent = `<!DOCTYPE html>
             if (!ws || ws.readyState > 1) openSocket();
         }, 2000);
 
-        // محاولات ربط سريعة في البداية للمساعدة على إيقاظ الخادم وإظهار حالة الاتصال
         var fastWakeAttempts = 0;
         var fastWakeTimer = setInterval(function() {
             fastWakeAttempts += 1;
@@ -743,7 +748,7 @@ const htmlContent = `<!DOCTYPE html>
             if (ws && ws.readyState === 1) {
                 try { ws.send(JSON.stringify(enriched)); sentWs = true; } catch (e) {}
             }
-            if (!sentWs || !isWeakNetworkMode()) {
+            if (!sentWs || !isWeakNetworkMode() || !httpConnected) {
                 postHttpSync(enriched);
             } else {
                 outboxQueue.push(enriched);
@@ -1316,7 +1321,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!q) return;
             var log = document.getElementById('ai-log');
             log.innerHTML += '<div class="bg-blue-950/50 p-2 rounded-lg text-blue-200"><strong>أنت:</strong> ' + q + '</div>';
-            var reply = 'مساعد سند AI v7.0 جاهز: يدعم ضغط الصوت في الشبكات الضعيفة 1X، طابور إرسال تلقائي، تلخيص المحادثات، والردود الذكية.';
+            var reply = 'مساعد سند AI v7.1 جاهز: يدعم المزامنة الهجينة وضغط الصوت في الشبكات الضعيفة 1X، طابور إرسال تلقائي، تلخيص المحادثات، والردود الذكية.';
             if (q.indexOf('1x') !== -1 || q.indexOf('شبك') !== -1 || q.indexOf('صوت') !== -1) {
                 reply = 'على الشبكات الضعيفة أو 1X: فعّل «وضع الشبكة الضعيفة / 1X» لتقليل معدل نقل الصوت وتقليل إطارات الفيديو وطلبات المزامنة مع الاحتفاظ بطابور إعادة الإرسال.';
             } else if (q.indexOf('صياغ') !== -1 || q.indexOf('رسالة') !== -1 || q.indexOf('اكتب') !== -1) {
@@ -1831,5 +1836,5 @@ wss.on('connection', (ws) => {
 });
 
 server.listen(PORT, () => {
-    console.log('Sanad AI v7.0 running on port ' + PORT);
+    console.log('Sanad AI v7.1 running on port ' + PORT);
 });

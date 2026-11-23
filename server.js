@@ -21,10 +21,10 @@ const htmlContent = `<!DOCTYPE html>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
         body {
             font-family: 'Cairo', sans-serif;
-            background: radial-gradient(circle at top, #0d1b36 0%, #050912 58%, #03060c 100%);
+            background: radial-gradient(circle at top, #0f2142 0%, #060b16 58%, #03060c 100%);
         }
         .glass-panel {
-            background: rgba(15, 23, 42, 0.78);
+            background: rgba(15, 23, 42, 0.84);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
         }
@@ -153,8 +153,8 @@ const htmlContent = `<!DOCTYPE html>
         </div>
     </div>
 
-    <main class="flex-1 flex flex-col overflow-hidden bg-transparent">
-        <section id="pane-chats" class="flex-1 flex flex-col h-full overflow-hidden pane-enter">
+    <main id="main-panes-container" class="flex-1 flex flex-col overflow-hidden bg-transparent">
+        <section id="pane-chats" style="display:flex" class="flex-1 flex-col h-full overflow-hidden pane-enter">
             <div class="p-2.5 bg-slate-900/75 border-b border-slate-800/80 space-y-2 shrink-0">
                 <div class="flex gap-2">
                     <input type="text" id="peer-input" oninput="onTopPeerSearchInput()" onkeydown="if(event.key==='Enter'){event.preventDefault();openPeerByInput();}" placeholder="اكتب الاسم أو الكود أو الرقم ليظهر تلقائياً..." class="flex-1 bg-slate-950/90 border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-blue-500 transition">
@@ -232,7 +232,7 @@ const htmlContent = `<!DOCTYPE html>
             </div>
         </section>
 
-        <section id="pane-groups" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3 pane-enter">
+        <section id="pane-groups" style="display:none" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3 pane-enter">
             <div class="bg-slate-900/85 border border-slate-800/80 p-4 rounded-2xl space-y-3 shadow-lg">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-black text-cyan-400"><i class="fa-solid fa-users ml-1"></i> مجموعات التواصل</h2>
@@ -251,7 +251,7 @@ const htmlContent = `<!DOCTYPE html>
             <div id="groups-list" class="space-y-2"></div>
         </section>
 
-        <section id="pane-accounts" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4 pane-enter">
+        <section id="pane-accounts" style="display:none" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4 pane-enter">
             <div class="bg-slate-900/85 border border-slate-800/80 p-4 rounded-2xl space-y-3 shadow-lg">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-black text-blue-400">إدارة الحسابات والمعرّفات</h2>
@@ -273,7 +273,7 @@ const htmlContent = `<!DOCTYPE html>
             </div>
         </section>
 
-        <section id="pane-contacts" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3 pane-enter">
+        <section id="pane-contacts" style="display:none" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3 pane-enter">
             <div class="bg-slate-900/85 border border-slate-800/80 p-3.5 rounded-2xl space-y-2.5 shadow-lg">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-black text-emerald-400">جهات الاتصال</h2>
@@ -297,7 +297,7 @@ const htmlContent = `<!DOCTYPE html>
             <div id="contacts-list" class="space-y-2"></div>
         </section>
 
-        <section id="pane-calls" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4 pane-enter">
+        <section id="pane-calls" style="display:none" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4 pane-enter">
             <div class="bg-slate-900/85 border border-slate-800/80 p-4 rounded-2xl space-y-3 text-center shadow-lg">
                 <div class="w-14 h-14 mx-auto rounded-2xl bg-blue-600/15 border border-blue-500/30 text-blue-400 flex items-center justify-center text-2xl">
                     <i class="fa-solid fa-phone-volume"></i>
@@ -320,7 +320,7 @@ const htmlContent = `<!DOCTYPE html>
             </div>
         </section>
 
-        <section id="pane-ai" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3 pane-enter">
+        <section id="pane-ai" style="display:none" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3 pane-enter">
             <div class="bg-slate-900/85 border border-slate-800/80 p-4 rounded-2xl space-y-2.5 shadow-lg">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-black text-indigo-400"><i class="fa-solid fa-brain ml-1"></i> مساعد سند AI ومركز المهام</h2>
@@ -1779,34 +1779,40 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function setPane(p) {
-            if (activePane === p) return;
-            activePane = p;
-            ['chats', 'groups', 'accounts', 'contacts', 'calls', 'ai'].forEach(function(item) {
-                var sec = document.getElementById('pane-' + item);
-                if (sec) sec.classList.add('hidden');
-                var btn = document.getElementById('btn-' + item);
-                if (btn) btn.className = 'flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition';
-            });
-            var targetSec = document.getElementById('pane-' + p);
-            if (targetSec) targetSec.classList.remove('hidden');
-            var activeBtn = document.getElementById('btn-' + p);
-            if (activeBtn) activeBtn.className = 'flex flex-col items-center gap-1 text-blue-400 font-bold text-[10px] px-1.5 py-1 transition';
-            if (p === 'groups') renderGroupsList();
-            else if (p === 'accounts') renderAccts();
-            else if (p === 'contacts') renderPresence();
-            else if (p === 'ai') renderSmartTasks();
-            else if (p === 'calls') {
-                var callInp = document.getElementById('call-input');
-                if (callInp && !callInp.value.trim() && currentPeer && currentPeer !== DEFAULT_PEER && !findGroupById(currentPeer)) {
-                    var foundPeer = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(currentPeer); });
-                    callInp.value = foundPeer ? (foundPeer.name + ' • ' + foundPeer.id) : currentPeer;
+            try {
+                if (!p) p = 'chats';
+                activePane = p;
+                ['chats', 'groups', 'accounts', 'contacts', 'calls', 'ai'].forEach(function(item) {
+                    var sec = document.getElementById('pane-' + item);
+                    var isTarget = (item === p);
+                    if (sec) {
+                        sec.classList.toggle('hidden', !isTarget);
+                        sec.style.display = isTarget ? 'flex' : 'none';
+                    }
+                    var btn = document.getElementById('btn-' + item);
+                    if (btn) {
+                        btn.className = isTarget
+                            ? 'flex flex-col items-center gap-1 text-blue-400 font-bold text-[10px] px-1.5 py-1 transition'
+                            : 'flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition';
+                    }
+                });
+                if (p === 'groups') renderGroupsList();
+                else if (p === 'accounts') renderAccts();
+                else if (p === 'contacts') renderPresence();
+                else if (p === 'ai') renderSmartTasks();
+                else if (p === 'calls') {
+                    var callInp = document.getElementById('call-input');
+                    if (callInp && !callInp.value.trim() && currentPeer && currentPeer !== DEFAULT_PEER && !findGroupById(currentPeer)) {
+                        var foundPeer = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(currentPeer); });
+                        callInp.value = foundPeer ? (foundPeer.name + ' • ' + foundPeer.id) : currentPeer;
+                    }
+                    onCallDialInput();
+                } else if (p === 'chats') {
+                    renderPresence();
+                    renderMsgs();
+                    markCurrentThreadAsRead();
                 }
-                onCallDialInput();
-            } else if (p === 'chats') {
-                renderPresence();
-                renderMsgs();
-                markCurrentThreadAsRead();
-            }
+            } catch (e) {}
         }
 
         function choosePeer(id) {
@@ -1822,12 +1828,9 @@ const htmlContent = `<!DOCTYPE html>
             var map = getThreadMap();
             if (!map[currentPeer]) map[currentPeer] = [];
             persistState();
-            if (activePane !== 'chats') {
-                setPane('chats');
-            } else {
-                renderPresence();
-                renderMsgs();
-            }
+            setPane('chats');
+            renderPresence();
+            renderMsgs();
             markCurrentThreadAsRead();
         }
 
@@ -2104,6 +2107,7 @@ const htmlContent = `<!DOCTYPE html>
         if (devBadge) devBadge.textContent = detectDevice();
         loadSavedState();
         persistAndDraw();
+        setPane('chats');
         setHeaderStatus('متصل', true);
         postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
         pollHttpSync();

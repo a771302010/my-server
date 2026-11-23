@@ -6,19 +6,40 @@ const ICON_ACCENT_HEX = '#ffffff';
 const ICON_SUB_HEX = '#7d0e1b';
 
 const sanadIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" rx="110" fill="${ICON_BG_HEX}"/>
-  <rect x="36" y="392" width="440" height="84" rx="42" fill="${ICON_SUB_HEX}"/>
-  <text x="256" y="168" text-anchor="middle" fill="${ICON_ACCENT_HEX}" font-family="Arial, Helvetica, sans-serif" font-size="152" font-weight="900">S</text>
-  <g fill="${ICON_ACCENT_HEX}">
-    <circle cx="256" cy="222" r="24"/>
-    <path d="M214 282c0-23 19-38 42-38s42 15 42 38v22h-84v-22z"/>
-    <circle cx="192" cy="236" r="19"/>
-    <path d="M158 286c0-19 15-32 34-32s34 13 34 32v18h-68v-18z"/>
-    <circle cx="320" cy="236" r="19"/>
-    <path d="M286 286c0-19 15-32 34-32s34 13 34 32v18h-68v-18z"/>
-    <path d="M68 326c28-8 60 16 92 46 30 28 58 36 96 36s66-8 96-36c32-30 64-54 92-46v32c-24-4-52 18-82 46-34 31-68 42-102 42s-68-11-102-42c-30-28-58-50-82-46v-32z"/>
+  <defs>
+    <linearGradient id="sanadBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a81627"/>
+      <stop offset="55%" stop-color="${ICON_BG_HEX}"/>
+      <stop offset="100%" stop-color="${ICON_SUB_HEX}"/>
+    </linearGradient>
+    <radialGradient id="aiSparkGrad" cx="45%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="55%" stop-color="#ffe4e8"/>
+      <stop offset="100%" stop-color="#9e1424" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#sanadBgGrad)"/>
+  <g stroke="rgba(255,255,255,0.14)" stroke-width="2" fill="rgba(255,255,255,0.28)">
+    <line x1="72" y1="88" x2="164" y2="62"/>
+    <line x1="164" y1="62" x2="118" y2="168"/>
+    <line x1="72" y1="88" x2="118" y2="168"/>
+    <line x1="392" y1="82" x2="446" y2="164"/>
+    <line x1="392" y1="82" x2="352" y2="176"/>
+    <line x1="96" y1="336" x2="168" y2="288"/>
+    <line x1="418" y1="312" x2="348" y2="274"/>
+    <circle cx="72" cy="88" r="4.5"/>
+    <circle cx="164" cy="62" r="4.5"/>
+    <circle cx="118" cy="168" r="4.5"/>
+    <circle cx="392" cy="82" r="4.5"/>
+    <circle cx="446" cy="164" r="4.5"/>
+    <circle cx="352" cy="176" r="4.5"/>
+    <circle cx="96" cy="336" r="4.5"/>
+    <circle cx="418" cy="312" r="4.5"/>
   </g>
-  <text x="256" y="448" text-anchor="middle" fill="${ICON_ACCENT_HEX}" font-family="'Cairo', 'Tahoma', 'Arial', sans-serif" font-size="56" font-weight="800">سند</text>
+  <text x="256" y="218" text-anchor="middle" fill="${ICON_ACCENT_HEX}" font-family="'Cairo', 'Tahoma', 'Arial', sans-serif" font-size="168" font-weight="900">س</text>
+  <circle cx="182" cy="196" r="24" fill="url(#aiSparkGrad)"/>
+  <path d="M126 246c22 52 78 78 134 78 58 0 112-26 136-78-30 16-66 34-106 34-26 0-48-8-64-16 26 2 52-4 72-14-36 4-76-2-104-20-26 12-48 14-68 14z" fill="none" stroke="${ICON_ACCENT_HEX}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="256" y="424" text-anchor="middle" fill="${ICON_ACCENT_HEX}" font-family="'Cairo', 'Tahoma', 'Arial', sans-serif" font-size="88" font-weight="900">سند</text>
 </svg>`;
 
 const manifestPayload = JSON.stringify({
@@ -74,102 +95,67 @@ const htmlContent = `<!DOCTYPE html>
                 var ctx = c.getContext('2d');
                 if (!ctx) return;
 
-                ctx.fillStyle = '#9e1424';
+                var bgGrad = ctx.createLinearGradient(0, 0, 512, 512);
+                bgGrad.addColorStop(0, '#a81627');
+                bgGrad.addColorStop(0.55, '#9e1424');
+                bgGrad.addColorStop(1, '#7d0e1b');
+                ctx.fillStyle = bgGrad;
                 ctx.fillRect(0, 0, 512, 512);
 
                 ctx.strokeStyle = 'rgba(255,255,255,0.14)';
                 ctx.lineWidth = 2;
-                var nodes = [[85, 95], [175, 65], [130, 185], [410, 120], [395, 385], [110, 395]];
+                var nodes = [[72, 88], [164, 62], [118, 168], [392, 82], [446, 164], [352, 176], [96, 336], [418, 312]];
                 for (var i = 0; i < nodes.length; i++) {
                     for (var j = i + 1; j < nodes.length; j++) {
-                        ctx.beginPath();
-                        ctx.moveTo(nodes[i][0], nodes[i][1]);
-                        ctx.lineTo(nodes[j][0], nodes[j][1]);
-                        ctx.stroke();
+                        if (Math.hypot(nodes[i][0] - nodes[j][0], nodes[i][1] - nodes[j][1]) < 150) {
+                            ctx.beginPath();
+                            ctx.moveTo(nodes[i][0], nodes[i][1]);
+                            ctx.lineTo(nodes[j][0], nodes[j][1]);
+                            ctx.stroke();
+                        }
                     }
                     ctx.beginPath();
-                    ctx.arc(nodes[i][0], nodes[i][1], 5, 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+                    ctx.arc(nodes[i][0], nodes[i][1], 4.5, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255,255,255,0.28)';
                     ctx.fill();
                 }
 
-                ctx.fillStyle = '#ffffff';
-                ctx.save();
-                ctx.beginPath();
-                ctx.arc(278, 126, 98, Math.PI * 0.12, Math.PI * 1.42, true);
-                ctx.arc(278, 126, 52, Math.PI * 1.42, Math.PI * 0.12, false);
-                ctx.closePath();
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.moveTo(226, 126);
-                ctx.bezierCurveTo(226, 178, 336, 182, 336, 236);
-                ctx.bezierCurveTo(336, 286, 255, 304, 174, 284);
-                ctx.lineTo(188, 240);
-                ctx.bezierCurveTo(240, 255, 288, 248, 288, 224);
-                ctx.bezierCurveTo(288, 198, 180, 194, 180, 126);
-                ctx.closePath();
-                ctx.fill();
-                ctx.restore();
-
-                ctx.strokeStyle = '#9e1424';
-                ctx.lineWidth = 6;
-                ctx.beginPath();
-                ctx.moveTo(278, 78);
-                ctx.lineTo(220, 108);
-                ctx.lineTo(220, 152);
-                ctx.lineTo(295, 206);
-                ctx.lineTo(312, 252);
-                ctx.lineTo(256, 282);
-                ctx.stroke();
-
-                var netPts = [[278, 78], [220, 108], [220, 152], [295, 206], [312, 252], [256, 282]];
-                netPts.forEach(function(pt) {
-                    ctx.beginPath();
-                    ctx.arc(pt[0], pt[1], 11, 0, Math.PI * 2);
-                    ctx.fillStyle = '#9e1424';
-                    ctx.fill();
-                });
-
-                function drawMiniPerson(cx, cy, s) {
-                    ctx.save();
-                    ctx.translate(cx, cy);
-                    ctx.scale(s, s);
-                    ctx.fillStyle = '#ffffff';
-                    ctx.beginPath();
-                    ctx.arc(0, -14, 12, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.beginPath();
-                    ctx.roundRect(-17, 2, 34, 24, 11);
-                    ctx.fill();
-                    ctx.restore();
-                }
-                drawMiniPerson(236, 182, 0.92);
-                drawMiniPerson(274, 180, 1.0);
-                drawMiniPerson(310, 185, 0.88);
-
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath();
-                ctx.moveTo(64, 256);
-                ctx.bezierCurveTo(64, 340, 150, 378, 244, 378);
-                ctx.lineTo(244, 352);
-                ctx.bezierCurveTo(168, 352, 98, 322, 94, 256);
-                ctx.closePath();
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.moveTo(448, 256);
-                ctx.bezierCurveTo(448, 340, 362, 378, 268, 378);
-                ctx.lineTo(268, 352);
-                ctx.bezierCurveTo(344, 352, 414, 322, 418, 256);
-                ctx.closePath();
-                ctx.fill();
-
-                ctx.font = '900 94px Cairo, Tahoma, Arial, sans-serif';
+                ctx.font = '900 168px Cairo, Tahoma, Arial, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillStyle = '#ffffff';
-                ctx.fillText('سند', 256, 428);
+                ctx.fillText('س', 256, 185);
+
+                var sparkGrad = ctx.createRadialGradient(182, 196, 2, 182, 196, 24);
+                sparkGrad.addColorStop(0, '#ffffff');
+                sparkGrad.addColorStop(0.55, 'rgba(255,228,232,0.85)');
+                sparkGrad.addColorStop(1, 'rgba(158,20,36,0)');
+                ctx.fillStyle = sparkGrad;
+                ctx.beginPath();
+                ctx.arc(182, 196, 24, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 7;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.beginPath();
+                ctx.moveTo(126, 246);
+                ctx.bezierCurveTo(148, 298, 200, 324, 260, 324);
+                ctx.bezierCurveTo(318, 324, 372, 298, 396, 246);
+                ctx.stroke();
+
+                ctx.lineWidth = 5;
+                ctx.beginPath();
+                ctx.moveTo(164, 256);
+                ctx.bezierCurveTo(212, 276, 286, 274, 356, 246);
+                ctx.stroke();
+
+                ctx.font = '900 88px Cairo, Tahoma, Arial, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('سند', 256, 412);
 
                 var dataUrl = c.toDataURL('image/png');
                 var appleEl = document.getElementById('sanad-apple-icon');
@@ -244,9 +230,9 @@ const htmlContent = `<!DOCTYPE html>
 
     <header class="bg-slate-900 border-b border-slate-800 px-3.5 py-2.5 flex justify-between items-center z-20 shrink-0">
         <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-b from-[#9e1424] to-[#7d0e1b] border border-red-400/40 flex flex-col items-center justify-center shrink-0">
-                <span class="text-white font-black text-lg leading-none">S</span>
-                <i class="fa-solid fa-hands-holding-child text-[9px] text-red-100 mt-0.5"></i>
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#a81627] via-[#9e1424] to-[#7d0e1b] border border-red-400/40 flex flex-col items-center justify-center shrink-0 shadow">
+                <span class="text-white font-black text-base leading-none">س</span>
+                <span class="text-[8px] font-bold text-red-100 leading-tight mt-0.5">سند</span>
             </div>
             <div class="min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">

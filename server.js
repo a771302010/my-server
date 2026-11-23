@@ -1,25 +1,25 @@
 const http = require('http');
 const { WebSocketServer } = require('ws');
 
-const ICON_BG_HEX = '#9e1424';
-const ICON_ACCENT_HEX = '#ffffff';
-const ICON_SUB_HEX = '#7d0e1b';
+const ICON_BG_HEX = '#164e63';
+const ICON_ACCENT_HEX = '#f0fdfa';
+const ICON_SUB_HEX = '#0f3646';
 
 const sanadIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
     <linearGradient id="sanadBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#a81627"/>
+      <stop offset="0%" stop-color="#1e6078"/>
       <stop offset="55%" stop-color="${ICON_BG_HEX}"/>
       <stop offset="100%" stop-color="${ICON_SUB_HEX}"/>
     </linearGradient>
     <radialGradient id="aiSparkGrad" cx="45%" cy="45%" r="55%">
       <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="55%" stop-color="#ffe4e8"/>
-      <stop offset="100%" stop-color="#9e1424" stop-opacity="0"/>
+      <stop offset="55%" stop-color="#ccfbf1"/>
+      <stop offset="100%" stop-color="#164e63" stop-opacity="0"/>
     </radialGradient>
   </defs>
   <rect width="512" height="512" fill="url(#sanadBgGrad)"/>
-  <g stroke="rgba(255,255,255,0.14)" stroke-width="2" fill="rgba(255,255,255,0.28)">
+  <g stroke="rgba(240,253,250,0.14)" stroke-width="2" fill="rgba(240,253,250,0.28)">
     <line x1="72" y1="88" x2="164" y2="62"/>
     <line x1="164" y1="62" x2="118" y2="168"/>
     <line x1="72" y1="88" x2="118" y2="168"/>
@@ -50,7 +50,7 @@ const manifestPayload = JSON.stringify({
   scope: '/',
   display: 'standalone',
   orientation: 'portrait',
-  background_color: '#050912',
+  background_color: '#0b131e',
   theme_color: ICON_BG_HEX,
   dir: 'rtl',
   lang: 'ar',
@@ -68,7 +68,7 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="سند AI">
-    <meta name="theme-color" content="#9e1424">
+    <meta name="theme-color" content="#164e63">
     <title>سند AI v8.5</title>
     <link id="sanad-favicon" rel="icon" type="image/svg+xml" href="/icon.svg">
     <link id="sanad-apple-icon" rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -77,9 +77,9 @@ const htmlContent = `<!DOCTYPE html>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
-        body { font-family: 'Cairo', sans-serif; background-color: #050912; color: #f1f5f9; }
+        body { font-family: 'Cairo', sans-serif; background-color: #0b131e; color: #e6eef5; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #9e1424; border-radius: 9999px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e6078; border-radius: 9999px; }
         .sanad-pane { display: none; height: 100%; width: 100%; overflow-y: auto; }
         .sanad-pane.sanad-pane-active { display: flex; flex-direction: column; }
     </style>
@@ -96,13 +96,13 @@ const htmlContent = `<!DOCTYPE html>
                 if (!ctx) return;
 
                 var bgGrad = ctx.createLinearGradient(0, 0, 512, 512);
-                bgGrad.addColorStop(0, '#a81627');
-                bgGrad.addColorStop(0.55, '#9e1424');
-                bgGrad.addColorStop(1, '#7d0e1b');
+                bgGrad.addColorStop(0, '#1e6078');
+                bgGrad.addColorStop(0.55, '#164e63');
+                bgGrad.addColorStop(1, '#0f3646');
                 ctx.fillStyle = bgGrad;
                 ctx.fillRect(0, 0, 512, 512);
 
-                ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+                ctx.strokeStyle = 'rgba(240,253,250,0.14)';
                 ctx.lineWidth = 2;
                 var nodes = [[72, 88], [164, 62], [118, 168], [392, 82], [446, 164], [352, 176], [96, 336], [418, 312]];
                 for (var i = 0; i < nodes.length; i++) {
@@ -116,26 +116,26 @@ const htmlContent = `<!DOCTYPE html>
                     }
                     ctx.beginPath();
                     ctx.arc(nodes[i][0], nodes[i][1], 4.5, 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(255,255,255,0.28)';
+                    ctx.fillStyle = 'rgba(240,253,250,0.28)';
                     ctx.fill();
                 }
 
                 ctx.font = '900 168px Cairo, Tahoma, Arial, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillStyle = '#ffffff';
+                ctx.fillStyle = '#f0fdfa';
                 ctx.fillText('س', 256, 185);
 
                 var sparkGrad = ctx.createRadialGradient(182, 196, 2, 182, 196, 24);
                 sparkGrad.addColorStop(0, '#ffffff');
-                sparkGrad.addColorStop(0.55, 'rgba(255,228,232,0.85)');
-                sparkGrad.addColorStop(1, 'rgba(158,20,36,0)');
+                sparkGrad.addColorStop(0.55, 'rgba(204,251,241,0.85)');
+                sparkGrad.addColorStop(1, 'rgba(22,78,99,0)');
                 ctx.fillStyle = sparkGrad;
                 ctx.beginPath();
                 ctx.arc(182, 196, 24, 0, Math.PI * 2);
                 ctx.fill();
 
-                ctx.strokeStyle = '#ffffff';
+                ctx.strokeStyle = '#f0fdfa';
                 ctx.lineWidth = 7;
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
@@ -154,7 +154,7 @@ const htmlContent = `<!DOCTYPE html>
                 ctx.font = '900 88px Cairo, Tahoma, Arial, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillStyle = '#ffffff';
+                ctx.fillStyle = '#f0fdfa';
                 ctx.fillText('سند', 256, 412);
 
                 var dataUrl = c.toDataURL('image/png');
@@ -200,7 +200,7 @@ const htmlContent = `<!DOCTYPE html>
                 }
                 if (btn) {
                     btn.className = isTarget
-                        ? 'flex flex-col items-center gap-0.5 text-rose-300 font-extrabold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0'
+                        ? 'flex flex-col items-center gap-0.5 text-teal-300 font-extrabold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0'
                         : 'flex flex-col items-center gap-0.5 text-slate-400 font-semibold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0';
                 }
             }
@@ -228,17 +228,17 @@ const htmlContent = `<!DOCTYPE html>
 
     <audio id="remote-audio-el" autoplay playsinline class="hidden"></audio>
 
-    <header class="bg-slate-900/95 border-b border-slate-800 px-3.5 py-2.5 flex justify-between items-center z-20 shrink-0">
+    <header class="bg-[#0f1b29]/95 border-b border-slate-800/90 px-3.5 py-2.5 flex justify-between items-center z-20 shrink-0">
         <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#a81627] via-[#9e1424] to-[#7d0e1b] border border-rose-300/35 flex flex-col items-center justify-center shrink-0 shadow">
-                <span class="text-white font-black text-base leading-none">س</span>
-                <span class="text-[8px] font-bold text-rose-100 leading-tight mt-0.5">سند</span>
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#1e6078] via-[#164e63] to-[#0f3646] border border-teal-300/30 flex flex-col items-center justify-center shrink-0 shadow">
+                <span class="text-teal-50 font-black text-base leading-none">س</span>
+                <span class="text-[8px] font-bold text-teal-200 leading-tight mt-0.5">سند</span>
             </div>
             <div class="min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
                     <h1 class="font-black text-base text-white leading-none">سند</h1>
-                    <span class="text-[10px] bg-rose-950/80 text-rose-200 border border-rose-800/60 px-2 py-0.5 rounded-full font-bold">AI v8.5</span>
-                    <span id="current-tab-badge" class="text-[10px] bg-slate-800 text-slate-200 border border-slate-700/80 px-2 py-0.5 rounded-full font-bold">الدردشة</span>
+                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/60 px-2 py-0.5 rounded-full font-bold">AI v8.5</span>
+                    <span id="current-tab-badge" class="text-[10px] bg-slate-800/90 text-slate-200 border border-slate-700/80 px-2 py-0.5 rounded-full font-bold">الدردشة</span>
                     <span id="device-badge" class="text-[10px] bg-slate-800/90 text-slate-300 border border-slate-700/60 px-2 py-0.5 rounded-full font-semibold">جهاز</span>
                     <span id="net-badge" class="text-[10px] bg-slate-800/90 text-sky-200 border border-sky-800/50 px-2 py-0.5 rounded-full font-bold">وضع مرن</span>
                 </div>
@@ -256,37 +256,37 @@ const htmlContent = `<!DOCTYPE html>
         </div>
 
         <div class="flex items-center gap-2 shrink-0">
-            <button type="button" onclick="launchCall('audio')" title="مكالمة صوتية" class="w-9 h-9 rounded-xl bg-emerald-950/60 hover:bg-emerald-700 border border-emerald-700/60 text-emerald-300 hover:text-white flex items-center justify-center transition">
+            <button type="button" onclick="launchCall('audio')" title="مكالمة صوتية" class="w-9 h-9 rounded-xl bg-teal-950/70 hover:bg-teal-800 border border-teal-800/60 text-teal-200 hover:text-white flex items-center justify-center transition">
                 <i class="fa-solid fa-phone text-xs"></i>
             </button>
-            <button type="button" onclick="launchCall('video')" title="مكالمة فيديو" class="w-9 h-9 rounded-xl bg-rose-950/70 hover:bg-[#9e1424] border border-rose-800/60 text-rose-200 hover:text-white flex items-center justify-center transition">
+            <button type="button" onclick="launchCall('video')" title="مكالمة فيديو" class="w-9 h-9 rounded-xl bg-sky-950/70 hover:bg-sky-800 border border-sky-800/60 text-sky-200 hover:text-white flex items-center justify-center transition">
                 <i class="fa-solid fa-video text-xs"></i>
             </button>
         </div>
     </header>
 
-    <div id="live-toast" onclick="jumpToToastChat()" class="hidden fixed top-16 left-3 right-3 max-w-md mx-auto bg-slate-900/95 border border-rose-800/70 text-slate-100 px-3.5 py-2.5 rounded-2xl shadow-2xl z-40 flex items-center justify-between gap-2 cursor-pointer text-xs">
+    <div id="live-toast" onclick="jumpToToastChat()" class="hidden fixed top-16 left-3 right-3 max-w-md mx-auto bg-[#0f1b29]/95 border border-teal-800/70 text-slate-100 px-3.5 py-2.5 rounded-2xl shadow-2xl z-40 flex items-center justify-between gap-2 cursor-pointer text-xs">
         <div class="min-w-0">
-            <p id="toast-sender" class="font-black text-rose-200 truncate">رسالة جديدة</p>
+            <p id="toast-sender" class="font-black text-teal-200 truncate">رسالة جديدة</p>
             <p id="toast-body" class="text-slate-200 truncate">...</p>
         </div>
-        <span class="bg-rose-950 text-rose-200 border border-rose-800/60 px-2 py-1 rounded-lg text-[10px] font-bold shrink-0">فتح</span>
+        <span class="bg-teal-950 text-teal-200 border border-teal-800/60 px-2 py-1 rounded-lg text-[10px] font-bold shrink-0">فتح</span>
     </div>
 
-    <div id="call-modal" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-between p-4">
+    <div id="call-modal" class="hidden fixed inset-0 bg-[#080f18]/95 z-50 flex flex-col items-center justify-between p-4">
         <div class="text-center mt-1">
-            <p class="text-xs text-rose-300 font-bold">سند AI v8.5 • اتصال عالي الوضوح</p>
+            <p class="text-xs text-teal-300 font-bold">سند AI v8.5 • اتصال طبي واضح ومستقر</p>
             <h2 id="call-peer-title" class="text-lg font-black text-white font-mono mt-0.5">...</h2>
             <p id="call-timer-el" class="text-xs font-mono font-bold text-slate-300 mt-0.5">00:00</p>
             <p id="call-status-msg" class="text-xs text-emerald-300 mt-0.5 font-semibold">جاري الاتصال...</p>
             <p id="call-output-hint" class="text-[10px] text-slate-400 mt-0.5">مخرج الصوت: مكبر الصوت</p>
         </div>
 
-        <div class="relative w-full max-w-sm flex-1 my-2.5 max-h-[64vh] aspect-[9/16] bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden flex items-center justify-center shadow-2xl">
+        <div class="relative w-full max-w-sm flex-1 my-2.5 max-h-[64vh] aspect-[9/16] bg-[#0f1b29] rounded-3xl border border-slate-800 overflow-hidden flex items-center justify-center shadow-2xl">
             <video id="remote-video-el" autoplay playsinline class="w-full h-full object-cover hidden"></video>
-            <video id="local-video-el" autoplay playsinline muted class="w-24 h-36 object-cover rounded-2xl border-2 border-rose-400/70 shadow-lg absolute bottom-3 left-3 hidden"></video>
+            <video id="local-video-el" autoplay playsinline muted class="w-24 h-36 object-cover rounded-2xl border-2 border-teal-400/70 shadow-lg absolute bottom-3 left-3 hidden"></video>
             <div id="voice-call-card" class="flex flex-col items-center gap-2.5 px-4 text-center">
-                <div class="w-20 h-20 rounded-full bg-rose-950/80 border border-rose-800/60 flex items-center justify-center text-3xl text-rose-200 animate-pulse">
+                <div class="w-20 h-20 rounded-full bg-teal-950/80 border border-teal-800/60 flex items-center justify-center text-3xl text-teal-200 animate-pulse">
                     <i class="fa-solid fa-microphone-lines"></i>
                 </div>
                 <span class="text-xs text-slate-300 font-semibold">مكالمة صوتية مباشرة • أولوية جودة الصوت</span>
@@ -310,28 +310,28 @@ const htmlContent = `<!DOCTYPE html>
             <button type="button" id="mute-btn" onclick="toggleMuteTrack()" title="كتم الميكروفون" class="w-11 h-11 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white flex items-center justify-center">
                 <i id="mute-icon" class="fa-solid fa-microphone"></i>
             </button>
-            <button type="button" onclick="endActiveCall()" class="bg-[#9e1424] hover:bg-[#7d0e1b] text-white px-4 py-3 rounded-2xl font-bold text-xs shadow-lg">
+            <button type="button" onclick="endActiveCall()" class="bg-rose-800 hover:bg-rose-700 text-white px-4 py-3 rounded-2xl font-bold text-xs shadow-lg">
                 <i class="fa-solid fa-phone-slash ml-1"></i> إنهاء
             </button>
         </div>
     </div>
 
-    <div id="delete-modal" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xs p-4 space-y-3 shadow-2xl">
+    <div id="delete-modal" class="hidden fixed inset-0 bg-[#080f18]/80 z-50 flex items-center justify-center p-4">
+        <div class="bg-[#0f1b29] border border-slate-800 rounded-2xl w-full max-w-xs p-4 space-y-3 shadow-2xl">
             <h3 class="text-sm font-black text-white">خيارات حذف الرسالة</h3>
             <p class="text-[11px] text-slate-400">اختر ما إذا كنت تريد حذف الرسالة من جهازك فقط أو من عند الجميع.</p>
             <button type="button" onclick="confirmDeleteChoice('me')" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 py-2.5 rounded-xl text-xs font-bold">حذف من عندي فقط</button>
-            <button type="button" id="del-everyone-btn" onclick="confirmDeleteChoice('all')" class="w-full bg-[#9e1424] hover:bg-[#7d0e1b] text-white py-2.5 rounded-xl text-xs font-bold">حذف عند الجميع</button>
+            <button type="button" id="del-everyone-btn" onclick="confirmDeleteChoice('all')" class="w-full bg-rose-800 hover:bg-rose-700 text-white py-2.5 rounded-xl text-xs font-bold">حذف عند الجميع</button>
             <button type="button" onclick="closeDeleteModal()" class="w-full text-slate-400 hover:text-white py-1.5 text-xs">إلغاء</button>
         </div>
     </div>
 
-    <main class="flex-1 flex flex-col overflow-hidden bg-[#060b14]">
+    <main class="flex-1 flex flex-col overflow-hidden bg-[#0b131e]">
         <section id="pane-chats" class="sanad-pane sanad-pane-active flex-1 flex-col h-full overflow-hidden">
-            <div class="p-2.5 bg-slate-900/90 border-b border-slate-800 space-y-2 shrink-0">
+            <div class="p-2.5 bg-[#0f1b29]/90 border-b border-slate-800/90 space-y-2 shrink-0">
                 <div class="flex gap-2">
-                    <input type="text" id="peer-input" oninput="onTopPeerSearchInput()" onkeydown="if(event.key==='Enter'){event.preventDefault();openPeerByInput();}" placeholder="اكتب الاسم أو الكود أو الرقم ليظهر تلقائياً..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm text-white placeholder-slate-400 focus:outline-none focus:border-rose-700">
-                    <button type="button" onclick="openPeerByInput()" class="bg-[#9e1424] hover:bg-[#7d0e1b] text-white px-4 py-2 rounded-xl text-xs font-bold transition">فتح</button>
+                    <input type="text" id="peer-input" oninput="onTopPeerSearchInput()" onkeydown="if(event.key==='Enter'){event.preventDefault();openPeerByInput();}" placeholder="اكتب الاسم أو الكود أو الرقم ليظهر تلقائياً..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm text-white placeholder-slate-400 focus:outline-none focus:border-teal-600">
+                    <button type="button" onclick="openPeerByInput()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl text-xs font-bold transition">فتح</button>
                     <button type="button" onclick="saveCurrentPeer()" title="حفظ في الجهات" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs font-bold">
                         <i class="fa-solid fa-user-plus"></i>
                     </button>
@@ -339,7 +339,7 @@ const htmlContent = `<!DOCTYPE html>
                 <div id="quick-chips" class="flex items-center gap-1.5 overflow-x-auto pb-0.5 text-xs"></div>
             </div>
 
-            <div class="px-3.5 py-2 bg-slate-950/90 border-b border-slate-800/90 flex justify-between items-center gap-2 text-xs shrink-0">
+            <div class="px-3.5 py-2 bg-[#0c1622] border-b border-slate-800/90 flex justify-between items-center gap-2 text-xs shrink-0">
                 <div class="flex items-center gap-2 min-w-0">
                     <span id="peer-dot" class="w-2.5 h-2.5 rounded-full bg-slate-600 shrink-0"></span>
                     <span id="peer-title" class="font-bold text-slate-100 font-mono truncate">خدمة العملاء</span>
@@ -348,42 +348,42 @@ const htmlContent = `<!DOCTYPE html>
                 <div class="flex items-center gap-2 shrink-0 text-[11px]">
                     <button type="button" onclick="toggleThreadSearchBar()" title="بحث داخل رسائل المحادثة" class="text-slate-300 hover:text-white px-1"><i class="fa-solid fa-magnifying-glass"></i></button>
                     <button type="button" onclick="launchCall('audio')" title="اتصال صوتي سريع" class="text-emerald-300 hover:text-emerald-200 px-1"><i class="fa-solid fa-phone"></i></button>
-                    <button type="button" onclick="launchCall('video')" title="مكالمة فيديو سريعة" class="text-rose-200 hover:text-white px-1"><i class="fa-solid fa-video"></i></button>
+                    <button type="button" onclick="launchCall('video')" title="مكالمة فيديو سريعة" class="text-teal-200 hover:text-white px-1"><i class="fa-solid fa-video"></i></button>
                     <button type="button" onclick="summarizeCurrentThread()" class="text-slate-200 hover:text-white font-semibold whitespace-nowrap">تلخيص</button>
                     <button type="button" onclick="shareInviteLink()" class="text-slate-200 hover:text-white font-semibold whitespace-nowrap">دعوة</button>
                     <button type="button" onclick="clearThreadMsgs()" class="text-rose-300 hover:text-rose-200 font-semibold whitespace-nowrap">مسح</button>
                 </div>
             </div>
 
-            <div id="pinned-msg-banner" class="hidden px-3.5 py-1.5 bg-slate-900 border-b border-rose-900/50 flex items-center justify-between gap-2 text-[11px] shrink-0">
+            <div id="pinned-msg-banner" class="hidden px-3.5 py-1.5 bg-[#0f1b29] border-b border-teal-800/50 flex items-center justify-between gap-2 text-[11px] shrink-0">
                 <div class="flex items-center gap-1.5 min-w-0">
-                    <i class="fa-solid fa-thumbtack text-rose-300 shrink-0"></i>
+                    <i class="fa-solid fa-thumbtack text-teal-300 shrink-0"></i>
                     <span id="pinned-msg-text" class="text-slate-200 truncate"></span>
                 </div>
-                <button type="button" onclick="unpinCurrentThreadMsg()" class="text-rose-300 hover:text-white text-[10px] shrink-0">إلغاء التثبيت</button>
+                <button type="button" onclick="unpinCurrentThreadMsg()" class="text-teal-300 hover:text-white text-[10px] shrink-0">إلغاء التثبيت</button>
             </div>
 
-            <div id="thread-search-bar" class="hidden px-3 py-2 bg-slate-900 border-b border-slate-800 flex items-center gap-2 text-xs shrink-0">
-                <i class="fa-solid fa-magnifying-glass text-rose-300"></i>
-                <input type="text" id="thread-search-input" oninput="renderMsgs()" placeholder="ابحث داخل رسائل هذه المحادثة..." class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-rose-700">
+            <div id="thread-search-bar" class="hidden px-3 py-2 bg-[#0f1b29] border-b border-slate-800 flex items-center gap-2 text-xs shrink-0">
+                <i class="fa-solid fa-magnifying-glass text-teal-300"></i>
+                <input type="text" id="thread-search-input" oninput="renderMsgs()" placeholder="ابحث داخل رسائل هذه المحادثة..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-teal-600">
                 <span id="thread-search-count" class="text-[10px] font-mono text-slate-300 shrink-0">0 نتيجة</span>
                 <button type="button" onclick="closeThreadSearchBar()" class="text-slate-400 hover:text-white px-1.5"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <div id="msgs-box" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar"></div>
 
-            <div id="smart-replies-bar" class="hidden px-3 py-1.5 bg-slate-950/90 border-t border-slate-800/70 flex items-center gap-1.5 overflow-x-auto text-[11px] shrink-0"></div>
+            <div id="smart-replies-bar" class="hidden px-3 py-1.5 bg-[#0c1622] border-t border-slate-800/70 flex items-center gap-1.5 overflow-x-auto text-[11px] shrink-0"></div>
 
-            <div class="px-3 py-1 bg-slate-950/80 border-t border-slate-800/70 flex items-center gap-1.5 text-[10px] shrink-0 overflow-x-auto">
+            <div class="px-3 py-1 bg-[#0c1622]/80 border-t border-slate-800/70 flex items-center gap-1.5 text-[10px] shrink-0 overflow-x-auto">
                 <span class="text-slate-300 font-bold shrink-0">نبرات الصياغة:</span>
                 <button type="button" onclick="polishDraft('friendly')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-slate-200 px-2 py-0.5 rounded shrink-0">ودي</button>
                 <button type="button" onclick="polishDraft('formal')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-slate-200 px-2 py-0.5 rounded shrink-0">رسمي</button>
                 <button type="button" onclick="polishDraft('short')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-slate-200 px-2 py-0.5 rounded shrink-0">مختصر</button>
-                <button type="button" onclick="polishDraft('client')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-rose-200 px-2 py-0.5 rounded shrink-0 font-bold">رد عميل</button>
-                <button type="button" onclick="insertSanadMention()" class="bg-rose-950/80 hover:bg-rose-900 border border-rose-800/60 text-rose-200 px-2 py-0.5 rounded font-bold shrink-0">@سند</button>
+                <button type="button" onclick="polishDraft('client')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-teal-200 px-2 py-0.5 rounded shrink-0 font-bold">رد عميل</button>
+                <button type="button" onclick="insertSanadMention()" class="bg-teal-950/80 hover:bg-teal-900 border border-teal-800/60 text-teal-200 px-2 py-0.5 rounded font-bold shrink-0">@سند</button>
             </div>
 
-            <div class="p-2.5 bg-slate-900 border-t border-slate-800 flex items-center gap-1.5 shrink-0">
+            <div class="p-2.5 bg-[#0f1b29] border-t border-slate-800 flex items-center gap-1.5 shrink-0">
                 <input type="file" id="attach-file" class="hidden" onchange="onFilePicked(event)">
                 <button type="button" onclick="document.getElementById('attach-file').click()" title="إرفاق ملف أو صورة" class="text-slate-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition">
                     <i class="fa-solid fa-paperclip text-base"></i>
@@ -394,73 +394,73 @@ const htmlContent = `<!DOCTYPE html>
                 <button type="button" onclick="polishDraft('friendly')" title="تحسين الصياغة" class="text-slate-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition">
                     <i class="fa-solid fa-wand-magic-sparkles text-base"></i>
                 </button>
-                <input type="text" id="msg-box-input" onkeydown="if(event.key==='Enter'){event.preventDefault();sendTextMsg();}" placeholder="اكتب رسالتك أو استخدم @سند..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-rose-700">
-                <span id="rec-timer" class="hidden text-[11px] font-mono font-bold text-rose-300 px-1">00:00</span>
+                <input type="text" id="msg-box-input" onkeydown="if(event.key==='Enter'){event.preventDefault();sendTextMsg();}" placeholder="اكتب رسالتك أو استخدم @سند..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-teal-600">
+                <span id="rec-timer" class="hidden text-[11px] font-mono font-bold text-teal-300 px-1">00:00</span>
                 <button type="button" id="voice-btn" onclick="toggleVoiceCapture()" title="تسجيل رسالة صوتية" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white p-2.5 rounded-xl transition">
                     <i class="fa-solid fa-microphone text-base"></i>
                 </button>
-                <button type="button" onclick="sendTextMsg()" class="bg-[#9e1424] hover:bg-[#7d0e1b] text-white px-4 py-2.5 rounded-xl text-sm font-bold transition shadow">
+                <button type="button" onclick="sendTextMsg()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2.5 rounded-xl text-sm font-bold transition shadow">
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
             </div>
         </section>
 
         <section id="pane-groups" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
-            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
+            <div class="bg-[#0f1b29] border border-slate-800 p-4 rounded-2xl space-y-3">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-sm font-black text-rose-200"><i class="fa-solid fa-users ml-1"></i> مجموعات التواصل</h2>
+                    <h2 class="text-sm font-black text-teal-200"><i class="fa-solid fa-users ml-1"></i> مجموعات التواصل</h2>
                     <span id="groups-count-badge" class="text-[11px] font-mono text-slate-200 bg-slate-800 border border-slate-700 px-2.5 py-0.5 rounded-full">0 مجموعة</span>
                 </div>
                 <p class="text-[11px] text-slate-400 leading-relaxed">
-                    أنشئ مجموعة جديدة واختر الأعضاء من الجهات أو أدخل أرقاماً/معرّفات مفصولة بفاصلة، وتواصل داخلها بمساعدة <span class="text-rose-200 font-bold">@سند</span>.
+                    أنشئ مجموعة جديدة واختر الأعضاء من الجهات أو أدخل أرقاماً/معرّفات مفصولة بفاصلة، وتواصل داخلها بمساعدة <span class="text-teal-200 font-bold">@سند</span>.
                 </p>
                 <div class="space-y-2">
-                    <input type="text" id="g-name" placeholder="اسم المجموعة (مثال: فريق العمل أو العائلة)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
-                    <input type="text" id="g-members" placeholder="أعضاء إضافيون (أرقام أو معرّفات مفصولة بفاصلة)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
+                    <input type="text" id="g-name" placeholder="اسم المجموعة (مثال: فريق العمل أو العائلة)" class="w-full bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <input type="text" id="g-members" placeholder="أعضاء إضافيون (أرقام أو معرّفات مفصولة بفاصلة)" class="w-full bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
                     <div id="g-contact-picker" class="flex flex-wrap gap-1.5"></div>
-                    <button type="button" onclick="createSanadGroup()" class="bg-[#9e1424] hover:bg-[#7d0e1b] text-white px-4 py-2 rounded-xl text-xs font-bold">+ إنشاء مجموعة</button>
+                    <button type="button" onclick="createSanadGroup()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl text-xs font-bold">+ إنشاء مجموعة</button>
                 </div>
             </div>
             <div id="groups-list" class="space-y-2"></div>
         </section>
 
         <section id="pane-accounts" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
-            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
+            <div class="bg-[#0f1b29] border border-slate-800 p-4 rounded-2xl space-y-3">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-sm font-black text-rose-200">إدارة الحسابات والمعرّفات</h2>
+                    <h2 class="text-sm font-black text-teal-200">إدارة الحسابات والمعرّفات</h2>
                     <span id="accounts-count-badge" class="text-[11px] font-mono text-slate-200 bg-slate-800 border border-slate-700 px-2.5 py-0.5 rounded-full">1 حساب</span>
                 </div>
                 <p class="text-[11px] text-slate-400 leading-relaxed">
                     ولّد معرّفاً جديداً أو أضف رقمك أو معرّفك الخاص وبدّل بين الحسابات بسهولة.
                 </p>
                 <div class="flex flex-wrap gap-2">
-                    <button type="button" onclick="make8DigitId()" class="bg-[#9e1424] hover:bg-[#7d0e1b] text-white px-4 py-2 rounded-xl text-xs font-bold">+ توليد معرّف (8 أرقام)</button>
+                    <button type="button" onclick="make8DigitId()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl text-xs font-bold">+ توليد معرّف (8 أرقام)</button>
                     <button type="button" onclick="addCustomNumberAccount()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 px-4 py-2 rounded-xl text-xs font-bold">+ إضافة رقم/معرّف</button>
                     <button type="button" onclick="verifyPhoneAccount()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 px-4 py-2 rounded-xl text-xs font-bold">+ تفعيل رقم جوال</button>
                 </div>
-                <div id="last-generated-banner" class="hidden bg-slate-950 border border-rose-900/60 rounded-xl p-2.5 flex items-center justify-between text-xs">
-                    <span id="last-generated-text" class="font-mono font-bold text-rose-200"></span>
-                    <button type="button" onclick="copyStringToClipboard(lastGeneratedCode)" class="bg-[#9e1424] text-white px-3 py-1 rounded-lg text-[11px] font-bold">نسخ</button>
+                <div id="last-generated-banner" class="hidden bg-[#080f18] border border-teal-800/60 rounded-xl p-2.5 flex items-center justify-between text-xs">
+                    <span id="last-generated-text" class="font-mono font-bold text-teal-200"></span>
+                    <button type="button" onclick="copyStringToClipboard(lastGeneratedCode)" class="bg-[#164e63] text-white px-3 py-1 rounded-lg text-[11px] font-bold">نسخ</button>
                 </div>
                 <div id="accounts-list" class="space-y-2 pt-2"></div>
             </div>
         </section>
 
         <section id="pane-contacts" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
-            <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl space-y-2.5">
+            <div class="bg-[#0f1b29] border border-slate-800 p-3.5 rounded-2xl space-y-2.5">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-sm font-black text-rose-200">جهات الاتصال</h2>
+                    <h2 class="text-sm font-black text-teal-200">جهات الاتصال</h2>
                     <button type="button" onclick="scanNumbersForSanad()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-1 rounded-lg text-[11px] font-bold transition">
                         <i class="fa-solid fa-user-check ml-1"></i>فحص أرقام
                     </button>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="text" id="c-name" onkeydown="if(event.key==='Enter')addNewContact()" placeholder="الاسم" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
-                    <input type="text" id="c-id" onkeydown="if(event.key==='Enter')addNewContact()" placeholder="معرّف 8 أرقام أو رقم الجوال" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
-                    <button type="button" onclick="addNewContact()" class="bg-[#9e1424] hover:bg-[#7d0e1b] text-white px-4 py-2 rounded-xl text-xs font-bold">حفظ</button>
+                    <input type="text" id="c-name" onkeydown="if(event.key==='Enter')addNewContact()" placeholder="الاسم" class="bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <input type="text" id="c-id" onkeydown="if(event.key==='Enter')addNewContact()" placeholder="معرّف 8 أرقام أو رقم الجوال" class="flex-1 bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
+                    <button type="button" onclick="addNewContact()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl text-xs font-bold">حفظ</button>
                 </div>
             </div>
-            <div class="bg-slate-900/90 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between gap-2">
+            <div class="bg-[#0f1b29]/90 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 flex-1 min-w-0">
                     <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs pr-1"></i>
                     <input type="text" id="contact-search-input" oninput="renderPresence()" onkeydown="if(event.key==='Enter')openFirstMatchedContact()" placeholder="بحث بالاسم أو الكود أو الرقم..." class="flex-1 bg-transparent text-xs text-white focus:outline-none">
@@ -471,22 +471,22 @@ const htmlContent = `<!DOCTYPE html>
         </section>
 
         <section id="pane-calls" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
-            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 text-center">
-                <div class="w-14 h-14 mx-auto rounded-2xl bg-rose-950/70 border border-rose-800/50 text-rose-200 flex items-center justify-center text-2xl">
+            <div class="bg-[#0f1b29] border border-slate-800 p-4 rounded-2xl space-y-3 text-center">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-teal-950/70 border border-teal-800/50 text-teal-200 flex items-center justify-center text-2xl">
                     <i class="fa-solid fa-phone-volume"></i>
                 </div>
                 <div>
                     <h2 class="text-base font-black text-white">المكالمات الصوتية والمرئية</h2>
                     <p class="text-xs text-slate-400 mt-1">اكتب الاسم أو الرقم أو المعرّف وسيظهر فوراً من الجهات المخزّنة تلقائياً.</p>
                 </div>
-                <input type="text" id="call-input" oninput="onCallDialInput()" onkeydown="if(event.key==='Enter'){event.preventDefault();startDialedCall('audio');}" placeholder="اكتب الاسم أو الرقم أو المعرّف..." class="w-full max-w-md mx-auto bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-center font-mono text-white">
-                <div id="call-resolved-preview" class="text-[11px] text-rose-200 font-semibold min-h-[18px]"></div>
+                <input type="text" id="call-input" oninput="onCallDialInput()" onkeydown="if(event.key==='Enter'){event.preventDefault();startDialedCall('audio');}" placeholder="اكتب الاسم أو الرقم أو المعرّف..." class="w-full max-w-md mx-auto bg-[#080f18] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-center font-mono text-white">
+                <div id="call-resolved-preview" class="text-[11px] text-teal-200 font-semibold min-h-[18px]"></div>
                 <div id="call-contact-suggestions" class="flex flex-wrap justify-center gap-1.5 max-w-md mx-auto"></div>
                 <div class="flex gap-3 justify-center pt-1">
                     <button type="button" onclick="startDialedCall('audio')" class="bg-emerald-700 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
                         <i class="fa-solid fa-phone"></i> مكالمة صوتية
                     </button>
-                    <button type="button" onclick="startDialedCall('video')" class="bg-[#9e1424] hover:bg-[#7d0e1b] text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+                    <button type="button" onclick="startDialedCall('video')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
                         <i class="fa-solid fa-video"></i> مكالمة فيديو
                     </button>
                 </div>
@@ -494,54 +494,54 @@ const htmlContent = `<!DOCTYPE html>
         </section>
 
         <section id="pane-ai" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
-            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2.5">
+            <div class="bg-[#0f1b29] border border-slate-800 p-4 rounded-2xl space-y-2.5">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-sm font-black text-rose-200"><i class="fa-solid fa-brain ml-1"></i> مساعد سند AI وتطوير المحتوى</h2>
-                    <span class="text-[10px] bg-rose-950/80 text-rose-200 border border-rose-800/50 px-2 py-0.5 rounded-full font-bold">v8.5</span>
+                    <h2 class="text-sm font-black text-teal-200"><i class="fa-solid fa-brain ml-1"></i> مساعد سند AI وتطوير المحتوى</h2>
+                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/50 px-2 py-0.5 rounded-full font-bold">v8.5</span>
                 </div>
-                <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
+                <div class="flex items-center justify-between bg-[#080f18] p-3 rounded-xl border border-slate-800 text-xs">
                     <span>وضع توفير البيانات للشبكات الضعيفة</span>
-                    <input type="checkbox" id="chk-weaknet" checked onchange="updateNetBadge()" class="w-4 h-4 accent-rose-700">
+                    <input type="checkbox" id="chk-weaknet" checked onchange="updateNetBadge()" class="w-4 h-4 accent-teal-600">
                 </div>
-                <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
+                <div class="flex items-center justify-between bg-[#080f18] p-3 rounded-xl border border-slate-800 text-xs">
                     <span>الرد التلقائي الذكي للعملاء عند استلام رسالة</span>
-                    <input type="checkbox" id="chk-autoreply" class="w-4 h-4 accent-rose-700">
+                    <input type="checkbox" id="chk-autoreply" class="w-4 h-4 accent-teal-600">
                 </div>
-                <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
+                <div class="flex items-center justify-between bg-[#080f18] p-3 rounded-xl border border-slate-800 text-xs">
                     <span>نغمة التنبيه والرنين</span>
-                    <input type="checkbox" id="chk-chime" checked class="w-4 h-4 accent-rose-700">
+                    <input type="checkbox" id="chk-chime" checked class="w-4 h-4 accent-teal-600">
                 </div>
-                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2 text-xs">
+                <div class="bg-[#080f18] p-3 rounded-xl border border-slate-800 space-y-2 text-xs">
                     <div class="flex items-center justify-between">
                         <span class="text-slate-300 font-bold">ربط نموذج ذكاء خارجي (اختياري)</span>
-                        <button type="button" onclick="saveExternalAiConfig()" class="text-[11px] bg-slate-800 hover:bg-slate-700 border border-slate-700 text-rose-200 px-2.5 py-1 rounded-lg font-bold">حفظ الإعداد</button>
+                        <button type="button" onclick="saveExternalAiConfig()" class="text-[11px] bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 px-2.5 py-1 rounded-lg font-bold">حفظ الإعداد</button>
                     </div>
-                    <input type="password" id="ai-api-key" placeholder="مفتاح API اختياري (يُحفظ محلياً فقط)" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
-                    <input type="text" id="ai-api-endpoint" placeholder="رابط نقطة النهاية (اختياري، مثل https://api.openai.com/v1/chat/completions)" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
+                    <input type="password" id="ai-api-key" placeholder="مفتاح API اختياري (يُحفظ محلياً فقط)" class="w-full bg-[#0f1b29] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
+                    <input type="text" id="ai-api-endpoint" placeholder="رابط نقطة النهاية (اختياري، مثل https://api.openai.com/v1/chat/completions)" class="w-full bg-[#0f1b29] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
                 </div>
                 <div class="grid grid-cols-2 gap-2 pt-1">
                     <button type="button" onclick="extractTasksFromThread()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-list-check ml-1"></i>استخراج مهام</button>
                     <button type="button" onclick="suggestSmartReplies()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-bolt ml-1"></i>ردود ذكية</button>
-                    <button type="button" onclick="craftCustomerContent('promo')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-rose-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-bullhorn ml-1"></i>صياغة رسالة عميل</button>
+                    <button type="button" onclick="craftCustomerContent('promo')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-bullhorn ml-1"></i>صياغة رسالة عميل</button>
                     <button type="button" onclick="craftCustomerContent('summary_card')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-file-lines ml-1"></i>تقرير متابعة</button>
                 </div>
                 <div class="flex gap-2">
                     <button type="button" onclick="exportBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-download ml-1"></i>تصدير نسخة</button>
                     <button type="button" onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
                 </div>
-                <div id="ai-log" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
+                <div id="ai-log" class="bg-[#080f18] border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
                     <div class="text-slate-400">مرحباً بك في سند AI v8.5 — مجموعات التواصل + مساعد «@سند» التفاعلي + أدوات تطوير المحتوى والعملاء.</div>
                 </div>
                 <div class="flex gap-2">
-                    <input type="text" id="ai-q" onkeydown="if(event.key==='Enter')askSanadAI()" placeholder="اسأل سند AI أو اطلب صياغة محتوى للعملاء..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
-                    <button type="button" onclick="askSanadAI()" class="bg-[#9e1424] hover:bg-[#7d0e1b] text-white px-4 py-2 rounded-xl text-xs font-bold">إرسال</button>
+                    <input type="text" id="ai-q" onkeydown="if(event.key==='Enter')askSanadAI()" placeholder="اسأل سند AI أو اطلب صياغة محتوى للعملاء..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <button type="button" onclick="askSanadAI()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl text-xs font-bold">إرسال</button>
                 </div>
             </div>
         </section>
     </main>
 
-    <nav class="bg-slate-900/95 border-t border-slate-800 px-0.5 py-2 flex justify-around items-center z-20 shrink-0">
-        <a href="#tab-chats" onclick="setPane('chats'); return false;" id="btn-chats" class="flex flex-col items-center gap-0.5 text-rose-300 font-extrabold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0">
+    <nav class="bg-[#0f1b29]/95 border-t border-slate-800 px-0.5 py-2 flex justify-around items-center z-20 shrink-0">
+        <a href="#tab-chats" onclick="setPane('chats'); return false;" id="btn-chats" class="flex flex-col items-center gap-0.5 text-teal-300 font-extrabold text-[9px] px-0.5 py-1 whitespace-nowrap shrink-0">
             <i class="fa-solid fa-comments text-sm"></i>
             <span>الدردشة</span>
         </a>
@@ -634,7 +634,7 @@ const htmlContent = `<!DOCTYPE html>
                 badge.className = 'text-[10px] bg-slate-800 text-slate-200 border border-slate-700/80 px-2 py-0.5 rounded-full font-bold';
             } else {
                 badge.textContent = eff ? ('سريع • ' + eff) : 'أداء سريع';
-                badge.className = 'text-[10px] bg-rose-950/70 text-rose-200 border border-rose-800/50 px-2 py-0.5 rounded-full font-bold';
+                badge.className = 'text-[10px] bg-teal-950/70 text-teal-200 border border-teal-800/50 px-2 py-0.5 rounded-full font-bold';
             }
         }
 
@@ -797,6 +797,13 @@ const htmlContent = `<!DOCTYPE html>
                 acctThreads[activeAcct][DEFAULT_PEER] = [
                     { id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'مرحباً بك في سند AI v8.5، كيف نقدر نخدمك اليوم؟' }
                 ];
+            } else {
+                acctThreads[activeAcct][DEFAULT_PEER] = acctThreads[activeAcct][DEFAULT_PEER].map(function(m) {
+                    if (m.id && String(m.id).indexOf('init-') === 0 && m.text) {
+                        return Object.assign({}, m, { text: m.text.replace(/سند AI v8\.4/g, 'سند AI v8.5') });
+                    }
+                    return m;
+                });
             }
             return acctThreads[activeAcct];
         }
@@ -818,7 +825,7 @@ const htmlContent = `<!DOCTYPE html>
             box.innerHTML = list.map(function(c) {
                 var picked = selectedGroupMembers.has(c.id);
                 return '<button type="button" onclick="toggleGroupMemberPick(\\'' + c.id + '\\')" class="px-2.5 py-1 rounded-lg border text-[11px] font-bold ' +
-                    (picked ? 'bg-rose-950/80 border-rose-700/70 text-rose-100' : 'bg-slate-950 border-slate-800 text-slate-300') + '">' +
+                    (picked ? 'bg-teal-950/80 border-teal-700/70 text-teal-100' : 'bg-[#080f18] border-slate-800 text-slate-300') + '">' +
                     (picked ? '✓ ' : '') + c.name + ' <span class="font-mono text-[10px]">(' + c.id + ')</span></button>';
             }).join('');
         }
@@ -856,10 +863,10 @@ const htmlContent = `<!DOCTYPE html>
             }
             box.innerHTML = sanadGroups.map(function(g) {
                 var mCount = Array.isArray(g.members) ? g.members.length : 1;
-                return '<div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center gap-2">' +
-                    '<div class="min-w-0"><p class="text-xs font-black text-white truncate"><i class="fa-solid fa-users text-rose-300 ml-1"></i>' + g.name + '</p>' +
+                return '<div class="bg-[#0f1b29] border border-slate-800 p-3 rounded-xl flex justify-between items-center gap-2">' +
+                    '<div class="min-w-0"><p class="text-xs font-black text-white truncate"><i class="fa-solid fa-users text-teal-300 ml-1"></i>' + g.name + '</p>' +
                     '<p class="text-[11px] font-mono text-slate-400 truncate">' + g.id + ' • ' + mCount + ' أعضاء</p></div>' +
-                    '<button type="button" onclick="choosePeer(\\'' + g.id + '\\')" class="bg-[#9e1424] hover:bg-[#7d0e1b] text-white px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">دخول المجموعة</button></div>';
+                    '<button type="button" onclick="choosePeer(\\'' + g.id + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">دخول المجموعة</button></div>';
             }).join('');
         }
 
@@ -1228,7 +1235,7 @@ const htmlContent = `<!DOCTYPE html>
             if (sugBox) {
                 sugBox.innerHTML = matches.map(function(c) {
                     return '<button type="button" onclick="selectCallSuggestion(\\'' + c.id + '\\', \\'' + String(c.name).replace(/'/g, '') + '\\')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg text-[11px] font-bold">' +
-                        c.name + ' • <span class="font-mono text-rose-200">' + c.id + '</span></button>';
+                        c.name + ' • <span class="font-mono text-teal-200">' + c.id + '</span></button>';
                 }).join('');
             }
         }
@@ -1475,7 +1482,7 @@ const htmlContent = `<!DOCTYPE html>
                 };
                 speechRec.start();
                 dictating = true;
-                btn.className = 'bg-[#9e1424] text-white p-2 rounded-xl animate-pulse';
+                btn.className = 'bg-[#164e63] text-white p-2 rounded-xl animate-pulse';
             } else {
                 speechRec.stop();
                 dictating = false;
@@ -1549,7 +1556,7 @@ const htmlContent = `<!DOCTYPE html>
                         recSeconds += 1;
                         timerEl.textContent = formatTimer(recSeconds);
                     }, 1000);
-                    btn.className = 'bg-[#9e1424] text-white p-2.5 rounded-xl animate-pulse';
+                    btn.className = 'bg-[#164e63] text-white p-2.5 rounded-xl animate-pulse';
                 }).catch(function() { resetVoiceUi(null); alert('يرجى السماح بالوصول إلى الميكروفون.'); });
             } else {
                 try {
@@ -1761,7 +1768,7 @@ const htmlContent = `<!DOCTYPE html>
             var output = mode === 'promo'
                 ? ('<strong>رسالة عملاء (' + topic + '):</strong> أهلاً بك، نشاركك أحدث التفاصيل حول «' + topic + '» مع تجربة سريعة ومباشرة عبر سند AI. تواصل معنا لأي استفسار أو حجز.')
                 : ('<strong>تقرير متابعة (' + currentPeer + '):</strong> المحور: ' + topic + ' • الحالة: قيد المتابعة • الخطوة التالية: تأكيد التفاصيل وإرسال التحديث النهائي.');
-            log.innerHTML += '<div class="bg-slate-900 border border-rose-900/50 p-2 rounded-lg text-slate-100">' + output + '</div>';
+            log.innerHTML += '<div class="bg-[#0f1b29] border border-teal-800/50 p-2 rounded-lg text-slate-100">' + output + '</div>';
             log.scrollTop = log.scrollHeight;
         }
 
@@ -1771,7 +1778,7 @@ const htmlContent = `<!DOCTYPE html>
             var lastFew = list.slice(-6).map(function(m) { return (m.from === 'me' ? 'أنت: ' : 'الطرف: ') + m.text; }).join(' • ');
             setPane('ai');
             var log = document.getElementById('ai-log');
-            log.innerHTML += '<div class="bg-slate-950 border border-rose-900/50 p-2 rounded-lg text-slate-200"><strong>ملخص (' + currentPeer + '):</strong> ' + lastFew + '</div>';
+            log.innerHTML += '<div class="bg-[#080f18] border border-teal-800/50 p-2 rounded-lg text-slate-200"><strong>ملخص (' + currentPeer + '):</strong> ' + lastFew + '</div>';
             log.scrollTop = log.scrollHeight;
         }
 
@@ -1780,7 +1787,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!list.length) return alert('لا توجد رسائل نصية لاستخراج المهام منها.');
             var tasks = list.slice(-5).map(function(m, idx) { return (idx + 1) + '. متابعة: ' + m.text; }).join(' | ');
             var log = document.getElementById('ai-log');
-            log.innerHTML += '<div class="bg-slate-950 border border-slate-800 p-2 rounded-lg text-emerald-200"><strong>مهام (' + currentPeer + '):</strong> ' + tasks + '</div>';
+            log.innerHTML += '<div class="bg-[#080f18] border border-slate-800 p-2 rounded-lg text-emerald-200"><strong>مهام (' + currentPeer + '):</strong> ' + tasks + '</div>';
             log.scrollTop = log.scrollHeight;
         }
 
@@ -1794,8 +1801,8 @@ const htmlContent = `<!DOCTYPE html>
             }
             setPane('chats');
             var bar = document.getElementById('smart-replies-bar');
-            bar.innerHTML = '<span class="text-rose-200 font-bold shrink-0">ردود:</span>' + options.map(function(opt) {
-                return '<button type="button" onclick="applySmartReply(\\'' + opt.replace(/'/g, '') + '\\')" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-100 px-2.5 py-1 rounded-lg shrink-0">' + opt + '</button>';
+            bar.innerHTML = '<span class="text-teal-200 font-bold shrink-0">ردود:</span>' + options.map(function(opt) {
+                return '<button type="button" onclick="applySmartReply(\\'' + opt.replace(/'/g, '') + '\\')" class="bg-[#0f1b29] hover:bg-slate-800 border border-slate-700 text-slate-100 px-2.5 py-1 rounded-lg shrink-0">' + opt + '</button>';
             }).join('');
             bar.classList.remove('hidden');
         }
@@ -1811,7 +1818,7 @@ const htmlContent = `<!DOCTYPE html>
             var q = inp.value.trim();
             if (!q) return;
             var log = document.getElementById('ai-log');
-            log.innerHTML += '<div class="bg-rose-950/60 border border-rose-900/50 p-2 rounded-lg text-rose-100"><strong>أنت:</strong> ' + q + '</div>';
+            log.innerHTML += '<div class="bg-teal-950/60 border border-teal-800/50 p-2 rounded-lg text-teal-100"><strong>أنت:</strong> ' + q + '</div>';
 
             var kEl = document.getElementById('ai-api-key');
             var eEl = document.getElementById('ai-api-endpoint');
@@ -1819,7 +1826,7 @@ const htmlContent = `<!DOCTYPE html>
             var endpoint = eEl ? eEl.value.trim() : '';
 
             if (apiKey && endpoint) {
-                log.innerHTML += '<div class="bg-slate-900 border border-slate-800 p-2 rounded-lg text-slate-400">جاري الاتصال بالنموذج الذكي...</div>';
+                log.innerHTML += '<div class="bg-[#0f1b29] border border-slate-800 p-2 rounded-lg text-slate-400">جاري الاتصال بالنموذج الذكي...</div>';
                 log.scrollTop = log.scrollHeight;
                 fetch(endpoint, {
                     method: 'POST',
@@ -1835,10 +1842,10 @@ const htmlContent = `<!DOCTYPE html>
                     var content = (d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content)
                         ? d.choices[0].message.content
                         : 'تم استلام الاستجابة من النموذج الخارجي.';
-                    log.innerHTML += '<div class="bg-slate-900 border border-slate-800 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> ' + content + '</div>';
+                    log.innerHTML += '<div class="bg-[#0f1b29] border border-slate-800 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> ' + content + '</div>';
                     log.scrollTop = log.scrollHeight;
                 }).catch(function() {
-                    log.innerHTML += '<div class="bg-slate-900 border border-slate-800 p-2 rounded-lg text-amber-200"><strong>سند AI:</strong> تعذر الوصول للنموذج الخارجي، تأكد من الرابط والمفتاح.</div>';
+                    log.innerHTML += '<div class="bg-[#0f1b29] border border-slate-800 p-2 rounded-lg text-amber-200"><strong>سند AI:</strong> تعذر الوصول للنموذج الخارجي، تأكد من الرابط والمفتاح.</div>';
                     log.scrollTop = log.scrollHeight;
                 });
                 inp.value = '';
@@ -1853,7 +1860,7 @@ const htmlContent = `<!DOCTYPE html>
             } else if (q.indexOf('سند') !== -1 || q.indexOf('@') !== -1) {
                 reply = 'اكتب @سند متبوعاً بطلبك (مثل: @سند لخص النقاش أو @سند خطوات) وسيظهر الرد الذكي مباشرة داخل المحادثة.';
             }
-            log.innerHTML += '<div class="bg-slate-900 border border-slate-800 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> ' + reply + '</div>';
+            log.innerHTML += '<div class="bg-[#0f1b29] border border-slate-800 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> ' + reply + '</div>';
             inp.value = '';
             log.scrollTop = log.scrollHeight;
         }
@@ -2017,8 +2024,8 @@ const htmlContent = `<!DOCTYPE html>
             }
             if (dot && lbl) {
                 if (grp) {
-                    dot.className = 'w-2.5 h-2.5 rounded-full bg-rose-300';
-                    lbl.className = 'text-[11px] font-bold text-rose-200 whitespace-nowrap';
+                    dot.className = 'w-2.5 h-2.5 rounded-full bg-teal-300';
+                    lbl.className = 'text-[11px] font-bold text-teal-200 whitespace-nowrap';
                     lbl.textContent = 'مجموعة نشطة';
                 } else if (isOn) {
                     dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
@@ -2038,13 +2045,13 @@ const htmlContent = `<!DOCTYPE html>
             if (chips) {
                 var grpChips = sanadGroups.map(function(g) {
                     return '<button type="button" onclick="choosePeer(\\'' + g.id + '\\')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] shrink-0 ' +
-                        (g.id === currentPeer ? 'bg-rose-950/80 border-rose-700/70 text-white font-bold' : 'bg-slate-800/85 border-slate-700 text-slate-200') + '">' +
-                        '<i class="fa-solid fa-users text-[10px] text-rose-300"></i><span>' + g.name + '</span></button>';
+                        (g.id === currentPeer ? 'bg-teal-950/80 border-teal-700/70 text-white font-bold' : 'bg-slate-800/85 border-slate-700 text-slate-200') + '">' +
+                        '<i class="fa-solid fa-users text-[10px] text-teal-300"></i><span>' + g.name + '</span></button>';
                 }).join('');
                 chips.innerHTML = '<span class="text-[11px] text-slate-400 shrink-0">وصول سريع:</span>' + grpChips + chipList.map(function(c) {
                     var on = onlinePeers.has(c.id);
                     return '<button type="button" onclick="choosePeer(\\'' + c.id + '\\')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] shrink-0 ' +
-                        (c.id === currentPeer ? 'bg-[#9e1424]/90 border-rose-700 text-white font-bold' : 'bg-slate-800/85 border-slate-700 text-slate-200') + '">' +
+                        (c.id === currentPeer ? 'bg-[#164e63] border-teal-600 text-white font-bold' : 'bg-slate-800/85 border-slate-700 text-slate-200') + '">' +
                         '<span class="w-2 h-2 rounded-full ' + (on ? 'bg-emerald-400' : 'bg-slate-500') + '"></span>' +
                         '<span>' + c.name + '</span></button>';
                 }).join('');
@@ -2068,15 +2075,15 @@ const htmlContent = `<!DOCTYPE html>
                 var subTag = on ? 'متصل الآن' : 'محفوظ';
                 var metaText = c.id === DEFAULT_PEER ? subTag : (c.id + ' • ' + subTag);
                 var delBtn = c.id === DEFAULT_PEER ? '' : '<button type="button" onclick="deleteContactById(\\'' + c.id + '\\')" class="bg-rose-950/60 border border-rose-900/50 text-rose-300 px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>';
-                return '<div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center gap-2">' +
+                return '<div class="bg-[#0f1b29] border border-slate-800 p-3 rounded-xl flex justify-between items-center gap-2">' +
                     '<div class="flex items-center gap-2.5 min-w-0">' +
                     '<span class="w-2.5 h-2.5 rounded-full shrink-0 ' + (on ? 'bg-emerald-400' : 'bg-slate-600') + '"></span>' +
                     '<div class="truncate"><p class="text-xs font-bold text-white truncate">' + c.name + '</p>' +
                     '<p class="text-[11px] font-mono ' + (on ? 'text-emerald-300' : 'text-slate-400') + '">' + metaText + '</p></div></div>' +
                     '<div class="flex gap-1.5 shrink-0">' +
                     '<button type="button" onclick="launchCall(\\'audio\\', \\'' + c.id + '\\')" title="اتصال صوتي" class="bg-slate-800 hover:bg-emerald-700 border border-slate-700 text-emerald-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-phone"></i></button>' +
-                    '<button type="button" onclick="launchCall(\\'video\\', \\'' + c.id + '\\')" title="مكالمة فيديو" class="bg-slate-800 hover:bg-[#9e1424] border border-slate-700 text-rose-200 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-video"></i></button>' +
-                    '<button type="button" onclick="choosePeer(\\'' + c.id + '\\')" class="bg-[#9e1424] hover:bg-[#7d0e1b] text-white px-2.5 py-1.5 rounded-lg text-xs font-bold">مراسلة</button>' +
+                    '<button type="button" onclick="launchCall(\\'video\\', \\'' + c.id + '\\')" title="مكالمة فيديو" class="bg-slate-800 hover:bg-[#164e63] border border-slate-700 text-teal-200 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-video"></i></button>' +
+                    '<button type="button" onclick="choosePeer(\\'' + c.id + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-2.5 py-1.5 rounded-lg text-xs font-bold">مراسلة</button>' +
                     delBtn +
                     '</div></div>';
             }).join('');
@@ -2085,7 +2092,7 @@ const htmlContent = `<!DOCTYPE html>
 
         function buildDeliveryBadge(m) {
             if (m.read || m.status === 'read') return '<span class="text-emerald-200 font-bold">مقروءة</span>';
-            if (m.delivered || m.status === 'delivered') return '<span class="text-rose-100 font-semibold">مستلمة</span>';
+            if (m.delivered || m.status === 'delivered') return '<span class="text-teal-100 font-semibold">مستلمة</span>';
             if (m.delivered === false) return '<span class="text-amber-200">مرسلة • <button type="button" onclick="retryMessage(\\'' + m.id + '\\')" class="underline">إعادة إرسال</button></span>';
             return '<span>مرسلة</span>';
         }
@@ -2117,21 +2124,21 @@ const htmlContent = `<!DOCTYPE html>
                     return '<div class="text-center text-[11px] text-slate-500 italic">' + delLabel + '</div>';
                 }
                 var mine = m.from === 'me';
-                var senderTag = (!mine && m.senderName) ? '<p class="text-[10px] font-bold text-rose-200 mb-0.5">' + m.senderName + '</p>' : '';
+                var senderTag = (!mine && m.senderName) ? '<p class="text-[10px] font-bold text-teal-200 mb-0.5">' + m.senderName + '</p>' : '';
                 var body = '<p class="whitespace-pre-wrap break-words">' + m.text + '</p>';
                 if (m.kind === 'audio' && m.mediaUrl) body = '<div class="space-y-1"><audio controls preload="metadata" src="' + m.mediaUrl + '" class="max-w-full h-9"></audio><p class="text-[10px] opacity-85">' + (m.text || 'رسالة صوتية') + '</p></div>';
                 else if (m.kind === 'image' && m.mediaUrl) body = '<img src="' + m.mediaUrl + '" alt="' + (m.fileName || 'صورة') + '" class="max-w-full max-h-56 rounded-xl object-contain"><p class="text-[11px] mt-1">' + m.text + '</p>';
                 else if (m.kind === 'file' && m.mediaUrl) body = '<a href="' + m.mediaUrl + '" download="' + (m.fileName || 'file') + '" class="underline flex items-center gap-1.5 text-xs"><i class="fa-solid fa-file-arrow-down"></i><span>' + (m.fileName || m.text) + '</span></a>';
-                var speakBtn = (m.kind === 'text' && m.text) ? '<button type="button" onclick="speakText(\\'' + String(m.text).replace(/'/g, '') + '\\')" class="underline ' + (mine ? 'text-rose-100 hover:text-white' : 'text-slate-200 hover:text-white') + '">استماع</button>' : '';
-                var pinBtn = '<button type="button" onclick="pinThreadMsg(\\'' + m.id + '\\')" class="underline ' + (mine ? 'text-rose-100 hover:text-white' : 'text-amber-200 hover:text-white') + '">تثبيت</button>';
+                var speakBtn = (m.kind === 'text' && m.text) ? '<button type="button" onclick="speakText(\\'' + String(m.text).replace(/'/g, '') + '\\')" class="underline ' + (mine ? 'text-teal-100 hover:text-white' : 'text-slate-200 hover:text-white') + '">استماع</button>' : '';
+                var pinBtn = '<button type="button" onclick="pinThreadMsg(\\'' + m.id + '\\')" class="underline ' + (mine ? 'text-teal-100 hover:text-white' : 'text-amber-200 hover:text-white') + '">تثبيت</button>';
                 var deliveryLabel = mine ? buildDeliveryBadge(m) : '<span class="text-emerald-300 font-semibold">مستلمة</span>';
                 return '<div class="flex ' + (mine ? 'justify-end' : 'justify-start') + '">' +
-                    '<div class="' + (mine ? 'bg-[#8f1220] border border-rose-700/50 text-white rounded-tl-none' : 'bg-slate-900 border border-slate-800 text-slate-100 rounded-tr-none') + ' p-3 rounded-2xl max-w-md text-xs md:text-sm shadow space-y-1">' +
+                    '<div class="' + (mine ? 'bg-[#164e63] border border-teal-700/50 text-white rounded-tl-none' : 'bg-[#0f1b29] border border-slate-800 text-slate-100 rounded-tr-none') + ' p-3 rounded-2xl max-w-md text-xs md:text-sm shadow space-y-1">' +
                     senderTag + body +
-                    '<div class="flex justify-between items-center gap-3 pt-1 border-t ' + (mine ? 'border-rose-300/20 text-rose-100' : 'border-slate-800 text-slate-400') + ' text-[10px]">' +
+                    '<div class="flex justify-between items-center gap-3 pt-1 border-t ' + (mine ? 'border-teal-200/20 text-teal-100' : 'border-slate-800 text-slate-400') + ' text-[10px]">' +
                     deliveryLabel +
                     '<div class="flex gap-2">' + pinBtn + speakBtn +
-                    '<button type="button" onclick="openDeleteModal(\\'' + m.id + '\\', ' + (mine ? 'true' : 'false') + ')" class="underline ' + (mine ? 'text-rose-100 hover:text-white' : 'text-rose-300 hover:text-rose-200') + '">حذف</button>' +
+                    '<button type="button" onclick="openDeleteModal(\\'' + m.id + '\\', ' + (mine ? 'true' : 'false') + ')" class="underline ' + (mine ? 'text-teal-100 hover:text-white' : 'text-rose-300 hover:text-rose-200') + '">حذف</button>' +
                     '</div></div></div></div>';
             }).join('');
             if (!q) box.scrollTop = box.scrollHeight;
@@ -2143,9 +2150,9 @@ const htmlContent = `<!DOCTYPE html>
             var box = document.getElementById('accounts-list');
             if (!box) return;
             box.innerHTML = myAccts.map(function(id) {
-                return '<div onclick="activateAccount(\\'' + id + '\\')" class="bg-slate-950 border ' + (id === activeAcct ? 'border-rose-700' : 'border-slate-800') + ' p-3 rounded-xl flex justify-between items-center cursor-pointer">' +
+                return '<div onclick="activateAccount(\\'' + id + '\\')" class="bg-[#080f18] border ' + (id === activeAcct ? 'border-teal-600' : 'border-slate-800') + ' p-3 rounded-xl flex justify-between items-center cursor-pointer">' +
                     '<span class="text-xs font-mono font-bold text-white">' + id + '</span>' +
-                    '<span class="text-[10px] ' + (id === activeAcct ? 'text-rose-200 font-bold' : 'text-slate-400') + '">' + (id === activeAcct ? 'نشط' : 'تبديل') + '</span></div>';
+                    '<span class="text-[10px] ' + (id === activeAcct ? 'text-teal-200 font-bold' : 'text-slate-400') + '">' + (id === activeAcct ? 'نشط' : 'تبديل') + '</span></div>';
             }).join('');
         }
 

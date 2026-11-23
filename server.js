@@ -5,6 +5,16 @@ const ICON_BG_HEX = '#164e63';
 const ICON_ACCENT_HEX = '#f0fdfa';
 const ICON_SUB_HEX = '#0f3646';
 
+function toWesternDigitsServer(str) {
+    return String(str === undefined || str === null ? '' : str)
+        .replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 1632))
+        .replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 1776));
+}
+
+function normIdServer(v) {
+    return toWesternDigitsServer(v).trim().toLowerCase();
+}
+
 const sanadIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
     <linearGradient id="sanadBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -88,6 +98,24 @@ const htmlContent = `<!DOCTYPE html>
 <body class="text-slate-100 h-screen flex flex-col overflow-hidden select-none">
 
     <script>
+        function toWesternDigits(str) {
+            return String(str === undefined || str === null ? '' : str)
+                .replace(/[٠-٩]/g, function(d) { return String(d.charCodeAt(0) - 1632); })
+                .replace(/[۰-۹]/g, function(d) { return String(d.charCodeAt(0) - 1776); });
+        }
+
+        function normalizeDigitsInInput(el) {
+            if (!el || typeof el.value !== 'string') return;
+            var converted = toWesternDigits(el.value);
+            if (converted !== el.value) {
+                var pos = el.selectionStart;
+                el.value = converted;
+                try {
+                    if (typeof pos === 'number') el.setSelectionRange(pos, pos);
+                } catch (e) {}
+            }
+        }
+
         (function generateSanadPngIcons() {
             try {
                 var c = document.createElement('canvas');
@@ -352,7 +380,7 @@ const htmlContent = `<!DOCTYPE html>
         <section id="pane-chats" class="sanad-pane sanad-pane-active flex-1 flex-col h-full overflow-hidden">
             <div class="p-2.5 bg-[#0f1b29]/90 border-b border-slate-800/90 space-y-2 shrink-0">
                 <div class="flex gap-2">
-                    <input type="text" id="peer-input" oninput="onTopPeerSearchInput()" onkeydown="if(event.key==='Enter'){event.preventDefault();openPeerByInput();}" placeholder="اكتب الاسم أو الكود أو الرقم ليظهر تلقائياً..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm text-white placeholder-slate-400 focus:outline-none focus:border-teal-600">
+                    <input type="text" id="peer-input" oninput="normalizeDigitsInInput(this); onTopPeerSearchInput();" onkeydown="if(event.key==='Enter'){event.preventDefault();openPeerByInput();}" placeholder="اكتب الاسم أو الكود أو الرقم ليظهر تلقائياً..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm text-white placeholder-slate-400 focus:outline-none focus:border-teal-600">
                     <button type="button" onclick="openPeerByInput()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl text-xs font-bold transition">فتح</button>
                     <button type="button" onclick="saveCurrentPeer()" title="حفظ في الجهات" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs font-bold">
                         <i class="fa-solid fa-user-plus"></i>
@@ -387,7 +415,7 @@ const htmlContent = `<!DOCTYPE html>
 
             <div id="thread-search-bar" class="hidden px-3 py-2 bg-[#0f1b29] border-b border-slate-800 flex items-center gap-2 text-xs shrink-0">
                 <i class="fa-solid fa-magnifying-glass text-teal-300"></i>
-                <input type="text" id="thread-search-input" oninput="renderMsgs()" placeholder="ابحث داخل رسائل هذه المحادثة..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-teal-600">
+                <input type="text" id="thread-search-input" oninput="normalizeDigitsInInput(this); renderMsgs();" placeholder="ابحث داخل رسائل هذه المحادثة..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-teal-600">
                 <span id="thread-search-count" class="text-[10px] font-mono text-slate-300 shrink-0">0 نتيجة</span>
                 <button type="button" onclick="closeThreadSearchBar()" class="text-slate-400 hover:text-white px-1.5"><i class="fa-solid fa-xmark"></i></button>
             </div>
@@ -434,11 +462,11 @@ const htmlContent = `<!DOCTYPE html>
                     <span id="groups-count-badge" class="text-[11px] font-mono text-slate-200 bg-slate-800 border border-slate-700 px-2.5 py-0.5 rounded-full">0 مجموعة</span>
                 </div>
                 <p class="text-[11px] text-slate-400 leading-relaxed">
-                    أنشئ مجموعة جديدة واختر الأعضاء من الجهات أو أدخل أرقاماً/معرّفات مفصولة بفاصلة، وتواصل داخلها بمساعدة <span class="text-teal-200 font-bold">@سند</span>.
+                    أنشئ مجموعة جديدة واختر الأعضاء من الجهات أو أدخل أرقاماً/معرّفات مفصولة بفاصلة، كما يمكنك إضافة أعضاء جدد لأي مجموعة في أي وقت.
                 </p>
                 <div class="space-y-2">
                     <input type="text" id="g-name" placeholder="اسم المجموعة (مثال: فريق العمل أو العائلة)" class="w-full bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
-                    <input type="text" id="g-members" placeholder="أعضاء إضافيون (أرقام أو معرّفات مفصولة بفاصلة)" class="w-full bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
+                    <input type="text" id="g-members" oninput="normalizeDigitsInInput(this)" placeholder="أعضاء إضافيون (أرقام أو معرّفات مفصولة بفاصلة)" class="w-full bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
                     <div id="g-contact-picker" class="flex flex-wrap gap-1.5"></div>
                     <button type="button" onclick="createSanadGroup()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl text-xs font-bold">+ إنشاء مجموعة</button>
                 </div>
@@ -478,14 +506,14 @@ const htmlContent = `<!DOCTYPE html>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-2">
                     <input type="text" id="c-name" onkeydown="if(event.key==='Enter')addNewContact()" placeholder="الاسم" class="bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
-                    <input type="text" id="c-id" onkeydown="if(event.key==='Enter')addNewContact()" placeholder="معرّف 8 أرقام أو رقم الجوال" class="flex-1 bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
+                    <input type="text" id="c-id" oninput="normalizeDigitsInInput(this)" onkeydown="if(event.key==='Enter')addNewContact()" placeholder="معرّف 8 أرقام أو رقم الجوال" class="flex-1 bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
                     <button type="button" onclick="addNewContact()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl text-xs font-bold">حفظ</button>
                 </div>
             </div>
             <div class="bg-[#0f1b29]/90 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 flex-1 min-w-0">
                     <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs pr-1"></i>
-                    <input type="text" id="contact-search-input" oninput="renderPresence()" onkeydown="if(event.key==='Enter')openFirstMatchedContact()" placeholder="بحث بالاسم أو الكود أو الرقم..." class="flex-1 bg-transparent text-xs text-white focus:outline-none">
+                    <input type="text" id="contact-search-input" oninput="normalizeDigitsInInput(this); renderPresence();" onkeydown="if(event.key==='Enter')openFirstMatchedContact()" placeholder="بحث بالاسم أو الكود أو الرقم..." class="flex-1 bg-transparent text-xs text-white focus:outline-none">
                 </div>
                 <span id="contacts-summary-badge" class="text-[10px] font-mono text-slate-400 shrink-0">0 جهة</span>
             </div>
@@ -501,7 +529,7 @@ const htmlContent = `<!DOCTYPE html>
                     <h2 class="text-base font-black text-white">المكالمات الصوتية والمرئية</h2>
                     <p class="text-xs text-slate-400 mt-1">اكتب الاسم أو الرقم أو المعرّف وسيظهر فوراً من الجهات المخزّنة تلقائياً.</p>
                 </div>
-                <input type="text" id="call-input" oninput="onCallDialInput()" onkeydown="if(event.key==='Enter'){event.preventDefault();startDialedCall('audio');}" placeholder="اكتب الاسم أو الرقم أو المعرّف..." class="w-full max-w-md mx-auto bg-[#080f18] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-center font-mono text-white">
+                <input type="text" id="call-input" oninput="normalizeDigitsInInput(this); onCallDialInput();" onkeydown="if(event.key==='Enter'){event.preventDefault();startDialedCall('audio');}" placeholder="اكتب الاسم أو الرقم أو المعرّف..." class="w-full max-w-md mx-auto bg-[#080f18] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-center font-mono text-white">
                 <div id="call-resolved-preview" class="text-[11px] text-teal-200 font-semibold min-h-[18px]"></div>
                 <div id="call-contact-suggestions" class="flex flex-wrap justify-center gap-1.5 max-w-md mx-auto"></div>
                 <div class="flex gap-3 justify-center pt-1">
@@ -615,6 +643,20 @@ const htmlContent = `<!DOCTYPE html>
         var wsConnected = false;
         var serverReachable = true;
 
+        function cleanIdValue(val) {
+            return toWesternDigits(String(val === undefined || val === null ? '' : val)).trim();
+        }
+
+        function isPeerOnline(id) {
+            var target = normalizeStr(id);
+            if (!target) return false;
+            var found = false;
+            onlinePeers.forEach(function(item) {
+                if (normalizeStr(item) === target) found = true;
+            });
+            return found;
+        }
+
         function onSanadTabActivated(p) {
             activePane = p;
             if (p === 'groups') renderGroupsList();
@@ -649,7 +691,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!badge) return;
             var chk = document.getElementById('chk-weaknet');
             var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-            var eff = (conn && conn.effectiveType) ? String(conn.effectiveType).toUpperCase() : '';
+            var eff = (conn && conn.effectiveType) ? toWesternDigits(String(conn.effectiveType)).toUpperCase() : '';
             if (chk && chk.checked) {
                 badge.textContent = eff ? ('توفير • ' + eff) : 'توفير ذكي';
                 badge.className = 'text-[10px] bg-slate-800 text-slate-200 border border-slate-700/80 px-2 py-0.5 rounded-full font-bold';
@@ -667,25 +709,62 @@ const htmlContent = `<!DOCTYPE html>
                 var savedThreads = JSON.parse(localStorage.getItem('sanad85_threads') || localStorage.getItem('sanad84_threads') || localStorage.getItem('sanad83_threads') || localStorage.getItem('sanad82_threads') || 'null');
                 var savedGroups = JSON.parse(localStorage.getItem('sanad85_groups') || localStorage.getItem('sanad84_groups') || 'null');
                 var savedPins = JSON.parse(localStorage.getItem('sanad85_pins') || localStorage.getItem('sanad84_pins') || 'null');
-                if (savedActive && savedActive !== '88888888') activeAcct = String(savedActive);
+
+                if (savedActive && cleanIdValue(savedActive) !== '88888888') {
+                    activeAcct = cleanIdValue(savedActive);
+                }
                 if (Array.isArray(savedAccts) && savedAccts.length) {
-                    myAccts = savedAccts.filter(function(x) { return String(x).trim() !== '88888888'; });
+                    myAccts = savedAccts.map(cleanIdValue).filter(function(x) { return x && x !== '88888888'; });
                     if (!myAccts.length) myAccts = [activeAcct];
                 }
                 if (myAccts.indexOf(activeAcct) === -1) myAccts.unshift(activeAcct);
+
                 if (Array.isArray(savedContacts) && savedContacts.length) {
                     contacts = savedContacts.map(function(c) {
                         if (!c || typeof c !== 'object') return null;
-                        if (String(c.id).trim() === '88888888') return { name: DEFAULT_PEER, id: DEFAULT_PEER };
-                        return { name: String(c.name || c.id || ''), id: String(c.id || '') };
+                        var cid = cleanIdValue(c.id);
+                        if (!cid || cid === '88888888') return { name: DEFAULT_PEER, id: DEFAULT_PEER };
+                        return { name: String(c.name || cid || ''), id: cid };
                     }).filter(function(c) { return c && c.id; });
                 }
                 if (!contacts.some(function(c) { return c.id === DEFAULT_PEER; })) {
                     contacts.unshift({ name: DEFAULT_PEER, id: DEFAULT_PEER });
                 }
-                if (savedThreads && typeof savedThreads === 'object') acctThreads = savedThreads;
-                if (Array.isArray(savedGroups)) sanadGroups = savedGroups;
-                if (savedPins && typeof savedPins === 'object') pinnedByThread = savedPins;
+
+                if (savedThreads && typeof savedThreads === 'object') {
+                    var normalizedThreads = {};
+                    Object.keys(savedThreads).forEach(function(acctKey) {
+                        var normAcctKey = cleanIdValue(acctKey);
+                        if (!normalizedThreads[normAcctKey]) normalizedThreads[normAcctKey] = {};
+                        var peerMap = savedThreads[acctKey];
+                        if (peerMap && typeof peerMap === 'object') {
+                            Object.keys(peerMap).forEach(function(peerKey) {
+                                var normPeerKey = peerKey === DEFAULT_PEER ? DEFAULT_PEER : cleanIdValue(peerKey);
+                                normalizedThreads[normAcctKey][normPeerKey] = peerMap[peerKey];
+                            });
+                        }
+                    });
+                    acctThreads = normalizedThreads;
+                }
+
+                if (Array.isArray(savedGroups)) {
+                    sanadGroups = savedGroups.map(function(g) {
+                        if (!g || typeof g !== 'object') return null;
+                        return Object.assign({}, g, {
+                            id: cleanIdValue(g.id),
+                            members: Array.isArray(g.members) ? g.members.map(cleanIdValue).filter(Boolean) : []
+                        });
+                    }).filter(Boolean);
+                }
+
+                if (savedPins && typeof savedPins === 'object') {
+                    var normPins = {};
+                    Object.keys(savedPins).forEach(function(k) {
+                        var nk = k === DEFAULT_PEER ? DEFAULT_PEER : cleanIdValue(k);
+                        normPins[nk] = savedPins[k];
+                    });
+                    pinnedByThread = normPins;
+                }
 
                 var aiCfg = JSON.parse(localStorage.getItem('sanad85_ai_cfg') || 'null');
                 if (aiCfg && typeof aiCfg === 'object') {
@@ -737,14 +816,14 @@ const htmlContent = `<!DOCTYPE html>
             var qb = document.getElementById('queue-badge');
             if (!qb) return;
             if (outboxQueue.length > 0) {
-                qb.textContent = outboxQueue.length + ' معلّق';
+                qb.textContent = toWesternDigits(outboxQueue.length) + ' معلّق';
                 qb.classList.remove('hidden');
             } else {
                 qb.classList.add('hidden');
             }
         }
 
-        function normalizeStr(v) { return String(v || '').trim().toLowerCase(); }
+        function normalizeStr(v) { return toWesternDigits(v).trim().toLowerCase(); }
 
         function findGroupById(id) {
             return sanadGroups.find(function(g) { return normalizeStr(g.id) === normalizeStr(id); }) || null;
@@ -766,8 +845,8 @@ const htmlContent = `<!DOCTYPE html>
 
         function getSortedContacts() {
             return contacts.slice().sort(function(a, b) {
-                var aOn = onlinePeers.has(a.id) ? 1 : 0;
-                var bOn = onlinePeers.has(b.id) ? 1 : 0;
+                var aOn = isPeerOnline(a.id) ? 1 : 0;
+                var bOn = isPeerOnline(b.id) ? 1 : 0;
                 if (aOn !== bOn) return bOn - aOn;
                 return String(a.name || '').localeCompare(String(b.name || ''), 'ar');
             });
@@ -782,7 +861,7 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function upsertContact(name, id) {
-            var cleanId = String(id || '').trim();
+            var cleanId = cleanIdValue(id);
             if (!cleanId) return null;
             var cleanName = String(name || '').trim() || ('جهة ' + cleanId);
             var existingIdx = contacts.findIndex(function(c) { return normalizeStr(c.id) === normalizeStr(cleanId); });
@@ -796,21 +875,23 @@ const htmlContent = `<!DOCTYPE html>
             var sample = contacts.filter(function(c) { return c.id !== DEFAULT_PEER; }).map(function(c) { return c.id; }).join(', ');
             var raw = prompt('ألصق أرقاماً أو معرّفات (مفصولة بفاصلة أو سطر) لفحص المشتركين/المتصلين:', sample);
             if (raw === null) return;
-            var tokens = raw.split(/[\\s,،\\n]+/).map(function(x) { return x.trim(); }).filter(Boolean);
+            var tokens = toWesternDigits(raw).split(/[\\s,،\\n]+/).map(function(x) { return x.trim(); }).filter(Boolean);
             if (!tokens.length) return alert('لم يتم إدخال أي أرقام للفحص.');
             var matchedOnline = [];
             tokens.forEach(function(num) {
-                var found = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(num); });
-                if (!found) upsertContact('رقم ' + num, num);
-                if (onlinePeers.has(num)) matchedOnline.push(num);
+                var cleanNum = cleanIdValue(num);
+                var found = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(cleanNum); });
+                if (!found) upsertContact('رقم ' + cleanNum, cleanNum);
+                if (isPeerOnline(cleanNum)) matchedOnline.push(cleanNum);
             });
             renderPresence();
             alert('تم فحص ' + tokens.length + ' رقم. المتصلون حالياً: ' + (matchedOnline.length ? matchedOnline.join(', ') : 'لا يوجد متصلون الآن، وتم حفظ الأرقام في الجهات.'));
         }
 
         function copyStringToClipboard(txt) {
-            if (!txt) return;
-            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).catch(function() {});
+            var western = toWesternDigits(txt);
+            if (!western) return;
+            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(western).catch(function() {});
         }
 
         function getThreadMap() {
@@ -831,8 +912,9 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function toggleGroupMemberPick(id) {
-            if (selectedGroupMembers.has(id)) selectedGroupMembers.delete(id);
-            else selectedGroupMembers.add(id);
+            var clean = cleanIdValue(id);
+            if (selectedGroupMembers.has(clean)) selectedGroupMembers.delete(clean);
+            else selectedGroupMembers.add(clean);
             renderGroupMemberPicker();
         }
 
@@ -857,10 +939,10 @@ const htmlContent = `<!DOCTYPE html>
             var extraInp = document.getElementById('g-members');
             var gName = nameInp ? nameInp.value.trim() : '';
             if (!gName) return alert('أدخل اسم المجموعة أولاً.');
-            var extraTokens = (extraInp ? extraInp.value : '').split(/[\\s,،\\n]+/).map(function(x) { return x.trim(); }).filter(Boolean);
+            var extraTokens = toWesternDigits(extraInp ? extraInp.value : '').split(/[\\s,،\\n]+/).map(cleanIdValue).filter(Boolean);
             var membersSet = new Set([activeAcct]);
-            selectedGroupMembers.forEach(function(m) { membersSet.add(m); });
-            extraTokens.forEach(function(m) { membersSet.add(m); });
+            selectedGroupMembers.forEach(function(m) { membersSet.add(cleanIdValue(m)); });
+            extraTokens.forEach(function(m) { membersSet.add(cleanIdValue(m)); });
             var grpId = 'grp-' + Math.floor(100000 + Math.random() * 900000);
             var grpObj = { id: grpId, name: gName, members: Array.from(membersSet), createdBy: activeAcct };
             sanadGroups.unshift(grpObj);
@@ -873,9 +955,39 @@ const htmlContent = `<!DOCTYPE html>
             choosePeer(grpId);
         }
 
+        function addMemberToGroup(groupId) {
+            var grp = findGroupById(groupId);
+            if (!grp) return;
+            var safeDomId = String(groupId).replace(/[^a-zA-Z0-9_-]/g, '_');
+            var inp = document.getElementById('add-member-input-' + safeDomId);
+            var rawVal = inp ? inp.value.trim() : '';
+            if (!rawVal) return alert('اكتب رقم أو معرّف العضو الجديد أولاً.');
+            var resolved = resolveContactByQuery(rawVal);
+            var memberId = cleanIdValue(resolved ? resolved.id : rawVal);
+            if (!memberId) return;
+            if (!Array.isArray(grp.members)) grp.members = [activeAcct];
+            var exists = grp.members.some(function(m) { return normalizeStr(m) === normalizeStr(memberId); });
+            if (exists) {
+                if (inp) inp.value = '';
+                return alert('هذا العضو موجود مسبقاً في المجموعة.');
+            }
+            grp.members.push(memberId);
+            if (inp) inp.value = '';
+            var map = getThreadMap();
+            if (!map[grp.id]) map[grp.id] = [];
+            map[grp.id].push({
+                id: 'g-add-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+                from: 'them',
+                senderName: '@سند',
+                kind: 'text',
+                text: 'تمت إضافة «' + (resolved && !resolved.isGroup ? resolved.name : memberId) + '» إلى المجموعة.'
+            });
+            persistAndDraw();
+        }
+
         function renderGroupsList() {
             var badge = document.getElementById('groups-count-badge');
-            if (badge) badge.textContent = sanadGroups.length + (sanadGroups.length === 1 ? ' مجموعة' : ' مجموعات');
+            if (badge) badge.textContent = toWesternDigits(sanadGroups.length) + (sanadGroups.length === 1 ? ' مجموعة' : ' مجموعات');
             renderGroupMemberPicker();
             var box = document.getElementById('groups-list');
             if (!box) return;
@@ -884,11 +996,23 @@ const htmlContent = `<!DOCTYPE html>
                 return;
             }
             box.innerHTML = sanadGroups.map(function(g) {
-                var mCount = Array.isArray(g.members) ? g.members.length : 1;
-                return '<div class="bg-[#0f1b29] border border-slate-800 p-3 rounded-xl flex justify-between items-center gap-2">' +
+                var membersList = Array.isArray(g.members) ? g.members : [];
+                var mCount = membersList.length || 1;
+                var safeDomId = String(g.id).replace(/[^a-zA-Z0-9_-]/g, '_');
+                var membersPreview = membersList.map(function(m) {
+                    var found = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(m); });
+                    return found ? (found.name + ' (' + found.id + ')') : m;
+                }).join(' • ');
+                return '<div class="bg-[#0f1b29] border border-slate-800 p-3.5 rounded-xl space-y-2.5">' +
+                    '<div class="flex justify-between items-center gap-2">' +
                     '<div class="min-w-0"><p class="text-xs font-black text-white truncate"><i class="fa-solid fa-users text-teal-300 ml-1"></i>' + escapeHtml(g.name) + '</p>' +
-                    '<p class="text-[11px] font-mono text-slate-400 truncate">' + escapeHtml(g.id) + ' • ' + mCount + ' أعضاء</p></div>' +
-                    '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(g.id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">دخول المجموعة</button></div>';
+                    '<p class="text-[11px] font-mono text-slate-400 truncate">' + escapeHtml(g.id) + ' • ' + toWesternDigits(mCount) + ' أعضاء</p></div>' +
+                    '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(g.id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">دخول المجموعة</button></div>' +
+                    (membersPreview ? '<p class="text-[10px] text-slate-400 truncate">الأعضاء: ' + escapeHtml(membersPreview) + '</p>' : '') +
+                    '<div class="flex gap-2 pt-1">' +
+                    '<input type="text" id="add-member-input-' + escapeHtml(safeDomId) + '" oninput="normalizeDigitsInInput(this)" onkeydown="if(event.key===\\'Enter\\'){event.preventDefault();addMemberToGroup(\\'' + escapeJsSingle(g.id) + '\\');}" placeholder="رقم أو معرّف عضو جديد..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">' +
+                    '<button type="button" onclick="addMemberToGroup(\\'' + escapeJsSingle(g.id) + '\\')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">+ إضافة عضو</button>' +
+                    '</div></div>';
             }).join('');
         }
 
@@ -927,7 +1051,7 @@ const htmlContent = `<!DOCTYPE html>
         function formatCallDuration(sec) {
             var m = Math.floor(sec / 60);
             var s = sec % 60;
-            return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+            return toWesternDigits(String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0'));
         }
 
         function startCallTimer() {
@@ -948,9 +1072,10 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function showLiveToast(senderId, previewText) {
-            var matched = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(senderId); });
-            var label = matched ? (matched.name + ' • ' + senderId) : senderId;
-            toastPeerId = senderId;
+            var cleanSender = cleanIdValue(senderId);
+            var matched = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(cleanSender); });
+            var label = matched ? (matched.name + ' • ' + cleanSender) : cleanSender;
+            toastPeerId = cleanSender;
             document.getElementById('toast-sender').textContent = 'رسالة من: ' + label;
             document.getElementById('toast-body').textContent = previewText || 'مرفق جديد';
             var el = document.getElementById('live-toast');
@@ -977,7 +1102,7 @@ const htmlContent = `<!DOCTYPE html>
 
         function sendReadReceiptIfViewing(peerId, msgId) {
             if (activePane === 'chats' && normalizeStr(currentPeer) === normalizeStr(peerId) && !document.hidden) {
-                sendSignalingOrMsg({ type: 'msg_read', to: peerId, from: activeAcct, msgId: msgId });
+                sendSignalingOrMsg({ type: 'msg_read', to: cleanIdValue(peerId), from: activeAcct, msgId: msgId });
             }
         }
 
@@ -988,11 +1113,11 @@ const htmlContent = `<!DOCTYPE html>
             if (eid) seenEventIds.add(eid);
 
             if (msg.type === 'online_users' && Array.isArray(msg.ids)) {
-                onlinePeers = new Set(msg.ids);
+                onlinePeers = new Set(msg.ids.map(cleanIdValue).filter(Boolean));
                 renderPresence();
             } else if (msg.type === 'msg') {
-                var recipient = String(msg.to || activeAcct);
-                var sender = String(msg.from || '');
+                var recipient = cleanIdValue(msg.to || activeAcct) || activeAcct;
+                var sender = cleanIdValue(msg.from || '');
                 if (!sender) return;
                 if (!acctThreads[recipient]) acctThreads[recipient] = {};
                 if (!acctThreads[recipient][sender]) acctThreads[recipient][sender] = [];
@@ -1015,7 +1140,7 @@ const htmlContent = `<!DOCTYPE html>
                 }
                 persistAndDraw();
                 var autoChk = document.getElementById('chk-autoreply');
-                if (autoChk && autoChk.checked && msg.kind === 'text' && sender !== recipient) {
+                if (autoChk && autoChk.checked && msg.kind === 'text' && normalizeStr(sender) !== normalizeStr(recipient)) {
                     var qTxt = String(msg.text || '');
                     var smartAuto = 'أهلاً بك، تم استلام رسالتك عبر سند AI v8.5 وسنوافيك بالرد الكامل بأسرع وقت.';
                     if (qTxt.indexOf('سعر') !== -1 || qTxt.indexOf('باقة') !== -1 || qTxt.indexOf('عرض') !== -1) {
@@ -1028,8 +1153,8 @@ const htmlContent = `<!DOCTYPE html>
                     emitPacket(sender, 'text', smartAuto, null, '', null, recipient);
                 }
             } else if (msg.type === 'msg_delivered') {
-                var ownerDel = String(msg.to || activeAcct);
-                var fromPeerDel = String(msg.from || '');
+                var ownerDel = cleanIdValue(msg.to || activeAcct) || activeAcct;
+                var fromPeerDel = cleanIdValue(msg.from || '');
                 if (acctThreads[ownerDel] && acctThreads[ownerDel][fromPeerDel]) {
                     acctThreads[ownerDel][fromPeerDel] = acctThreads[ownerDel][fromPeerDel].map(function(m) {
                         if (m.id !== msg.msgId) return m;
@@ -1038,8 +1163,8 @@ const htmlContent = `<!DOCTYPE html>
                     persistAndDraw();
                 }
             } else if (msg.type === 'msg_read') {
-                var ownerRead = String(msg.to || activeAcct);
-                var fromPeerRead = String(msg.from || '');
+                var ownerRead = cleanIdValue(msg.to || activeAcct) || activeAcct;
+                var fromPeerRead = cleanIdValue(msg.from || '');
                 if (acctThreads[ownerRead] && acctThreads[ownerRead][fromPeerRead]) {
                     acctThreads[ownerRead][fromPeerRead] = acctThreads[ownerRead][fromPeerRead].map(function(m) {
                         if (m.id !== msg.msgId) return m;
@@ -1048,8 +1173,8 @@ const htmlContent = `<!DOCTYPE html>
                     persistAndDraw();
                 }
             } else if (msg.type === 'msg_del_all' || msg.type === 'msg_del') {
-                var recipientDel = String(msg.to || activeAcct);
-                var delSender = String(msg.from || '');
+                var recipientDel = cleanIdValue(msg.to || activeAcct) || activeAcct;
+                var delSender = cleanIdValue(msg.from || '');
                 if (acctThreads[recipientDel] && acctThreads[recipientDel][delSender]) {
                     acctThreads[recipientDel][delSender] = acctThreads[recipientDel][delSender].map(function(m) {
                         return m.id === msg.msgId ? Object.assign({}, m, { deleted: true, deletedBy: 'all' }) : m;
@@ -1074,7 +1199,7 @@ const htmlContent = `<!DOCTYPE html>
             }).then(function(data) {
                 if (!data) return null;
                 if (Array.isArray(data.onlineIds)) {
-                    onlinePeers = new Set(data.onlineIds);
+                    onlinePeers = new Set(data.onlineIds.map(cleanIdValue).filter(Boolean));
                     renderPresence();
                 }
                 if (Array.isArray(data.events)) {
@@ -1099,7 +1224,8 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function pollHttpSync() {
-            var q = encodeURIComponent(myAccts.join(','));
+            var normIds = myAccts.map(cleanIdValue).filter(Boolean);
+            var q = encodeURIComponent(normIds.join(','));
             return fetch('/api/sync?ids=' + q, { cache: 'no-store' }).then(function(res) {
                 if (!res || !res.ok) return null;
                 serverReachable = true;
@@ -1109,7 +1235,7 @@ const htmlContent = `<!DOCTYPE html>
                 if (!data) return null;
                 flushOutboxQueue();
                 if (Array.isArray(data.onlineIds)) {
-                    onlinePeers = new Set(data.onlineIds);
+                    onlinePeers = new Set(data.onlineIds.map(cleanIdValue).filter(Boolean));
                     renderPresence();
                 }
                 if (Array.isArray(data.events)) {
@@ -1131,7 +1257,7 @@ const htmlContent = `<!DOCTYPE html>
                     serverReachable = true;
                     setHeaderStatus('متصل', true);
                     try {
-                        ws.send(JSON.stringify({ type: 'register_ids', ids: myAccts, activeId: activeAcct }));
+                        ws.send(JSON.stringify({ type: 'register_ids', ids: myAccts.map(cleanIdValue), activeId: cleanIdValue(activeAcct) }));
                     } catch (e) {}
                     flushOutboxQueue();
                 };
@@ -1147,12 +1273,14 @@ const htmlContent = `<!DOCTYPE html>
             setHeaderStatus('متصل', true);
             if (ws) { try { ws.close(); } catch (e) {} }
             openSocket();
-            postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
+            postHttpSync({ type: 'register_ids', ids: myAccts.map(cleanIdValue), activeId: cleanIdValue(activeAcct) });
             pollHttpSync();
         }
 
         function sendSignalingOrMsg(payload) {
             var enriched = Object.assign({}, payload, {
+                to: payload.to ? cleanIdValue(payload.to) : payload.to,
+                from: payload.from ? cleanIdValue(payload.from) : payload.from,
                 eventId: payload.eventId || ('ev-' + Date.now() + '-' + Math.floor(Math.random() * 100000))
             });
             var sentWs = false;
@@ -1244,7 +1372,7 @@ const htmlContent = `<!DOCTYPE html>
             var preview = document.getElementById('call-resolved-preview');
             var sugBox = document.getElementById('call-contact-suggestions');
             if (!inp) return;
-            var q = inp.value.trim();
+            var q = cleanIdValue(inp.value);
             var matches = findContactMatches(q).filter(function(c) { return c.id !== DEFAULT_PEER; }).slice(0, 5);
             var exactOrFirst = resolveContactByQuery(q);
             if (preview) {
@@ -1265,31 +1393,33 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function selectCallSuggestion(id, name) {
+            var cleanId = cleanIdValue(id);
             var inp = document.getElementById('call-input');
-            if (inp) inp.value = name ? (name + ' • ' + id) : id;
-            currentPeer = id;
+            if (inp) inp.value = name ? (name + ' • ' + cleanId) : cleanId;
+            currentPeer = cleanId;
             onCallDialInput();
         }
 
         function startDialedCall(mode) {
             var inp = document.getElementById('call-input');
-            var raw = inp ? inp.value.trim() : '';
-            var cleanedPart = raw.indexOf('•') !== -1 ? raw.split('•').pop().trim() : raw;
+            var raw = inp ? cleanIdValue(inp.value) : '';
+            var cleanedPart = raw.indexOf('•') !== -1 ? cleanIdValue(raw.split('•').pop()) : raw;
             var resolved = resolveContactByQuery(cleanedPart || raw);
             var targetId = resolved ? resolved.id : (cleanedPart || raw || currentPeer);
             launchCall(mode, targetId);
         }
 
         function formatPeerDisplay(peerId) {
-            var grp = findGroupById(peerId);
+            var cleanId = cleanIdValue(peerId);
+            var grp = findGroupById(cleanId);
             if (grp) return grp.name + ' • مجموعة';
-            var found = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(peerId); });
-            if (!found) return peerId;
+            var found = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(cleanId); });
+            if (!found) return cleanId;
             return found.id === DEFAULT_PEER ? found.name : (found.name + ' • ' + found.id);
         }
 
         function launchCall(mode, explicitTarget) {
-            var rawTarget = String(explicitTarget || currentPeer || '').trim();
+            var rawTarget = cleanIdValue(explicitTarget || currentPeer || '');
             var matched = resolveContactByQuery(rawTarget);
             var target = matched ? matched.id : rawTarget;
             if (!target) return alert('اكتب الاسم أو الرقم أو المعرّف لبدء الاتصال.');
@@ -1359,10 +1489,10 @@ const htmlContent = `<!DOCTYPE html>
             if (!sig) return;
             if (sig.op === 'offer') {
                 pendingCall = msg;
-                callPeerId = msg.from;
+                callPeerId = cleanIdValue(msg.from);
                 activeCallMode = sig.mode || 'audio';
                 document.getElementById('call-modal').classList.remove('hidden');
-                document.getElementById('call-peer-title').textContent = formatPeerDisplay(msg.from);
+                document.getElementById('call-peer-title').textContent = formatPeerDisplay(callPeerId);
                 document.getElementById('call-status-msg').textContent = (activeCallMode === 'video' ? 'مكالمة فيديو واردة' : 'مكالمة صوتية واردة') + ' — يرن الآن...';
                 document.getElementById('accept-btn').classList.remove('hidden');
                 setCallVisualMode(activeCallMode);
@@ -1411,7 +1541,7 @@ const htmlContent = `<!DOCTYPE html>
             }).then(function(ans) {
                 return rtcConn.setLocalDescription(ans).then(function() { return ans; });
             }).then(function(ans) {
-                sendSignalingOrMsg({ type: 'call_sig', to: pendingCall.from, from: activeAcct, sig: { op: 'answer', sdp: ans } });
+                sendSignalingOrMsg({ type: 'call_sig', to: cleanIdValue(pendingCall.from), from: activeAcct, sig: { op: 'answer', sdp: ans } });
                 document.getElementById('call-status-msg').textContent = 'متصل الآن';
                 forceUnmuteAudio();
             }).catch(function() {});
@@ -1545,7 +1675,7 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function formatTimer(sec) {
-            return String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0');
+            return toWesternDigits(String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0'));
         }
 
         function toggleVoiceCapture() {
@@ -1644,11 +1774,11 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function emitPacket(to, kind, text, mediaUrl, fileName, existingMsgId, forcedSender) {
-            var cleanTo = String(to || '').trim();
+            var cleanTo = cleanIdValue(to);
             if (!cleanTo) return;
-            var senderId = forcedSender || activeAcct;
+            var senderId = cleanIdValue(forcedSender || activeAcct) || activeAcct;
             var grp = findGroupById(cleanTo);
-            var liveDelivered = grp ? true : onlinePeers.has(cleanTo);
+            var liveDelivered = grp ? true : isPeerOnline(cleanTo);
             var msgId = existingMsgId || ('m-' + Date.now() + '-' + Math.floor(Math.random() * 10000));
             if (!acctThreads[senderId]) acctThreads[senderId] = {};
             if (!acctThreads[senderId][cleanTo]) acctThreads[senderId][cleanTo] = [];
@@ -1668,8 +1798,9 @@ const htmlContent = `<!DOCTYPE html>
             if (kind === 'text') triggerSanadMentionIfPresent(cleanTo, text);
             if (grp && Array.isArray(grp.members)) {
                 grp.members.forEach(function(memId) {
-                    if (normalizeStr(memId) !== normalizeStr(senderId)) {
-                        sendSignalingOrMsg({ type: 'msg', to: memId, from: cleanTo, msgId: msgId, kind: kind, text: text, mediaUrl: mediaUrl, fileName: fileName });
+                    var cleanMem = cleanIdValue(memId);
+                    if (cleanMem && normalizeStr(cleanMem) !== normalizeStr(senderId)) {
+                        sendSignalingOrMsg({ type: 'msg', to: cleanMem, from: cleanTo, msgId: msgId, kind: kind, text: text, mediaUrl: mediaUrl, fileName: fileName });
                     }
                 });
             } else {
@@ -1813,7 +1944,7 @@ const htmlContent = `<!DOCTYPE html>
         function extractTasksFromThread() {
             var list = (getThreadMap()[currentPeer] || []).filter(function(m) { return !m.deleted && m.kind === 'text'; });
             if (!list.length) return alert('لا توجد رسائل نصية لاستخراج المهام منها.');
-            var tasks = list.slice(-5).map(function(m, idx) { return (idx + 1) + '. متابعة: ' + m.text; }).join(' | ');
+            var tasks = list.slice(-5).map(function(m, idx) { return toWesternDigits(idx + 1) + '. متابعة: ' + m.text; }).join(' | ');
             var log = document.getElementById('ai-log');
             log.innerHTML += '<div class="bg-[#080f18] border border-slate-800 p-2 rounded-lg text-emerald-200"><strong>مهام (' + escapeHtml(currentPeer) + '):</strong> ' + escapeHtml(tasks) + '</div>';
             log.scrollTop = log.scrollHeight;
@@ -1882,7 +2013,7 @@ const htmlContent = `<!DOCTYPE html>
 
             var reply = 'مساعد سند AI v8.5 يدعم مجموعات التواصل، مساعد @سند التفاعلي، صياغة ردود العملاء وتطوير المحتوى، والمكالمات.';
             if (q.indexOf('مجموع') !== -1) {
-                reply = 'من تبويب «المجموعات» يمكنك إنشاء مجموعة جديدة واختيار الأعضاء ثم الدردشة ومشاركة الملفات والمناداة على @سند.';
+                reply = 'من تبويب «المجموعات» يمكنك إنشاء مجموعة جديدة واختيار الأعضاء أو إضافة أعضاء جدد لأي مجموعة في أي وقت ثم الدردشة والمناداة على @سند.';
             } else if (q.indexOf('عميل') !== -1 || q.indexOf('محتوى') !== -1) {
                 reply = 'يمكنك استخدام أزرار «صياغة رسالة عميل» و«تقرير متابعة» أو نبرة «رد عميل» داخل الدردشة لتطوير رسائلك للعملاء بسرعة.';
             } else if (q.indexOf('سند') !== -1 || q.indexOf('@') !== -1) {
@@ -1904,14 +2035,18 @@ const htmlContent = `<!DOCTYPE html>
             if (!raw) return;
             try {
                 var parsed = JSON.parse(raw);
-                if (parsed.activeAcct) activeAcct = parsed.activeAcct;
-                if (Array.isArray(parsed.myAccts)) myAccts = parsed.myAccts;
-                if (Array.isArray(parsed.contacts)) contacts = parsed.contacts;
+                if (parsed.activeAcct) activeAcct = cleanIdValue(parsed.activeAcct);
+                if (Array.isArray(parsed.myAccts)) myAccts = parsed.myAccts.map(cleanIdValue).filter(Boolean);
+                if (Array.isArray(parsed.contacts)) {
+                    contacts = parsed.contacts.map(function(c) {
+                        return c && c.id ? { name: c.name || cleanIdValue(c.id), id: cleanIdValue(c.id) } : null;
+                    }).filter(Boolean);
+                }
                 if (Array.isArray(parsed.sanadGroups)) sanadGroups = parsed.sanadGroups;
                 if (parsed.acctThreads && typeof parsed.acctThreads === 'object') acctThreads = parsed.acctThreads;
                 if (parsed.pinnedByThread && typeof parsed.pinnedByThread === 'object') pinnedByThread = parsed.pinnedByThread;
                 persistAndDraw();
-                sendSignalingOrMsg({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
+                sendSignalingOrMsg({ type: 'register_ids', ids: myAccts.map(cleanIdValue), activeId: cleanIdValue(activeAcct) });
                 alert('تمت استعادة النسخة الاحتياطية بنجاح.');
             } catch (e) { alert('صيغة النسخة الاحتياطية غير صحيحة.'); }
         }
@@ -1926,8 +2061,9 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function choosePeer(id) {
-            var matched = resolveContactByQuery(id);
-            var clean = matched ? matched.id : String(id || '').trim();
+            var cleanRaw = cleanIdValue(id);
+            var matched = resolveContactByQuery(cleanRaw);
+            var clean = matched ? matched.id : cleanRaw;
             if (!clean) return;
             currentPeer = clean;
             var grp = findGroupById(clean);
@@ -1946,7 +2082,7 @@ const htmlContent = `<!DOCTYPE html>
 
         function openPeerByInput() {
             var inp = document.getElementById('peer-input');
-            var val = inp ? inp.value.trim() : '';
+            var val = inp ? cleanIdValue(inp.value) : '';
             if (!val) return alert('أدخل اسم جهة اتصال أو مجموعة أو كود أو رقم.');
             var matched = resolveContactByQuery(val);
             if (inp) inp.value = '';
@@ -1955,7 +2091,7 @@ const htmlContent = `<!DOCTYPE html>
 
         function openFirstMatchedContact() {
             var searchInp = document.getElementById('contact-search-input');
-            var val = searchInp ? searchInp.value.trim() : '';
+            var val = searchInp ? cleanIdValue(searchInp.value) : '';
             if (!val) return;
             var matches = findContactMatches(val);
             if (matches.length) choosePeer(matches[0].id);
@@ -1972,7 +2108,7 @@ const htmlContent = `<!DOCTYPE html>
 
         function addNewContact() {
             var name = document.getElementById('c-name').value.trim();
-            var id = document.getElementById('c-id').value.trim();
+            var id = cleanIdValue(document.getElementById('c-id').value);
             if (!name || !id) return alert('أدخل الاسم والكود أو الرقم.');
             upsertContact(name, id);
             document.getElementById('c-name').value = '';
@@ -1994,14 +2130,15 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function showGeneratedCodeBanner(code8) {
-            lastGeneratedCode = code8;
+            var westernCode = cleanIdValue(code8);
+            lastGeneratedCode = westernCode;
             var banner = document.getElementById('last-generated-banner');
             var txt = document.getElementById('last-generated-text');
-            if (banner && txt) { txt.textContent = 'المعرّف الجديد: ' + code8; banner.classList.remove('hidden'); }
+            if (banner && txt) { txt.textContent = 'المعرّف الجديد: ' + westernCode; banner.classList.remove('hidden'); }
         }
 
         function make8DigitId() {
-            var code8 = Math.floor(10000000 + Math.random() * 90000000).toString();
+            var code8 = toWesternDigits(Math.floor(10000000 + Math.random() * 90000000).toString());
             if (myAccts.indexOf(code8) === -1) myAccts.push(code8);
             showGeneratedCodeBanner(code8);
             copyStringToClipboard(code8);
@@ -2012,7 +2149,8 @@ const htmlContent = `<!DOCTYPE html>
         function addCustomNumberAccount() {
             var num = prompt('أدخل أي رقم أو معرّف إضافي لتفعيله:');
             if (!num || !num.trim()) return;
-            var clean = num.trim();
+            var clean = cleanIdValue(num);
+            if (!clean) return;
             if (myAccts.indexOf(clean) === -1) myAccts.push(clean);
             activateAccount(clean);
         }
@@ -2020,32 +2158,33 @@ const htmlContent = `<!DOCTYPE html>
         function verifyPhoneAccount() {
             var ph = prompt('أدخل رقم الجوال الدولي (مثال: +967772302010):');
             if (!ph || !ph.trim()) return;
-            var otp = Math.floor(100000 + Math.random() * 900000).toString();
+            var otp = toWesternDigits(Math.floor(100000 + Math.random() * 900000).toString());
             var code = prompt('كود التفعيل الخاص برقمك هو: ' + otp + '\\nأدخل الكود لتأكيد التفعيل:');
-            if (!code || code.trim() !== otp) return alert('كود التفعيل غير مطابق.');
-            var cleanPh = ph.trim();
+            if (!code || cleanIdValue(code) !== otp) return alert('كود التفعيل غير مطابق.');
+            var cleanPh = cleanIdValue(ph);
+            if (!cleanPh) return;
             if (myAccts.indexOf(cleanPh) === -1) myAccts.push(cleanPh);
             activateAccount(cleanPh);
         }
 
         function activateAccount(id) {
-            activeAcct = String(id).trim();
+            activeAcct = cleanIdValue(id) || activeAcct;
             if (myAccts.indexOf(activeAcct) === -1) myAccts.push(activeAcct);
             getThreadMap();
             setPane('chats');
             persistAndDraw();
-            sendSignalingOrMsg({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
+            sendSignalingOrMsg({ type: 'register_ids', ids: myAccts.map(cleanIdValue), activeId: activeAcct });
         }
 
         function renderPresence() {
             var grp = findGroupById(currentPeer);
-            var isOn = grp ? true : onlinePeers.has(currentPeer);
+            var isOn = grp ? true : isPeerOnline(currentPeer);
             var matchedPeer = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(currentPeer); });
             var dot = document.getElementById('peer-dot');
             var lbl = document.getElementById('peer-status');
             var pTitle = document.getElementById('peer-title');
             if (pTitle) {
-                if (grp) pTitle.textContent = grp.name + ' • مجموعة (' + (grp.members ? grp.members.length : 1) + ')';
+                if (grp) pTitle.textContent = grp.name + ' • مجموعة (' + toWesternDigits(grp.members ? grp.members.length : 1) + ')';
                 else pTitle.textContent = matchedPeer
                     ? (matchedPeer.id === DEFAULT_PEER ? matchedPeer.name : (matchedPeer.name + ' • ' + currentPeer))
                     : currentPeer;
@@ -2067,7 +2206,7 @@ const htmlContent = `<!DOCTYPE html>
             }
 
             var topInp = document.getElementById('peer-input');
-            var topVal = topInp ? topInp.value.trim() : '';
+            var topVal = topInp ? cleanIdValue(topInp.value) : '';
             var chipList = findContactMatches(topVal);
             var chips = document.getElementById('quick-chips');
             if (chips) {
@@ -2077,7 +2216,7 @@ const htmlContent = `<!DOCTYPE html>
                         '<i class="fa-solid fa-users text-[10px] text-teal-300"></i><span>' + escapeHtml(g.name) + '</span></button>';
                 }).join('');
                 chips.innerHTML = '<span class="text-[11px] text-slate-400 shrink-0">وصول سريع:</span>' + grpChips + chipList.map(function(c) {
-                    var on = onlinePeers.has(c.id);
+                    var on = isPeerOnline(c.id);
                     return '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(c.id) + '\\')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] shrink-0 ' +
                         (c.id === currentPeer ? 'bg-[#164e63] border-teal-600 text-white font-bold' : 'bg-slate-800/85 border-slate-700 text-slate-200') + '">' +
                         '<span class="w-2 h-2 rounded-full ' + (on ? 'bg-emerald-400' : 'bg-slate-500') + '"></span>' +
@@ -2086,11 +2225,11 @@ const htmlContent = `<!DOCTYPE html>
             }
 
             var searchInp = document.getElementById('contact-search-input');
-            var q = searchInp ? searchInp.value.trim() : '';
+            var q = searchInp ? cleanIdValue(searchInp.value) : '';
             var filtered = findContactMatches(q);
-            var onlineCount = filtered.filter(function(c) { return onlinePeers.has(c.id); }).length;
+            var onlineCount = filtered.filter(function(c) { return isPeerOnline(c.id); }).length;
             var summaryBadge = document.getElementById('contacts-summary-badge');
-            if (summaryBadge) summaryBadge.textContent = filtered.length + ' جهة (' + onlineCount + ' متصل)';
+            if (summaryBadge) summaryBadge.textContent = toWesternDigits(filtered.length) + ' جهة (' + toWesternDigits(onlineCount) + ' متصل)';
 
             var cBox = document.getElementById('contacts-list');
             if (!cBox) return;
@@ -2099,7 +2238,7 @@ const htmlContent = `<!DOCTYPE html>
                 return;
             }
             cBox.innerHTML = filtered.map(function(c) {
-                var on = onlinePeers.has(c.id);
+                var on = isPeerOnline(c.id);
                 var subTag = on ? 'متصل الآن' : 'محفوظ';
                 var metaText = c.id === DEFAULT_PEER ? subTag : (c.id + ' • ' + subTag);
                 var delBtn = c.id === DEFAULT_PEER ? '' : '<button type="button" onclick="deleteContactById(\\'' + escapeJsSingle(c.id) + '\\')" class="bg-rose-950/60 border border-rose-900/50 text-rose-300 px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>';
@@ -2141,7 +2280,7 @@ const htmlContent = `<!DOCTYPE html>
                     return hay.indexOf(q) !== -1;
                 });
             }
-            if (countEl) countEl.textContent = list.length + (list.length === 1 ? ' نتيجة' : ' نتائج');
+            if (countEl) countEl.textContent = toWesternDigits(list.length) + (list.length === 1 ? ' نتيجة' : ' نتائج');
             if (!list.length) {
                 box.innerHTML = '<div class="text-center text-xs text-slate-500 py-8">' + (q ? 'لا توجد رسائل مطابقة للبحث في هذه المحادثة.' : 'ابدأ المراسلة أو أرسل صوتاً أو مرفقاً أو ابدأ مكالمة.') + '</div>';
                 return;
@@ -2174,13 +2313,14 @@ const htmlContent = `<!DOCTYPE html>
 
         function renderAccts() {
             var badge = document.getElementById('accounts-count-badge');
-            if (badge) badge.textContent = myAccts.length + (myAccts.length === 1 ? ' حساب' : ' حسابات');
+            if (badge) badge.textContent = toWesternDigits(myAccts.length) + (myAccts.length === 1 ? ' حساب' : ' حسابات');
             var box = document.getElementById('accounts-list');
             if (!box) return;
             box.innerHTML = myAccts.map(function(id) {
-                return '<div onclick="activateAccount(\\'' + escapeJsSingle(id) + '\\')" class="bg-[#080f18] border ' + (id === activeAcct ? 'border-teal-600' : 'border-slate-800') + ' p-3 rounded-xl flex justify-between items-center cursor-pointer">' +
-                    '<span class="text-xs font-mono font-bold text-white">' + escapeHtml(id) + '</span>' +
-                    '<span class="text-[10px] ' + (id === activeAcct ? 'text-teal-200 font-bold' : 'text-slate-400') + '">' + (id === activeAcct ? 'نشط' : 'تبديل') + '</span></div>';
+                var cleanId = cleanIdValue(id);
+                return '<div onclick="activateAccount(\\'' + escapeJsSingle(cleanId) + '\\')" class="bg-[#080f18] border ' + (cleanId === activeAcct ? 'border-teal-600' : 'border-slate-800') + ' p-3 rounded-xl flex justify-between items-center cursor-pointer">' +
+                    '<span class="text-xs font-mono font-bold text-white">' + escapeHtml(cleanId) + '</span>' +
+                    '<span class="text-[10px] ' + (cleanId === activeAcct ? 'text-teal-200 font-bold' : 'text-slate-400') + '">' + (cleanId === activeAcct ? 'نشط' : 'تبديل') + '</span></div>';
             }).join('');
         }
 
@@ -2215,7 +2355,7 @@ const htmlContent = `<!DOCTYPE html>
         renderMsgs();
         applySanadPaneDisplay(window.__sanadCurrentTab || 'chats');
         setHeaderStatus('متصل', true);
-        postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
+        postHttpSync({ type: 'register_ids', ids: myAccts.map(cleanIdValue), activeId: cleanIdValue(activeAcct) });
         pollHttpSync();
         openSocket();
 
@@ -2243,7 +2383,7 @@ function touchHttpPresence(ids) {
     if (!Array.isArray(ids)) return;
     const now = Date.now();
     ids.forEach(id => {
-        const clean = String(id || '').trim();
+        const clean = normIdServer(id);
         if (clean) httpPresence.set(clean, now);
     });
 }
@@ -2252,17 +2392,18 @@ function getAllOnlineIds() {
     const now = Date.now();
     const set = new Set();
     socketsMap.forEach((sockSet, id) => {
-        if (sockSet && sockSet.size > 0) set.add(id);
+        if (sockSet && sockSet.size > 0) set.add(normIdServer(id));
     });
     httpPresence.forEach((ts, id) => {
-        if (now - ts < 15000) set.add(id);
+        const norm = normIdServer(id);
+        if (now - ts < 15000) set.add(norm);
         else httpPresence.delete(id);
     });
-    return Array.from(set);
+    return Array.from(set).filter(Boolean);
 }
 
 function registerSocketForId(id, clientWs) {
-    const clean = String(id || '').trim();
+    const clean = normIdServer(id);
     if (!clean) return;
     let set = socketsMap.get(clean);
     if (!set) {
@@ -2273,7 +2414,7 @@ function registerSocketForId(id, clientWs) {
 }
 
 function unregisterSocketForId(id, clientWs) {
-    const clean = String(id || '').trim();
+    const clean = normIdServer(id);
     const set = socketsMap.get(clean);
     if (!set) return;
     set.delete(clientWs);
@@ -2281,7 +2422,7 @@ function unregisterSocketForId(id, clientWs) {
 }
 
 function sendToIdSockets(toId, payloadStr) {
-    const clean = String(toId || '').trim();
+    const clean = normIdServer(toId);
     const set = socketsMap.get(clean);
     let sent = false;
     if (set && set.size > 0) {
@@ -2298,7 +2439,7 @@ function sendToIdSockets(toId, payloadStr) {
 }
 
 function enqueueHttpEvent(toId, payload) {
-    const clean = String(toId || '').trim();
+    const clean = normIdServer(toId);
     if (!clean) return;
     const list = httpInbox.get(clean) || [];
     list.push(payload);
@@ -2310,7 +2451,7 @@ function drainHttpEvents(ids) {
     const out = [];
     if (!Array.isArray(ids)) return out;
     ids.forEach(id => {
-        const clean = String(id || '').trim();
+        const clean = normIdServer(id);
         const list = httpInbox.get(clean);
         if (list && list.length) {
             out.push(...list);
@@ -2347,7 +2488,7 @@ const server = http.createServer((req, res) => {
         }
 
         if (urlObj.pathname === '/api/sync' && req.method === 'GET') {
-            const rawIds = (urlObj.searchParams.get('ids') || '').split(',').map(s => s.trim()).filter(Boolean);
+            const rawIds = (urlObj.searchParams.get('ids') || '').split(',').map(normIdServer).filter(Boolean);
             touchHttpPresence(rawIds);
             const events = drainHttpEvents(rawIds);
             res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -2371,9 +2512,13 @@ const server = http.createServer((req, res) => {
                         touchHttpPresence(list);
                         broadcastOnline();
                     } else if (data && data.to) {
-                        const destId = String(data.to).trim();
-                        const deliveredLive = sendToIdSockets(destId, JSON.stringify(data));
-                        if (!deliveredLive) enqueueHttpEvent(destId, data);
+                        const normalizedData = Object.assign({}, data, {
+                            to: normIdServer(data.to),
+                            from: data.from ? normIdServer(data.from) : data.from
+                        });
+                        const destId = normIdServer(data.to);
+                        const deliveredLive = sendToIdSockets(destId, JSON.stringify(normalizedData));
+                        if (!deliveredLive) enqueueHttpEvent(destId, normalizedData);
                     }
                 } catch (e) {}
                 if (!res.writableEnded) {
@@ -2416,7 +2561,7 @@ wss.on('connection', (clientWs) => {
         if (data.type === 'register_ids') {
             registeredIds.forEach(old => unregisterSocketForId(old, clientWs));
             const list = Array.isArray(data.ids) ? data.ids : [data.activeId].filter(Boolean);
-            registeredIds = list.map(x => String(x || '').trim()).filter(Boolean);
+            registeredIds = list.map(normIdServer).filter(Boolean);
             registeredIds.forEach(id => registerSocketForId(id, clientWs));
             touchHttpPresence(registeredIds);
             broadcastOnline();
@@ -2424,9 +2569,13 @@ wss.on('connection', (clientWs) => {
         }
 
         if (data.to) {
-            const destId = String(data.to).trim();
-            const deliveredLive = sendToIdSockets(destId, JSON.stringify(data));
-            if (!deliveredLive) enqueueHttpEvent(destId, data);
+            const normalizedData = Object.assign({}, data, {
+                to: normIdServer(data.to),
+                from: data.from ? normIdServer(data.from) : data.from
+            });
+            const destId = normIdServer(data.to);
+            const deliveredLive = sendToIdSockets(destId, JSON.stringify(normalizedData));
+            if (!deliveredLive) enqueueHttpEvent(destId, normalizedData);
         }
     });
 

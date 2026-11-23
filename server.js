@@ -12,7 +12,7 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0b4aa2">
-    <title>سند AI v7.1</title>
+    <title>سند AI v7.2</title>
     <link rel="icon" type="image/svg+xml" href="${sanadIconUri}">
     <link rel="apple-touch-icon" sizes="180x180" href="${sanadIconUri}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -35,16 +35,15 @@ const htmlContent = `<!DOCTYPE html>
 </head>
 <body class="text-slate-100 h-screen flex flex-col overflow-hidden select-none">
 
-    <!-- عنصر صوت المكالمات الثابت -->
     <audio id="remote-audio-el" autoplay playsinline class="hidden"></audio>
 
-    <!-- الشريط الإخباري الذكي الواضح -->
+    <!-- الشريط الإخباري -->
     <div class="bg-blue-700 border-b border-blue-300/50 py-1.5 px-2.5 overflow-hidden text-xs text-white z-30 shrink-0 shadow">
         <div class="ticker-line gap-8 font-bold tracking-wide">
-            <span>⚡ سند AI v7.1: مزامنة هجينة فورية + وضع الشبكة الضعيفة 1X + ضغط صوتي للمكالمات + تبديل السماعة/المكبر</span>
+            <span>⚡ سند AI v7.2: مزامنة فورية عبر /api/sync + وضع الشبكة الضعيفة 1X + ضغط صوتي للمكالمات + تبديل السماعة/المكبر</span>
             <span>📞 اتصال صوتي وفيديو طولي 9:16 مباشر + فحص أرقام المشتركين + تعدد الأرقام والحسابات</span>
             <span>🧠 مركز سند AI الشامل: تحسين الصياغة + تلخيص + استخراج مهام + ردود ذكية + رد تلقائي</span>
-            <span>⚡ سند AI v7.1: مزامنة هجينة فورية + وضع الشبكة الضعيفة 1X + ضغط صوتي للمكالمات + تبديل السماعة/المكبر</span>
+            <span>⚡ سند AI v7.2: مزامنة فورية عبر /api/sync + وضع الشبكة الضعيفة 1X + ضغط صوتي للمكالمات + تبديل السماعة/المكبر</span>
         </div>
     </div>
 
@@ -58,7 +57,7 @@ const htmlContent = `<!DOCTYPE html>
             <div>
                 <div class="flex items-center gap-1.5 flex-wrap">
                     <h1 class="font-black text-base md:text-lg text-white leading-none">سند</h1>
-                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v7.1</span>
+                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v7.2</span>
                     <span id="device-badge" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-semibold">---</span>
                     <span id="net-mode-badge" class="text-[10px] bg-emerald-950/80 text-emerald-300 border border-emerald-700/40 px-2 py-0.5 rounded-full font-bold">1X/مرن</span>
                 </div>
@@ -92,13 +91,13 @@ const htmlContent = `<!DOCTYPE html>
         <span class="bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-lg text-[10px] font-bold shrink-0">فتح</span>
     </div>
 
-    <!-- نافذة المكالمات الصوتية والمرئية الطولية 9:16 -->
+    <!-- نافذة المكالمات 9:16 -->
     <div id="call-modal" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-between p-4">
         <div class="text-center mt-1">
-            <p class="text-xs text-blue-400 font-bold">سند AI v7.1 • اتصال مباشر سريع</p>
+            <p class="text-xs text-blue-400 font-bold">سند AI v7.2 • اتصال مباشر سريع</p>
             <h2 id="call-peer-title" class="text-lg font-black text-white font-mono mt-0.5">---</h2>
             <p id="call-status-msg" class="text-xs text-emerald-400 mt-0.5 font-semibold">جاري الاتصال...</p>
-            <p id="call-output-hint" class="text-[10px] text-slate-400 mt-0.5">وضع الإخراج: مكبر الصوت (تبديل السماعة يعتمد أيضاً على نظام الهاتف/المتصفح)</p>
+            <p id="call-output-hint" class="text-[10px] text-slate-400 mt-0.5">وضع الإخراج: مكبر الصوت</p>
         </div>
 
         <div class="relative w-full max-w-sm flex-1 my-2.5 max-h-[66vh] aspect-[9/16] bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden flex items-center justify-center shadow-2xl">
@@ -152,7 +151,7 @@ const htmlContent = `<!DOCTYPE html>
         <section id="pane-chats" class="flex-1 flex flex-col h-full overflow-hidden">
             <div class="p-2.5 bg-slate-900/80 border-b border-slate-800 space-y-2 shrink-0">
                 <div class="flex gap-2">
-                    <input type="text" id="peer-input" oninput="onTopPeerSearchInput()" onkeydown="if(event.key==='Enter') { event.preventDefault(); openPeerByInput(); }" placeholder="بحث آلي بالاسم أو الكود (8 أرقام) أو جوال..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-blue-500">
+                    <input type="text" id="peer-input" oninput="onTopPeerSearchInput()" onkeydown="if(event.key==='Enter'){event.preventDefault();openPeerByInput();}" placeholder="بحث آلي بالاسم أو الكود (8 أرقام) أو جوال..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-blue-500">
                     <button onclick="openPeerByInput()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition">فتح</button>
                     <button onclick="saveCurrentPeer()" title="حفظ في الجهات" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-400 px-3 py-2 rounded-xl text-xs font-bold">
                         <i class="fa-solid fa-user-plus"></i>
@@ -178,7 +177,6 @@ const htmlContent = `<!DOCTYPE html>
 
             <div id="msgs-box" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar"></div>
 
-            <!-- شريط الردود الذكية المقترحة -->
             <div id="smart-replies-bar" class="hidden px-3 py-1.5 bg-slate-950/90 border-t border-slate-800/70 flex items-center gap-1.5 overflow-x-auto text-[11px] shrink-0"></div>
 
             <div class="p-2.5 bg-slate-900 border-t border-slate-800 flex items-center gap-1.5 shrink-0">
@@ -189,10 +187,10 @@ const htmlContent = `<!DOCTYPE html>
                 <button id="dictate-btn" onclick="toggleSpeechDictation()" title="إملاء صوتي" class="text-cyan-400 hover:text-cyan-300 p-2 rounded-xl hover:bg-slate-800 transition">
                     <i class="fa-solid fa-language text-base"></i>
                 </button>
-                <button onclick="polishDraft()" title="تحسين الصياغة بالذكاء الاصطناعي" class="text-indigo-400 hover:text-indigo-300 p-2 rounded-xl hover:bg-slate-800 transition">
+                <button onclick="polishDraft()" title="تحسين الصياغة" class="text-indigo-400 hover:text-indigo-300 p-2 rounded-xl hover:bg-slate-800 transition">
                     <i class="fa-solid fa-wand-magic-sparkles text-base"></i>
                 </button>
-                <input type="text" id="msg-box-input" onkeydown="if(event.key==='Enter') { event.preventDefault(); sendTextMsg(); }" placeholder="اكتب رسالتك..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                <input type="text" id="msg-box-input" onkeydown="if(event.key==='Enter'){event.preventDefault();sendTextMsg();}" placeholder="اكتب رسالتك..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
                 <span id="rec-timer" class="hidden text-[11px] font-mono font-bold text-red-400 px-1">00:00</span>
                 <button id="voice-btn" onclick="toggleVoiceCapture()" title="تسجيل رسالة صوتية" class="bg-slate-800 hover:bg-emerald-600 text-emerald-400 hover:text-white p-2.5 rounded-xl transition">
                     <i class="fa-solid fa-microphone text-base"></i>
@@ -236,15 +234,15 @@ const htmlContent = `<!DOCTYPE html>
                     </button>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="text" id="c-name" onkeydown="if(event.key==='Enter') addNewContact()" placeholder="الاسم" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
-                    <input type="text" id="c-id" onkeydown="if(event.key==='Enter') addNewContact()" placeholder="معرّف 8 أرقام أو رقم الجوال" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
+                    <input type="text" id="c-name" onkeydown="if(event.key==='Enter')addNewContact()" placeholder="الاسم" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <input type="text" id="c-id" onkeydown="if(event.key==='Enter')addNewContact()" placeholder="معرّف 8 أرقام أو رقم الجوال" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
                     <button onclick="addNewContact()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold">حفظ</button>
                 </div>
             </div>
             <div class="bg-slate-900/90 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 flex-1 min-w-0">
                     <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs pr-1"></i>
-                    <input type="text" id="contact-search-input" oninput="renderPresence()" onkeydown="if(event.key==='Enter') openFirstMatchedContact()" placeholder="بحث آلي بالاسم أو الكود أو الرقم..." class="flex-1 bg-transparent text-xs text-white focus:outline-none">
+                    <input type="text" id="contact-search-input" oninput="renderPresence()" onkeydown="if(event.key==='Enter')openFirstMatchedContact()" placeholder="بحث آلي بالاسم أو الكود أو الرقم..." class="flex-1 bg-transparent text-xs text-white focus:outline-none">
                 </div>
                 <span id="contacts-summary-badge" class="text-[10px] font-mono text-slate-400 shrink-0">0 جهة</span>
             </div>
@@ -296,10 +294,10 @@ const htmlContent = `<!DOCTYPE html>
                     <button onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
                 </div>
                 <div id="ai-log" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">مرحباً بك في سند AI v7.1. مزامنة هجينة فورية، وضع الشبكة الضعيفة 1X، ضغط صوتي للمكالمات، وطابور إرسال مرن.</div>
+                    <div class="text-slate-400">مرحباً بك في سند AI v7.2. جاهز للمزامنة الفورية والمكالمات والرسائل.</div>
                 </div>
                 <div class="flex gap-2">
-                    <input type="text" id="ai-q" onkeydown="if(event.key==='Enter') askSanadAI()" placeholder="اطلب من سند AI (صياغة، تلخيص، مهام، شبكة 1X)..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <input type="text" id="ai-q" onkeydown="if(event.key==='Enter')askSanadAI()" placeholder="اطلب من سند AI (صياغة، تلخيص، مهام، شبكة 1X)..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
                     <button onclick="askSanadAI()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold">إرسال</button>
                 </div>
             </div>
@@ -332,23 +330,13 @@ const htmlContent = `<!DOCTYPE html>
     </nav>
 
     <script>
-        function detectDevice() {
-            var ua = navigator.userAgent || '';
-            if (/iPad/i.test(ua)) return 'آيباد';
-            if (/iPhone|iPod/i.test(ua)) return 'آيفون';
-            if (/Android/i.test(ua)) return 'أندرويد';
-            return 'كمبيوتر';
-        }
-        document.getElementById('device-badge').textContent = detectDevice();
-
-        var activeAcct = localStorage.getItem('sanad6_active') || '88888888';
-        var myAccts = JSON.parse(localStorage.getItem('sanad6_accts') || '["88888888"]');
-        if (myAccts.indexOf(activeAcct) === -1) myAccts.unshift(activeAcct);
-        var contacts = JSON.parse(localStorage.getItem('sanad6_contacts') || '[{"name":"خدمة العملاء","id":"88888888"}]');
+        var activeAcct = '88888888';
+        var myAccts = ['88888888'];
+        var contacts = [{ name: 'خدمة العملاء', id: '88888888' }];
         var currentPeer = '88888888';
         var activePane = 'chats';
         var onlinePeers = new Set();
-        var acctThreads = JSON.parse(localStorage.getItem('sanad6_acct_threads') || '{}');
+        var acctThreads = {};
         var seenEventIds = new Set();
         var outboxQueue = [];
         var lastGeneratedCode = '';
@@ -357,9 +345,62 @@ const htmlContent = `<!DOCTYPE html>
         var toastTimer = null;
         var ringtoneTimer = null;
         var speakerModeActive = true;
-        var ws;
+        var ws = null;
         var wsConnected = false;
         var httpConnected = false;
+
+        function setStatusText(text, isOnline) {
+            var dot = document.getElementById('ws-dot');
+            var lbl = document.getElementById('ws-label');
+            if (dot) {
+                dot.className = isOnline ? 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse' : 'w-2 h-2 rounded-full bg-amber-400';
+            }
+            if (lbl) {
+                lbl.textContent = text;
+            }
+        }
+
+        function refreshConnectionHeader() {
+            if (wsConnected) {
+                setStatusText('متصل', true);
+            } else if (httpConnected) {
+                setStatusText('متصل', true);
+            } else {
+                setStatusText('جاري الربط...', false);
+            }
+            updateQueueBadge();
+        }
+
+        function loadSavedState() {
+            try {
+                var savedActive = localStorage.getItem('sanad7_active');
+                var savedAccts = JSON.parse(localStorage.getItem('sanad7_accts') || 'null');
+                var savedContacts = JSON.parse(localStorage.getItem('sanad7_contacts') || 'null');
+                var savedThreads = JSON.parse(localStorage.getItem('sanad7_threads') || 'null');
+                if (savedActive) activeAcct = String(savedActive);
+                if (Array.isArray(savedAccts) && savedAccts.length) myAccts = savedAccts;
+                if (myAccts.indexOf(activeAcct) === -1) myAccts.unshift(activeAcct);
+                if (Array.isArray(savedContacts) && savedContacts.length) contacts = savedContacts;
+                if (savedThreads && typeof savedThreads === 'object') acctThreads = savedThreads;
+            } catch (e) {}
+        }
+
+        function persistState() {
+            try {
+                localStorage.setItem('sanad7_active', activeAcct);
+                localStorage.setItem('sanad7_accts', JSON.stringify(myAccts));
+                localStorage.setItem('sanad7_contacts', JSON.stringify(contacts));
+                localStorage.setItem('sanad7_threads', JSON.stringify(acctThreads));
+            } catch (e) {}
+        }
+
+        function detectDevice() {
+            var ua = navigator.userAgent || '';
+            if (/iPad/i.test(ua)) return 'آيباد';
+            if (/iPhone|iPod/i.test(ua)) return 'آيفون';
+            if (/Android/i.test(ua)) return 'أندرويد';
+            return 'كمبيوتر';
+        }
 
         function isWeakNetworkMode() {
             var chk = document.getElementById('chk-weaknet');
@@ -435,9 +476,7 @@ const htmlContent = `<!DOCTYPE html>
             var matchedOnline = [];
             tokens.forEach(function(num) {
                 var found = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(num); });
-                if (!found) {
-                    upsertContact('رقم ' + num, num);
-                }
+                if (!found) upsertContact('رقم ' + num, num);
                 if (onlinePeers.has(num)) matchedOnline.push(num);
             });
             renderPresence();
@@ -454,23 +493,10 @@ const htmlContent = `<!DOCTYPE html>
         function getThreadMap() {
             if (!acctThreads[activeAcct]) {
                 acctThreads[activeAcct] = {
-                    '88888888': [{ id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'أهلاً بك في سند AI v7.1. الحساب النشط: ' + activeAcct }]
+                    '88888888': [{ id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'أهلاً بك في سند AI v7.2. الحساب النشط: ' + activeAcct }]
                 };
             }
             return acctThreads[activeAcct];
-        }
-
-        function refreshConnectionHeader() {
-            var isLive = wsConnected || httpConnected;
-            document.getElementById('ws-dot').className = isLive ? 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse' : 'w-2 h-2 rounded-full bg-amber-400';
-            if (wsConnected) {
-                document.getElementById('ws-label').textContent = 'متصل';
-            } else if (httpConnected) {
-                document.getElementById('ws-label').textContent = 'متصل (مزامنة)';
-            } else {
-                document.getElementById('ws-label').textContent = 'جاري الربط...';
-            }
-            updateQueueBadge();
         }
 
         function playTonePattern(freqs, durationSec) {
@@ -493,23 +519,16 @@ const htmlContent = `<!DOCTYPE html>
             } catch (e) {}
         }
 
-        function playSoftChime() {
-            playTonePattern([660, 880], 0.12);
-        }
+        function playSoftChime() { playTonePattern([660, 880], 0.12); }
 
         function startRingtoneLoop() {
             stopRingtoneLoop();
             playTonePattern([587, 784, 587, 784], 0.16);
-            ringtoneTimer = setInterval(function() {
-                playTonePattern([587, 784, 587, 784], 0.16);
-            }, 2200);
+            ringtoneTimer = setInterval(function() { playTonePattern([587, 784, 587, 784], 0.16); }, 2200);
         }
 
         function stopRingtoneLoop() {
-            if (ringtoneTimer) {
-                clearInterval(ringtoneTimer);
-                ringtoneTimer = null;
-            }
+            if (ringtoneTimer) { clearInterval(ringtoneTimer); ringtoneTimer = null; }
         }
 
         function showLiveToast(senderId, previewText) {
@@ -587,8 +606,7 @@ const htmlContent = `<!DOCTYPE html>
                 if (acctThreads[ownerDel] && acctThreads[ownerDel][fromPeerDel]) {
                     acctThreads[ownerDel][fromPeerDel] = acctThreads[ownerDel][fromPeerDel].map(function(m) {
                         if (m.id !== msg.msgId) return m;
-                        var nextStatus = m.status === 'read' ? 'read' : 'delivered';
-                        return Object.assign({}, m, { delivered: true, status: nextStatus });
+                        return Object.assign({}, m, { delivered: true, status: m.status === 'read' ? 'read' : 'delivered' });
                     });
                     persistAndDraw();
                 }
@@ -652,9 +670,7 @@ const htmlContent = `<!DOCTYPE html>
             var batch = outboxQueue.slice();
             outboxQueue = [];
             updateQueueBadge();
-            batch.forEach(function(item) {
-                postHttpSync(item);
-            });
+            batch.forEach(function(item) { postHttpSync(item); });
         }
 
         function pollHttpSync() {
@@ -679,33 +695,9 @@ const htmlContent = `<!DOCTYPE html>
             }).catch(function() {});
         }
 
-        setInterval(function() {
-            var intervalMs = isWeakNetworkMode() ? 3500 : 2000;
-            if (Date.now() % intervalMs < 2000 || isWeakNetworkMode()) {
-                postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
-                pollHttpSync();
-            }
-            if (!ws || ws.readyState > 1) openSocket();
-        }, 2000);
-
-        var fastWakeAttempts = 0;
-        var fastWakeTimer = setInterval(function() {
-            fastWakeAttempts += 1;
-            if (wsConnected || httpConnected || fastWakeAttempts > 6) {
-                clearInterval(fastWakeTimer);
-                return;
-            }
-            if (!ws || ws.readyState > 1) openSocket();
-            postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
-            pollHttpSync();
-        }, 1600);
-
-        window.addEventListener('online', function() {
-            reconnectNow();
-        });
-
         function openSocket() {
             try {
+                if (typeof WebSocket === 'undefined') return;
                 var scheme = location.protocol === 'https:' ? 'wss:' : 'ws:';
                 ws = new WebSocket(scheme + '//' + location.host);
                 ws.onopen = function() {
@@ -723,9 +715,7 @@ const htmlContent = `<!DOCTYPE html>
                     refreshConnectionHeader();
                 };
                 ws.onmessage = function(ev) {
-                    try {
-                        handleIncomingPayload(JSON.parse(ev.data));
-                    } catch (e) {}
+                    try { handleIncomingPayload(JSON.parse(ev.data)); } catch (e) {}
                 };
             } catch (e) {
                 wsConnected = false;
@@ -734,6 +724,7 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function reconnectNow() {
+            setStatusText('جاري الربط...', false);
             if (ws) { try { ws.close(); } catch (e) {} }
             openSocket();
             postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
@@ -776,9 +767,7 @@ const htmlContent = `<!DOCTYPE html>
             if (audEl) {
                 audEl.muted = false;
                 audEl.volume = targetVol;
-                if (audEl.setSinkId) {
-                    audEl.setSinkId(speakerModeActive ? 'default' : '').catch(function() {});
-                }
+                if (audEl.setSinkId) audEl.setSinkId(speakerModeActive ? 'default' : '').catch(function() {});
                 audEl.play().catch(function() {});
             }
             var rv = document.getElementById('remote-video-el');
@@ -789,20 +778,15 @@ const htmlContent = `<!DOCTYPE html>
             }
             var iconEl = document.getElementById('speaker-toggle-icon');
             var hintEl = document.getElementById('call-output-hint');
-            if (iconEl) {
-                iconEl.className = speakerModeActive ? 'fa-solid fa-volume-high' : 'fa-solid fa-ear-listen';
-            }
+            if (iconEl) iconEl.className = speakerModeActive ? 'fa-solid fa-volume-high' : 'fa-solid fa-ear-listen';
             if (hintEl) {
                 hintEl.textContent = speakerModeActive
-                    ? 'وضع الإخراج: مكبر الصوت (للسماعة في الأذن اضغط الأيقونة أو اختر سماعة الهاتف)'
-                    : 'وضع الإخراج: سماعة/مستوى مخفّض (قد يعتمد التبديل الفعلي على إعدادات النظام والمتصفح)';
+                    ? 'وضع الإخراج: مكبر الصوت'
+                    : 'وضع الإخراج: سماعة/مستوى مخفّض';
             }
         }
 
-        function toggleSpeakerOrEarpiece() {
-            speakerModeActive = !speakerModeActive;
-            applyAudioOutputPreference();
-        }
+        function toggleSpeakerOrEarpiece() { speakerModeActive = !speakerModeActive; applyAudioOutputPreference(); }
 
         function forceUnmuteAudio() {
             if (remoteStreamObj) {
@@ -828,9 +812,7 @@ const htmlContent = `<!DOCTYPE html>
         function attachRemoteMediaStream(stream, mode) {
             remoteStreamObj = stream;
             var audEl = document.getElementById('remote-audio-el');
-            if (audEl) {
-                audEl.srcObject = stream;
-            }
+            if (audEl) audEl.srcObject = stream;
             if ((mode || activeCallMode) === 'video') {
                 var rv = document.getElementById('remote-video-el');
                 rv.srcObject = stream;
@@ -848,7 +830,7 @@ const htmlContent = `<!DOCTYPE html>
             stopRingtoneLoop();
             document.getElementById('call-modal').classList.remove('hidden');
             document.getElementById('call-peer-title').textContent = target + ' • ' + (activeCallMode === 'video' ? 'مكالمة فيديو' : 'مكالمة صوتية');
-            document.getElementById('call-status-msg').textContent = isWeakNetworkMode() ? 'جاري الاتصال (وضع الشبكة الضعيفة 1X)...' : 'جاري الاتصال الفوري...';
+            document.getElementById('call-status-msg').textContent = 'جاري الاتصال...';
             document.getElementById('accept-btn').classList.add('hidden');
             setCallVisualMode(activeCallMode);
             forceUnmuteAudio();
@@ -898,10 +880,7 @@ const htmlContent = `<!DOCTYPE html>
                     localStreamObj.addTrack(newVideoTrack);
                 }
                 var lv = document.getElementById('local-video-el');
-                if (lv && localStreamObj) {
-                    lv.srcObject = localStreamObj;
-                    lv.play().catch(function() {});
-                }
+                if (lv && localStreamObj) { lv.srcObject = localStreamObj; lv.play().catch(function() {}); }
             }).catch(function() {});
         }
 
@@ -914,10 +893,9 @@ const htmlContent = `<!DOCTYPE html>
                 activeCallMode = sig.mode || 'audio';
                 var matched = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(msg.from); });
                 var who = matched ? (matched.name + ' • ' + msg.from) : msg.from;
-                var kindLabel = activeCallMode === 'video' ? 'مكالمة فيديو واردة' : 'مكالمة صوتية واردة';
                 document.getElementById('call-modal').classList.remove('hidden');
                 document.getElementById('call-peer-title').textContent = who;
-                document.getElementById('call-status-msg').textContent = kindLabel + ' — يرن الآن...';
+                document.getElementById('call-status-msg').textContent = (activeCallMode === 'video' ? 'مكالمة فيديو واردة' : 'مكالمة صوتية واردة') + ' — يرن الآن...';
                 document.getElementById('accept-btn').classList.remove('hidden');
                 setCallVisualMode(activeCallMode);
                 startRingtoneLoop();
@@ -1011,15 +989,11 @@ const htmlContent = `<!DOCTYPE html>
             btn.className = tr.enabled
                 ? 'w-11 h-11 rounded-2xl bg-slate-800 text-white flex items-center justify-center'
                 : 'w-11 h-11 rounded-2xl bg-amber-600 text-white flex items-center justify-center';
-            if (icon) {
-                icon.className = tr.enabled ? 'fa-solid fa-microphone' : 'fa-solid fa-microphone-slash';
-            }
+            if (icon) icon.className = tr.enabled ? 'fa-solid fa-microphone' : 'fa-solid fa-microphone-slash';
         }
 
         function endActiveCall() {
-            if (callPeerId) {
-                sendSignalingOrMsg({ type: 'call_sig', to: callPeerId, from: activeAcct, sig: { op: 'bye' } });
-            }
+            if (callPeerId) sendSignalingOrMsg({ type: 'call_sig', to: callPeerId, from: activeAcct, sig: { op: 'bye' } });
             resetCallState();
         }
 
@@ -1030,10 +1004,6 @@ const htmlContent = `<!DOCTYPE html>
             remoteStreamObj = null;
             var audEl = document.getElementById('remote-audio-el');
             if (audEl) audEl.srcObject = null;
-            var muteIcon = document.getElementById('mute-icon');
-            if (muteIcon) muteIcon.className = 'fa-solid fa-microphone';
-            var muteBtn = document.getElementById('mute-btn');
-            if (muteBtn) muteBtn.className = 'w-11 h-11 rounded-2xl bg-slate-800 text-white flex items-center justify-center';
             document.getElementById('call-modal').classList.add('hidden');
             document.getElementById('remote-video-el').classList.add('hidden');
             document.getElementById('local-video-el').classList.add('hidden');
@@ -1046,7 +1016,7 @@ const htmlContent = `<!DOCTYPE html>
 
         function toggleSpeechDictation() {
             var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SR) return alert('الإملاء الصوتي المباشر غير مدعوم في هذا المتصفح، يمكنك استخدام زر التسجيل الصوتي.');
+            if (!SR) return alert('الإملاء الصوتي المباشر غير مدعوم في هذا المتصفح.');
             var btn = document.getElementById('dictate-btn');
             if (!dictating) {
                 speechRec = new SR();
@@ -1094,15 +1064,13 @@ const htmlContent = `<!DOCTYPE html>
             var btn = document.getElementById('voice-btn');
             if (timerEl) timerEl.classList.add('hidden');
             if (btn) btn.className = 'bg-slate-800 hover:bg-emerald-600 text-emerald-400 hover:text-white p-2.5 rounded-xl transition';
-            if (stream) { stream.getTracks().forEach(function(t) { t.stop(); }); }
+            if (stream) stream.getTracks().forEach(function(t) { t.stop(); });
             capturingAudio = false;
             mediaRec = null;
         }
 
         function formatTimer(sec) {
-            var m = String(Math.floor(sec / 60)).padStart(2, '0');
-            var s = String(sec % 60).padStart(2, '0');
-            return m + ':' + s;
+            return String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0');
         }
 
         function toggleVoiceCapture() {
@@ -1110,9 +1078,7 @@ const htmlContent = `<!DOCTYPE html>
             var timerEl = document.getElementById('rec-timer');
             if (!capturingAudio) {
                 recTargetPeer = currentPeer;
-                navigator.mediaDevices.getUserMedia({
-                    audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
-                }).then(function(stream) {
+                navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }).then(function(stream) {
                     var mimeType = pickSupportedAudioMime();
                     var recOpts = mimeType ? { mimeType: mimeType } : {};
                     if (isWeakNetworkMode()) recOpts.audioBitsPerSecond = 16000;
@@ -1128,13 +1094,9 @@ const htmlContent = `<!DOCTYPE html>
                         if (blob.size > 0) {
                             var reader = new FileReader();
                             reader.onloadend = function() {
-                                if (reader.result) {
-                                    emitPacket(destPeer, 'audio', 'رسالة صوتية', reader.result, 'voice-note');
-                                }
+                                if (reader.result) emitPacket(destPeer, 'audio', 'رسالة صوتية', reader.result, 'voice-note');
                             };
                             reader.readAsDataURL(blob);
-                        } else {
-                            alert('لم يتم التقاط صوت كافٍ، حاول الضغط لفترة أطول قليلاً.');
                         }
                     };
                     mediaRec.start(250);
@@ -1147,21 +1109,14 @@ const htmlContent = `<!DOCTYPE html>
                         timerEl.textContent = formatTimer(recSeconds);
                     }, 1000);
                     btn.className = 'bg-red-600 text-white p-2.5 rounded-xl animate-pulse';
-                }).catch(function() {
-                    resetVoiceUi(null);
-                    alert('يرجى السماح بالوصول إلى الميكروفون.');
-                });
+                }).catch(function() { resetVoiceUi(null); alert('يرجى السماح بالوصول إلى الميكروفون.'); });
             } else {
                 try {
                     if (mediaRec && mediaRec.state !== 'inactive') {
                         if (mediaRec.requestData) mediaRec.requestData();
                         mediaRec.stop();
-                    } else {
-                        resetVoiceUi(null);
-                    }
-                } catch (e) {
-                    resetVoiceUi(null);
-                }
+                    } else { resetVoiceUi(null); }
+                } catch (e) { resetVoiceUi(null); }
             }
         }
 
@@ -1187,15 +1142,8 @@ const htmlContent = `<!DOCTYPE html>
             if (!acctThreads[senderId]) acctThreads[senderId] = {};
             if (!acctThreads[senderId][cleanTo]) acctThreads[senderId][cleanTo] = [];
             var entry = {
-                id: msgId,
-                from: 'me',
-                kind: kind,
-                text: text,
-                mediaUrl: mediaUrl,
-                fileName: fileName,
-                delivered: liveDelivered,
-                read: false,
-                status: liveDelivered ? 'delivered' : 'sent'
+                id: msgId, from: 'me', kind: kind, text: text, mediaUrl: mediaUrl, fileName: fileName,
+                delivered: liveDelivered, read: false, status: liveDelivered ? 'delivered' : 'sent'
             };
             if (!existingMsgId) {
                 acctThreads[senderId][cleanTo].push(entry);
@@ -1204,9 +1152,7 @@ const htmlContent = `<!DOCTYPE html>
                     return m.id === existingMsgId ? Object.assign({}, m, { delivered: liveDelivered, status: liveDelivered ? (m.read ? 'read' : 'delivered') : 'sent' }) : m;
                 });
             }
-            if (normalizeStr(cleanTo) !== normalizeStr(currentPeer) && !forcedSender) {
-                currentPeer = cleanTo;
-            }
+            if (normalizeStr(cleanTo) !== normalizeStr(currentPeer) && !forcedSender) currentPeer = cleanTo;
             persistAndDraw();
             sendSignalingOrMsg({ type: 'msg', to: cleanTo, from: senderId, msgId: msgId, kind: kind, text: text, mediaUrl: mediaUrl, fileName: fileName });
         }
@@ -1214,8 +1160,7 @@ const htmlContent = `<!DOCTYPE html>
         function retryMessage(msgId) {
             var list = getThreadMap()[currentPeer] || [];
             var item = list.find(function(m) { return m.id === msgId; });
-            if (!item) return;
-            emitPacket(currentPeer, item.kind, item.text, item.mediaUrl, item.fileName, item.id);
+            if (item) emitPacket(currentPeer, item.kind, item.text, item.mediaUrl, item.fileName, item.id);
         }
 
         function sendTextMsg() {
@@ -1231,9 +1176,7 @@ const htmlContent = `<!DOCTYPE html>
         function openDeleteModal(msgId, isMine) {
             pendingDeleteMsgId = msgId;
             var delAllBtn = document.getElementById('del-everyone-btn');
-            if (delAllBtn) {
-                delAllBtn.classList.toggle('hidden', !isMine);
-            }
+            if (delAllBtn) delAllBtn.classList.toggle('hidden', !isMine);
             document.getElementById('delete-modal').classList.remove('hidden');
         }
 
@@ -1249,28 +1192,20 @@ const htmlContent = `<!DOCTYPE html>
             var map = getThreadMap();
             if (!map[currentPeer]) return;
             map[currentPeer] = map[currentPeer].map(function(m) {
-                if (m.id !== msgId) return m;
-                return Object.assign({}, m, { deleted: true, deletedBy: mode === 'all' ? 'all' : 'me' });
+                return m.id === msgId ? Object.assign({}, m, { deleted: true, deletedBy: mode === 'all' ? 'all' : 'me' }) : m;
             });
             persistAndDraw();
-            if (mode === 'all') {
-                sendSignalingOrMsg({ type: 'msg_del_all', to: currentPeer, from: activeAcct, msgId: msgId });
-            }
+            if (mode === 'all') sendSignalingOrMsg({ type: 'msg_del_all', to: currentPeer, from: activeAcct, msgId: msgId });
         }
 
-        function clearThreadMsgs() {
-            getThreadMap()[currentPeer] = [];
-            persistAndDraw();
-        }
+        function clearThreadMsgs() { getThreadMap()[currentPeer] = []; persistAndDraw(); }
 
         function polishDraft() {
             var inp = document.getElementById('msg-box-input');
             var raw = inp.value.trim();
             if (!raw) return alert('اكتب نصاً أولاً لتحسين صياغته.');
             var cleaned = raw.replace(/\s+/g, ' ');
-            if (cleaned.indexOf('السلام') !== 0 && cleaned.length < 40) {
-                cleaned = 'تحية طيبة، ' + cleaned;
-            }
+            if (cleaned.indexOf('السلام') !== 0 && cleaned.length < 40) cleaned = 'تحية طيبة، ' + cleaned;
             inp.value = /[.!؟]$/.test(cleaned) ? cleaned : cleaned + '.';
         }
 
@@ -1321,13 +1256,11 @@ const htmlContent = `<!DOCTYPE html>
             if (!q) return;
             var log = document.getElementById('ai-log');
             log.innerHTML += '<div class="bg-blue-950/50 p-2 rounded-lg text-blue-200"><strong>أنت:</strong> ' + q + '</div>';
-            var reply = 'مساعد سند AI v7.1 جاهز: يدعم المزامنة الهجينة وضغط الصوت في الشبكات الضعيفة 1X، طابور إرسال تلقائي، تلخيص المحادثات، والردود الذكية.';
+            var reply = 'مساعد سند AI v7.2 جاهز: مزامنة فورية عبر /api/sync و WebSocket مع دعم الشبكات الضعيفة 1X.';
             if (q.indexOf('1x') !== -1 || q.indexOf('شبك') !== -1 || q.indexOf('صوت') !== -1) {
-                reply = 'على الشبكات الضعيفة أو 1X: فعّل «وضع الشبكة الضعيفة / 1X» لتقليل معدل نقل الصوت وتقليل إطارات الفيديو وطلبات المزامنة مع الاحتفاظ بطابور إعادة الإرسال.';
+                reply = 'على الشبكات الضعيفة أو 1X: يتم تقليل معدل نقل الصوت وإطارات الفيديو وطلبات المزامنة مع إبقاء طابور إعادة الإرسال.';
             } else if (q.indexOf('صياغ') !== -1 || q.indexOf('رسالة') !== -1 || q.indexOf('اكتب') !== -1) {
                 reply = 'صياغة مقترحة: «السلام عليكم ورحمة الله وبركاته، يسعدنا تواصلكم ونفيدكم بأن كل شيء جاهز ومحدّث، شاكرين تعاونكم.»';
-            } else if (q.indexOf('مهام') !== -1 || q.indexOf('خطة') !== -1) {
-                reply = 'خطة سريعة: 1) تأكد من وضوح الصوت في المكالمات. 2) اختبر إرسال واستقبال الرسائل الفورية. 3) جرّب فحص أرقام المشتركين في سند.';
             }
             log.innerHTML += '<div class="bg-slate-900 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> ' + reply + '</div>';
             inp.value = '';
@@ -1336,11 +1269,8 @@ const htmlContent = `<!DOCTYPE html>
 
         function exportBackup() {
             var data = JSON.stringify({ activeAcct: activeAcct, myAccts: myAccts, contacts: contacts, acctThreads: acctThreads });
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(data).then(function() { alert('تم نسخ النسخة الاحتياطية إلى الحافظة.'); });
-            } else {
-                prompt('انسخ بيانات النسخة الاحتياطية:', data);
-            }
+            if (navigator.clipboard) navigator.clipboard.writeText(data).then(function() { alert('تم نسخ النسخة الاحتياطية إلى الحافظة.'); });
+            else prompt('انسخ بيانات النسخة الاحتياطية:', data);
         }
 
         function importBackup() {
@@ -1355,14 +1285,11 @@ const htmlContent = `<!DOCTYPE html>
                 persistAndDraw();
                 sendSignalingOrMsg({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
                 alert('تمت استعادة النسخة الاحتياطية بنجاح.');
-            } catch (e) {
-                alert('صيغة النسخة الاحتياطية غير صحيحة.');
-            }
+            } catch (e) { alert('صيغة النسخة الاحتياطية غير صحيحة.'); }
         }
 
         function markCurrentThreadAsRead() {
-            var map = getThreadMap();
-            var list = map[currentPeer] || [];
+            var list = getThreadMap()[currentPeer] || [];
             list.forEach(function(m) {
                 if (m.from === 'them' && !m.deleted && m.id) {
                     sendSignalingOrMsg({ type: 'msg_read', to: currentPeer, from: activeAcct, msgId: m.id });
@@ -1381,13 +1308,8 @@ const htmlContent = `<!DOCTYPE html>
             var activeBtn = document.getElementById('btn-' + p);
             if (activeBtn) activeBtn.className = 'flex flex-col items-center gap-1 text-blue-400 font-bold text-[10px] px-2 py-1';
             var callInp = document.getElementById('call-input');
-            if (p === 'calls' && callInp && !callInp.value.trim()) {
-                callInp.value = currentPeer || '';
-            }
-            if (p === 'chats') {
-                renderMsgs();
-                markCurrentThreadAsRead();
-            }
+            if (p === 'calls' && callInp && !callInp.value.trim()) callInp.value = currentPeer || '';
+            if (p === 'chats') { renderMsgs(); markCurrentThreadAsRead(); }
         }
 
         function choosePeer(id) {
@@ -1403,9 +1325,7 @@ const htmlContent = `<!DOCTYPE html>
             markCurrentThreadAsRead();
         }
 
-        function onTopPeerSearchInput() {
-            renderPresence();
-        }
+        function onTopPeerSearchInput() { renderPresence(); }
 
         function openPeerByInput() {
             var inp = document.getElementById('peer-input');
@@ -1416,13 +1336,9 @@ const htmlContent = `<!DOCTYPE html>
                 return normalizeStr(c.id) === normalizeStr(val) || normalizeStr(c.name) === normalizeStr(val);
             });
             if (inp) inp.value = '';
-            if (exact) {
-                choosePeer(exact.id);
-            } else if (matches.length === 1) {
-                choosePeer(matches[0].id);
-            } else {
-                choosePeer(val);
-            }
+            if (exact) choosePeer(exact.id);
+            else if (matches.length === 1) choosePeer(matches[0].id);
+            else choosePeer(val);
         }
 
         function openFirstMatchedContact() {
@@ -1430,9 +1346,7 @@ const htmlContent = `<!DOCTYPE html>
             var val = searchInp ? searchInp.value.trim() : '';
             if (!val) return;
             var matches = findContactMatches(val);
-            if (matches.length) {
-                choosePeer(matches[0].id);
-            }
+            if (matches.length) choosePeer(matches[0].id);
         }
 
         function saveCurrentPeer() {
@@ -1455,32 +1369,22 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function deleteContactById(id) {
-            contacts = contacts.filter(function(c) {
-                return normalizeStr(c.id) !== normalizeStr(id);
-            });
+            contacts = contacts.filter(function(c) { return normalizeStr(c.id) !== normalizeStr(id); });
             persistAndDraw();
         }
 
         function shareInviteLink() {
             var msg = 'تواصل معي على سند AI عبر المعرّف: ' + activeAcct + ' على الرابط: ' + location.origin;
-            if (navigator.share) {
-                navigator.share({ title: 'سند AI', text: msg, url: location.origin }).catch(function() {});
-            } else if (navigator.clipboard) {
-                navigator.clipboard.writeText(msg);
-                alert('تم نسخ الدعوة: ' + msg);
-            } else {
-                alert(msg);
-            }
+            if (navigator.share) navigator.share({ title: 'سند AI', text: msg, url: location.origin }).catch(function() {});
+            else if (navigator.clipboard) { navigator.clipboard.writeText(msg); alert('تم نسخ الدعوة: ' + msg); }
+            else alert(msg);
         }
 
         function showGeneratedCodeBanner(code8) {
             lastGeneratedCode = code8;
             var banner = document.getElementById('last-generated-banner');
             var txt = document.getElementById('last-generated-text');
-            if (banner && txt) {
-                txt.textContent = 'المعرّف الجديد: ' + code8;
-                banner.classList.remove('hidden');
-            }
+            if (banner && txt) { txt.textContent = 'المعرّف الجديد: ' + code8; banner.classList.remove('hidden'); }
         }
 
         function make8DigitId() {
@@ -1526,39 +1430,42 @@ const htmlContent = `<!DOCTYPE html>
             var dot = document.getElementById('peer-dot');
             var lbl = document.getElementById('peer-status');
             var pTitle = document.getElementById('peer-title');
-            pTitle.textContent = matchedPeer ? (matchedPeer.name + ' • ' + currentPeer) : currentPeer;
-            if (isOn) {
-                dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping';
-                lbl.className = 'text-[11px] font-bold text-emerald-400 whitespace-nowrap';
-                lbl.textContent = 'متصل الآن';
-            } else {
-                dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-600';
-                lbl.className = 'text-[11px] font-bold text-slate-400 whitespace-nowrap';
-                lbl.textContent = 'غير متصل';
+            if (pTitle) pTitle.textContent = matchedPeer ? (matchedPeer.name + ' • ' + currentPeer) : currentPeer;
+            if (dot && lbl) {
+                if (isOn) {
+                    dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping';
+                    lbl.className = 'text-[11px] font-bold text-emerald-400 whitespace-nowrap';
+                    lbl.textContent = 'متصل الآن';
+                } else {
+                    dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-600';
+                    lbl.className = 'text-[11px] font-bold text-slate-400 whitespace-nowrap';
+                    lbl.textContent = 'غير متصل';
+                }
             }
 
             var topInp = document.getElementById('peer-input');
             var topVal = topInp ? topInp.value.trim() : '';
             var chipList = findContactMatches(topVal);
             var chips = document.getElementById('quick-chips');
-            chips.innerHTML = '<span class="text-[11px] text-slate-400 shrink-0">وصول سريع:</span>' + chipList.map(function(c) {
-                var on = onlinePeers.has(c.id);
-                return '<button onclick="choosePeer(\'' + c.id + '\')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] shrink-0 ' +
-                    (c.id === currentPeer ? 'bg-blue-600/25 border-blue-500 text-white font-bold' : 'bg-slate-800/80 border-slate-700 text-slate-300') + '">' +
-                    '<span class="w-2 h-2 rounded-full ' + (on ? 'bg-emerald-400' : 'bg-slate-500') + '"></span>' +
-                    '<span>' + c.name + '</span></button>';
-            }).join('');
+            if (chips) {
+                chips.innerHTML = '<span class="text-[11px] text-slate-400 shrink-0">وصول سريع:</span>' + chipList.map(function(c) {
+                    var on = onlinePeers.has(c.id);
+                    return '<button onclick="choosePeer(\'' + c.id + '\')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] shrink-0 ' +
+                        (c.id === currentPeer ? 'bg-blue-600/25 border-blue-500 text-white font-bold' : 'bg-slate-800/80 border-slate-700 text-slate-300') + '">' +
+                        '<span class="w-2 h-2 rounded-full ' + (on ? 'bg-emerald-400' : 'bg-slate-500') + '"></span>' +
+                        '<span>' + c.name + '</span></button>';
+                }).join('');
+            }
 
             var searchInp = document.getElementById('contact-search-input');
             var q = searchInp ? searchInp.value.trim() : '';
             var filtered = findContactMatches(q);
             var onlineCount = filtered.filter(function(c) { return onlinePeers.has(c.id); }).length;
             var summaryBadge = document.getElementById('contacts-summary-badge');
-            if (summaryBadge) {
-                summaryBadge.textContent = filtered.length + ' جهة (' + onlineCount + ' متصل)';
-            }
+            if (summaryBadge) summaryBadge.textContent = filtered.length + ' جهة (' + onlineCount + ' متصل)';
 
             var cBox = document.getElementById('contacts-list');
+            if (!cBox) return;
             if (!filtered.length) {
                 cBox.innerHTML = '<div class="text-center text-xs text-slate-500 py-6">لا توجد نتائج مطابقة للبحث.</div>';
                 return;
@@ -1581,20 +1488,15 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function buildDeliveryBadge(m) {
-            if (m.read || m.status === 'read') {
-                return '<span class="text-emerald-300 font-bold">مقروءة ✓✓</span>';
-            }
-            if (m.delivered || m.status === 'delivered') {
-                return '<span class="text-blue-100 font-semibold">مستلمة ✓✓</span>';
-            }
-            if (m.delivered === false) {
-                return '<span class="text-amber-200">مرسلة ✓ • <button onclick="retryMessage(\'' + m.id + '\')" class="underline">إعادة إرسال</button></span>';
-            }
+            if (m.read || m.status === 'read') return '<span class="text-emerald-300 font-bold">مقروءة ✓✓</span>';
+            if (m.delivered || m.status === 'delivered') return '<span class="text-blue-100 font-semibold">مستلمة ✓✓</span>';
+            if (m.delivered === false) return '<span class="text-amber-200">مرسلة ✓ • <button onclick="retryMessage(\'' + m.id + '\')" class="underline">إعادة إرسال</button></span>';
             return '<span>مرسلة ✓</span>';
         }
 
         function renderMsgs() {
             var box = document.getElementById('msgs-box');
+            if (!box) return;
             var list = getThreadMap()[currentPeer] || [];
             if (!list.length) {
                 box.innerHTML = '<div class="text-center text-xs text-slate-500 py-8">ابدأ المراسلة أو أرسل صوتاً أو مرفقاً أو ابدأ مكالمة.</div>';
@@ -1607,16 +1509,10 @@ const htmlContent = `<!DOCTYPE html>
                 }
                 var mine = m.from === 'me';
                 var body = '<p class="whitespace-pre-wrap break-words">' + m.text + '</p>';
-                if (m.kind === 'audio' && m.mediaUrl) {
-                    body = '<audio controls preload="metadata" src="' + m.mediaUrl + '" class="max-w-full h-9"></audio>';
-                } else if (m.kind === 'image' && m.mediaUrl) {
-                    body = '<img src="' + m.mediaUrl + '" alt="' + (m.fileName || 'صورة') + '" class="max-w-full max-h-56 rounded-xl object-contain"><p class="text-[11px] mt-1">' + m.text + '</p>';
-                } else if (m.kind === 'file' && m.mediaUrl) {
-                    body = '<a href="' + m.mediaUrl + '" download="' + (m.fileName || 'file') + '" class="underline flex items-center gap-1.5 text-xs"><i class="fa-solid fa-file-arrow-down"></i><span>' + (m.fileName || m.text) + '</span></a>';
-                }
-                var speakBtn = (m.kind === 'text' && m.text)
-                    ? '<button onclick="speakText(\'' + String(m.text).replace(/'/g, '') + '\')" class="underline text-blue-100">استماع</button>'
-                    : '';
+                if (m.kind === 'audio' && m.mediaUrl) body = '<audio controls preload="metadata" src="' + m.mediaUrl + '" class="max-w-full h-9"></audio>';
+                else if (m.kind === 'image' && m.mediaUrl) body = '<img src="' + m.mediaUrl + '" alt="' + (m.fileName || 'صورة') + '" class="max-w-full max-h-56 rounded-xl object-contain"><p class="text-[11px] mt-1">' + m.text + '</p>';
+                else if (m.kind === 'file' && m.mediaUrl) body = '<a href="' + m.mediaUrl + '" download="' + (m.fileName || 'file') + '" class="underline flex items-center gap-1.5 text-xs"><i class="fa-solid fa-file-arrow-down"></i><span>' + (m.fileName || m.text) + '</span></a>';
+                var speakBtn = (m.kind === 'text' && m.text) ? '<button onclick="speakText(\'' + String(m.text).replace(/'/g, '') + '\')" class="underline text-blue-100">استماع</button>' : '';
                 var deliveryLabel = mine ? buildDeliveryBadge(m) : '<span class="text-emerald-300 font-semibold">مستلمة ✓✓</span>';
                 return '<div class="flex ' + (mine ? 'justify-end' : 'justify-start') + '">' +
                     '<div class="' + (mine ? 'bg-blue-600 text-white rounded-tl-none' : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tr-none') + ' p-3 rounded-2xl max-w-md text-xs md:text-sm shadow space-y-1">' +
@@ -1634,6 +1530,7 @@ const htmlContent = `<!DOCTYPE html>
             var badge = document.getElementById('accounts-count-badge');
             if (badge) badge.textContent = myAccts.length + (myAccts.length === 1 ? ' رقم' : ' أرقام');
             var box = document.getElementById('accounts-list');
+            if (!box) return;
             box.innerHTML = myAccts.map(function(id) {
                 return '<div onclick="activateAccount(\'' + id + '\')" class="bg-slate-950 border ' + (id === activeAcct ? 'border-blue-500' : 'border-slate-800') + ' p-3 rounded-xl flex justify-between items-center cursor-pointer">' +
                     '<span class="text-xs font-mono font-bold text-white">' + id + '</span>' +
@@ -1642,13 +1539,9 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function persistAndDraw() {
-            try {
-                localStorage.setItem('sanad6_active', activeAcct);
-                localStorage.setItem('sanad6_accts', JSON.stringify(myAccts));
-                localStorage.setItem('sanad6_contacts', JSON.stringify(contacts));
-                localStorage.setItem('sanad6_acct_threads', JSON.stringify(acctThreads));
-            } catch (e) {}
-            document.getElementById('active-acct-label').textContent = activeAcct;
+            persistState();
+            var acctLbl = document.getElementById('active-acct-label');
+            if (acctLbl) acctLbl.textContent = activeAcct;
             updateNetModeBadge();
             updateQueueBadge();
             renderPresence();
@@ -1656,16 +1549,30 @@ const htmlContent = `<!DOCTYPE html>
             renderAccts();
         }
 
+        function startSyncLoop() {
+            pollHttpSync();
+            postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
+            openSocket();
+
+            setInterval(function() {
+                pollHttpSync();
+                if (!ws || ws.readyState > 1) openSocket();
+            }, 2500);
+        }
+
         document.addEventListener('visibilitychange', function() {
-            if (!document.hidden && activePane === 'chats') {
-                markCurrentThreadAsRead();
+            if (!document.hidden) {
+                pollHttpSync();
+                if (activePane === 'chats') markCurrentThreadAsRead();
             }
         });
 
+        window.addEventListener('online', function() { reconnectNow(); });
+
+        document.getElementById('device-badge').textContent = detectDevice();
+        loadSavedState();
         persistAndDraw();
-        openSocket();
-        postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
-        pollHttpSync();
+        startSyncLoop();
     </script>
 </body>
 </html>`;
@@ -1779,9 +1686,7 @@ const server = http.createServer((req, res) => {
                 } else if (data.to) {
                     const destId = String(data.to).trim();
                     const deliveredLive = sendToIdSockets(destId, JSON.stringify(data));
-                    if (!deliveredLive) {
-                        enqueueHttpEvent(destId, data);
-                    }
+                    if (!deliveredLive) enqueueHttpEvent(destId, data);
                 }
             } catch (e) {}
             res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -1823,9 +1728,7 @@ wss.on('connection', (ws) => {
         if (data.to) {
             const destId = String(data.to).trim();
             const deliveredLive = sendToIdSockets(destId, JSON.stringify(data));
-            if (!deliveredLive) {
-                enqueueHttpEvent(destId, data);
-            }
+            if (!deliveredLive) enqueueHttpEvent(destId, data);
         }
     });
 
@@ -1836,5 +1739,5 @@ wss.on('connection', (ws) => {
 });
 
 server.listen(PORT, () => {
-    console.log('Sanad AI v7.1 running on port ' + PORT);
+    console.log('Sanad AI v7.2 running on port ' + PORT);
 });

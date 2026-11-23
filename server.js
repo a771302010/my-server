@@ -1225,6 +1225,9 @@ const htmlContent = `<!DOCTYPE html>
 
         function pollHttpSync() {
             var normIds = myAccts.map(cleanIdValue).filter(Boolean);
+            if (activeAcct && normIds.indexOf(cleanIdValue(activeAcct)) === -1) {
+                normIds.unshift(cleanIdValue(activeAcct));
+            }
             var q = encodeURIComponent(normIds.join(','));
             return fetch('/api/sync?ids=' + q, { cache: 'no-store' }).then(function(res) {
                 if (!res || !res.ok) return null;
@@ -1247,6 +1250,17 @@ const htmlContent = `<!DOCTYPE html>
             });
         }
 
+        function syncPresenceNow() {
+            var idsList = myAccts.map(cleanIdValue).filter(Boolean);
+            var cur = cleanIdValue(activeAcct);
+            if (cur && idsList.indexOf(cur) === -1) idsList.unshift(cur);
+            if (ws && ws.readyState === 1) {
+                try { ws.send(JSON.stringify({ type: 'register_ids', ids: idsList, activeId: cur })); } catch (e) {}
+            }
+            postHttpSync({ type: 'register_ids', ids: idsList, activeId: cur });
+            pollHttpSync();
+        }
+
         function openSocket() {
             try {
                 if (typeof WebSocket === 'undefined') return;
@@ -1256,9 +1270,7 @@ const htmlContent = `<!DOCTYPE html>
                     wsConnected = true;
                     serverReachable = true;
                     setHeaderStatus('متصل', true);
-                    try {
-                        ws.send(JSON.stringify({ type: 'register_ids', ids: myAccts.map(cleanIdValue), activeId: cleanIdValue(activeAcct) }));
-                    } catch (e) {}
+                    syncPresenceNow();
                     flushOutboxQueue();
                 };
                 ws.onclose = function() { wsConnected = false; };
@@ -1273,8 +1285,7 @@ const htmlContent = `<!DOCTYPE html>
             setHeaderStatus('متصل', true);
             if (ws) { try { ws.close(); } catch (e) {} }
             openSocket();
-            postHttpSync({ type: 'register_ids', ids: myAccts.map(cleanIdValue), activeId: cleanIdValue(activeAcct) });
-            pollHttpSync();
+            syncPresenceNow();
         }
 
         function sendSignalingOrMsg(payload) {
@@ -1287,11 +1298,10 @@ const htmlContent = `<!DOCTYPE html>
             if (ws && ws.readyState === 1) {
                 try { ws.send(JSON.stringify(enriched)); sentWs = true; } catch (e) {}
             }
-            if (!sentWs || !isWeakNetworkMode() || !serverReachable) {
+            if (!sentWs || !serverReachable) {
                 postHttpSync(enriched);
-            } else {
-                outboxQueue.push(enriched);
-                updateQueueBadge();
+            } else if (enriched.type === 'call_sig' || enriched.type === 'register_ids') {
+                postHttpSync(enriched);
             }
         }
 
@@ -1428,6 +1438,7 @@ const htmlContent = `<!DOCTYPE html>
             activeCallMode = mode || 'audio';
             stopRingtoneLoop();
             startCallTimer();
+            syncPresenceNow();
             document.getElementById('call-modal').classList.remove('hidden');
             document.getElementById('call-peer-title').textContent = formatPeerDisplay(target);
             document.getElementById('call-status-msg').textContent = (activeCallMode === 'video' ? 'اتصال فيديو — ' : 'اتصال صوتي — ') + 'جاري الاتصال...';
@@ -2046,7 +2057,7 @@ const htmlContent = `<!DOCTYPE html>
                 if (parsed.acctThreads && typeof parsed.acctThreads === 'object') acctThreads = parsed.acctThreads;
                 if (parsed.pinnedByThread && typeof parsed.pinnedByThread === 'object') pinnedByThread = parsed.pinnedByThread;
                 persistAndDraw();
-                sendSignalingOrMsg({ type: 'register_ids', ids: myAccts.map(cleanIdValue), activeId: cleanIdValue(activeAcct) });
+                syncPresenceNow();
                 alert('تمت استعادة النسخة الاحتياطية بنجاح.');
             } catch (e) { alert('صيغة النسخة الاحتياطية غير صحيحة.'); }
         }
@@ -2076,6 +2087,7 @@ const htmlContent = `<!DOCTYPE html>
             setPane('chats');
             persistAndDraw();
             markCurrentThreadAsRead();
+            pollHttpSync();
         }
 
         function onTopPeerSearchInput() { renderPresence(); }
@@ -2173,7 +2185,7 @@ const htmlContent = `<!DOCTYPE html>
             getThreadMap();
             setPane('chats');
             persistAndDraw();
-            sendSignalingOrMsg({ type: 'register_ids', ids: myAccts.map(cleanIdValue), activeId: activeAcct });
+            syncPresenceNow();
         }
 
         function renderPresence() {
@@ -2260,8 +2272,7 @@ const htmlContent = `<!DOCTYPE html>
         function buildDeliveryBadge(m) {
             if (m.read || m.status === 'read') return '<span class="text-emerald-200 font-bold shrink-0">تم قراءتها</span>';
             if (m.delivered || m.status === 'delivered') return '<span class="text-teal-100 font-semibold shrink-0">مستلمة</span>';
-            if (m.delivered === false) return '<span class="text-amber-200 shrink-0">مرسلة • <button type="button" onclick="retryMessage(\\'' + escapeJsSingle(m.id) + '\\')" class="underline">إعادة إرسال</button></span>';
-            return '<span class="shrink-0">مرسلة</span>';
+            return '<span class="shrink-0">مرسلة • <button type="button" onclick="retryMessage(\\'' + escapeJsSingle(m.id) + '\\')" class="underline">إعادة إرسال</button></span>';
         }
 
         function renderMsgs() {
@@ -2355,18 +2366,21 @@ const htmlContent = `<!DOCTYPE html>
         renderMsgs();
         applySanadPaneDisplay(window.__sanadCurrentTab || 'chats');
         setHeaderStatus('متصل', true);
-        postHttpSync({ type: 'register_ids', ids: myAccts.map(cleanIdValue), activeId: cleanIdValue(activeAcct) });
-        pollHttpSync();
+        syncPresenceNow();
         openSocket();
 
         setInterval(function() {
             pollHttpSync();
             if (!ws || ws.readyState > 1) openSocket();
-        }, 3000);
+        }, 1500);
+
+        window.addEventListener('focus', function() {
+            syncPresenceNow();
+        });
 
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
-                pollHttpSync();
+                syncPresenceNow();
                 if (activePane === 'chats') markCurrentThreadAsRead();
             }
         });

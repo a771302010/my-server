@@ -24,7 +24,7 @@ const htmlContent = `<!DOCTYPE html>
             background: radial-gradient(circle at top, #0f2142 0%, #060b16 58%, #03060c 100%);
         }
         .glass-panel {
-            background: rgba(15, 23, 42, 0.88);
+            background: rgba(15, 23, 42, 0.92);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
         }
@@ -32,20 +32,31 @@ const htmlContent = `<!DOCTYPE html>
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 9999px; }
         .privacy-blur { filter: blur(6px); user-select: none; cursor: pointer; transition: filter 0.2s ease; }
         .privacy-blur:hover, .privacy-blur.revealed { filter: none; user-select: auto; }
-        .pane-enter { animation: paneFadeIn 0.14s ease-out; }
-        @keyframes paneFadeIn {
-            from { opacity: 0.45; transform: translateY(3px); }
-            to { opacity: 1; transform: translateY(0); }
+        .sanad-pane {
+            display: none;
+            flex: 1 1 0%;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
         }
-        @keyframes tickerSlideSmart {
-            0% { transform: translateX(18%); opacity: 0.2; }
-            12% { transform: translateX(0%); opacity: 1; }
-            85% { transform: translateX(-6%); opacity: 1; }
-            100% { transform: translateX(-16%); opacity: 0.15; }
+        .sanad-pane.is-active {
+            display: flex !important;
+        }
+        .sanad-nav-btn {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            cursor: pointer;
+        }
+        @keyframes tickerFlowStart {
+            0% { transform: translateX(0%); opacity: 1; }
+            72% { transform: translateX(-18%); opacity: 1; }
+            88% { transform: translateX(-28%); opacity: 0.2; }
+            89% { transform: translateX(12%); opacity: 0.1; }
+            100% { transform: translateX(0%); opacity: 1; }
         }
         .smart-ticker-item {
             display: inline-block;
-            animation: tickerSlideSmart 9s ease-in-out infinite;
+            animation: tickerFlowStart 9s ease-in-out infinite;
         }
     </style>
 </head>
@@ -69,24 +80,24 @@ const htmlContent = `<!DOCTYPE html>
                 <div class="flex items-center gap-1.5 text-[11px] mt-1">
                     <span id="ws-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
                     <span id="ws-label" class="text-emerald-400 font-semibold">متصل</span>
-                    <button type="button" onclick="reconnectNow()" title="تحديث الربط" class="text-blue-400 hover:text-blue-300 px-1 transition">
+                    <button type="button" id="refresh-conn-btn" title="تحديث الربط" class="text-blue-400 hover:text-blue-300 px-1 transition">
                         <i class="fa-solid fa-rotate-right text-[10px]"></i>
                     </button>
                     <span id="queue-badge" class="hidden text-[10px] bg-amber-500/20 text-amber-300 px-1.5 rounded font-mono">0 معلّق</span>
                     <span class="text-slate-600">•</span>
-                    <span id="active-acct-label" class="font-mono font-bold text-blue-300"></span>
+                    <span id="active-acct-label" class="font-bold text-blue-300"></span>
                 </div>
             </div>
         </div>
 
         <div class="flex items-center gap-1.5 shrink-0">
-            <button type="button" id="privacy-shield-btn" onclick="togglePrivacyShield()" title="وضع الخصوصية السريعة" class="w-9 h-9 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700/80 text-amber-300 flex items-center justify-center transition">
+            <button type="button" id="privacy-shield-btn" title="وضع الخصوصية السريعة" class="w-9 h-9 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700/80 text-amber-300 flex items-center justify-center transition">
                 <i id="privacy-shield-icon" class="fa-solid fa-eye text-xs"></i>
             </button>
-            <button type="button" onclick="launchCall('audio')" title="مكالمة صوتية" class="w-9 h-9 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white flex items-center justify-center transition">
+            <button type="button" id="hdr-audio-call-btn" title="مكالمة صوتية" class="w-9 h-9 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white flex items-center justify-center transition">
                 <i class="fa-solid fa-phone text-xs"></i>
             </button>
-            <button type="button" onclick="launchCall('video')" title="مكالمة فيديو" class="w-9 h-9 rounded-xl bg-blue-600/20 hover:bg-blue-600 border border-blue-500/40 text-blue-300 hover:text-white flex items-center justify-center transition">
+            <button type="button" id="hdr-video-call-btn" title="مكالمة فيديو" class="w-9 h-9 rounded-xl bg-blue-600/20 hover:bg-blue-600 border border-blue-500/40 text-blue-300 hover:text-white flex items-center justify-center transition">
                 <i class="fa-solid fa-video text-xs"></i>
             </button>
         </div>
@@ -97,11 +108,11 @@ const htmlContent = `<!DOCTYPE html>
             <i class="fa-solid fa-bolt ml-1"></i>سند AI
         </span>
         <div class="flex-1 overflow-hidden whitespace-nowrap text-slate-200">
-            <span id="smart-news-ticker" class="smart-ticker-item">مرحباً بك في سند للذكاء الاصطناعي — مراسلة فورية، مكالمات صوتية ومرئية، مجموعات ذكية، وذاكرة محادثات متكاملة.</span>
+            <span id="smart-news-ticker" class="smart-ticker-item">سند للذكاء الاصطناعي: مراسلة فورية، مكالمات صوتية ومرئية، مجموعات ذكية، وذاكرة محادثات متكاملة.</span>
         </div>
     </div>
 
-    <div id="live-toast" onclick="jumpToToastChat()" class="hidden fixed top-16 left-3 right-3 max-w-md mx-auto bg-blue-950/95 border border-blue-400/50 text-white px-3.5 py-2.5 rounded-2xl shadow-2xl z-40 flex items-center justify-between gap-2 cursor-pointer text-xs">
+    <div id="live-toast" class="hidden fixed top-16 left-3 right-3 max-w-md mx-auto bg-blue-950/95 border border-blue-400/50 text-white px-3.5 py-2.5 rounded-2xl shadow-2xl z-40 flex items-center justify-between gap-2 cursor-pointer text-xs">
         <div class="min-w-0">
             <p id="toast-sender" class="font-black text-blue-200 truncate">رسالة جديدة</p>
             <p id="toast-body" class="text-slate-100 truncate">...</p>
@@ -172,11 +183,11 @@ const htmlContent = `<!DOCTYPE html>
         </div>
     </div>
 
-    <main id="main-panes-container" class="flex-1 flex flex-col overflow-hidden bg-transparent">
-        <section id="pane-chats" style="display:flex" class="flex-1 flex-col h-full overflow-hidden pane-enter">
+    <main id="main-panes-container" class="flex-1 flex flex-col min-h-0 overflow-hidden bg-transparent">
+        <section id="pane-chats" class="sanad-pane is-active">
             <div class="p-2.5 bg-slate-900/75 border-b border-slate-800/80 space-y-2 shrink-0">
                 <div class="flex gap-2">
-                    <input type="text" id="peer-input" oninput="onTopPeerSearchInput()" onkeydown="if(event.key==='Enter'){event.preventDefault();openPeerByInput();}" placeholder="ابحث بالاسم أو الكود أو الرقم..." class="flex-1 bg-slate-950/90 border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-blue-500 transition">
+                    <input type="text" id="peer-input" autocomplete="off" oninput="onTopPeerSearchInput()" onkeydown="if(event.key==='Enter'){event.preventDefault();openPeerByInput();}" placeholder="ابحث بالاسم أو الكود أو الرقم..." class="flex-1 bg-slate-950/90 border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-blue-500 transition">
                     <button type="button" onclick="openPeerByInput()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm">فتح</button>
                     <button type="button" onclick="saveCurrentPeer()" title="حفظ في الجهات" class="bg-slate-800/90 hover:bg-slate-700 border border-slate-700/80 text-emerald-400 px-3 py-2 rounded-xl text-xs font-bold transition">
                         <i class="fa-solid fa-user-plus"></i>
@@ -187,9 +198,9 @@ const htmlContent = `<!DOCTYPE html>
 
             <div class="px-4 py-2 bg-slate-950/75 border-b border-slate-800/80 flex justify-between items-center text-xs shrink-0">
                 <div class="flex items-center gap-2 min-w-0">
-                    <span id="peer-dot" class="w-2.5 h-2.5 rounded-full bg-slate-600 shrink-0"></span>
-                    <span id="peer-title" class="font-bold text-white font-mono truncate">سند AI</span>
-                    <span id="peer-status" class="text-[11px] font-bold text-slate-400 shrink-0 whitespace-nowrap">غير متصل</span>
+                    <span id="peer-dot" class="w-2.5 h-2.5 rounded-full bg-indigo-400 shrink-0"></span>
+                    <span id="peer-title" class="font-bold text-white truncate">سند AI</span>
+                    <span id="peer-status" class="text-[11px] font-bold text-indigo-300 shrink-0 whitespace-nowrap">مساعد ذكي</span>
                 </div>
                 <div class="flex items-center gap-2.5 shrink-0">
                     <button type="button" onclick="openMemoryVault()" title="خزينة ذاكرة المحادثة" class="text-cyan-400 hover:text-cyan-300 font-bold transition"><i class="fa-solid fa-vault"></i></button>
@@ -251,7 +262,7 @@ const htmlContent = `<!DOCTYPE html>
             </div>
         </section>
 
-        <section id="pane-groups" style="display:none" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3 pane-enter">
+        <section id="pane-groups" class="sanad-pane p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-slate-900/85 border border-slate-800/80 p-4 rounded-2xl space-y-3 shadow-lg">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-black text-cyan-400"><i class="fa-solid fa-users ml-1"></i> مجموعات التواصل</h2>
@@ -270,7 +281,7 @@ const htmlContent = `<!DOCTYPE html>
             <div id="groups-list" class="space-y-2"></div>
         </section>
 
-        <section id="pane-accounts" style="display:none" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4 pane-enter">
+        <section id="pane-accounts" class="sanad-pane p-4 overflow-y-auto custom-scrollbar space-y-4">
             <div class="bg-slate-900/85 border border-slate-800/80 p-4 rounded-2xl space-y-3 shadow-lg">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-black text-blue-400">إدارة الحسابات والمعرّفات</h2>
@@ -292,7 +303,7 @@ const htmlContent = `<!DOCTYPE html>
             </div>
         </section>
 
-        <section id="pane-contacts" style="display:none" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3 pane-enter">
+        <section id="pane-contacts" class="sanad-pane p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-slate-900/85 border border-slate-800/80 p-3.5 rounded-2xl space-y-2.5 shadow-lg">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-black text-emerald-400">جهات الاتصال</h2>
@@ -316,7 +327,7 @@ const htmlContent = `<!DOCTYPE html>
             <div id="contacts-list" class="space-y-2"></div>
         </section>
 
-        <section id="pane-calls" style="display:none" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4 pane-enter">
+        <section id="pane-calls" class="sanad-pane p-4 overflow-y-auto custom-scrollbar space-y-4">
             <div class="bg-slate-900/85 border border-slate-800/80 p-4 rounded-2xl space-y-3 text-center shadow-lg">
                 <div class="w-14 h-14 mx-auto rounded-2xl bg-blue-600/15 border border-blue-500/30 text-blue-400 flex items-center justify-center text-2xl">
                     <i class="fa-solid fa-phone-volume"></i>
@@ -339,10 +350,10 @@ const htmlContent = `<!DOCTYPE html>
             </div>
         </section>
 
-        <section id="pane-ai" style="display:none" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3 pane-enter">
+        <section id="pane-ai" class="sanad-pane p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-slate-900/85 border border-slate-800/80 p-4 rounded-2xl space-y-2.5 shadow-lg">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-sm font-black text-indigo-400"><i class="fa-solid fa-brain ml-1"></i> مساعد سند للذكاء الاصطناعي</h2>
+                    <h2 class="text-sm font-black text-indigo-400"><i class="fa-solid fa-brain ml-1"></i> سند للذكاء الاصطناعي (AI)</h2>
                     <span id="smart-tasks-count" class="text-[10px] font-mono bg-emerald-950/70 text-emerald-300 border border-emerald-700/40 px-2 py-0.5 rounded-full">0 مهام</span>
                 </div>
                 <div class="flex items-center justify-between bg-slate-950/90 p-3 rounded-xl border border-slate-800 text-xs">
@@ -377,28 +388,28 @@ const htmlContent = `<!DOCTYPE html>
         </section>
     </main>
 
-    <nav class="glass-panel border-t border-slate-800/80 px-1 py-2 flex justify-around items-center z-30 shrink-0">
-        <button type="button" onclick="setPane('chats')" id="btn-chats" class="flex flex-col items-center gap-1 text-blue-400 font-bold text-[10px] px-1.5 py-1 transition">
+    <nav id="sanad-bottom-nav" class="glass-panel border-t border-slate-800/80 px-1 py-2 flex justify-around items-center z-30 shrink-0">
+        <button type="button" data-pane="chats" id="btn-chats" class="sanad-nav-btn flex flex-col items-center gap-1 text-blue-400 font-bold text-[10px] px-1.5 py-1 transition">
             <i class="fa-solid fa-comments text-base"></i>
             <span>الدردشة</span>
         </button>
-        <button type="button" onclick="setPane('groups')" id="btn-groups" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition">
+        <button type="button" data-pane="groups" id="btn-groups" class="sanad-nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition">
             <i class="fa-solid fa-users text-base"></i>
             <span>المجموعات</span>
         </button>
-        <button type="button" onclick="setPane('accounts')" id="btn-accounts" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition">
+        <button type="button" data-pane="accounts" id="btn-accounts" class="sanad-nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition">
             <i class="fa-solid fa-id-card text-base"></i>
             <span>الحسابات</span>
         </button>
-        <button type="button" onclick="setPane('contacts')" id="btn-contacts" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition">
+        <button type="button" data-pane="contacts" id="btn-contacts" class="sanad-nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition">
             <i class="fa-solid fa-address-book text-base"></i>
             <span>الجهات</span>
         </button>
-        <button type="button" onclick="setPane('calls')" id="btn-calls" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition">
+        <button type="button" data-pane="calls" id="btn-calls" class="sanad-nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition">
             <i class="fa-solid fa-phone-volume text-base"></i>
             <span>المكالمات</span>
         </button>
-        <button type="button" onclick="setPane('ai')" id="btn-ai" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition">
+        <button type="button" data-pane="ai" id="btn-ai" class="sanad-nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition">
             <i class="fa-solid fa-brain text-base"></i>
             <span>الذكاء</span>
         </button>
@@ -407,8 +418,8 @@ const htmlContent = `<!DOCTYPE html>
     <script>
         var DEFAULT_PEER = 'سند AI';
         var SUPPORT_PEER = 'خدمة العملاء';
-        var activeAcct = 'مستخدم-سند';
-        var myAccts = ['مستخدم-سند'];
+        var activeAcct = 'حساب سند';
+        var myAccts = ['حساب سند'];
         var contacts = [
             { name: DEFAULT_PEER, id: DEFAULT_PEER },
             { name: SUPPORT_PEER, id: SUPPORT_PEER }
@@ -437,9 +448,9 @@ const htmlContent = `<!DOCTYPE html>
         var serverReachable = true;
 
         var tickerMessages = [
-            'مرحباً بك في سند للذكاء الاصطناعي — مراسلة فورية، مكالمات صوتية ومرئية، مجموعات ذكية، وذاكرة محادثات متكاملة.',
+            'سند للذكاء الاصطناعي: مراسلة فورية، مكالمات صوتية ومرئية، مجموعات ذكية، وذاكرة محادثات متكاملة.',
             'اكتب @سند داخل أي محادثة أو مجموعة للحصول على ملخص فوري أو خطوات عمل أو اقتراح قرار.',
-            'يمكنك التنقل بحرية بين الدردشة، المجموعات، الحسابات، الجهات، المكالمات، والذكاء الاصطناعي من الشريط السفلي.'
+            'اضغط على أي تبويب بالأسفل للتنقل بين الدردشة، المجموعات، الحسابات، الجهات، المكالمات، والذكاء.'
         ];
         var tickerIdx = 0;
 
@@ -581,8 +592,8 @@ const htmlContent = `<!DOCTYPE html>
 
         function getSortedContacts() {
             return contacts.slice().sort(function(a, b) {
-                var aOn = onlinePeers.has(a.id) ? 1 : 0;
-                var bOn = onlinePeers.has(b.id) ? 1 : 0;
+                var aOn = (a.id === DEFAULT_PEER || onlinePeers.has(a.id)) ? 1 : 0;
+                var bOn = (b.id === DEFAULT_PEER || onlinePeers.has(b.id)) ? 1 : 0;
                 if (aOn !== bOn) return bOn - aOn;
                 return String(a.name || '').localeCompare(String(b.name || ''), 'ar');
             });
@@ -632,12 +643,12 @@ const htmlContent = `<!DOCTYPE html>
             if (!acctThreads[activeAcct]) acctThreads[activeAcct] = {};
             if (!acctThreads[activeAcct][DEFAULT_PEER]) {
                 acctThreads[activeAcct][DEFAULT_PEER] = [
-                    { id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'أهلاً بك في سند للذكاء الاصطناعي. اكتب رسالتك أو استخدم @سند للملخصات والمهام والقرارات.' }
+                    { id: 'init-' + activeAcct, from: 'them', senderName: 'سند AI', kind: 'text', text: 'أهلاً بك في سند للذكاء الاصطناعي. اكتب رسالتك أو استخدم @سند للملخصات والمهام والقرارات.' }
                 ];
             }
             if (!acctThreads[activeAcct][SUPPORT_PEER]) {
                 acctThreads[activeAcct][SUPPORT_PEER] = [
-                    { id: 'sup-' + activeAcct, from: 'them', kind: 'text', text: 'مرحباً بك في قناة خدمة العملاء، اكتب استفسارك وسنكون معك.' }
+                    { id: 'sup-' + activeAcct, from: 'them', senderName: SUPPORT_PEER, kind: 'text', text: 'مرحباً بك في قناة خدمة العملاء، اكتب استفسارك وسنكون معك.' }
                 ];
             }
             return acctThreads[activeAcct];
@@ -693,7 +704,7 @@ const htmlContent = `<!DOCTYPE html>
             var lastText = list.length ? (list[list.length - 1].text || '') : '';
             var followMsg = lastText
                 ? ('متابعة سريعة بخصوص: «' + lastText.slice(0, 45) + (lastText.length > 45 ? '...' : '') + '» — هل يوجد تحديث؟')
-                : 'مرحباً، حبيت أتابع معك بخصوص موضوعنا الأخير.';
+                : 'مرحباً، أود المتابعة معك بخصوص موضوعنا الأخير.';
             emitPacket(currentPeer, 'text', followMsg, null, '', null, null, true);
         }
 
@@ -1830,40 +1841,44 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function setPane(p) {
-            try {
-                if (!p) p = 'chats';
-                activePane = p;
-                ['chats', 'groups', 'accounts', 'contacts', 'calls', 'ai'].forEach(function(item) {
-                    var sec = document.getElementById('pane-' + item);
-                    var isTarget = (item === p);
-                    if (sec) {
-                        sec.classList.toggle('hidden', !isTarget);
-                        sec.style.display = isTarget ? 'flex' : 'none';
-                    }
-                    var btn = document.getElementById('btn-' + item);
-                    if (btn) {
-                        btn.className = isTarget
-                            ? 'flex flex-col items-center gap-1 text-blue-400 font-bold text-[10px] px-1.5 py-1 transition'
-                            : 'flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition';
-                    }
-                });
-                if (p === 'groups') renderGroupsList();
-                else if (p === 'accounts') renderAccts();
-                else if (p === 'contacts') renderPresence();
-                else if (p === 'ai') renderSmartTasks();
-                else if (p === 'calls') {
-                    var callInp = document.getElementById('call-input');
-                    if (callInp && !callInp.value.trim() && currentPeer && currentPeer !== DEFAULT_PEER && currentPeer !== SUPPORT_PEER && !findGroupById(currentPeer)) {
-                        var foundPeer = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(currentPeer); });
-                        callInp.value = foundPeer ? (foundPeer.name + ' • ' + foundPeer.id) : currentPeer;
-                    }
-                    onCallDialInput();
-                } else if (p === 'chats') {
-                    renderPresence();
-                    renderMsgs();
-                    markCurrentThreadAsRead();
+            var target = p || 'chats';
+            activePane = target;
+            var panes = document.querySelectorAll('.sanad-pane');
+            panes.forEach(function(sec) {
+                var secId = sec.id ? sec.id.replace('pane-', '') : '';
+                if (secId === target) {
+                    sec.classList.add('is-active');
+                } else {
+                    sec.classList.remove('is-active');
                 }
-            } catch (e) {}
+            });
+
+            var navBtns = document.querySelectorAll('.sanad-nav-btn');
+            navBtns.forEach(function(btn) {
+                var btnPane = btn.getAttribute('data-pane');
+                var isSelected = (btnPane === target);
+                btn.classList.toggle('text-blue-400', isSelected);
+                btn.classList.toggle('font-bold', isSelected);
+                btn.classList.toggle('text-slate-400', !isSelected);
+                btn.classList.toggle('font-semibold', !isSelected);
+            });
+
+            if (target === 'groups') renderGroupsList();
+            else if (target === 'accounts') renderAccts();
+            else if (target === 'contacts') renderPresence();
+            else if (target === 'ai') renderSmartTasks();
+            else if (target === 'calls') {
+                var callInp = document.getElementById('call-input');
+                if (callInp && !callInp.value.trim() && currentPeer && currentPeer !== DEFAULT_PEER && currentPeer !== SUPPORT_PEER && !findGroupById(currentPeer)) {
+                    var foundPeer = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(currentPeer); });
+                    callInp.value = foundPeer ? (foundPeer.name + ' • ' + foundPeer.id) : currentPeer;
+                }
+                onCallDialInput();
+            } else if (target === 'chats') {
+                renderPresence();
+                renderMsgs();
+                markCurrentThreadAsRead();
+            }
         }
 
         function choosePeer(id) {
@@ -2012,9 +2027,9 @@ const htmlContent = `<!DOCTYPE html>
                     lbl.className = 'text-[11px] font-bold text-emerald-400 whitespace-nowrap';
                     lbl.textContent = 'متصل الآن';
                 } else {
-                    dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-600';
+                    dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-500';
                     lbl.className = 'text-[11px] font-bold text-slate-400 whitespace-nowrap';
-                    lbl.textContent = 'غير متصل';
+                    lbl.textContent = 'في الانتظار';
                 }
             }
 
@@ -2159,9 +2174,32 @@ const htmlContent = `<!DOCTYPE html>
             renderMsgs();
         }
 
+        function bindStaticControls() {
+            document.querySelectorAll('.sanad-nav-btn').forEach(function(btn) {
+                var p = btn.getAttribute('data-pane');
+                btn.addEventListener('click', function(ev) {
+                    ev.preventDefault();
+                    setPane(p);
+                });
+            });
+            var pInp = document.getElementById('peer-input');
+            if (pInp && pInp.value.toUpperCase() === 'ASYLO') pInp.value = '';
+            var privBtn = document.getElementById('privacy-shield-btn');
+            if (privBtn) privBtn.addEventListener('click', togglePrivacyShield);
+            var refBtn = document.getElementById('refresh-conn-btn');
+            if (refBtn) refBtn.addEventListener('click', reconnectNow);
+            var audBtn = document.getElementById('hdr-audio-call-btn');
+            if (audBtn) audBtn.addEventListener('click', function() { launchCall('audio'); });
+            var vidBtn = document.getElementById('hdr-video-call-btn');
+            if (vidBtn) vidBtn.addEventListener('click', function() { launchCall('video'); });
+            var toastEl = document.getElementById('live-toast');
+            if (toastEl) toastEl.addEventListener('click', jumpToToastChat);
+        }
+
         var devBadge = document.getElementById('device-badge');
         if (devBadge) devBadge.textContent = detectDevice();
         loadSavedState();
+        bindStaticControls();
         persistAndDraw();
         setPane('chats');
         setHeaderStatus('متصل', true);

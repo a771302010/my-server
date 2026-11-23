@@ -34,10 +34,8 @@ const manifestPayload = JSON.stringify({
   dir: 'rtl',
   lang: 'ar',
   icons: [
-    { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' },
-    { src: '/apple-touch-icon.png', sizes: '180x180', type: 'image/svg+xml', purpose: 'any' },
-    { src: '/icon-192.png', sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
-    { src: '/icon-512.png', sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
+    { src: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png', purpose: 'any' },
+    { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }
   ]
 });
 
@@ -48,11 +46,11 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#9e1424">
     <meta name="apple-mobile-web-app-title" content="سند">
+    <meta name="theme-color" content="#9e1424">
     <title>سند AI v8.4</title>
-    <link rel="icon" type="image/svg+xml" href="/icon.svg">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link id="sanad-favicon" rel="icon" type="image/svg+xml" href="/icon.svg">
+    <link id="sanad-apple-icon" rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -68,6 +66,122 @@ const htmlContent = `<!DOCTYPE html>
 <body class="text-slate-100 h-screen flex flex-col overflow-hidden select-none">
 
     <script>
+        (function generateSanadPngIcons() {
+            try {
+                var c = document.createElement('canvas');
+                c.width = 512;
+                c.height = 512;
+                var ctx = c.getContext('2d');
+                if (!ctx) return;
+
+                ctx.fillStyle = '#9e1424';
+                ctx.fillRect(0, 0, 512, 512);
+
+                ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+                ctx.lineWidth = 2;
+                var nodes = [[85, 95], [175, 65], [130, 185], [410, 120], [395, 385], [110, 395]];
+                for (var i = 0; i < nodes.length; i++) {
+                    for (var j = i + 1; j < nodes.length; j++) {
+                        ctx.beginPath();
+                        ctx.moveTo(nodes[i][0], nodes[i][1]);
+                        ctx.lineTo(nodes[j][0], nodes[j][1]);
+                        ctx.stroke();
+                    }
+                    ctx.beginPath();
+                    ctx.arc(nodes[i][0], nodes[i][1], 5, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+                    ctx.fill();
+                }
+
+                ctx.fillStyle = '#ffffff';
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(278, 126, 98, Math.PI * 0.12, Math.PI * 1.42, true);
+                ctx.arc(278, 126, 52, Math.PI * 1.42, Math.PI * 0.12, false);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.moveTo(226, 126);
+                ctx.bezierCurveTo(226, 178, 336, 182, 336, 236);
+                ctx.bezierCurveTo(336, 286, 255, 304, 174, 284);
+                ctx.lineTo(188, 240);
+                ctx.bezierCurveTo(240, 255, 288, 248, 288, 224);
+                ctx.bezierCurveTo(288, 198, 180, 194, 180, 126);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+
+                ctx.strokeStyle = '#9e1424';
+                ctx.lineWidth = 6;
+                ctx.beginPath();
+                ctx.moveTo(278, 78);
+                ctx.lineTo(220, 108);
+                ctx.lineTo(220, 152);
+                ctx.lineTo(295, 206);
+                ctx.lineTo(312, 252);
+                ctx.lineTo(256, 282);
+                ctx.stroke();
+
+                var netPts = [[278, 78], [220, 108], [220, 152], [295, 206], [312, 252], [256, 282]];
+                netPts.forEach(function(pt) {
+                    ctx.beginPath();
+                    ctx.arc(pt[0], pt[1], 11, 0, Math.PI * 2);
+                    ctx.fillStyle = '#9e1424';
+                    ctx.fill();
+                });
+
+                function drawMiniPerson(cx, cy, s) {
+                    ctx.save();
+                    ctx.translate(cx, cy);
+                    ctx.scale(s, s);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.arc(0, -14, 12, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.roundRect(-17, 2, 34, 24, 11);
+                    ctx.fill();
+                    ctx.restore();
+                }
+                drawMiniPerson(236, 182, 0.92);
+                drawMiniPerson(274, 180, 1.0);
+                drawMiniPerson(310, 185, 0.88);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.moveTo(64, 256);
+                ctx.bezierCurveTo(64, 340, 150, 378, 244, 378);
+                ctx.lineTo(244, 352);
+                ctx.bezierCurveTo(168, 352, 98, 322, 94, 256);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.moveTo(448, 256);
+                ctx.bezierCurveTo(448, 340, 362, 378, 268, 378);
+                ctx.lineTo(268, 352);
+                ctx.bezierCurveTo(344, 352, 414, 322, 418, 256);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.font = '900 94px Cairo, Tahoma, Arial, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('سند', 256, 428);
+
+                var dataUrl = c.toDataURL('image/png');
+                var appleEl = document.getElementById('sanad-apple-icon');
+                var favEl = document.getElementById('sanad-favicon');
+                if (appleEl) appleEl.setAttribute('href', dataUrl);
+                if (favEl) {
+                    favEl.setAttribute('type', 'image/png');
+                    favEl.setAttribute('href', dataUrl);
+                }
+            } catch (e) {}
+        })();
+
         var SANAD_TAB_LABELS = {
             chats: 'الدردشة',
             groups: 'المجموعات',
@@ -130,7 +244,7 @@ const htmlContent = `<!DOCTYPE html>
 
     <header class="bg-slate-900 border-b border-slate-800 px-3.5 py-2.5 flex justify-between items-center z-20 shrink-0">
         <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-b from-red-700 to-red-950 border border-red-400/40 flex flex-col items-center justify-center shrink-0">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-b from-[#9e1424] to-[#7d0e1b] border border-red-400/40 flex flex-col items-center justify-center shrink-0">
                 <span class="text-white font-black text-lg leading-none">S</span>
                 <i class="fa-solid fa-hands-holding-child text-[9px] text-red-100 mt-0.5"></i>
             </div>
@@ -2085,8 +2199,7 @@ const server = http.createServer((req, res) => {
     if (
         urlObj.pathname === '/icon.svg' ||
         urlObj.pathname === '/apple-touch-icon.png' ||
-        urlObj.pathname === '/icon-192.png' ||
-        urlObj.pathname === '/icon-512.png'
+        urlObj.pathname === '/apple-touch-icon-precomposed.png'
     ) {
         res.writeHead(200, { 'Content-Type': 'image/svg+xml; charset=utf-8', 'Cache-Control': 'public, max-age=86400' });
         res.end(sanadIconSvg);

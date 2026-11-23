@@ -12,7 +12,7 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0b4aa2">
-    <title>سند AI v6.9</title>
+    <title>سند AI v7.0</title>
     <link rel="icon" type="image/svg+xml" href="${sanadIconUri}">
     <link rel="apple-touch-icon" sizes="180x180" href="${sanadIconUri}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -41,10 +41,10 @@ const htmlContent = `<!DOCTYPE html>
     <!-- الشريط الإخباري الذكي الواضح -->
     <div class="bg-blue-700 border-b border-blue-300/50 py-1.5 px-2.5 overflow-hidden text-xs text-white z-30 shrink-0 shadow">
         <div class="ticker-line gap-8 font-bold tracking-wide">
-            <span>⚡ سند AI v6.9: رسائل نصية وصوتية فورية + فيديو طولي 9:16 واضح + صوت مكالمات مستقر + تنقل حر بين المحادثات</span>
-            <span>📞 اتصال صوتي وفيديو مباشر من الدردشة والجهات + فحص أرقام المشتركين + تعدد الأرقام والحسابات</span>
+            <span>⚡ سند AI v7.0: وضع الشبكة الضعيفة 1X + ضغط صوتي للمكالمات + تبديل وضع السماعة/المكبر + طابور رسائل تلقائي</span>
+            <span>📞 اتصال صوتي وفيديو طولي 9:16 مباشر + فحص أرقام المشتركين + تعدد الأرقام والحسابات</span>
             <span>🧠 مركز سند AI الشامل: تحسين الصياغة + تلخيص + استخراج مهام + ردود ذكية + رد تلقائي</span>
-            <span>⚡ سند AI v6.9: رسائل نصية وصوتية فورية + فيديو طولي 9:16 واضح + صوت مكالمات مستقر + تنقل حر بين المحادثات</span>
+            <span>⚡ سند AI v7.0: وضع الشبكة الضعيفة 1X + ضغط صوتي للمكالمات + تبديل وضع السماعة/المكبر + طابور رسائل تلقائي</span>
         </div>
     </div>
 
@@ -56,15 +56,17 @@ const htmlContent = `<!DOCTYPE html>
                 <i class="fa-solid fa-hands-holding-child text-[9px] text-blue-200 mt-0.5"></i>
             </div>
             <div>
-                <div class="flex items-center gap-1.5">
+                <div class="flex items-center gap-1.5 flex-wrap">
                     <h1 class="font-black text-base md:text-lg text-white leading-none">سند</h1>
-                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v6.9</span>
+                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v7.0</span>
                     <span id="device-badge" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-semibold">---</span>
+                    <span id="net-mode-badge" class="text-[10px] bg-emerald-950/80 text-emerald-300 border border-emerald-700/40 px-2 py-0.5 rounded-full font-bold">1X/مرن</span>
                 </div>
                 <div class="flex items-center gap-1.5 text-[11px] mt-1">
                     <span id="ws-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
                     <span id="ws-label" class="text-slate-300 font-semibold">جاري الربط...</span>
                     <button onclick="reconnectNow()" title="تحديث الربط" class="text-blue-400 hover:text-blue-300 px-1"><i class="fa-solid fa-rotate-right text-[10px]"></i></button>
+                    <span id="queue-badge" class="hidden text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded font-mono">0 معلّق</span>
                     <span class="text-slate-600">•</span>
                     <span id="active-acct-label" class="font-mono font-bold text-blue-300">88888888</span>
                 </div>
@@ -93,36 +95,40 @@ const htmlContent = `<!DOCTYPE html>
     <!-- نافذة المكالمات الصوتية والمرئية الطولية 9:16 -->
     <div id="call-modal" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-between p-4">
         <div class="text-center mt-1">
-            <p class="text-xs text-blue-400 font-bold">سند AI v6.9 • اتصال مباشر سريع</p>
+            <p class="text-xs text-blue-400 font-bold">سند AI v7.0 • اتصال مباشر سريع</p>
             <h2 id="call-peer-title" class="text-lg font-black text-white font-mono mt-0.5">---</h2>
             <p id="call-status-msg" class="text-xs text-emerald-400 mt-0.5 font-semibold">جاري الاتصال...</p>
+            <p id="call-output-hint" class="text-[10px] text-slate-400 mt-0.5">وضع الإخراج: مكبر الصوت (تبديل السماعة يعتمد أيضاً على نظام الهاتف/المتصفح)</p>
         </div>
 
-        <div class="relative w-full max-w-sm flex-1 my-3 max-h-[68vh] aspect-[9/16] bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden flex items-center justify-center shadow-2xl">
+        <div class="relative w-full max-w-sm flex-1 my-2.5 max-h-[66vh] aspect-[9/16] bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden flex items-center justify-center shadow-2xl">
             <video id="remote-video-el" autoplay playsinline class="w-full h-full object-cover hidden"></video>
             <video id="local-video-el" autoplay playsinline muted class="w-24 h-36 object-cover rounded-2xl border-2 border-blue-400/80 shadow-lg absolute bottom-3 left-3 hidden"></video>
             <div id="voice-call-card" class="flex flex-col items-center gap-2.5 px-4 text-center">
                 <div class="w-20 h-20 rounded-full bg-blue-600/20 border border-blue-400/40 flex items-center justify-center text-3xl text-blue-400 animate-pulse">
                     <i class="fa-solid fa-microphone-lines"></i>
                 </div>
-                <span class="text-xs text-slate-300 font-semibold">صوت ثنائي الاتجاه وعزل ضوضاء ذكي</span>
+                <span class="text-xs text-slate-300 font-semibold">ضغط صوتي ذكي للمكالمات وعزل ضوضاء</span>
                 <button onclick="forceUnmuteAudio()" class="bg-emerald-600/25 border border-emerald-400/40 text-emerald-300 px-3 py-1 rounded-xl text-[11px] font-bold">
                     <i class="fa-solid fa-volume-high ml-1"></i> تنشيط الصوت
                 </button>
             </div>
         </div>
 
-        <div class="flex items-center gap-3 mb-2">
-            <button id="accept-btn" onclick="answerCall()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-2xl font-bold text-xs shadow-lg animate-bounce">
+        <div class="flex items-center gap-2.5 mb-2">
+            <button id="accept-btn" onclick="answerCall()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 rounded-2xl font-bold text-xs shadow-lg animate-bounce">
                 <i class="fa-solid fa-phone ml-1"></i> رد الآن
             </button>
-            <button id="switch-cam-btn" onclick="switchCameraFacing()" title="تبديل الكاميرا" class="w-12 h-12 rounded-2xl bg-slate-800 hover:bg-slate-700 text-blue-300 flex items-center justify-center">
+            <button id="speaker-toggle-btn" onclick="toggleSpeakerOrEarpiece()" title="تبديل السماعة / المكبر" class="w-11 h-11 rounded-2xl bg-blue-600/25 border border-blue-400/40 text-blue-300 flex items-center justify-center">
+                <i id="speaker-toggle-icon" class="fa-solid fa-volume-high"></i>
+            </button>
+            <button id="switch-cam-btn" onclick="switchCameraFacing()" title="تبديل الكاميرا" class="w-11 h-11 rounded-2xl bg-slate-800 hover:bg-slate-700 text-blue-300 flex items-center justify-center">
                 <i class="fa-solid fa-camera-rotate"></i>
             </button>
-            <button id="mute-btn" onclick="toggleMuteTrack()" class="w-12 h-12 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center">
+            <button id="mute-btn" onclick="toggleMuteTrack()" title="كتم الميكروفون" class="w-11 h-11 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center">
                 <i class="fa-solid fa-microphone"></i>
             </button>
-            <button onclick="endActiveCall()" class="bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-2xl font-bold text-xs shadow-lg">
+            <button onclick="endActiveCall()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-2xl font-bold text-xs shadow-lg">
                 <i class="fa-solid fa-phone-slash ml-1"></i> إنهاء
             </button>
         </div>
@@ -270,6 +276,10 @@ const htmlContent = `<!DOCTYPE html>
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2.5">
                 <h2 class="text-sm font-black text-indigo-400"><i class="fa-solid fa-brain ml-1"></i> مركز سند AI والإعدادات</h2>
                 <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
+                    <span>وضع الشبكة الضعيفة / 1X (ضغط صوتي وإرسال مرن)</span>
+                    <input type="checkbox" id="chk-weaknet" checked onchange="updateNetModeBadge()" class="w-4 h-4 accent-emerald-600">
+                </div>
+                <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
                     <span>الرد التلقائي الذكي عند استلام رسالة</span>
                     <input type="checkbox" id="chk-autoreply" class="w-4 h-4 accent-indigo-600">
                 </div>
@@ -286,10 +296,10 @@ const htmlContent = `<!DOCTYPE html>
                     <button onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
                 </div>
                 <div id="ai-log" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">مرحباً بك في سند AI v6.9. مزامنة مستقرة، صوت واضح في المكالمات، فيديو طولي 9:16، وإرسال فوري للرسائل.</div>
+                    <div class="text-slate-400">مرحباً بك في سند AI v7.0. تحسينات الشبكات الضعيفة 1X، ضغط صوتي للمكالمات، طابور إرسال مرن، وتبديل السماعة/المكبر.</div>
                 </div>
                 <div class="flex gap-2">
-                    <input type="text" id="ai-q" onkeydown="if(event.key==='Enter') askSanadAI()" placeholder="اطلب من سند AI (صياغة، تلخيص، مهام، أفكار)..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <input type="text" id="ai-q" onkeydown="if(event.key==='Enter') askSanadAI()" placeholder="اطلب من سند AI (صياغة، تلخيص، مهام، شبكة 1X)..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
                     <button onclick="askSanadAI()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold">إرسال</button>
                 </div>
             </div>
@@ -340,14 +350,44 @@ const htmlContent = `<!DOCTYPE html>
         var onlinePeers = new Set();
         var acctThreads = JSON.parse(localStorage.getItem('sanad6_acct_threads') || '{}');
         var seenEventIds = new Set();
+        var outboxQueue = [];
         var lastGeneratedCode = '';
         var pendingDeleteMsgId = null;
         var toastPeerId = null;
         var toastTimer = null;
         var ringtoneTimer = null;
+        var speakerModeActive = true;
         var ws;
         var wsConnected = false;
         var httpConnected = false;
+
+        function isWeakNetworkMode() {
+            var chk = document.getElementById('chk-weaknet');
+            var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            var slowConn = conn && (conn.saveData || conn.effectiveType === 'slow-2g' || conn.effectiveType === '2g');
+            return Boolean((chk && chk.checked) || slowConn);
+        }
+
+        function updateNetModeBadge() {
+            var badge = document.getElementById('net-mode-badge');
+            if (!badge) return;
+            var weak = isWeakNetworkMode();
+            badge.textContent = weak ? 'وضع 1X / موفّر' : 'عادي / سريع';
+            badge.className = weak
+                ? 'text-[10px] bg-emerald-950/80 text-emerald-300 border border-emerald-700/40 px-2 py-0.5 rounded-full font-bold'
+                : 'text-[10px] bg-blue-950/80 text-blue-300 border border-blue-700/40 px-2 py-0.5 rounded-full font-bold';
+        }
+
+        function updateQueueBadge() {
+            var qb = document.getElementById('queue-badge');
+            if (!qb) return;
+            if (outboxQueue.length > 0) {
+                qb.textContent = outboxQueue.length + ' معلّق';
+                qb.classList.remove('hidden');
+            } else {
+                qb.classList.add('hidden');
+            }
+        }
 
         function normalizeStr(v) {
             return String(v || '').trim().toLowerCase();
@@ -414,7 +454,7 @@ const htmlContent = `<!DOCTYPE html>
         function getThreadMap() {
             if (!acctThreads[activeAcct]) {
                 acctThreads[activeAcct] = {
-                    '88888888': [{ id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'أهلاً بك في سند AI v6.9. الحساب النشط: ' + activeAcct }]
+                    '88888888': [{ id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'أهلاً بك في سند AI v7.0. الحساب النشط: ' + activeAcct }]
                 };
             }
             return acctThreads[activeAcct];
@@ -424,6 +464,7 @@ const htmlContent = `<!DOCTYPE html>
             var isLive = wsConnected || httpConnected;
             document.getElementById('ws-dot').className = isLive ? 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse' : 'w-2 h-2 rounded-full bg-amber-400';
             document.getElementById('ws-label').textContent = isLive ? 'متصل' : 'جاري الربط...';
+            updateQueueBadge();
         }
 
         function playTonePattern(freqs, durationSec) {
@@ -590,7 +631,24 @@ const htmlContent = `<!DOCTYPE html>
                 if (Array.isArray(data.events)) {
                     data.events.forEach(handleIncomingPayload);
                 }
-            }).catch(function() {});
+                return data;
+            }).catch(function() {
+                if (payload && payload.to && payload.type === 'msg') {
+                    outboxQueue.push(payload);
+                    updateQueueBadge();
+                }
+                return null;
+            });
+        }
+
+        function flushOutboxQueue() {
+            if (!outboxQueue.length) return;
+            var batch = outboxQueue.slice();
+            outboxQueue = [];
+            updateQueueBadge();
+            batch.forEach(function(item) {
+                postHttpSync(item);
+            });
         }
 
         function pollHttpSync() {
@@ -604,6 +662,7 @@ const htmlContent = `<!DOCTYPE html>
                 if (!data) return;
                 httpConnected = true;
                 refreshConnectionHeader();
+                flushOutboxQueue();
                 if (Array.isArray(data.onlineIds)) {
                     onlinePeers = new Set(data.onlineIds);
                     renderPresence();
@@ -615,8 +674,11 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         setInterval(function() {
-            postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
-            pollHttpSync();
+            var intervalMs = isWeakNetworkMode() ? 3500 : 2000;
+            if (Date.now() % intervalMs < 2000 || isWeakNetworkMode()) {
+                postHttpSync({ type: 'register_ids', ids: myAccts, activeId: activeAcct });
+                pollHttpSync();
+            }
             if (!ws || ws.readyState > 1) openSocket();
         }, 2000);
 
@@ -628,6 +690,7 @@ const htmlContent = `<!DOCTYPE html>
                     wsConnected = true;
                     refreshConnectionHeader();
                     ws.send(JSON.stringify({ type: 'register_ids', ids: myAccts, activeId: activeAcct }));
+                    flushOutboxQueue();
                 };
                 ws.onclose = function() {
                     wsConnected = false;
@@ -659,13 +722,19 @@ const htmlContent = `<!DOCTYPE html>
             var enriched = Object.assign({}, payload, {
                 eventId: payload.eventId || ('ev-' + Date.now() + '-' + Math.floor(Math.random() * 100000))
             });
+            var sentWs = false;
             if (ws && ws.readyState === 1) {
-                try { ws.send(JSON.stringify(enriched)); } catch (e) {}
+                try { ws.send(JSON.stringify(enriched)); sentWs = true; } catch (e) {}
             }
-            postHttpSync(enriched);
+            if (!sentWs || !isWeakNetworkMode()) {
+                postHttpSync(enriched);
+            } else {
+                outboxQueue.push(enriched);
+                updateQueueBadge();
+            }
         }
 
-        // المكالمات الصوتية والمرئية الطولية 9:16 مع ثبات الصوت وتبديل الكاميرا
+        // المكالمات الصوتية والمرئية الطولية 9:16 مع ضغط صوتي للشبكات الضعيفة وتبديل السماعة/المكبر
         var rtcConn = null;
         var localStreamObj = null;
         var remoteStreamObj = null;
@@ -680,22 +749,59 @@ const htmlContent = `<!DOCTYPE html>
             ]
         };
 
-        function forceUnmuteAudio() {
+        function applyAudioOutputPreference() {
+            var targetVol = speakerModeActive ? 1.0 : 0.45;
             var audEl = document.getElementById('remote-audio-el');
             if (audEl) {
-                if (remoteStreamObj && audEl.srcObject !== remoteStreamObj) {
-                    audEl.srcObject = remoteStreamObj;
-                }
                 audEl.muted = false;
-                audEl.volume = 1.0;
+                audEl.volume = targetVol;
+                if (audEl.setSinkId) {
+                    audEl.setSinkId(speakerModeActive ? 'default' : '').catch(function() {});
+                }
                 audEl.play().catch(function() {});
             }
             var rv = document.getElementById('remote-video-el');
             if (rv && !rv.classList.contains('hidden')) {
                 rv.muted = false;
-                rv.volume = 1.0;
+                rv.volume = targetVol;
                 rv.play().catch(function() {});
             }
+            var iconEl = document.getElementById('speaker-toggle-icon');
+            var hintEl = document.getElementById('call-output-hint');
+            if (iconEl) {
+                iconEl.className = speakerModeActive ? 'fa-solid fa-volume-high' : 'fa-solid fa-ear-listen';
+            }
+            if (hintEl) {
+                hintEl.textContent = speakerModeActive
+                    ? 'وضع الإخراج: مكبر الصوت (للسماعة في الأذن اضغط الأيقونة أو اختر سماعة الهاتف)'
+                    : 'وضع الإخراج: سماعة/مستوى مخفّض (قد يعتمد التبديل الفعلي على إعدادات النظام والمتصفح)';
+            }
+        }
+
+        function toggleSpeakerOrEarpiece() {
+            speakerModeActive = !speakerModeActive;
+            applyAudioOutputPreference();
+        }
+
+        function forceUnmuteAudio() {
+            if (remoteStreamObj) {
+                var audEl = document.getElementById('remote-audio-el');
+                if (audEl && audEl.srcObject !== remoteStreamObj) audEl.srcObject = remoteStreamObj;
+            }
+            applyAudioOutputPreference();
+        }
+
+        function tuneAudioSenderForWeakNet(pc) {
+            if (!pc || !pc.getSenders) return;
+            var maxAudioBps = isWeakNetworkMode() ? 18000 : 36000;
+            pc.getSenders().forEach(function(sender) {
+                if (sender.track && sender.track.kind === 'audio' && sender.getParameters && sender.setParameters) {
+                    var params = sender.getParameters();
+                    if (!params.encodings || !params.encodings.length) params.encodings = [{}];
+                    params.encodings[0].maxBitrate = maxAudioBps;
+                    sender.setParameters(params).catch(function() {});
+                }
+            });
         }
 
         function attachRemoteMediaStream(stream, mode) {
@@ -703,18 +809,13 @@ const htmlContent = `<!DOCTYPE html>
             var audEl = document.getElementById('remote-audio-el');
             if (audEl) {
                 audEl.srcObject = stream;
-                audEl.muted = false;
-                audEl.volume = 1.0;
-                audEl.play().catch(function() {});
             }
             if ((mode || activeCallMode) === 'video') {
                 var rv = document.getElementById('remote-video-el');
                 rv.srcObject = stream;
-                rv.muted = false;
-                rv.volume = 1.0;
                 rv.classList.remove('hidden');
-                rv.play().catch(function() {});
             }
+            applyAudioOutputPreference();
         }
 
         function launchCall(mode, explicitTarget) {
@@ -726,14 +827,20 @@ const htmlContent = `<!DOCTYPE html>
             stopRingtoneLoop();
             document.getElementById('call-modal').classList.remove('hidden');
             document.getElementById('call-peer-title').textContent = target + ' • ' + (activeCallMode === 'video' ? 'مكالمة فيديو' : 'مكالمة صوتية');
-            document.getElementById('call-status-msg').textContent = 'جاري الاتصال الفوري...';
+            document.getElementById('call-status-msg').textContent = isWeakNetworkMode() ? 'جاري الاتصال (وضع الشبكة الضعيفة 1X)...' : 'جاري الاتصال الفوري...';
             document.getElementById('accept-btn').classList.add('hidden');
             setCallVisualMode(activeCallMode);
             forceUnmuteAudio();
 
+            var videoConstraints = activeCallMode === 'video'
+                ? (isWeakNetworkMode()
+                    ? { facingMode: facingModeCurrent, width: { ideal: 360 }, height: { ideal: 640 }, frameRate: { ideal: 15, max: 20 } }
+                    : { facingMode: facingModeCurrent, width: { ideal: 720 }, height: { ideal: 1280 } })
+                : false;
+
             navigator.mediaDevices.getUserMedia({
                 audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
-                video: activeCallMode === 'video' ? { facingMode: facingModeCurrent, width: { ideal: 720 }, height: { ideal: 1280 } } : false
+                video: videoConstraints
             }).then(function(stream) {
                 localStreamObj = stream;
                 if (activeCallMode === 'video') {
@@ -743,6 +850,7 @@ const htmlContent = `<!DOCTYPE html>
                 }
                 createRTC(activeCallMode);
                 localStreamObj.getTracks().forEach(function(t) { rtcConn.addTrack(t, localStreamObj); });
+                tuneAudioSenderForWeakNet(rtcConn);
                 return rtcConn.createOffer();
             }).then(function(offer) {
                 return rtcConn.setLocalDescription(offer).then(function() { return offer; });
@@ -796,6 +904,7 @@ const htmlContent = `<!DOCTYPE html>
                 stopRingtoneLoop();
                 rtcConn.setRemoteDescription(new RTCSessionDescription(sig.sdp)).then(function() {
                     document.getElementById('call-status-msg').textContent = 'متصل الآن';
+                    tuneAudioSenderForWeakNet(rtcConn);
                     forceUnmuteAudio();
                 }).catch(function() {});
             } else if (sig.op === 'ice' && rtcConn && sig.candidate) {
@@ -826,6 +935,7 @@ const htmlContent = `<!DOCTYPE html>
                 }
                 createRTC(mode);
                 localStreamObj.getTracks().forEach(function(t) { rtcConn.addTrack(t, localStreamObj); });
+                tuneAudioSenderForWeakNet(rtcConn);
                 return rtcConn.setRemoteDescription(new RTCSessionDescription(pendingCall.sig.sdp));
             }).then(function() {
                 return rtcConn.createAnswer();
@@ -867,6 +977,7 @@ const htmlContent = `<!DOCTYPE html>
                 vc.classList.remove('hidden');
                 if (swBtn) swBtn.classList.add('hidden');
             }
+            applyAudioOutputPreference();
         }
 
         function toggleMuteTrack() {
@@ -875,8 +986,8 @@ const htmlContent = `<!DOCTYPE html>
             if (!tr) return;
             tr.enabled = !tr.enabled;
             document.getElementById('mute-btn').className = tr.enabled
-                ? 'w-12 h-12 rounded-2xl bg-slate-800 text-white flex items-center justify-center'
-                : 'w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center';
+                ? 'w-11 h-11 rounded-2xl bg-slate-800 text-white flex items-center justify-center'
+                : 'w-11 h-11 rounded-2xl bg-amber-600 text-white flex items-center justify-center';
         }
 
         function endActiveCall() {
@@ -974,7 +1085,9 @@ const htmlContent = `<!DOCTYPE html>
                     audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
                 }).then(function(stream) {
                     var mimeType = pickSupportedAudioMime();
-                    mediaRec = mimeType ? new MediaRecorder(stream, { mimeType: mimeType }) : new MediaRecorder(stream);
+                    var recOpts = mimeType ? { mimeType: mimeType } : {};
+                    if (isWeakNetworkMode()) recOpts.audioBitsPerSecond = 16000;
+                    mediaRec = Object.keys(recOpts).length ? new MediaRecorder(stream, recOpts) : new MediaRecorder(stream);
                     audioBlobs = [];
                     mediaRec.ondataavailable = function(e) { if (e.data && e.data.size > 0) audioBlobs.push(e.data); };
                     mediaRec.onerror = function() { resetVoiceUi(stream); };
@@ -1181,8 +1294,10 @@ const htmlContent = `<!DOCTYPE html>
             if (!q) return;
             var log = document.getElementById('ai-log');
             log.innerHTML += '<div class="bg-blue-950/50 p-2 rounded-lg text-blue-200"><strong>أنت:</strong> ' + q + '</div>';
-            var reply = 'مساعد سند AI v6.9 جاهز: يمكنني تحسين الصياغة، تلخيص المحادثات، استخراج المهام، واقتراح ردود سريعة مباشرة.';
-            if (q.indexOf('صياغ') !== -1 || q.indexOf('رسالة') !== -1 || q.indexOf('اكتب') !== -1) {
+            var reply = 'مساعد سند AI v7.0 جاهز: يدعم ضغط الصوت في الشبكات الضعيفة 1X، طابور إرسال تلقائي، تلخيص المحادثات، والردود الذكية.';
+            if (q.indexOf('1x') !== -1 || q.indexOf('شبك') !== -1 || q.indexOf('صوت') !== -1) {
+                reply = 'على الشبكات الضعيفة أو 1X: فعّل «وضع الشبكة الضعيفة / 1X» لتقليل معدل نقل الصوت وتقليل إطارات الفيديو وطلبات المزامنة مع الاحتفاظ بطابور إعادة الإرسال.';
+            } else if (q.indexOf('صياغ') !== -1 || q.indexOf('رسالة') !== -1 || q.indexOf('اكتب') !== -1) {
                 reply = 'صياغة مقترحة: «السلام عليكم ورحمة الله وبركاته، يسعدنا تواصلكم ونفيدكم بأن كل شيء جاهز ومحدّث، شاكرين تعاونكم.»';
             } else if (q.indexOf('مهام') !== -1 || q.indexOf('خطة') !== -1) {
                 reply = 'خطة سريعة: 1) تأكد من وضوح الصوت في المكالمات. 2) اختبر إرسال واستقبال الرسائل الفورية. 3) جرّب فحص أرقام المشتركين في سند.';
@@ -1507,6 +1622,8 @@ const htmlContent = `<!DOCTYPE html>
                 localStorage.setItem('sanad6_acct_threads', JSON.stringify(acctThreads));
             } catch (e) {}
             document.getElementById('active-acct-label').textContent = activeAcct;
+            updateNetModeBadge();
+            updateQueueBadge();
             renderPresence();
             renderMsgs();
             renderAccts();
@@ -1686,5 +1803,5 @@ wss.on('connection', (ws) => {
 });
 
 server.listen(PORT, () => {
-    console.log('Sanad AI v6.9 running on port ' + PORT);
+    console.log('Sanad AI v7.0 running on port ' + PORT);
 });

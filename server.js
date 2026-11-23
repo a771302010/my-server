@@ -34,9 +34,9 @@ const htmlContent = `<!DOCTYPE html>
         .privacy-blur:hover, .privacy-blur.revealed { filter: none; user-select: auto; }
         .sanad-pane {
             display: none;
-            flex: 1 1 0%;
+            width: 100%;
+            height: 100%;
             flex-direction: column;
-            min-height: 0;
             overflow: hidden;
         }
         .sanad-pane.is-active {
@@ -86,6 +86,8 @@ const htmlContent = `<!DOCTYPE html>
                     <span id="queue-badge" class="hidden text-[10px] bg-amber-500/20 text-amber-300 px-1.5 rounded font-mono">0 معلّق</span>
                     <span class="text-slate-600">•</span>
                     <span id="active-acct-label" class="font-bold text-blue-300"></span>
+                    <span class="text-slate-600">•</span>
+                    <span id="current-tab-indicator" class="font-bold text-amber-300">الدردشة</span>
                 </div>
             </div>
         </div>
@@ -183,7 +185,7 @@ const htmlContent = `<!DOCTYPE html>
         </div>
     </div>
 
-    <main id="main-panes-container" class="flex-1 flex flex-col min-h-0 overflow-hidden bg-transparent">
+    <main id="main-panes-container" class="flex-1 relative overflow-hidden bg-transparent">
         <section id="pane-chats" class="sanad-pane is-active">
             <div class="p-2.5 bg-slate-900/75 border-b border-slate-800/80 space-y-2 shrink-0">
                 <div class="flex gap-2">
@@ -389,27 +391,27 @@ const htmlContent = `<!DOCTYPE html>
     </main>
 
     <nav id="sanad-bottom-nav" class="glass-panel border-t border-slate-800/80 px-1 py-2 flex justify-around items-center z-30 shrink-0">
-        <button type="button" data-pane="chats" id="btn-chats" class="sanad-nav-btn flex flex-col items-center gap-1 text-blue-400 font-bold text-[10px] px-1.5 py-1 transition">
+        <button type="button" data-pane="chats" onclick="setPane('chats')" id="btn-chats" class="sanad-nav-btn flex flex-col items-center gap-1 text-blue-400 font-bold text-[10px] px-1.5 py-1 transition">
             <i class="fa-solid fa-comments text-base"></i>
             <span>الدردشة</span>
         </button>
-        <button type="button" data-pane="groups" id="btn-groups" class="sanad-nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition">
+        <button type="button" data-pane="groups" onclick="setPane('groups')" id="btn-groups" class="sanad-nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition">
             <i class="fa-solid fa-users text-base"></i>
             <span>المجموعات</span>
         </button>
-        <button type="button" data-pane="accounts" id="btn-accounts" class="sanad-nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition">
+        <button type="button" data-pane="accounts" onclick="setPane('accounts')" id="btn-accounts" class="sanad-nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition">
             <i class="fa-solid fa-id-card text-base"></i>
             <span>الحسابات</span>
         </button>
-        <button type="button" data-pane="contacts" id="btn-contacts" class="sanad-nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition">
+        <button type="button" data-pane="contacts" onclick="setPane('contacts')" id="btn-contacts" class="sanad-nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition">
             <i class="fa-solid fa-address-book text-base"></i>
             <span>الجهات</span>
         </button>
-        <button type="button" data-pane="calls" id="btn-calls" class="sanad-nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition">
+        <button type="button" data-pane="calls" onclick="setPane('calls')" id="btn-calls" class="sanad-nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition">
             <i class="fa-solid fa-phone-volume text-base"></i>
             <span>المكالمات</span>
         </button>
-        <button type="button" data-pane="ai" id="btn-ai" class="sanad-nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition">
+        <button type="button" data-pane="ai" onclick="setPane('ai')" id="btn-ai" class="sanad-nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 font-semibold text-[10px] px-1.5 py-1 transition">
             <i class="fa-solid fa-brain text-base"></i>
             <span>الذكاء</span>
         </button>
@@ -446,6 +448,15 @@ const htmlContent = `<!DOCTYPE html>
         var ws = null;
         var wsConnected = false;
         var serverReachable = true;
+
+        var paneArabicNames = {
+            chats: 'الدردشة',
+            groups: 'المجموعات',
+            accounts: 'الحسابات',
+            contacts: 'الجهات',
+            calls: 'المكالمات',
+            ai: 'الذكاء'
+        };
 
         var tickerMessages = [
             'سند للذكاء الاصطناعي: مراسلة فورية، مكالمات صوتية ومرئية، مجموعات ذكية، وذاكرة محادثات متكاملة.',
@@ -1843,25 +1854,33 @@ const htmlContent = `<!DOCTYPE html>
         function setPane(p) {
             var target = p || 'chats';
             activePane = target;
+
+            var tabInd = document.getElementById('current-tab-indicator');
+            if (tabInd) tabInd.textContent = paneArabicNames[target] || 'الدردشة';
+
             var panes = document.querySelectorAll('.sanad-pane');
-            panes.forEach(function(sec) {
+            for (var i = 0; i < panes.length; i++) {
+                var sec = panes[i];
                 var secId = sec.id ? sec.id.replace('pane-', '') : '';
                 if (secId === target) {
                     sec.classList.add('is-active');
+                    sec.style.setProperty('display', 'flex', 'important');
                 } else {
                     sec.classList.remove('is-active');
+                    sec.style.setProperty('display', 'none', 'important');
                 }
-            });
+            }
 
             var navBtns = document.querySelectorAll('.sanad-nav-btn');
-            navBtns.forEach(function(btn) {
+            for (var j = 0; j < navBtns.length; j++) {
+                var btn = navBtns[j];
                 var btnPane = btn.getAttribute('data-pane');
                 var isSelected = (btnPane === target);
                 btn.classList.toggle('text-blue-400', isSelected);
                 btn.classList.toggle('font-bold', isSelected);
                 btn.classList.toggle('text-slate-400', !isSelected);
                 btn.classList.toggle('font-semibold', !isSelected);
-            });
+            }
 
             if (target === 'groups') renderGroupsList();
             else if (target === 'accounts') renderAccts();
@@ -2175,13 +2194,16 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function bindStaticControls() {
-            document.querySelectorAll('.sanad-nav-btn').forEach(function(btn) {
-                var p = btn.getAttribute('data-pane');
-                btn.addEventListener('click', function(ev) {
-                    ev.preventDefault();
-                    setPane(p);
+            var navContainer = document.getElementById('sanad-bottom-nav');
+            if (navContainer) {
+                navContainer.addEventListener('click', function(ev) {
+                    var btn = ev.target.closest('.sanad-nav-btn');
+                    if (btn) {
+                        var p = btn.getAttribute('data-pane');
+                        if (p) setPane(p);
+                    }
                 });
-            });
+            }
             var pInp = document.getElementById('peer-input');
             if (pInp && pInp.value.toUpperCase() === 'ASYLO') pInp.value = '';
             var privBtn = document.getElementById('privacy-shield-btn');

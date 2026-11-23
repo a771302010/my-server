@@ -1,8 +1,45 @@
 const http = require('http');
 const { WebSocketServer } = require('ws');
 
-const sanadIconSvg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='36' fill='%230b4aa2'/><rect y='96' width='180' height='84' rx='24' fill='%23ffffff'/><text x='90' y='72' text-anchor='middle' fill='%23ffffff' font-family='Arial,sans-serif' font-size='64' font-weight='900'>S</text><g fill='%230b4aa2'><circle cx='90' cy='96' r='9'/><path d='M74 122c0-9 7-15 16-15s16 6 16 15v8H74v-8z'/><circle cx='66' cy='101' r='7.5'/><path d='M53 123c0-7 6-12 13-12s13 5 13 12v7H53v-7z'/><circle cx='114' cy='101' r='7.5'/><path d='M101 123c0-7 6-12 13-12s13 5 13 12v7h-26v-7z'/><path d='M26 112c8-2 18 5 28 16 10 11 22 14 36 14s26-3 36-14c10-11 20-18 28-16v28H26v-28z'/></g></svg>`;
-const sanadIconUri = `data:image/svg+xml,${encodeURIComponent(sanadIconSvg)}`;
+const ICON_BG_HEX = '#9e1424';
+const ICON_ACCENT_HEX = '#ffffff';
+const ICON_SUB_HEX = '#7d0e1b';
+
+const sanadIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="110" fill="${ICON_BG_HEX}"/>
+  <rect x="36" y="392" width="440" height="84" rx="42" fill="${ICON_SUB_HEX}"/>
+  <text x="256" y="168" text-anchor="middle" fill="${ICON_ACCENT_HEX}" font-family="Arial, Helvetica, sans-serif" font-size="152" font-weight="900">S</text>
+  <g fill="${ICON_ACCENT_HEX}">
+    <circle cx="256" cy="222" r="24"/>
+    <path d="M214 282c0-23 19-38 42-38s42 15 42 38v22h-84v-22z"/>
+    <circle cx="192" cy="236" r="19"/>
+    <path d="M158 286c0-19 15-32 34-32s34 13 34 32v18h-68v-18z"/>
+    <circle cx="320" cy="236" r="19"/>
+    <path d="M286 286c0-19 15-32 34-32s34 13 34 32v18h-68v-18z"/>
+    <path d="M68 326c28-8 60 16 92 46 30 28 58 36 96 36s66-8 96-36c32-30 64-54 92-46v32c-24-4-52 18-82 46-34 31-68 42-102 42s-68-11-102-42c-30-28-58-50-82-46v-32z"/>
+  </g>
+  <text x="256" y="448" text-anchor="middle" fill="${ICON_ACCENT_HEX}" font-family="'Cairo', 'Tahoma', 'Arial', sans-serif" font-size="56" font-weight="800">سند</text>
+</svg>`;
+
+const manifestPayload = JSON.stringify({
+  name: 'Sanad AI - سند',
+  short_name: 'سند',
+  description: 'تطبيق سند للتواصل الذكي والمحادثات والمكالمات والمساعد الذكي',
+  start_url: '/',
+  scope: '/',
+  display: 'standalone',
+  orientation: 'portrait',
+  background_color: '#050912',
+  theme_color: ICON_BG_HEX,
+  dir: 'rtl',
+  lang: 'ar',
+  icons: [
+    { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' },
+    { src: '/apple-touch-icon.png', sizes: '180x180', type: 'image/svg+xml', purpose: 'any' },
+    { src: '/icon-192.png', sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
+    { src: '/icon-512.png', sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
+  ]
+});
 
 const htmlContent = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -11,10 +48,12 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#0b4aa2">
+    <meta name="theme-color" content="#9e1424">
+    <meta name="apple-mobile-web-app-title" content="سند">
     <title>سند AI v8.4</title>
-    <link rel="icon" type="image/svg+xml" href="${sanadIconUri}">
-    <link rel="apple-touch-icon" sizes="180x180" href="${sanadIconUri}">
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -91,9 +130,9 @@ const htmlContent = `<!DOCTYPE html>
 
     <header class="bg-slate-900 border-b border-slate-800 px-3.5 py-2.5 flex justify-between items-center z-20 shrink-0">
         <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-b from-blue-600 to-blue-950 border border-blue-400/40 flex flex-col items-center justify-center shrink-0">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-b from-red-700 to-red-950 border border-red-400/40 flex flex-col items-center justify-center shrink-0">
                 <span class="text-white font-black text-lg leading-none">S</span>
-                <i class="fa-solid fa-hands-holding-child text-[9px] text-blue-200 mt-0.5"></i>
+                <i class="fa-solid fa-hands-holding-child text-[9px] text-red-100 mt-0.5"></i>
             </div>
             <div class="min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
@@ -2036,6 +2075,23 @@ function drainHttpEvents(ids) {
 
 const server = http.createServer((req, res) => {
     const urlObj = new URL(req.url, 'http://' + (req.headers.host || 'localhost'));
+
+    if (urlObj.pathname === '/manifest.json') {
+        res.writeHead(200, { 'Content-Type': 'application/manifest+json; charset=utf-8' });
+        res.end(manifestPayload);
+        return;
+    }
+
+    if (
+        urlObj.pathname === '/icon.svg' ||
+        urlObj.pathname === '/apple-touch-icon.png' ||
+        urlObj.pathname === '/icon-192.png' ||
+        urlObj.pathname === '/icon-512.png'
+    ) {
+        res.writeHead(200, { 'Content-Type': 'image/svg+xml; charset=utf-8', 'Cache-Control': 'public, max-age=86400' });
+        res.end(sanadIconSvg);
+        return;
+    }
 
     if (urlObj.pathname === '/healthz') {
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });

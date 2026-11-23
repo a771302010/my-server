@@ -517,7 +517,7 @@ const htmlContent = `<!DOCTYPE html>
                         <button type="button" onclick="saveExternalAiConfig()" class="text-[11px] bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 px-2.5 py-1 rounded-lg font-bold">حفظ الإعداد</button>
                     </div>
                     <input type="password" id="ai-api-key" placeholder="مفتاح API اختياري (يُحفظ محلياً فقط)" class="w-full bg-[#0f1b29] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
-                    <input type="text" id="ai-api-endpoint" placeholder="رابط نقطة النهاية (اختياري، مثل https://api.openai.com/v1/chat/completions)" class="w-full bg-[#0f1b29] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
+                    <input type="text" id="ai-api-endpoint" placeholder="رابط نقطة النهاية (اختياري: .../v1/chat/completions)" class="w-full bg-[#0f1b29] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
                 </div>
                 <div class="grid grid-cols-2 gap-2 pt-1">
                     <button type="button" onclick="extractTasksFromThread()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-list-check ml-1"></i>استخراج مهام</button>
@@ -2091,7 +2091,7 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function buildDeliveryBadge(m) {
-            if (m.read || m.status === 'read') return '<span class="text-emerald-200 font-bold">مقروءة</span>';
+            if (m.read || m.status === 'read') return '<span class="text-emerald-200 font-bold">تم قراءتها</span>';
             if (m.delivered || m.status === 'delivered') return '<span class="text-teal-100 font-semibold">مستلمة</span>';
             if (m.delivered === false) return '<span class="text-amber-200">مرسلة • <button type="button" onclick="retryMessage(\\'' + m.id + '\\')" class="underline">إعادة إرسال</button></span>';
             return '<span>مرسلة</span>';
@@ -2135,9 +2135,9 @@ const htmlContent = `<!DOCTYPE html>
                 return '<div class="flex ' + (mine ? 'justify-end' : 'justify-start') + '">' +
                     '<div class="' + (mine ? 'bg-[#164e63] border border-teal-700/50 text-white rounded-tl-none' : 'bg-[#0f1b29] border border-slate-800 text-slate-100 rounded-tr-none') + ' p-3 rounded-2xl max-w-md text-xs md:text-sm shadow space-y-1">' +
                     senderTag + body +
-                    '<div class="flex justify-between items-center gap-3 pt-1 border-t ' + (mine ? 'border-teal-200/20 text-teal-100' : 'border-slate-800 text-slate-400') + ' text-[10px]">' +
+                    '<div class="flex justify-between items-center gap-2 pt-1 border-t ' + (mine ? 'border-teal-200/20 text-teal-100' : 'border-slate-800 text-slate-400') + ' text-[10px]">' +
                     deliveryLabel +
-                    '<div class="flex gap-2">' + pinBtn + speakBtn +
+                    '<div class="flex gap-1.5 shrink-0">' + pinBtn + speakBtn +
                     '<button type="button" onclick="openDeleteModal(\\'' + m.id + '\\', ' + (mine ? 'true' : 'false') + ')" class="underline ' + (mine ? 'text-teal-100 hover:text-white' : 'text-rose-300 hover:text-rose-200') + '">حذف</button>' +
                     '</div></div></div></div>';
             }).join('');

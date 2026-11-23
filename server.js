@@ -38,13 +38,13 @@ const htmlContent = `<!DOCTYPE html>
     <!-- عنصر صوت المكالمات الثابت -->
     <audio id="remote-audio-el" autoplay playsinline class="hidden"></audio>
 
-    <!-- الشريط الإخباري الذكي الواضح -->
+    <!-- الشريط الإخباري الذكي -->
     <div class="bg-blue-700 border-b border-blue-300/50 py-1.5 px-2.5 overflow-hidden text-xs text-white z-30 shrink-0 shadow">
         <div class="ticker-line gap-8 font-bold tracking-wide">
-            <span>⚡ سند AI v7.0: وضع الشبكة الضعيفة 1X + ضغط صوتي للمكالمات + تبديل وضع السماعة/المكبر + طابور رسائل تلقائي</span>
+            <span>⚡ سند AI v7.0: تكيّف ذكي للشبكات (1X / متغير) + ضغط صوتي للمكالمات + كتم فوري + طابور رسائل تلقائي</span>
             <span>📞 اتصال صوتي وفيديو طولي 9:16 مباشر + فحص أرقام المشتركين + تعدد الأرقام والحسابات</span>
-            <span>🧠 مركز سند AI الشامل: تحسين الصياغة + تلخيص + استخراج مهام + ردود ذكية + رد تلقائي</span>
-            <span>⚡ سند AI v7.0: وضع الشبكة الضعيفة 1X + ضغط صوتي للمكالمات + تبديل وضع السماعة/المكبر + طابور رسائل تلقائي</span>
+            <span>🧠 مساعد سند AI: صياغة احترافية + تلخيص + استخراج مهام + ردود ذكية + تنبيه سريع</span>
+            <span>⚡ سند AI v7.0: تكيّف ذكي للشبكات (1X / متغير) + ضغط صوتي للمكالمات + كتم فوري + طابور رسائل تلقائي</span>
         </div>
     </div>
 
@@ -60,7 +60,7 @@ const htmlContent = `<!DOCTYPE html>
                     <h1 class="font-black text-base md:text-lg text-white leading-none">سند</h1>
                     <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v7.0</span>
                     <span id="device-badge" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-semibold">---</span>
-                    <span id="net-mode-badge" class="text-[10px] bg-emerald-950/80 text-emerald-300 border border-emerald-700/40 px-2 py-0.5 rounded-full font-bold">1X/مرن</span>
+                    <span id="net-mode-badge" class="text-[10px] bg-emerald-950/80 text-emerald-300 border border-emerald-700/40 px-2 py-0.5 rounded-full font-bold">تكيّف 1X</span>
                 </div>
                 <div class="flex items-center gap-1.5 text-[11px] mt-1">
                     <span id="ws-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
@@ -74,6 +74,9 @@ const htmlContent = `<!DOCTYPE html>
         </div>
 
         <div class="flex items-center gap-2">
+            <button onclick="sendQuickPulseAlert()" title="إرسال تنبيه سريع منخفض البيانات" class="w-9 h-9 rounded-xl bg-amber-600/20 hover:bg-amber-600 border border-amber-500/40 text-amber-300 hover:text-white flex items-center justify-center transition">
+                <i class="fa-solid fa-tower-broadcast text-xs"></i>
+            </button>
             <button onclick="launchCall('audio')" title="مكالمة صوتية" class="w-9 h-9 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white flex items-center justify-center transition">
                 <i class="fa-solid fa-phone text-xs"></i>
             </button>
@@ -126,7 +129,7 @@ const htmlContent = `<!DOCTYPE html>
                 <i class="fa-solid fa-camera-rotate"></i>
             </button>
             <button id="mute-btn" onclick="toggleMuteTrack()" title="كتم الميكروفون" class="w-11 h-11 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center">
-                <i class="fa-solid fa-microphone"></i>
+                <i id="mute-icon" class="fa-solid fa-microphone"></i>
             </button>
             <button onclick="endActiveCall()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-2xl font-bold text-xs shadow-lg">
                 <i class="fa-solid fa-phone-slash ml-1"></i> إنهاء
@@ -271,12 +274,17 @@ const htmlContent = `<!DOCTYPE html>
             </div>
         </section>
 
-        <!-- 5. الذكاء والإعدادات -->
+        <!-- 5. الذكاء والإعدادات والتعليمات -->
         <section id="pane-ai" class="hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2.5">
-                <h2 class="text-sm font-black text-indigo-400"><i class="fa-solid fa-brain ml-1"></i> مركز سند AI والإعدادات</h2>
+                <h2 class="text-sm font-black text-indigo-400"><i class="fa-solid fa-brain ml-1"></i> مركز سند AI والتعليمات والإعدادات</h2>
+                <div class="bg-slate-950/90 border border-blue-500/20 rounded-xl p-3 text-[11px] text-slate-300 leading-relaxed space-y-1">
+                    <p class="font-bold text-blue-300">تعليمات استخدام سند AI v7.0:</p>
+                    <p>• منصة تواصل فوري مبنية على ربط مباشر (`WebSocket` + مزامنة مرنة) مع مكالمات صوتية وفيديو طولية `9:16` وضغط صوتي للمكالمات والرسائل على الشبكات المتغيرة والمنخفضة (`1X`).</p>
+                    <p>• يدعم تعدد الأرقام والمعرّفات، فحص الأرقام في سند، طابور إرسال تلقائي عند انقطاع الشبكة، كتم الميكروفون الفوري، وتنبيهات ذكية.</p>
+                </div>
                 <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
-                    <span>وضع الشبكة الضعيفة / 1X (ضغط صوتي وإرسال مرن)</span>
+                    <span>تكيّف ذكي للشبكات (1X / متغير — ضغط صوتي وإرسال مرن)</span>
                     <input type="checkbox" id="chk-weaknet" checked onchange="updateNetModeBadge()" class="w-4 h-4 accent-emerald-600">
                 </div>
                 <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
@@ -287,7 +295,8 @@ const htmlContent = `<!DOCTYPE html>
                     <span>نغمة تنبيه ورنين للمكالمات والرسائل</span>
                     <input type="checkbox" id="chk-chime" checked class="w-4 h-4 accent-blue-600">
                 </div>
-                <div class="grid grid-cols-2 gap-2 pt-1">
+                <div class="grid grid-cols-3 gap-2 pt-1">
+                    <button onclick="sendQuickPulseAlert()" class="bg-amber-600/20 hover:bg-amber-600/35 border border-amber-500/30 text-amber-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-tower-broadcast ml-1"></i>تنبيه سريع</button>
                     <button onclick="extractTasksFromThread()" class="bg-indigo-600/20 hover:bg-indigo-600/35 border border-indigo-500/30 text-indigo-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-list-check ml-1"></i>استخراج مهام</button>
                     <button onclick="suggestSmartReplies()" class="bg-blue-600/20 hover:bg-blue-600/35 border border-blue-500/30 text-blue-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-bolt ml-1"></i>ردود ذكية</button>
                 </div>
@@ -295,8 +304,8 @@ const htmlContent = `<!DOCTYPE html>
                     <button onclick="exportBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-download ml-1"></i>تصدير نسخة</button>
                     <button onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
                 </div>
-                <div id="ai-log" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">مرحباً بك في سند AI v7.0. تحسينات الشبكات الضعيفة 1X، ضغط صوتي للمكالمات، طابور إرسال مرن، وتبديل السماعة/المكبر.</div>
+                <div id="ai-log" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-32 overflow-y-auto text-xs space-y-2 custom-scrollbar">
+                    <div class="text-slate-400">مرحباً بك في سند AI v7.0. تكيّف ذكي للشبكات (1X / متغير)، ضغط صوتي للمكالمات، طابور إرسال مرن، وتنبيهات فورية.</div>
                 </div>
                 <div class="flex gap-2">
                     <input type="text" id="ai-q" onkeydown="if(event.key==='Enter') askSanadAI()" placeholder="اطلب من سند AI (صياغة، تلخيص، مهام، شبكة 1X)..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
@@ -372,7 +381,7 @@ const htmlContent = `<!DOCTYPE html>
             var badge = document.getElementById('net-mode-badge');
             if (!badge) return;
             var weak = isWeakNetworkMode();
-            badge.textContent = weak ? 'وضع 1X / موفّر' : 'عادي / سريع';
+            badge.textContent = weak ? 'تكيّف 1X' : 'اتصال فائق';
             badge.className = weak
                 ? 'text-[10px] bg-emerald-950/80 text-emerald-300 border border-emerald-700/40 px-2 py-0.5 rounded-full font-bold'
                 : 'text-[10px] bg-blue-950/80 text-blue-300 border border-blue-700/40 px-2 py-0.5 rounded-full font-bold';
@@ -387,6 +396,13 @@ const htmlContent = `<!DOCTYPE html>
             } else {
                 qb.classList.add('hidden');
             }
+        }
+
+        function sendQuickPulseAlert() {
+            if (!currentPeer) return alert('اختر جهة اتصال أولاً.');
+            var note = 'تنبيه سريع من سند AI (' + activeAcct + '): أنا متاح عبر الشبكة المتغيرة وأتابع معك الآن.';
+            emitPacket(currentPeer, 'text', note, null, '');
+            setPane('chats');
         }
 
         function normalizeStr(v) {
@@ -734,7 +750,7 @@ const htmlContent = `<!DOCTYPE html>
             }
         }
 
-        // المكالمات الصوتية والمرئية الطولية 9:16 مع ضغط صوتي للشبكات الضعيفة وتبديل السماعة/المكبر
+        // المكالمات الصوتية والمرئية الطولية 9:16 مع ضغط صوتي وتبديل السماعة/المكبر والكتم الفوري
         var rtcConn = null;
         var localStreamObj = null;
         var remoteStreamObj = null;
@@ -773,7 +789,7 @@ const htmlContent = `<!DOCTYPE html>
             }
             if (hintEl) {
                 hintEl.textContent = speakerModeActive
-                    ? 'وضع الإخراج: مكبر الصوت (للسماعة في الأذن اضغط الأيقونة أو اختر سماعة الهاتف)'
+                    ? 'وضع الإخراج: مكبر الصوت (لتبديل سماعة الأذن في متصفح الجوال راجع خيارات الصوت بالنظام/المتصفح)'
                     : 'وضع الإخراج: سماعة/مستوى مخفّض (قد يعتمد التبديل الفعلي على إعدادات النظام والمتصفح)';
             }
         }
@@ -827,7 +843,7 @@ const htmlContent = `<!DOCTYPE html>
             stopRingtoneLoop();
             document.getElementById('call-modal').classList.remove('hidden');
             document.getElementById('call-peer-title').textContent = target + ' • ' + (activeCallMode === 'video' ? 'مكالمة فيديو' : 'مكالمة صوتية');
-            document.getElementById('call-status-msg').textContent = isWeakNetworkMode() ? 'جاري الاتصال (وضع الشبكة الضعيفة 1X)...' : 'جاري الاتصال الفوري...';
+            document.getElementById('call-status-msg').textContent = isWeakNetworkMode() ? 'جاري الاتصال (تكيّف ذكي للشبكة 1X)...' : 'جاري الاتصال الفوري...';
             document.getElementById('accept-btn').classList.add('hidden');
             setCallVisualMode(activeCallMode);
             forceUnmuteAudio();
@@ -985,9 +1001,14 @@ const htmlContent = `<!DOCTYPE html>
             var tr = localStreamObj.getAudioTracks()[0];
             if (!tr) return;
             tr.enabled = !tr.enabled;
-            document.getElementById('mute-btn').className = tr.enabled
+            var btn = document.getElementById('mute-btn');
+            var icon = document.getElementById('mute-icon');
+            btn.className = tr.enabled
                 ? 'w-11 h-11 rounded-2xl bg-slate-800 text-white flex items-center justify-center'
                 : 'w-11 h-11 rounded-2xl bg-amber-600 text-white flex items-center justify-center';
+            if (icon) {
+                icon.className = tr.enabled ? 'fa-solid fa-microphone' : 'fa-solid fa-microphone-slash';
+            }
         }
 
         function endActiveCall() {
@@ -1004,6 +1025,10 @@ const htmlContent = `<!DOCTYPE html>
             remoteStreamObj = null;
             var audEl = document.getElementById('remote-audio-el');
             if (audEl) audEl.srcObject = null;
+            var muteIcon = document.getElementById('mute-icon');
+            if (muteIcon) muteIcon.className = 'fa-solid fa-microphone';
+            var muteBtn = document.getElementById('mute-btn');
+            if (muteBtn) muteBtn.className = 'w-11 h-11 rounded-2xl bg-slate-800 text-white flex items-center justify-center';
             document.getElementById('call-modal').classList.add('hidden');
             document.getElementById('remote-video-el').classList.add('hidden');
             document.getElementById('local-video-el').classList.add('hidden');
@@ -1294,13 +1319,13 @@ const htmlContent = `<!DOCTYPE html>
             if (!q) return;
             var log = document.getElementById('ai-log');
             log.innerHTML += '<div class="bg-blue-950/50 p-2 rounded-lg text-blue-200"><strong>أنت:</strong> ' + q + '</div>';
-            var reply = 'مساعد سند AI v7.0 جاهز: يدعم ضغط الصوت في الشبكات الضعيفة 1X، طابور إرسال تلقائي، تلخيص المحادثات، والردود الذكية.';
+            var reply = 'مساعد سند AI v7.0 جاهز: تكيّف ذكي للشبكات (1X / متغير)، ضغط صوتي للمكالمات، طابور إرسال تلقائي، تلخيص، وردود ذكية.';
             if (q.indexOf('1x') !== -1 || q.indexOf('شبك') !== -1 || q.indexOf('صوت') !== -1) {
-                reply = 'على الشبكات الضعيفة أو 1X: فعّل «وضع الشبكة الضعيفة / 1X» لتقليل معدل نقل الصوت وتقليل إطارات الفيديو وطلبات المزامنة مع الاحتفاظ بطابور إعادة الإرسال.';
+                reply = 'في وضع التكيّف الذكي للشبكات (1X / متغير): يتم تقليل معدل نقل الصوت والفيديو عند الحاجة والحفاظ على طابور الإرسال التلقائي لاستمرارية التواصل.';
             } else if (q.indexOf('صياغ') !== -1 || q.indexOf('رسالة') !== -1 || q.indexOf('اكتب') !== -1) {
                 reply = 'صياغة مقترحة: «السلام عليكم ورحمة الله وبركاته، يسعدنا تواصلكم ونفيدكم بأن كل شيء جاهز ومحدّث، شاكرين تعاونكم.»';
             } else if (q.indexOf('مهام') !== -1 || q.indexOf('خطة') !== -1) {
-                reply = 'خطة سريعة: 1) تأكد من وضوح الصوت في المكالمات. 2) اختبر إرسال واستقبال الرسائل الفورية. 3) جرّب فحص أرقام المشتركين في سند.';
+                reply = 'خطة سريعة: 1) جرّب الكتم الفوري وتبديل وضع الصوت في المكالمة. 2) اختبر التنبيه السريع والرسائل الفورية. 3) فحص الأرقام في الجهات.';
             }
             log.innerHTML += '<div class="bg-slate-900 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> ' + reply + '</div>';
             inp.value = '';

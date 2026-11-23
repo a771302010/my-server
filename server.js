@@ -77,9 +77,9 @@ const htmlContent = `<!DOCTYPE html>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
-        body { font-family: 'Cairo', sans-serif; background-color: #050912; }
+        body { font-family: 'Cairo', sans-serif; background-color: #050912; color: #f1f5f9; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1d4ed8; border-radius: 9999px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #9e1424; border-radius: 9999px; }
         .sanad-pane { display: none; height: 100%; width: 100%; overflow-y: auto; }
         .sanad-pane.sanad-pane-active { display: flex; flex-direction: column; }
     </style>
@@ -200,8 +200,8 @@ const htmlContent = `<!DOCTYPE html>
                 }
                 if (btn) {
                     btn.className = isTarget
-                        ? 'flex flex-col items-center gap-1 text-blue-400 font-bold text-[10px] px-1.5 py-1'
-                        : 'flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-1.5 py-1';
+                        ? 'flex flex-col items-center gap-0.5 text-rose-300 font-extrabold text-[9.5px] px-1 py-1 tracking-normal'
+                        : 'flex flex-col items-center gap-0.5 text-slate-400 font-semibold text-[9.5px] px-1 py-1 tracking-normal';
                 }
             }
             var tabBadge = document.getElementById('current-tab-badge');
@@ -228,89 +228,89 @@ const htmlContent = `<!DOCTYPE html>
 
     <audio id="remote-audio-el" autoplay playsinline class="hidden"></audio>
 
-    <header class="bg-slate-900 border-b border-slate-800 px-3.5 py-2.5 flex justify-between items-center z-20 shrink-0">
+    <header class="bg-slate-900/95 border-b border-slate-800 px-3.5 py-2.5 flex justify-between items-center z-20 shrink-0">
         <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#a81627] via-[#9e1424] to-[#7d0e1b] border border-red-400/40 flex flex-col items-center justify-center shrink-0 shadow">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#a81627] via-[#9e1424] to-[#7d0e1b] border border-rose-300/35 flex flex-col items-center justify-center shrink-0 shadow">
                 <span class="text-white font-black text-base leading-none">س</span>
-                <span class="text-[8px] font-bold text-red-100 leading-tight mt-0.5">سند</span>
+                <span class="text-[8px] font-bold text-rose-100 leading-tight mt-0.5">سند</span>
             </div>
             <div class="min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
                     <h1 class="font-black text-base text-white leading-none">سند</h1>
-                    <span class="text-[10px] bg-blue-600/25 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">AI v8.4</span>
-                    <span id="current-tab-badge" class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full font-bold">الدردشة</span>
-                    <span id="device-badge" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-semibold">جهاز</span>
-                    <span id="net-badge" class="text-[10px] bg-emerald-950/80 text-emerald-300 border border-emerald-700/40 px-2 py-0.5 rounded-full font-bold">وضع مرن</span>
+                    <span class="text-[10px] bg-rose-950/80 text-rose-200 border border-rose-800/60 px-2 py-0.5 rounded-full font-bold">AI v8.4</span>
+                    <span id="current-tab-badge" class="text-[10px] bg-slate-800 text-slate-200 border border-slate-700/80 px-2 py-0.5 rounded-full font-bold">الدردشة</span>
+                    <span id="device-badge" class="text-[10px] bg-slate-800/90 text-slate-300 border border-slate-700/60 px-2 py-0.5 rounded-full font-semibold">جهاز</span>
+                    <span id="net-badge" class="text-[10px] bg-slate-800/90 text-sky-200 border border-sky-800/50 px-2 py-0.5 rounded-full font-bold">وضع مرن</span>
                 </div>
                 <div class="flex items-center gap-1.5 text-[11px] mt-1">
-                    <span id="ws-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span id="ws-label" class="text-emerald-400 font-semibold">متصل</span>
-                    <button type="button" onclick="reconnectNow()" title="تحديث الربط" class="text-blue-400 hover:text-blue-300 px-1">
+                    <span id="ws-dot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span id="ws-label" class="text-emerald-300 font-semibold">متصل</span>
+                    <button type="button" onclick="reconnectNow()" title="تحديث الربط" class="text-slate-300 hover:text-white px-1">
                         <i class="fa-solid fa-rotate-right text-[10px]"></i>
                     </button>
-                    <span id="queue-badge" class="hidden text-[10px] bg-amber-500/20 text-amber-300 px-1.5 rounded font-mono">0 معلّق</span>
+                    <span id="queue-badge" class="hidden text-[10px] bg-amber-950/80 text-amber-200 border border-amber-800/50 px-1.5 rounded font-mono">0 معلّق</span>
                     <span class="text-slate-600">•</span>
-                    <span id="active-acct-label" class="font-mono font-bold text-blue-300"></span>
+                    <span id="active-acct-label" class="font-mono font-bold text-slate-200"></span>
                 </div>
             </div>
         </div>
 
         <div class="flex items-center gap-2 shrink-0">
-            <button type="button" onclick="launchCall('audio')" title="مكالمة صوتية" class="w-9 h-9 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white flex items-center justify-center transition">
+            <button type="button" onclick="launchCall('audio')" title="مكالمة صوتية" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-emerald-700 border border-slate-700 text-emerald-300 hover:text-white flex items-center justify-center transition">
                 <i class="fa-solid fa-phone text-xs"></i>
             </button>
-            <button type="button" onclick="launchCall('video')" title="مكالمة فيديو" class="w-9 h-9 rounded-xl bg-blue-600/20 hover:bg-blue-600 border border-blue-500/40 text-blue-300 hover:text-white flex items-center justify-center transition">
+            <button type="button" onclick="launchCall('video')" title="مكالمة فيديو" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-[#9e1424] border border-slate-700 text-rose-200 hover:text-white flex items-center justify-center transition">
                 <i class="fa-solid fa-video text-xs"></i>
             </button>
         </div>
     </header>
 
-    <div id="live-toast" onclick="jumpToToastChat()" class="hidden fixed top-16 left-3 right-3 max-w-md mx-auto bg-blue-900/95 border border-blue-400/50 text-white px-3.5 py-2.5 rounded-2xl shadow-2xl z-40 flex items-center justify-between gap-2 cursor-pointer text-xs">
+    <div id="live-toast" onclick="jumpToToastChat()" class="hidden fixed top-16 left-3 right-3 max-w-md mx-auto bg-slate-900/95 border border-rose-800/70 text-slate-100 px-3.5 py-2.5 rounded-2xl shadow-2xl z-40 flex items-center justify-between gap-2 cursor-pointer text-xs">
         <div class="min-w-0">
-            <p id="toast-sender" class="font-black text-blue-200 truncate">رسالة جديدة</p>
-            <p id="toast-body" class="text-slate-100 truncate">...</p>
+            <p id="toast-sender" class="font-black text-rose-200 truncate">رسالة جديدة</p>
+            <p id="toast-body" class="text-slate-200 truncate">...</p>
         </div>
-        <span class="bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-lg text-[10px] font-bold shrink-0">فتح</span>
+        <span class="bg-rose-950 text-rose-200 border border-rose-800/60 px-2 py-1 rounded-lg text-[10px] font-bold shrink-0">فتح</span>
     </div>
 
     <div id="call-modal" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-between p-4">
         <div class="text-center mt-1">
-            <p class="text-xs text-blue-400 font-bold">سند AI v8.4 • اتصال مباشر</p>
+            <p class="text-xs text-rose-300 font-bold">سند AI v8.4 • اتصال مباشر</p>
             <h2 id="call-peer-title" class="text-lg font-black text-white font-mono mt-0.5">...</h2>
             <p id="call-timer-el" class="text-xs font-mono font-bold text-slate-300 mt-0.5">00:00</p>
-            <p id="call-status-msg" class="text-xs text-emerald-400 mt-0.5 font-semibold">جاري الاتصال...</p>
+            <p id="call-status-msg" class="text-xs text-emerald-300 mt-0.5 font-semibold">جاري الاتصال...</p>
             <p id="call-output-hint" class="text-[10px] text-slate-400 mt-0.5">مخرج الصوت: مكبر الصوت</p>
         </div>
 
         <div class="relative w-full max-w-sm flex-1 my-2.5 max-h-[64vh] aspect-[9/16] bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden flex items-center justify-center shadow-2xl">
             <video id="remote-video-el" autoplay playsinline class="w-full h-full object-cover hidden"></video>
-            <video id="local-video-el" autoplay playsinline muted class="w-24 h-36 object-cover rounded-2xl border-2 border-blue-400/80 shadow-lg absolute bottom-3 left-3 hidden"></video>
+            <video id="local-video-el" autoplay playsinline muted class="w-24 h-36 object-cover rounded-2xl border-2 border-rose-400/70 shadow-lg absolute bottom-3 left-3 hidden"></video>
             <div id="voice-call-card" class="flex flex-col items-center gap-2.5 px-4 text-center">
-                <div class="w-20 h-20 rounded-full bg-blue-600/20 border border-blue-400/40 flex items-center justify-center text-3xl text-blue-400 animate-pulse">
+                <div class="w-20 h-20 rounded-full bg-rose-950/80 border border-rose-800/60 flex items-center justify-center text-3xl text-rose-200 animate-pulse">
                     <i class="fa-solid fa-microphone-lines"></i>
                 </div>
                 <span class="text-xs text-slate-300 font-semibold">مكالمة صوتية مباشرة</span>
-                <button type="button" onclick="forceUnmuteAudio()" class="bg-emerald-600/25 border border-emerald-400/40 text-emerald-300 px-3 py-1 rounded-xl text-[11px] font-bold">
+                <button type="button" onclick="forceUnmuteAudio()" class="bg-slate-800 border border-slate-700 text-emerald-300 px-3 py-1 rounded-xl text-[11px] font-bold">
                     <i class="fa-solid fa-volume-high ml-1"></i> تنشيط الصوت
                 </button>
             </div>
         </div>
 
         <div class="flex items-center gap-2 mb-2 flex-wrap justify-center">
-            <button type="button" id="accept-btn" onclick="answerCall()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 rounded-2xl font-bold text-xs shadow-lg animate-bounce">
+            <button type="button" id="accept-btn" onclick="answerCall()" class="hidden bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-3 rounded-2xl font-bold text-xs shadow-lg animate-bounce">
                 <i class="fa-solid fa-phone ml-1"></i> رد الآن
             </button>
-            <button type="button" id="speaker-toggle-btn" onclick="toggleSpeakerOrEarpiece()" title="تبديل مكبر الصوت / سماعة الجهاز" class="px-3 h-11 rounded-2xl bg-blue-600/25 border border-blue-400/40 text-blue-200 flex items-center gap-1.5 text-[11px] font-bold">
+            <button type="button" id="speaker-toggle-btn" onclick="toggleSpeakerOrEarpiece()" title="تبديل مكبر الصوت / سماعة الجهاز" class="px-3 h-11 rounded-2xl bg-slate-800 border border-slate-700 text-slate-200 flex items-center gap-1.5 text-[11px] font-bold">
                 <i id="speaker-toggle-icon" class="fa-solid fa-volume-high"></i>
                 <span id="speaker-btn-label">مكبر</span>
             </button>
-            <button type="button" id="switch-cam-btn" onclick="switchCameraFacing()" title="تبديل الكاميرا" class="w-11 h-11 rounded-2xl bg-slate-800 hover:bg-slate-700 text-blue-300 flex items-center justify-center">
+            <button type="button" id="switch-cam-btn" onclick="switchCameraFacing()" title="تبديل الكاميرا" class="w-11 h-11 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 flex items-center justify-center">
                 <i class="fa-solid fa-camera-rotate"></i>
             </button>
-            <button type="button" id="mute-btn" onclick="toggleMuteTrack()" title="كتم الميكروفون" class="w-11 h-11 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center">
+            <button type="button" id="mute-btn" onclick="toggleMuteTrack()" title="كتم الميكروفون" class="w-11 h-11 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white flex items-center justify-center">
                 <i id="mute-icon" class="fa-solid fa-microphone"></i>
             </button>
-            <button type="button" onclick="endActiveCall()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-2xl font-bold text-xs shadow-lg">
+            <button type="button" onclick="endActiveCall()" class="bg-[#9e1424] hover:bg-[#7d0e1b] text-white px-4 py-3 rounded-2xl font-bold text-xs shadow-lg">
                 <i class="fa-solid fa-phone-slash ml-1"></i> إنهاء
             </button>
         </div>
@@ -320,53 +320,53 @@ const htmlContent = `<!DOCTYPE html>
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xs p-4 space-y-3 shadow-2xl">
             <h3 class="text-sm font-black text-white">خيارات حذف الرسالة</h3>
             <p class="text-[11px] text-slate-400">اختر ما إذا كنت تريد حذف الرسالة من جهازك فقط أو من عند الجميع.</p>
-            <button type="button" onclick="confirmDeleteChoice('me')" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-2.5 rounded-xl text-xs font-bold">حذف من عندي فقط</button>
-            <button type="button" id="del-everyone-btn" onclick="confirmDeleteChoice('all')" class="w-full bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-xl text-xs font-bold">حذف عند الجميع</button>
+            <button type="button" onclick="confirmDeleteChoice('me')" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 py-2.5 rounded-xl text-xs font-bold">حذف من عندي فقط</button>
+            <button type="button" id="del-everyone-btn" onclick="confirmDeleteChoice('all')" class="w-full bg-[#9e1424] hover:bg-[#7d0e1b] text-white py-2.5 rounded-xl text-xs font-bold">حذف عند الجميع</button>
             <button type="button" onclick="closeDeleteModal()" class="w-full text-slate-400 hover:text-white py-1.5 text-xs">إلغاء</button>
         </div>
     </div>
 
-    <main class="flex-1 flex flex-col overflow-hidden bg-[#070c17]">
+    <main class="flex-1 flex flex-col overflow-hidden bg-[#060b14]">
         <section id="pane-chats" class="sanad-pane sanad-pane-active flex-1 flex-col h-full overflow-hidden">
-            <div class="p-2.5 bg-slate-900/80 border-b border-slate-800 space-y-2 shrink-0">
+            <div class="p-2.5 bg-slate-900/90 border-b border-slate-800 space-y-2 shrink-0">
                 <div class="flex gap-2">
-                    <input type="text" id="peer-input" oninput="onTopPeerSearchInput()" onkeydown="if(event.key==='Enter'){event.preventDefault();openPeerByInput();}" placeholder="اكتب الاسم أو الكود أو الرقم ليظهر تلقائياً..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-blue-500">
-                    <button type="button" onclick="openPeerByInput()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition">فتح</button>
-                    <button type="button" onclick="saveCurrentPeer()" title="حفظ في الجهات" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-400 px-3 py-2 rounded-xl text-xs font-bold">
+                    <input type="text" id="peer-input" oninput="onTopPeerSearchInput()" onkeydown="if(event.key==='Enter'){event.preventDefault();openPeerByInput();}" placeholder="اكتب الاسم أو الكود أو الرقم ليظهر تلقائياً..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm text-white placeholder-slate-400 focus:outline-none focus:border-rose-700">
+                    <button type="button" onclick="openPeerByInput()" class="bg-[#9e1424] hover:bg-[#7d0e1b] text-white px-4 py-2 rounded-xl text-xs font-bold transition">فتح</button>
+                    <button type="button" onclick="saveCurrentPeer()" title="حفظ في الجهات" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs font-bold">
                         <i class="fa-solid fa-user-plus"></i>
                     </button>
                 </div>
                 <div id="quick-chips" class="flex items-center gap-1.5 overflow-x-auto pb-0.5 text-xs"></div>
             </div>
 
-            <div class="px-4 py-2 bg-slate-950/80 border-b border-slate-800/90 flex justify-between items-center text-xs shrink-0">
+            <div class="px-3.5 py-2 bg-slate-950/90 border-b border-slate-800/90 flex justify-between items-center gap-2 text-xs shrink-0">
                 <div class="flex items-center gap-2 min-w-0">
                     <span id="peer-dot" class="w-2.5 h-2.5 rounded-full bg-slate-600 shrink-0"></span>
-                    <span id="peer-title" class="font-bold text-white font-mono truncate">خدمة العملاء</span>
+                    <span id="peer-title" class="font-bold text-slate-100 font-mono truncate">خدمة العملاء</span>
                     <span id="peer-status" class="text-[11px] font-bold text-slate-400 shrink-0 whitespace-nowrap">غير متصل</span>
                 </div>
-                <div class="flex items-center gap-2.5 shrink-0">
-                    <button type="button" onclick="toggleThreadSearchBar()" title="بحث داخل رسائل المحادثة" class="text-amber-400 hover:text-amber-300 font-bold"><i class="fa-solid fa-magnifying-glass"></i></button>
-                    <button type="button" onclick="launchCall('audio')" title="اتصال صوتي سريع" class="text-emerald-400 hover:text-emerald-300 font-bold"><i class="fa-solid fa-phone"></i></button>
-                    <button type="button" onclick="launchCall('video')" title="مكالمة فيديو سريعة" class="text-blue-400 hover:text-blue-300 font-bold"><i class="fa-solid fa-video"></i></button>
-                    <button type="button" onclick="summarizeCurrentThread()" class="text-indigo-400 hover:underline font-semibold"><i class="fa-solid fa-sparkles ml-1"></i>تلخيص</button>
-                    <button type="button" onclick="shareInviteLink()" class="text-cyan-400 hover:underline font-semibold"><i class="fa-solid fa-share-nodes ml-1"></i>دعوة</button>
-                    <button type="button" onclick="clearThreadMsgs()" class="text-red-400 hover:underline font-semibold"><i class="fa-solid fa-trash ml-1"></i>مسح</button>
+                <div class="flex items-center gap-2 shrink-0 text-[11px]">
+                    <button type="button" onclick="toggleThreadSearchBar()" title="بحث داخل رسائل المحادثة" class="text-slate-300 hover:text-white px-1"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    <button type="button" onclick="launchCall('audio')" title="اتصال صوتي سريع" class="text-emerald-300 hover:text-emerald-200 px-1"><i class="fa-solid fa-phone"></i></button>
+                    <button type="button" onclick="launchCall('video')" title="مكالمة فيديو سريعة" class="text-rose-200 hover:text-white px-1"><i class="fa-solid fa-video"></i></button>
+                    <button type="button" onclick="summarizeCurrentThread()" class="text-slate-200 hover:text-white font-semibold whitespace-nowrap">تلخيص</button>
+                    <button type="button" onclick="shareInviteLink()" class="text-slate-200 hover:text-white font-semibold whitespace-nowrap">دعوة</button>
+                    <button type="button" onclick="clearThreadMsgs()" class="text-rose-300 hover:text-rose-200 font-semibold whitespace-nowrap">مسح</button>
                 </div>
             </div>
 
-            <div id="pinned-msg-banner" class="hidden px-3.5 py-1.5 bg-amber-950/40 border-b border-amber-700/40 flex items-center justify-between gap-2 text-[11px] shrink-0">
+            <div id="pinned-msg-banner" class="hidden px-3.5 py-1.5 bg-slate-900 border-b border-rose-900/50 flex items-center justify-between gap-2 text-[11px] shrink-0">
                 <div class="flex items-center gap-1.5 min-w-0">
-                    <i class="fa-solid fa-thumbtack text-amber-400 shrink-0"></i>
-                    <span id="pinned-msg-text" class="text-amber-100 truncate"></span>
+                    <i class="fa-solid fa-thumbtack text-rose-300 shrink-0"></i>
+                    <span id="pinned-msg-text" class="text-slate-200 truncate"></span>
                 </div>
-                <button type="button" onclick="unpinCurrentThreadMsg()" class="text-amber-300 hover:text-white text-[10px] shrink-0">إلغاء التثبيت</button>
+                <button type="button" onclick="unpinCurrentThreadMsg()" class="text-rose-300 hover:text-white text-[10px] shrink-0">إلغاء التثبيت</button>
             </div>
 
             <div id="thread-search-bar" class="hidden px-3 py-2 bg-slate-900 border-b border-slate-800 flex items-center gap-2 text-xs shrink-0">
-                <i class="fa-solid fa-magnifying-glass text-amber-400"></i>
-                <input type="text" id="thread-search-input" oninput="renderMsgs()" placeholder="ابحث داخل رسائل هذه المحادثة..." class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
-                <span id="thread-search-count" class="text-[10px] font-mono text-amber-300 shrink-0">0 نتيجة</span>
+                <i class="fa-solid fa-magnifying-glass text-rose-300"></i>
+                <input type="text" id="thread-search-input" oninput="renderMsgs()" placeholder="ابحث داخل رسائل هذه المحادثة..." class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-rose-700">
+                <span id="thread-search-count" class="text-[10px] font-mono text-slate-300 shrink-0">0 نتيجة</span>
                 <button type="button" onclick="closeThreadSearchBar()" class="text-slate-400 hover:text-white px-1.5"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
@@ -374,31 +374,31 @@ const htmlContent = `<!DOCTYPE html>
 
             <div id="smart-replies-bar" class="hidden px-3 py-1.5 bg-slate-950/90 border-t border-slate-800/70 flex items-center gap-1.5 overflow-x-auto text-[11px] shrink-0"></div>
 
-            <div class="px-3 py-1 bg-slate-950/70 border-t border-slate-800/60 flex items-center gap-1.5 text-[10px] shrink-0 overflow-x-auto">
-                <span class="text-indigo-300 font-bold shrink-0"><i class="fa-solid fa-wand-magic-sparkles"></i> نبرات الصياغة:</span>
-                <button type="button" onclick="polishDraft('friendly')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-0.5 rounded shrink-0">ودي</button>
-                <button type="button" onclick="polishDraft('formal')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-0.5 rounded shrink-0">رسمي</button>
-                <button type="button" onclick="polishDraft('short')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-0.5 rounded shrink-0">مختصر</button>
-                <button type="button" onclick="insertSanadMention()" class="bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-400/40 text-indigo-200 px-2 py-0.5 rounded font-bold shrink-0">@سند</button>
+            <div class="px-3 py-1 bg-slate-950/80 border-t border-slate-800/70 flex items-center gap-1.5 text-[10px] shrink-0 overflow-x-auto">
+                <span class="text-slate-300 font-bold shrink-0">نبرات الصياغة:</span>
+                <button type="button" onclick="polishDraft('friendly')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-slate-200 px-2 py-0.5 rounded shrink-0">ودي</button>
+                <button type="button" onclick="polishDraft('formal')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-slate-200 px-2 py-0.5 rounded shrink-0">رسمي</button>
+                <button type="button" onclick="polishDraft('short')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-slate-200 px-2 py-0.5 rounded shrink-0">مختصر</button>
+                <button type="button" onclick="insertSanadMention()" class="bg-rose-950/80 hover:bg-rose-900 border border-rose-800/60 text-rose-200 px-2 py-0.5 rounded font-bold shrink-0">@سند</button>
             </div>
 
             <div class="p-2.5 bg-slate-900 border-t border-slate-800 flex items-center gap-1.5 shrink-0">
                 <input type="file" id="attach-file" class="hidden" onchange="onFilePicked(event)">
-                <button type="button" onclick="document.getElementById('attach-file').click()" title="إرفاق ملف أو صورة" class="text-amber-400 hover:text-amber-300 p-2 rounded-xl hover:bg-slate-800 transition">
+                <button type="button" onclick="document.getElementById('attach-file').click()" title="إرفاق ملف أو صورة" class="text-slate-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition">
                     <i class="fa-solid fa-paperclip text-base"></i>
                 </button>
-                <button type="button" id="dictate-btn" onclick="toggleSpeechDictation()" title="إملاء صوتي" class="text-cyan-400 hover:text-cyan-300 p-2 rounded-xl hover:bg-slate-800 transition">
+                <button type="button" id="dictate-btn" onclick="toggleSpeechDictation()" title="إملاء صوتي" class="text-slate-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition">
                     <i class="fa-solid fa-language text-base"></i>
                 </button>
-                <button type="button" onclick="polishDraft('friendly')" title="تحسين الصياغة" class="text-indigo-400 hover:text-indigo-300 p-2 rounded-xl hover:bg-slate-800 transition">
+                <button type="button" onclick="polishDraft('friendly')" title="تحسين الصياغة" class="text-slate-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition">
                     <i class="fa-solid fa-wand-magic-sparkles text-base"></i>
                 </button>
-                <input type="text" id="msg-box-input" onkeydown="if(event.key==='Enter'){event.preventDefault();sendTextMsg();}" placeholder="اكتب رسالتك أو استخدم @سند..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
-                <span id="rec-timer" class="hidden text-[11px] font-mono font-bold text-red-400 px-1">00:00</span>
-                <button type="button" id="voice-btn" onclick="toggleVoiceCapture()" title="تسجيل رسالة صوتية" class="bg-slate-800 hover:bg-emerald-600 text-emerald-400 hover:text-white p-2.5 rounded-xl transition">
+                <input type="text" id="msg-box-input" onkeydown="if(event.key==='Enter'){event.preventDefault();sendTextMsg();}" placeholder="اكتب رسالتك أو استخدم @سند..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-rose-700">
+                <span id="rec-timer" class="hidden text-[11px] font-mono font-bold text-rose-300 px-1">00:00</span>
+                <button type="button" id="voice-btn" onclick="toggleVoiceCapture()" title="تسجيل رسالة صوتية" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white p-2.5 rounded-xl transition">
                     <i class="fa-solid fa-microphone text-base"></i>
                 </button>
-                <button type="button" onclick="sendTextMsg()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition shadow">
+                <button type="button" onclick="sendTextMsg()" class="bg-[#9e1424] hover:bg-[#7d0e1b] text-white px-4 py-2.5 rounded-xl text-sm font-bold transition shadow">
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
             </div>
@@ -407,17 +407,17 @@ const htmlContent = `<!DOCTYPE html>
         <section id="pane-groups" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-sm font-black text-cyan-400"><i class="fa-solid fa-users ml-1"></i> مجموعات التواصل</h2>
-                    <span id="groups-count-badge" class="text-[11px] font-mono text-cyan-300 bg-cyan-950/60 px-2.5 py-0.5 rounded-full">0 مجموعة</span>
+                    <h2 class="text-sm font-black text-rose-200"><i class="fa-solid fa-users ml-1"></i> مجموعات التواصل</h2>
+                    <span id="groups-count-badge" class="text-[11px] font-mono text-slate-200 bg-slate-800 border border-slate-700 px-2.5 py-0.5 rounded-full">0 مجموعة</span>
                 </div>
                 <p class="text-[11px] text-slate-400 leading-relaxed">
-                    أنشئ مجموعة جديدة واختر الأعضاء من الجهات أو أدخل أرقاماً/معرّفات مفصولة بفاصلة، وتواصل داخلها بمساعدة <span class="text-indigo-300 font-bold">@سند</span>.
+                    أنشئ مجموعة جديدة واختر الأعضاء من الجهات أو أدخل أرقاماً/معرّفات مفصولة بفاصلة، وتواصل داخلها بمساعدة <span class="text-rose-200 font-bold">@سند</span>.
                 </p>
                 <div class="space-y-2">
                     <input type="text" id="g-name" placeholder="اسم المجموعة (مثال: فريق العمل أو العائلة)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
                     <input type="text" id="g-members" placeholder="أعضاء إضافيون (أرقام أو معرّفات مفصولة بفاصلة)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
                     <div id="g-contact-picker" class="flex flex-wrap gap-1.5"></div>
-                    <button type="button" onclick="createSanadGroup()" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ إنشاء مجموعة</button>
+                    <button type="button" onclick="createSanadGroup()" class="bg-[#9e1424] hover:bg-[#7d0e1b] text-white px-4 py-2 rounded-xl text-xs font-bold">+ إنشاء مجموعة</button>
                 </div>
             </div>
             <div id="groups-list" class="space-y-2"></div>
@@ -426,20 +426,20 @@ const htmlContent = `<!DOCTYPE html>
         <section id="pane-accounts" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-sm font-black text-blue-400">إدارة الحسابات والمعرّفات</h2>
-                    <span id="accounts-count-badge" class="text-[11px] font-mono text-blue-300 bg-blue-950/60 px-2.5 py-0.5 rounded-full">1 حساب</span>
+                    <h2 class="text-sm font-black text-rose-200">إدارة الحسابات والمعرّفات</h2>
+                    <span id="accounts-count-badge" class="text-[11px] font-mono text-slate-200 bg-slate-800 border border-slate-700 px-2.5 py-0.5 rounded-full">1 حساب</span>
                 </div>
                 <p class="text-[11px] text-slate-400 leading-relaxed">
                     ولّد معرّفاً جديداً أو أضف رقمك أو معرّفك الخاص وبدّل بين الحسابات بسهولة.
                 </p>
                 <div class="flex flex-wrap gap-2">
-                    <button type="button" onclick="make8DigitId()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ توليد معرّف (8 أرقام)</button>
-                    <button type="button" onclick="addCustomNumberAccount()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ إضافة رقم/معرّف</button>
-                    <button type="button" onclick="verifyPhoneAccount()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold">+ تفعيل رقم جوال</button>
+                    <button type="button" onclick="make8DigitId()" class="bg-[#9e1424] hover:bg-[#7d0e1b] text-white px-4 py-2 rounded-xl text-xs font-bold">+ توليد معرّف (8 أرقام)</button>
+                    <button type="button" onclick="addCustomNumberAccount()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 px-4 py-2 rounded-xl text-xs font-bold">+ إضافة رقم/معرّف</button>
+                    <button type="button" onclick="verifyPhoneAccount()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 px-4 py-2 rounded-xl text-xs font-bold">+ تفعيل رقم جوال</button>
                 </div>
-                <div id="last-generated-banner" class="hidden bg-emerald-950/50 border border-emerald-700/50 rounded-xl p-2.5 flex items-center justify-between text-xs">
-                    <span id="last-generated-text" class="font-mono font-bold text-emerald-300"></span>
-                    <button type="button" onclick="copyStringToClipboard(lastGeneratedCode)" class="bg-emerald-600 text-white px-3 py-1 rounded-lg text-[11px] font-bold">نسخ</button>
+                <div id="last-generated-banner" class="hidden bg-slate-950 border border-rose-900/60 rounded-xl p-2.5 flex items-center justify-between text-xs">
+                    <span id="last-generated-text" class="font-mono font-bold text-rose-200"></span>
+                    <button type="button" onclick="copyStringToClipboard(lastGeneratedCode)" class="bg-[#9e1424] text-white px-3 py-1 rounded-lg text-[11px] font-bold">نسخ</button>
                 </div>
                 <div id="accounts-list" class="space-y-2 pt-2"></div>
             </div>
@@ -448,15 +448,15 @@ const htmlContent = `<!DOCTYPE html>
         <section id="pane-contacts" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl space-y-2.5">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-sm font-black text-emerald-400">جهات الاتصال</h2>
-                    <button type="button" onclick="scanNumbersForSanad()" class="bg-blue-600/20 hover:bg-blue-600 border border-blue-500/40 text-blue-300 hover:text-white px-3 py-1 rounded-lg text-[11px] font-bold transition">
+                    <h2 class="text-sm font-black text-rose-200">جهات الاتصال</h2>
+                    <button type="button" onclick="scanNumbersForSanad()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-1 rounded-lg text-[11px] font-bold transition">
                         <i class="fa-solid fa-user-check ml-1"></i>فحص أرقام
                     </button>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-2">
                     <input type="text" id="c-name" onkeydown="if(event.key==='Enter')addNewContact()" placeholder="الاسم" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
                     <input type="text" id="c-id" onkeydown="if(event.key==='Enter')addNewContact()" placeholder="معرّف 8 أرقام أو رقم الجوال" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
-                    <button type="button" onclick="addNewContact()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold">حفظ</button>
+                    <button type="button" onclick="addNewContact()" class="bg-[#9e1424] hover:bg-[#7d0e1b] text-white px-4 py-2 rounded-xl text-xs font-bold">حفظ</button>
                 </div>
             </div>
             <div class="bg-slate-900/90 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between gap-2">
@@ -471,7 +471,7 @@ const htmlContent = `<!DOCTYPE html>
 
         <section id="pane-calls" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 text-center">
-                <div class="w-14 h-14 mx-auto rounded-2xl bg-blue-600/15 border border-blue-500/30 text-blue-400 flex items-center justify-center text-2xl">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-rose-950/70 border border-rose-800/50 text-rose-200 flex items-center justify-center text-2xl">
                     <i class="fa-solid fa-phone-volume"></i>
                 </div>
                 <div>
@@ -479,13 +479,13 @@ const htmlContent = `<!DOCTYPE html>
                     <p class="text-xs text-slate-400 mt-1">اكتب الاسم أو الرقم أو المعرّف وسيظهر فوراً من الجهات المخزّنة تلقائياً.</p>
                 </div>
                 <input type="text" id="call-input" oninput="onCallDialInput()" onkeydown="if(event.key==='Enter'){event.preventDefault();startDialedCall('audio');}" placeholder="اكتب الاسم أو الرقم أو المعرّف..." class="w-full max-w-md mx-auto bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-center font-mono text-white">
-                <div id="call-resolved-preview" class="text-[11px] text-emerald-300 font-semibold min-h-[18px]"></div>
+                <div id="call-resolved-preview" class="text-[11px] text-rose-200 font-semibold min-h-[18px]"></div>
                 <div id="call-contact-suggestions" class="flex flex-wrap justify-center gap-1.5 max-w-md mx-auto"></div>
                 <div class="flex gap-3 justify-center pt-1">
-                    <button type="button" onclick="startDialedCall('audio')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+                    <button type="button" onclick="startDialedCall('audio')" class="bg-emerald-700 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
                         <i class="fa-solid fa-phone"></i> مكالمة صوتية
                     </button>
-                    <button type="button" onclick="startDialedCall('video')" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+                    <button type="button" onclick="startDialedCall('video')" class="bg-[#9e1424] hover:bg-[#7d0e1b] text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
                         <i class="fa-solid fa-video"></i> مكالمة فيديو
                     </button>
                 </div>
@@ -494,61 +494,61 @@ const htmlContent = `<!DOCTYPE html>
 
         <section id="pane-ai" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2.5">
-                <h2 class="text-sm font-black text-indigo-400"><i class="fa-solid fa-brain ml-1"></i> مساعد سند AI والإعدادات</h2>
+                <h2 class="text-sm font-black text-rose-200"><i class="fa-solid fa-brain ml-1"></i> مساعد سند AI والإعدادات</h2>
                 <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
                     <span>وضع توفير البيانات للشبكات الضعيفة</span>
-                    <input type="checkbox" id="chk-weaknet" checked onchange="updateNetBadge()" class="w-4 h-4 accent-emerald-600">
+                    <input type="checkbox" id="chk-weaknet" checked onchange="updateNetBadge()" class="w-4 h-4 accent-rose-700">
                 </div>
                 <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
                     <span>الرد التلقائي الذكي عند استلام رسالة</span>
-                    <input type="checkbox" id="chk-autoreply" class="w-4 h-4 accent-indigo-600">
+                    <input type="checkbox" id="chk-autoreply" class="w-4 h-4 accent-rose-700">
                 </div>
                 <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
                     <span>نغمة التنبيه والرنين</span>
-                    <input type="checkbox" id="chk-chime" checked class="w-4 h-4 accent-blue-600">
+                    <input type="checkbox" id="chk-chime" checked class="w-4 h-4 accent-rose-700">
                 </div>
                 <div class="grid grid-cols-2 gap-2 pt-1">
-                    <button type="button" onclick="extractTasksFromThread()" class="bg-indigo-600/20 hover:bg-indigo-600/35 border border-indigo-500/30 text-indigo-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-list-check ml-1"></i>استخراج مهام</button>
-                    <button type="button" onclick="suggestSmartReplies()" class="bg-blue-600/20 hover:bg-blue-600/35 border border-blue-500/30 text-blue-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-bolt ml-1"></i>ردود ذكية</button>
+                    <button type="button" onclick="extractTasksFromThread()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-list-check ml-1"></i>استخراج مهام</button>
+                    <button type="button" onclick="suggestSmartReplies()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-bolt ml-1"></i>ردود ذكية</button>
                 </div>
                 <div class="flex gap-2">
-                    <button type="button" onclick="exportBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-download ml-1"></i>تصدير نسخة</button>
-                    <button type="button" onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
+                    <button type="button" onclick="exportBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-download ml-1"></i>تصدير نسخة</button>
+                    <button type="button" onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
                 </div>
                 <div id="ai-log" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
                     <div class="text-slate-400">مرحباً بك في سند AI v8.4 — مجموعات التواصل + مساعد «@سند» التفاعلي داخل المحادثات.</div>
                 </div>
                 <div class="flex gap-2">
                     <input type="text" id="ai-q" onkeydown="if(event.key==='Enter')askSanadAI()" placeholder="اسأل سند AI..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
-                    <button type="button" onclick="askSanadAI()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold">إرسال</button>
+                    <button type="button" onclick="askSanadAI()" class="bg-[#9e1424] hover:bg-[#7d0e1b] text-white px-4 py-2 rounded-xl text-xs font-bold">إرسال</button>
                 </div>
             </div>
         </section>
     </main>
 
-    <nav class="bg-slate-900 border-t border-slate-800 px-1 py-2.5 flex justify-around items-center z-20 shrink-0">
-        <a href="#tab-chats" onclick="setPane('chats'); return false;" id="btn-chats" class="flex flex-col items-center gap-1 text-blue-400 font-bold text-[10px] px-1.5 py-1">
-            <i class="fa-solid fa-comments text-base"></i>
+    <nav class="bg-slate-900/95 border-t border-slate-800 px-0.5 py-2 flex justify-around items-center z-20 shrink-0">
+        <a href="#tab-chats" onclick="setPane('chats'); return false;" id="btn-chats" class="flex flex-col items-center gap-0.5 text-rose-300 font-extrabold text-[9.5px] px-1 py-1">
+            <i class="fa-solid fa-comments text-sm"></i>
             <span>الدردشة</span>
         </a>
-        <a href="#tab-groups" onclick="setPane('groups'); return false;" id="btn-groups" class="flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-1.5 py-1">
-            <i class="fa-solid fa-users text-base"></i>
+        <a href="#tab-groups" onclick="setPane('groups'); return false;" id="btn-groups" class="flex flex-col items-center gap-0.5 text-slate-400 font-semibold text-[9.5px] px-1 py-1">
+            <i class="fa-solid fa-users text-sm"></i>
             <span>المجموعات</span>
         </a>
-        <a href="#tab-accounts" onclick="setPane('accounts'); return false;" id="btn-accounts" class="flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-1.5 py-1">
-            <i class="fa-solid fa-id-card text-base"></i>
+        <a href="#tab-accounts" onclick="setPane('accounts'); return false;" id="btn-accounts" class="flex flex-col items-center gap-0.5 text-slate-400 font-semibold text-[9.5px] px-1 py-1">
+            <i class="fa-solid fa-id-card text-sm"></i>
             <span>الحسابات</span>
         </a>
-        <a href="#tab-contacts" onclick="setPane('contacts'); return false;" id="btn-contacts" class="flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-1.5 py-1">
-            <i class="fa-solid fa-address-book text-base"></i>
+        <a href="#tab-contacts" onclick="setPane('contacts'); return false;" id="btn-contacts" class="flex flex-col items-center gap-0.5 text-slate-400 font-semibold text-[9.5px] px-1 py-1">
+            <i class="fa-solid fa-address-book text-sm"></i>
             <span>الجهات</span>
         </a>
-        <a href="#tab-calls" onclick="setPane('calls'); return false;" id="btn-calls" class="flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-1.5 py-1">
-            <i class="fa-solid fa-phone-volume text-base"></i>
+        <a href="#tab-calls" onclick="setPane('calls'); return false;" id="btn-calls" class="flex flex-col items-center gap-0.5 text-slate-400 font-semibold text-[9.5px] px-1 py-1">
+            <i class="fa-solid fa-phone-volume text-sm"></i>
             <span>المكالمات</span>
         </a>
-        <a href="#tab-ai" onclick="setPane('ai'); return false;" id="btn-ai" class="flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] px-1.5 py-1">
-            <i class="fa-solid fa-brain text-base"></i>
+        <a href="#tab-ai" onclick="setPane('ai'); return false;" id="btn-ai" class="flex flex-col items-center gap-0.5 text-slate-400 font-semibold text-[9.5px] px-1 py-1">
+            <i class="fa-solid fa-brain text-sm"></i>
             <span>الذكاء</span>
         </a>
     </nav>
@@ -601,9 +601,9 @@ const htmlContent = `<!DOCTYPE html>
         function setHeaderStatus(text, isOnline) {
             var dot = document.getElementById('ws-dot');
             var lbl = document.getElementById('ws-label');
-            if (dot) dot.className = isOnline ? 'w-2 h-2 rounded-full bg-emerald-500' : 'w-2 h-2 rounded-full bg-amber-400';
+            if (dot) dot.className = isOnline ? 'w-2 h-2 rounded-full bg-emerald-400' : 'w-2 h-2 rounded-full bg-amber-300';
             if (lbl) {
-                lbl.className = isOnline ? 'text-emerald-400 font-semibold' : 'text-amber-300 font-semibold';
+                lbl.className = isOnline ? 'text-emerald-300 font-semibold' : 'text-amber-200 font-semibold';
                 lbl.textContent = text;
             }
             updateQueueBadge();
@@ -617,10 +617,10 @@ const htmlContent = `<!DOCTYPE html>
             var eff = (conn && conn.effectiveType) ? String(conn.effectiveType).toUpperCase() : '';
             if (chk && chk.checked) {
                 badge.textContent = eff ? ('توفير • ' + eff) : 'توفير ذكي';
-                badge.className = 'text-[10px] bg-emerald-950/80 text-emerald-300 border border-emerald-700/40 px-2 py-0.5 rounded-full font-bold';
+                badge.className = 'text-[10px] bg-slate-800 text-slate-200 border border-slate-700/80 px-2 py-0.5 rounded-full font-bold';
             } else {
                 badge.textContent = eff ? ('سريع • ' + eff) : 'أداء سريع';
-                badge.className = 'text-[10px] bg-blue-950/80 text-blue-300 border border-blue-700/40 px-2 py-0.5 rounded-full font-bold';
+                badge.className = 'text-[10px] bg-rose-950/70 text-rose-200 border border-rose-800/50 px-2 py-0.5 rounded-full font-bold';
             }
         }
 
@@ -784,7 +784,7 @@ const htmlContent = `<!DOCTYPE html>
             box.innerHTML = list.map(function(c) {
                 var picked = selectedGroupMembers.has(c.id);
                 return '<button type="button" onclick="toggleGroupMemberPick(\\'' + c.id + '\\')" class="px-2.5 py-1 rounded-lg border text-[11px] font-bold ' +
-                    (picked ? 'bg-cyan-600/30 border-cyan-400 text-cyan-200' : 'bg-slate-950 border-slate-800 text-slate-300') + '">' +
+                    (picked ? 'bg-rose-950/80 border-rose-700/70 text-rose-100' : 'bg-slate-950 border-slate-800 text-slate-300') + '">' +
                     (picked ? '✓ ' : '') + c.name + ' <span class="font-mono text-[10px]">(' + c.id + ')</span></button>';
             }).join('');
         }
@@ -823,9 +823,9 @@ const htmlContent = `<!DOCTYPE html>
             box.innerHTML = sanadGroups.map(function(g) {
                 var mCount = Array.isArray(g.members) ? g.members.length : 1;
                 return '<div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center gap-2">' +
-                    '<div class="min-w-0"><p class="text-xs font-black text-white truncate"><i class="fa-solid fa-users text-cyan-400 ml-1"></i>' + g.name + '</p>' +
+                    '<div class="min-w-0"><p class="text-xs font-black text-white truncate"><i class="fa-solid fa-users text-rose-300 ml-1"></i>' + g.name + '</p>' +
                     '<p class="text-[11px] font-mono text-slate-400 truncate">' + g.id + ' • ' + mCount + ' أعضاء</p></div>' +
-                    '<button type="button" onclick="choosePeer(\\'' + g.id + '\\')" class="bg-cyan-600 hover:bg-cyan-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">دخول المجموعة</button></div>';
+                    '<button type="button" onclick="choosePeer(\\'' + g.id + '\\')" class="bg-[#9e1424] hover:bg-[#7d0e1b] text-white px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">دخول المجموعة</button></div>';
             }).join('');
         }
 
@@ -1188,8 +1188,8 @@ const htmlContent = `<!DOCTYPE html>
             }
             if (sugBox) {
                 sugBox.innerHTML = matches.map(function(c) {
-                    return '<button type="button" onclick="selectCallSuggestion(\\'' + c.id + '\\', \\'' + String(c.name).replace(/'/g, '') + '\\')" class="bg-slate-800 hover:bg-blue-600/30 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg text-[11px] font-bold">' +
-                        c.name + ' • <span class="font-mono text-blue-300">' + c.id + '</span></button>';
+                    return '<button type="button" onclick="selectCallSuggestion(\\'' + c.id + '\\', \\'' + String(c.name).replace(/'/g, '') + '\\')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg text-[11px] font-bold">' +
+                        c.name + ' • <span class="font-mono text-rose-200">' + c.id + '</span></button>';
                 }).join('');
             }
         }
@@ -1387,8 +1387,8 @@ const htmlContent = `<!DOCTYPE html>
             var btn = document.getElementById('mute-btn');
             var icon = document.getElementById('mute-icon');
             btn.className = tr.enabled
-                ? 'w-11 h-11 rounded-2xl bg-slate-800 text-white flex items-center justify-center'
-                : 'w-11 h-11 rounded-2xl bg-amber-600 text-white flex items-center justify-center';
+                ? 'w-11 h-11 rounded-2xl bg-slate-800 border border-slate-700 text-white flex items-center justify-center'
+                : 'w-11 h-11 rounded-2xl bg-amber-700 text-white flex items-center justify-center';
             if (icon) icon.className = tr.enabled ? 'fa-solid fa-microphone' : 'fa-solid fa-microphone-slash';
         }
 
@@ -1432,11 +1432,11 @@ const htmlContent = `<!DOCTYPE html>
                 };
                 speechRec.onend = function() {
                     dictating = false;
-                    btn.className = 'text-cyan-400 hover:text-cyan-300 p-2 rounded-xl hover:bg-slate-800 transition';
+                    btn.className = 'text-slate-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition';
                 };
                 speechRec.start();
                 dictating = true;
-                btn.className = 'bg-cyan-600 text-white p-2 rounded-xl animate-pulse';
+                btn.className = 'bg-[#9e1424] text-white p-2 rounded-xl animate-pulse';
             } else {
                 speechRec.stop();
                 dictating = false;
@@ -1464,7 +1464,7 @@ const htmlContent = `<!DOCTYPE html>
             var timerEl = document.getElementById('rec-timer');
             var btn = document.getElementById('voice-btn');
             if (timerEl) timerEl.classList.add('hidden');
-            if (btn) btn.className = 'bg-slate-800 hover:bg-emerald-600 text-emerald-400 hover:text-white p-2.5 rounded-xl transition';
+            if (btn) btn.className = 'bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white p-2.5 rounded-xl transition';
             if (stream) stream.getTracks().forEach(function(t) { t.stop(); });
             capturingAudio = false;
             mediaRec = null;
@@ -1509,7 +1509,7 @@ const htmlContent = `<!DOCTYPE html>
                         recSeconds += 1;
                         timerEl.textContent = formatTimer(recSeconds);
                     }, 1000);
-                    btn.className = 'bg-red-600 text-white p-2.5 rounded-xl animate-pulse';
+                    btn.className = 'bg-[#9e1424] text-white p-2.5 rounded-xl animate-pulse';
                 }).catch(function() { resetVoiceUi(null); alert('يرجى السماح بالوصول إلى الميكروفون.'); });
             } else {
                 try {
@@ -1715,7 +1715,7 @@ const htmlContent = `<!DOCTYPE html>
             var lastFew = list.slice(-6).map(function(m) { return (m.from === 'me' ? 'أنت: ' : 'الطرف: ') + m.text; }).join(' • ');
             setPane('ai');
             var log = document.getElementById('ai-log');
-            log.innerHTML += '<div class="bg-indigo-950/50 p-2 rounded-lg text-indigo-200"><strong>ملخص (' + currentPeer + '):</strong> ' + lastFew + '</div>';
+            log.innerHTML += '<div class="bg-slate-950 border border-rose-900/50 p-2 rounded-lg text-slate-200"><strong>ملخص (' + currentPeer + '):</strong> ' + lastFew + '</div>';
             log.scrollTop = log.scrollHeight;
         }
 
@@ -1724,7 +1724,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!list.length) return alert('لا توجد رسائل نصية لاستخراج المهام منها.');
             var tasks = list.slice(-5).map(function(m, idx) { return (idx + 1) + '. متابعة: ' + m.text; }).join(' | ');
             var log = document.getElementById('ai-log');
-            log.innerHTML += '<div class="bg-emerald-950/40 border border-emerald-700/30 p-2 rounded-lg text-emerald-200"><strong>مهام (' + currentPeer + '):</strong> ' + tasks + '</div>';
+            log.innerHTML += '<div class="bg-slate-950 border border-slate-800 p-2 rounded-lg text-emerald-200"><strong>مهام (' + currentPeer + '):</strong> ' + tasks + '</div>';
             log.scrollTop = log.scrollHeight;
         }
 
@@ -1738,8 +1738,8 @@ const htmlContent = `<!DOCTYPE html>
             }
             setPane('chats');
             var bar = document.getElementById('smart-replies-bar');
-            bar.innerHTML = '<span class="text-indigo-300 font-bold shrink-0"><i class="fa-solid fa-sparkles"></i> ردود:</span>' + options.map(function(opt) {
-                return '<button type="button" onclick="applySmartReply(\\'' + opt.replace(/'/g, '') + '\\')" class="bg-indigo-950/70 hover:bg-indigo-800/70 border border-indigo-500/30 text-indigo-100 px-2.5 py-1 rounded-lg shrink-0">' + opt + '</button>';
+            bar.innerHTML = '<span class="text-rose-200 font-bold shrink-0">ردود:</span>' + options.map(function(opt) {
+                return '<button type="button" onclick="applySmartReply(\\'' + opt.replace(/'/g, '') + '\\')" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-100 px-2.5 py-1 rounded-lg shrink-0">' + opt + '</button>';
             }).join('');
             bar.classList.remove('hidden');
         }
@@ -1755,14 +1755,14 @@ const htmlContent = `<!DOCTYPE html>
             var q = inp.value.trim();
             if (!q) return;
             var log = document.getElementById('ai-log');
-            log.innerHTML += '<div class="bg-blue-950/50 p-2 rounded-lg text-blue-200"><strong>أنت:</strong> ' + q + '</div>';
+            log.innerHTML += '<div class="bg-rose-950/60 border border-rose-900/50 p-2 rounded-lg text-rose-100"><strong>أنت:</strong> ' + q + '</div>';
             var reply = 'مساعد سند AI v8.4 يدعم مجموعات التواصل، مساعد @سند التفاعلي داخل المحادثات، تثبيت الرسائل، البحث، والمكالمات.';
             if (q.indexOf('مجموع') !== -1) {
                 reply = 'من تبويب «المجموعات» يمكنك إنشاء مجموعة جديدة واختيار الأعضاء ثم الدردشة ومشاركة الملفات والمناداة على @سند.';
             } else if (q.indexOf('سند') !== -1 || q.indexOf('@') !== -1) {
                 reply = 'اكتب @سند متبوعاً بطلبك (مثل: @سند لخص النقاش أو @سند خطوات) وسيظهر الرد الذكي مباشرة داخل المحادثة.';
             }
-            log.innerHTML += '<div class="bg-slate-900 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> ' + reply + '</div>';
+            log.innerHTML += '<div class="bg-slate-900 border border-slate-800 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> ' + reply + '</div>';
             inp.value = '';
             log.scrollTop = log.scrollHeight;
         }
@@ -1926,12 +1926,12 @@ const htmlContent = `<!DOCTYPE html>
             }
             if (dot && lbl) {
                 if (grp) {
-                    dot.className = 'w-2.5 h-2.5 rounded-full bg-cyan-400';
-                    lbl.className = 'text-[11px] font-bold text-cyan-300 whitespace-nowrap';
+                    dot.className = 'w-2.5 h-2.5 rounded-full bg-rose-300';
+                    lbl.className = 'text-[11px] font-bold text-rose-200 whitespace-nowrap';
                     lbl.textContent = 'مجموعة نشطة';
                 } else if (isOn) {
-                    dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500';
-                    lbl.className = 'text-[11px] font-bold text-emerald-400 whitespace-nowrap';
+                    dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+                    lbl.className = 'text-[11px] font-bold text-emerald-300 whitespace-nowrap';
                     lbl.textContent = 'متصل الآن';
                 } else {
                     dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-600';
@@ -1947,13 +1947,13 @@ const htmlContent = `<!DOCTYPE html>
             if (chips) {
                 var grpChips = sanadGroups.map(function(g) {
                     return '<button type="button" onclick="choosePeer(\\'' + g.id + '\\')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] shrink-0 ' +
-                        (g.id === currentPeer ? 'bg-cyan-600/25 border-cyan-400 text-white font-bold' : 'bg-slate-800/80 border-slate-700 text-cyan-200') + '">' +
-                        '<i class="fa-solid fa-users text-[10px] text-cyan-400"></i><span>' + g.name + '</span></button>';
+                        (g.id === currentPeer ? 'bg-rose-950/80 border-rose-700/70 text-white font-bold' : 'bg-slate-800/85 border-slate-700 text-slate-200') + '">' +
+                        '<i class="fa-solid fa-users text-[10px] text-rose-300"></i><span>' + g.name + '</span></button>';
                 }).join('');
                 chips.innerHTML = '<span class="text-[11px] text-slate-400 shrink-0">وصول سريع:</span>' + grpChips + chipList.map(function(c) {
                     var on = onlinePeers.has(c.id);
                     return '<button type="button" onclick="choosePeer(\\'' + c.id + '\\')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] shrink-0 ' +
-                        (c.id === currentPeer ? 'bg-blue-600/25 border-blue-500 text-white font-bold' : 'bg-slate-800/80 border-slate-700 text-slate-300') + '">' +
+                        (c.id === currentPeer ? 'bg-[#9e1424]/90 border-rose-700 text-white font-bold' : 'bg-slate-800/85 border-slate-700 text-slate-200') + '">' +
                         '<span class="w-2 h-2 rounded-full ' + (on ? 'bg-emerald-400' : 'bg-slate-500') + '"></span>' +
                         '<span>' + c.name + '</span></button>';
                 }).join('');
@@ -1976,16 +1976,16 @@ const htmlContent = `<!DOCTYPE html>
                 var on = onlinePeers.has(c.id);
                 var subTag = on ? 'متصل الآن' : 'محفوظ';
                 var metaText = c.id === DEFAULT_PEER ? subTag : (c.id + ' • ' + subTag);
-                var delBtn = c.id === DEFAULT_PEER ? '' : '<button type="button" onclick="deleteContactById(\\'' + c.id + '\\')" class="bg-red-500/10 text-red-400 px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>';
+                var delBtn = c.id === DEFAULT_PEER ? '' : '<button type="button" onclick="deleteContactById(\\'' + c.id + '\\')" class="bg-rose-950/60 border border-rose-900/50 text-rose-300 px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>';
                 return '<div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center gap-2">' +
                     '<div class="flex items-center gap-2.5 min-w-0">' +
-                    '<span class="w-2.5 h-2.5 rounded-full shrink-0 ' + (on ? 'bg-emerald-500' : 'bg-slate-600') + '"></span>' +
+                    '<span class="w-2.5 h-2.5 rounded-full shrink-0 ' + (on ? 'bg-emerald-400' : 'bg-slate-600') + '"></span>' +
                     '<div class="truncate"><p class="text-xs font-bold text-white truncate">' + c.name + '</p>' +
-                    '<p class="text-[11px] font-mono ' + (on ? 'text-emerald-400' : 'text-slate-400') + '">' + metaText + '</p></div></div>' +
+                    '<p class="text-[11px] font-mono ' + (on ? 'text-emerald-300' : 'text-slate-400') + '">' + metaText + '</p></div></div>' +
                     '<div class="flex gap-1.5 shrink-0">' +
-                    '<button type="button" onclick="launchCall(\\'audio\\', \\'' + c.id + '\\')" title="اتصال صوتي" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-phone"></i></button>' +
-                    '<button type="button" onclick="launchCall(\\'video\\', \\'' + c.id + '\\')" title="مكالمة فيديو" class="bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-video"></i></button>' +
-                    '<button type="button" onclick="choosePeer(\\'' + c.id + '\\')" class="bg-blue-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold">مراسلة</button>' +
+                    '<button type="button" onclick="launchCall(\\'audio\\', \\'' + c.id + '\\')" title="اتصال صوتي" class="bg-slate-800 hover:bg-emerald-700 border border-slate-700 text-emerald-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-phone"></i></button>' +
+                    '<button type="button" onclick="launchCall(\\'video\\', \\'' + c.id + '\\')" title="مكالمة فيديو" class="bg-slate-800 hover:bg-[#9e1424] border border-slate-700 text-rose-200 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-video"></i></button>' +
+                    '<button type="button" onclick="choosePeer(\\'' + c.id + '\\')" class="bg-[#9e1424] hover:bg-[#7d0e1b] text-white px-2.5 py-1.5 rounded-lg text-xs font-bold">مراسلة</button>' +
                     delBtn +
                     '</div></div>';
             }).join('');
@@ -1993,8 +1993,8 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function buildDeliveryBadge(m) {
-            if (m.read || m.status === 'read') return '<span class="text-emerald-300 font-bold">مقروءة</span>';
-            if (m.delivered || m.status === 'delivered') return '<span class="text-blue-100 font-semibold">مستلمة</span>';
+            if (m.read || m.status === 'read') return '<span class="text-emerald-200 font-bold">مقروءة</span>';
+            if (m.delivered || m.status === 'delivered') return '<span class="text-rose-100 font-semibold">مستلمة</span>';
             if (m.delivered === false) return '<span class="text-amber-200">مرسلة • <button type="button" onclick="retryMessage(\\'' + m.id + '\\')" class="underline">إعادة إرسال</button></span>';
             return '<span>مرسلة</span>';
         }
@@ -2026,21 +2026,21 @@ const htmlContent = `<!DOCTYPE html>
                     return '<div class="text-center text-[11px] text-slate-500 italic">' + delLabel + '</div>';
                 }
                 var mine = m.from === 'me';
-                var senderTag = (!mine && m.senderName) ? '<p class="text-[10px] font-bold text-indigo-300 mb-0.5">' + m.senderName + '</p>' : '';
+                var senderTag = (!mine && m.senderName) ? '<p class="text-[10px] font-bold text-rose-200 mb-0.5">' + m.senderName + '</p>' : '';
                 var body = '<p class="whitespace-pre-wrap break-words">' + m.text + '</p>';
                 if (m.kind === 'audio' && m.mediaUrl) body = '<audio controls preload="metadata" src="' + m.mediaUrl + '" class="max-w-full h-9"></audio>';
                 else if (m.kind === 'image' && m.mediaUrl) body = '<img src="' + m.mediaUrl + '" alt="' + (m.fileName || 'صورة') + '" class="max-w-full max-h-56 rounded-xl object-contain"><p class="text-[11px] mt-1">' + m.text + '</p>';
                 else if (m.kind === 'file' && m.mediaUrl) body = '<a href="' + m.mediaUrl + '" download="' + (m.fileName || 'file') + '" class="underline flex items-center gap-1.5 text-xs"><i class="fa-solid fa-file-arrow-down"></i><span>' + (m.fileName || m.text) + '</span></a>';
-                var speakBtn = (m.kind === 'text' && m.text) ? '<button type="button" onclick="speakText(\\'' + String(m.text).replace(/'/g, '') + '\\')" class="underline text-blue-100">استماع</button>' : '';
-                var pinBtn = '<button type="button" onclick="pinThreadMsg(\\'' + m.id + '\\')" class="underline text-amber-200">تثبيت</button>';
+                var speakBtn = (m.kind === 'text' && m.text) ? '<button type="button" onclick="speakText(\\'' + String(m.text).replace(/'/g, '') + '\\')" class="underline ' + (mine ? 'text-rose-100 hover:text-white' : 'text-slate-200 hover:text-white') + '">استماع</button>' : '';
+                var pinBtn = '<button type="button" onclick="pinThreadMsg(\\'' + m.id + '\\')" class="underline ' + (mine ? 'text-rose-100 hover:text-white' : 'text-amber-200 hover:text-white') + '">تثبيت</button>';
                 var deliveryLabel = mine ? buildDeliveryBadge(m) : '<span class="text-emerald-300 font-semibold">مستلمة</span>';
                 return '<div class="flex ' + (mine ? 'justify-end' : 'justify-start') + '">' +
-                    '<div class="' + (mine ? 'bg-blue-600 text-white rounded-tl-none' : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tr-none') + ' p-3 rounded-2xl max-w-md text-xs md:text-sm shadow space-y-1">' +
+                    '<div class="' + (mine ? 'bg-[#8f1220] border border-rose-700/50 text-white rounded-tl-none' : 'bg-slate-900 border border-slate-800 text-slate-100 rounded-tr-none') + ' p-3 rounded-2xl max-w-md text-xs md:text-sm shadow space-y-1">' +
                     senderTag + body +
-                    '<div class="flex justify-between items-center gap-3 pt-1 border-t ' + (mine ? 'border-blue-400/30 text-blue-100' : 'border-slate-800 text-slate-400') + ' text-[10px]">' +
+                    '<div class="flex justify-between items-center gap-3 pt-1 border-t ' + (mine ? 'border-rose-300/20 text-rose-100' : 'border-slate-800 text-slate-400') + ' text-[10px]">' +
                     deliveryLabel +
                     '<div class="flex gap-2">' + pinBtn + speakBtn +
-                    '<button type="button" onclick="openDeleteModal(\\'' + m.id + '\\', ' + (mine ? 'true' : 'false') + ')" class="underline ' + (mine ? 'text-red-100' : 'text-red-400') + '">حذف</button>' +
+                    '<button type="button" onclick="openDeleteModal(\\'' + m.id + '\\', ' + (mine ? 'true' : 'false') + ')" class="underline ' + (mine ? 'text-rose-100 hover:text-white' : 'text-rose-300 hover:text-rose-200') + '">حذف</button>' +
                     '</div></div></div></div>';
             }).join('');
             if (!q) box.scrollTop = box.scrollHeight;
@@ -2052,9 +2052,9 @@ const htmlContent = `<!DOCTYPE html>
             var box = document.getElementById('accounts-list');
             if (!box) return;
             box.innerHTML = myAccts.map(function(id) {
-                return '<div onclick="activateAccount(\\'' + id + '\\')" class="bg-slate-950 border ' + (id === activeAcct ? 'border-blue-500' : 'border-slate-800') + ' p-3 rounded-xl flex justify-between items-center cursor-pointer">' +
+                return '<div onclick="activateAccount(\\'' + id + '\\')" class="bg-slate-950 border ' + (id === activeAcct ? 'border-rose-700' : 'border-slate-800') + ' p-3 rounded-xl flex justify-between items-center cursor-pointer">' +
                     '<span class="text-xs font-mono font-bold text-white">' + id + '</span>' +
-                    '<span class="text-[10px] ' + (id === activeAcct ? 'text-emerald-400 font-bold' : 'text-slate-400') + '">' + (id === activeAcct ? 'نشط' : 'تبديل') + '</span></div>';
+                    '<span class="text-[10px] ' + (id === activeAcct ? 'text-rose-200 font-bold' : 'text-slate-400') + '">' + (id === activeAcct ? 'نشط' : 'تبديل') + '</span></div>';
             }).join('');
         }
 

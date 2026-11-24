@@ -1,6 +1,7 @@
 const http = require('http');
 const { WebSocketServer } = require('ws');
 
+const APP_VERSION = '8.6.0';
 const ICON_BG_HEX = '#164e63';
 const ICON_ACCENT_HEX = '#f0fdfa';
 const ICON_SUB_HEX = '#0f3646';
@@ -53,9 +54,9 @@ const sanadIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 5
 </svg>`;
 
 const manifestPayload = JSON.stringify({
-  name: 'Sanad AI v8.5 - سند',
+  name: 'Sanad AI v8.6 - سند',
   short_name: 'سند AI',
-  description: 'تطبيق سند AI v8.5 للتواصل الذكي والمحادثات والمكالمات وتطوير المحتوى للعملاء',
+  description: 'تطبيق سند AI للتواصل الذكي والمحادثات والمكالمات وتطوير المحتوى للعملاء',
   start_url: '/',
   scope: '/',
   display: 'standalone',
@@ -74,12 +75,15 @@ const htmlContent = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="سند AI">
     <meta name="theme-color" content="#164e63">
-    <title>سند AI v8.5</title>
+    <title>سند AI v8.6</title>
     <link id="sanad-favicon" rel="icon" type="image/svg+xml" href="/icon.svg">
     <link id="sanad-apple-icon" rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
@@ -98,6 +102,8 @@ const htmlContent = `<!DOCTYPE html>
 <body class="text-slate-100 h-screen flex flex-col overflow-hidden select-none">
 
     <script>
+        var CLIENT_APP_VERSION = '${APP_VERSION}';
+
         function toWesternDigits(str) {
             return String(str === undefined || str === null ? '' : str)
                 .replace(/[٠-٩]/g, function(d) { return String(d.charCodeAt(0) - 1632); })
@@ -287,7 +293,7 @@ const htmlContent = `<!DOCTYPE html>
             <div class="min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
                     <h1 class="font-black text-base text-white leading-none">سند</h1>
-                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/60 px-2 py-0.5 rounded-full font-bold">AI v8.5</span>
+                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/60 px-2 py-0.5 rounded-full font-bold">AI v8.6</span>
                     <span id="current-tab-badge" class="text-[10px] bg-slate-800/90 text-slate-200 border border-slate-700/80 px-2 py-0.5 rounded-full font-bold">الدردشة</span>
                     <span id="device-badge" class="text-[10px] bg-slate-800/90 text-slate-300 border border-slate-700/60 px-2 py-0.5 rounded-full font-semibold">جهاز</span>
                     <span id="net-badge" class="text-[10px] bg-slate-800/90 text-sky-200 border border-sky-800/50 px-2 py-0.5 rounded-full font-bold">وضع مرن</span>
@@ -325,7 +331,7 @@ const htmlContent = `<!DOCTYPE html>
 
     <div id="call-modal" class="hidden fixed inset-0 bg-[#080f18]/95 z-50 flex flex-col items-center justify-between p-4">
         <div class="text-center mt-1">
-            <p class="text-xs text-teal-300 font-bold">سند AI v8.5 • اتصال طبي واضح ومستقر</p>
+            <p class="text-xs text-teal-300 font-bold">سند AI v8.6 • اتصال طبي واضح ومستقر</p>
             <h2 id="call-peer-title" class="text-lg font-black text-white font-mono mt-0.5">...</h2>
             <p id="call-timer-el" class="text-xs font-mono font-bold text-slate-300 mt-0.5">00:00</p>
             <p id="call-status-msg" class="text-xs text-emerald-300 mt-0.5 font-semibold">جاري الاتصال...</p>
@@ -547,7 +553,7 @@ const htmlContent = `<!DOCTYPE html>
             <div class="bg-[#0f1b29] border border-slate-800 p-4 rounded-2xl space-y-2.5">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-black text-teal-200"><i class="fa-solid fa-brain ml-1"></i> مساعد سند AI وتطوير المحتوى</h2>
-                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/50 px-2 py-0.5 rounded-full font-bold">v8.5</span>
+                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/50 px-2 py-0.5 rounded-full font-bold">v8.6</span>
                 </div>
                 <div class="flex items-center justify-between bg-[#080f18] p-3 rounded-xl border border-slate-800 text-xs">
                     <span>وضع توفير البيانات للشبكات الضعيفة</span>
@@ -580,7 +586,7 @@ const htmlContent = `<!DOCTYPE html>
                     <button type="button" onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
                 </div>
                 <div id="ai-log" class="bg-[#080f18] border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">مرحباً بك في سند AI v8.5 — مجموعات التواصل + مساعد «@سند» التفاعلي + أدوات تطوير المحتوى والعملاء.</div>
+                    <div class="text-slate-400">مرحباً بك في سند AI v8.6 — تحديث تلقائي داخل الأيقونات + اتصال سريع + مجموعات التواصل.</div>
                 </div>
                 <div class="flex gap-2">
                     <input type="text" id="ai-q" onkeydown="if(event.key==='Enter')askSanadAI()" placeholder="اسأل سند AI أو اطلب صياغة محتوى للعملاء..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
@@ -642,6 +648,8 @@ const htmlContent = `<!DOCTYPE html>
         var ws = null;
         var wsConnected = false;
         var serverReachable = true;
+        var lastSyncCursor = 0;
+        var autoReloadingForUpdate = false;
 
         function cleanIdValue(val) {
             return toWesternDigits(String(val === undefined || val === null ? '' : val)).trim();
@@ -655,6 +663,14 @@ const htmlContent = `<!DOCTYPE html>
                 if (normalizeStr(item) === target) found = true;
             });
             return found;
+        }
+
+        function triggerSilentAppUpdateIfNeeded(serverVer) {
+            if (!serverVer || serverVer === CLIENT_APP_VERSION || autoReloadingForUpdate) return;
+            autoReloadingForUpdate = true;
+            try { persistState(); } catch (e) {}
+            var baseUrl = location.origin + location.pathname;
+            location.replace(baseUrl + '?v=' + encodeURIComponent(serverVer) + (location.hash || ''));
         }
 
         function onSanadTabActivated(p) {
@@ -703,12 +719,12 @@ const htmlContent = `<!DOCTYPE html>
 
         function loadSavedState() {
             try {
-                var savedActive = localStorage.getItem('sanad85_active') || localStorage.getItem('sanad84_active') || localStorage.getItem('sanad83_active') || localStorage.getItem('sanad82_active');
-                var savedAccts = JSON.parse(localStorage.getItem('sanad85_accts') || localStorage.getItem('sanad84_accts') || localStorage.getItem('sanad83_accts') || localStorage.getItem('sanad82_accts') || 'null');
-                var savedContacts = JSON.parse(localStorage.getItem('sanad85_contacts') || localStorage.getItem('sanad84_contacts') || localStorage.getItem('sanad83_contacts') || localStorage.getItem('sanad82_contacts') || 'null');
-                var savedThreads = JSON.parse(localStorage.getItem('sanad85_threads') || localStorage.getItem('sanad84_threads') || localStorage.getItem('sanad83_threads') || localStorage.getItem('sanad82_threads') || 'null');
-                var savedGroups = JSON.parse(localStorage.getItem('sanad85_groups') || localStorage.getItem('sanad84_groups') || 'null');
-                var savedPins = JSON.parse(localStorage.getItem('sanad85_pins') || localStorage.getItem('sanad84_pins') || 'null');
+                var savedActive = localStorage.getItem('sanad86_active') || localStorage.getItem('sanad85_active') || localStorage.getItem('sanad84_active') || localStorage.getItem('sanad83_active') || localStorage.getItem('sanad82_active');
+                var savedAccts = JSON.parse(localStorage.getItem('sanad86_accts') || localStorage.getItem('sanad85_accts') || localStorage.getItem('sanad84_accts') || localStorage.getItem('sanad83_accts') || localStorage.getItem('sanad82_accts') || 'null');
+                var savedContacts = JSON.parse(localStorage.getItem('sanad86_contacts') || localStorage.getItem('sanad85_contacts') || localStorage.getItem('sanad84_contacts') || localStorage.getItem('sanad83_contacts') || localStorage.getItem('sanad82_contacts') || 'null');
+                var savedThreads = JSON.parse(localStorage.getItem('sanad86_threads') || localStorage.getItem('sanad85_threads') || localStorage.getItem('sanad84_threads') || localStorage.getItem('sanad83_threads') || localStorage.getItem('sanad82_threads') || 'null');
+                var savedGroups = JSON.parse(localStorage.getItem('sanad86_groups') || localStorage.getItem('sanad85_groups') || localStorage.getItem('sanad84_groups') || 'null');
+                var savedPins = JSON.parse(localStorage.getItem('sanad86_pins') || localStorage.getItem('sanad85_pins') || localStorage.getItem('sanad84_pins') || 'null');
 
                 if (savedActive && cleanIdValue(savedActive) !== '88888888') {
                     activeAcct = cleanIdValue(savedActive);
@@ -766,7 +782,7 @@ const htmlContent = `<!DOCTYPE html>
                     pinnedByThread = normPins;
                 }
 
-                var aiCfg = JSON.parse(localStorage.getItem('sanad85_ai_cfg') || 'null');
+                var aiCfg = JSON.parse(localStorage.getItem('sanad86_ai_cfg') || localStorage.getItem('sanad85_ai_cfg') || 'null');
                 if (aiCfg && typeof aiCfg === 'object') {
                     var kEl = document.getElementById('ai-api-key');
                     var eEl = document.getElementById('ai-api-endpoint');
@@ -778,12 +794,12 @@ const htmlContent = `<!DOCTYPE html>
 
         function persistState() {
             try {
-                localStorage.setItem('sanad85_active', activeAcct);
-                localStorage.setItem('sanad85_accts', JSON.stringify(myAccts));
-                localStorage.setItem('sanad85_contacts', JSON.stringify(contacts));
-                localStorage.setItem('sanad85_threads', JSON.stringify(acctThreads));
-                localStorage.setItem('sanad85_groups', JSON.stringify(sanadGroups));
-                localStorage.setItem('sanad85_pins', JSON.stringify(pinnedByThread));
+                localStorage.setItem('sanad86_active', activeAcct);
+                localStorage.setItem('sanad86_accts', JSON.stringify(myAccts));
+                localStorage.setItem('sanad86_contacts', JSON.stringify(contacts));
+                localStorage.setItem('sanad86_threads', JSON.stringify(acctThreads));
+                localStorage.setItem('sanad86_groups', JSON.stringify(sanadGroups));
+                localStorage.setItem('sanad86_pins', JSON.stringify(pinnedByThread));
             } catch (e) {}
         }
 
@@ -791,7 +807,7 @@ const htmlContent = `<!DOCTYPE html>
             var kEl = document.getElementById('ai-api-key');
             var eEl = document.getElementById('ai-api-endpoint');
             try {
-                localStorage.setItem('sanad85_ai_cfg', JSON.stringify({
+                localStorage.setItem('sanad86_ai_cfg', JSON.stringify({
                     key: kEl ? kEl.value.trim() : '',
                     endpoint: eEl ? eEl.value.trim() : ''
                 }));
@@ -898,12 +914,12 @@ const htmlContent = `<!DOCTYPE html>
             if (!acctThreads[activeAcct]) acctThreads[activeAcct] = {};
             if (!acctThreads[activeAcct][DEFAULT_PEER]) {
                 acctThreads[activeAcct][DEFAULT_PEER] = [
-                    { id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'مرحباً بك في سند AI v8.5، كيف نقدر نخدمك اليوم؟' }
+                    { id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'مرحباً بك في سند AI v8.6، كيف نقدر نخدمك اليوم؟' }
                 ];
             } else {
                 acctThreads[activeAcct][DEFAULT_PEER] = acctThreads[activeAcct][DEFAULT_PEER].map(function(m) {
                     if (m.id && String(m.id).indexOf('init-') === 0 && m.text) {
-                        return Object.assign({}, m, { text: m.text.replace(/سند AI v8\.4/g, 'سند AI v8.5') });
+                        return Object.assign({}, m, { text: m.text.replace(/سند AI v8\.[0-5]/g, 'سند AI v8.6') });
                     }
                     return m;
                 });
@@ -1142,7 +1158,7 @@ const htmlContent = `<!DOCTYPE html>
                 var autoChk = document.getElementById('chk-autoreply');
                 if (autoChk && autoChk.checked && msg.kind === 'text' && normalizeStr(sender) !== normalizeStr(recipient)) {
                     var qTxt = String(msg.text || '');
-                    var smartAuto = 'أهلاً بك، تم استلام رسالتك عبر سند AI v8.5 وسنوافيك بالرد الكامل بأسرع وقت.';
+                    var smartAuto = 'أهلاً بك، تم استلام رسالتك عبر سند AI v8.6 وسنوافيك بالرد الكامل بأسرع وقت.';
                     if (qTxt.indexOf('سعر') !== -1 || qTxt.indexOf('باقة') !== -1 || qTxt.indexOf('عرض') !== -1) {
                         smartAuto = 'يسعدنا تزويدك بتفاصيل العروض والباقات؛ يرجى توضيح احتياجك لنرسل لك الخيار الأنسب.';
                     } else if (qTxt.indexOf('موعد') !== -1 || qTxt.indexOf('متى') !== -1) {
@@ -1187,8 +1203,9 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function postHttpSync(payload) {
-            return fetch('/api/sync', {
+            return fetch('/api/sync?t=' + Date.now(), {
                 method: 'POST',
+                cache: 'no-store',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             }).then(function(res) {
@@ -1198,6 +1215,8 @@ const htmlContent = `<!DOCTYPE html>
                 return res.json();
             }).then(function(data) {
                 if (!data) return null;
+                if (data.appVersion) triggerSilentAppUpdateIfNeeded(data.appVersion);
+                if (typeof data.cursor === 'number' && data.cursor > lastSyncCursor) lastSyncCursor = data.cursor;
                 if (Array.isArray(data.onlineIds)) {
                     onlinePeers = new Set(data.onlineIds.map(cleanIdValue).filter(Boolean));
                     renderPresence();
@@ -1229,13 +1248,15 @@ const htmlContent = `<!DOCTYPE html>
                 normIds.unshift(cleanIdValue(activeAcct));
             }
             var q = encodeURIComponent(normIds.join(','));
-            return fetch('/api/sync?ids=' + q, { cache: 'no-store' }).then(function(res) {
+            return fetch('/api/sync?ids=' + q + '&since=' + lastSyncCursor + '&t=' + Date.now(), { cache: 'no-store' }).then(function(res) {
                 if (!res || !res.ok) return null;
                 serverReachable = true;
                 setHeaderStatus('متصل', true);
                 return res.json();
             }).then(function(data) {
                 if (!data) return null;
+                if (data.appVersion) triggerSilentAppUpdateIfNeeded(data.appVersion);
+                if (typeof data.cursor === 'number' && data.cursor > lastSyncCursor) lastSyncCursor = data.cursor;
                 flushOutboxQueue();
                 if (Array.isArray(data.onlineIds)) {
                     onlinePeers = new Set(data.onlineIds.map(cleanIdValue).filter(Boolean));
@@ -1294,15 +1315,10 @@ const htmlContent = `<!DOCTYPE html>
                 from: payload.from ? cleanIdValue(payload.from) : payload.from,
                 eventId: payload.eventId || ('ev-' + Date.now() + '-' + Math.floor(Math.random() * 100000))
             });
-            var sentWs = false;
             if (ws && ws.readyState === 1) {
-                try { ws.send(JSON.stringify(enriched)); sentWs = true; } catch (e) {}
+                try { ws.send(JSON.stringify(enriched)); } catch (e) {}
             }
-            if (!sentWs || !serverReachable) {
-                postHttpSync(enriched);
-            } else if (enriched.type === 'call_sig' || enriched.type === 'register_ids') {
-                postHttpSync(enriched);
-            }
+            postHttpSync(enriched);
         }
 
         var rtcConn = null;
@@ -1312,12 +1328,17 @@ const htmlContent = `<!DOCTYPE html>
         var callPeerId = null;
         var activeCallMode = 'audio';
         var facingModeCurrent = 'user';
+        var offerRetryTimer = null;
         var rtcConfig = {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
                 { urls: 'stun:stun1.l.google.com:19302' }
             ]
         };
+
+        function stopOfferRetryLoop() {
+            if (offerRetryTimer) { clearInterval(offerRetryTimer); offerRetryTimer = null; }
+        }
 
         function applyAudioOutputPreference() {
             var targetVol = speakerModeActive ? 1.0 : 0.35;
@@ -1437,11 +1458,12 @@ const htmlContent = `<!DOCTYPE html>
             callPeerId = target;
             activeCallMode = mode || 'audio';
             stopRingtoneLoop();
+            stopOfferRetryLoop();
             startCallTimer();
             syncPresenceNow();
             document.getElementById('call-modal').classList.remove('hidden');
             document.getElementById('call-peer-title').textContent = formatPeerDisplay(target);
-            document.getElementById('call-status-msg').textContent = (activeCallMode === 'video' ? 'اتصال فيديو — ' : 'اتصال صوتي — ') + 'جاري الاتصال...';
+            document.getElementById('call-status-msg').textContent = (activeCallMode === 'video' ? 'اتصال فيديو — ' : 'اتصال صوتي — ') + 'جاري الرنين...';
             document.getElementById('accept-btn').classList.add('hidden');
             setCallVisualMode(activeCallMode);
             forceUnmuteAudio();
@@ -1469,7 +1491,20 @@ const htmlContent = `<!DOCTYPE html>
             }).then(function(offer) {
                 return rtcConn.setLocalDescription(offer).then(function() { return offer; });
             }).then(function(offer) {
-                sendSignalingOrMsg({ type: 'call_sig', to: callPeerId, from: activeAcct, sig: { op: 'offer', mode: activeCallMode, sdp: offer } });
+                var callSessionId = 'call-' + Date.now() + '-' + Math.floor(Math.random() * 10000);
+                var sendOfferNow = function() {
+                    if (!rtcConn || !callPeerId) return stopOfferRetryLoop();
+                    sendSignalingOrMsg({ type: 'call_sig', to: callPeerId, from: activeAcct, sig: { op: 'offer', callSessionId: callSessionId, mode: activeCallMode, sdp: offer } });
+                };
+                sendOfferNow();
+                var retries = 0;
+                offerRetryTimer = setInterval(function() {
+                    retries += 1;
+                    if (retries > 6 || !rtcConn || (rtcConn.remoteDescription && rtcConn.remoteDescription.type)) {
+                        return stopOfferRetryLoop();
+                    }
+                    sendOfferNow();
+                }, 2500);
             }).catch(function() {
                 document.getElementById('call-status-msg').textContent = 'يرجى السماح بصلاحية الميكروفون أو الكاميرا';
             });
@@ -1499,6 +1534,9 @@ const htmlContent = `<!DOCTYPE html>
             var sig = msg.sig;
             if (!sig) return;
             if (sig.op === 'offer') {
+                if (pendingCall && pendingCall.sig && pendingCall.sig.callSessionId && sig.callSessionId === pendingCall.sig.callSessionId) {
+                    return;
+                }
                 pendingCall = msg;
                 callPeerId = cleanIdValue(msg.from);
                 activeCallMode = sig.mode || 'audio';
@@ -1509,6 +1547,7 @@ const htmlContent = `<!DOCTYPE html>
                 setCallVisualMode(activeCallMode);
                 startRingtoneLoop();
             } else if (sig.op === 'answer' && rtcConn) {
+                stopOfferRetryLoop();
                 stopRingtoneLoop();
                 startCallTimer();
                 rtcConn.setRemoteDescription(new RTCSessionDescription(sig.sdp)).then(function() {
@@ -1609,6 +1648,7 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function resetCallState() {
+            stopOfferRetryLoop();
             stopRingtoneLoop();
             stopCallTimer();
             if (rtcConn) { try { rtcConn.close(); } catch (e) {} rtcConn = null; }
@@ -1789,19 +1829,18 @@ const htmlContent = `<!DOCTYPE html>
             if (!cleanTo) return;
             var senderId = cleanIdValue(forcedSender || activeAcct) || activeAcct;
             var grp = findGroupById(cleanTo);
-            var liveDelivered = grp ? true : isPeerOnline(cleanTo);
             var msgId = existingMsgId || ('m-' + Date.now() + '-' + Math.floor(Math.random() * 10000));
             if (!acctThreads[senderId]) acctThreads[senderId] = {};
             if (!acctThreads[senderId][cleanTo]) acctThreads[senderId][cleanTo] = [];
             var entry = {
                 id: msgId, from: 'me', kind: kind, text: text, mediaUrl: mediaUrl, fileName: fileName,
-                delivered: liveDelivered, read: false, status: liveDelivered ? 'delivered' : 'sent'
+                delivered: Boolean(grp), read: false, status: grp ? 'delivered' : 'sent'
             };
             if (!existingMsgId) {
                 acctThreads[senderId][cleanTo].push(entry);
             } else {
                 acctThreads[senderId][cleanTo] = acctThreads[senderId][cleanTo].map(function(m) {
-                    return m.id === existingMsgId ? Object.assign({}, m, { delivered: liveDelivered, status: liveDelivered ? (m.read ? 'read' : 'delivered') : 'sent' }) : m;
+                    return m.id === existingMsgId ? Object.assign({}, m, { delivered: m.delivered || Boolean(grp), status: m.read ? 'read' : ((m.delivered || grp) ? 'delivered' : 'sent') }) : m;
                 });
             }
             if (normalizeStr(cleanTo) !== normalizeStr(currentPeer) && !forcedSender) currentPeer = cleanTo;
@@ -2022,7 +2061,7 @@ const htmlContent = `<!DOCTYPE html>
                 return;
             }
 
-            var reply = 'مساعد سند AI v8.5 يدعم مجموعات التواصل، مساعد @سند التفاعلي، صياغة ردود العملاء وتطوير المحتوى، والمكالمات.';
+            var reply = 'مساعد سند AI v8.6 يدعم التحديث التلقائي داخل الأيقونات، مجموعات التواصل، مساعد @سند، والمكالمات.';
             if (q.indexOf('مجموع') !== -1) {
                 reply = 'من تبويب «المجموعات» يمكنك إنشاء مجموعة جديدة واختيار الأعضاء أو إضافة أعضاء جدد لأي مجموعة في أي وقت ثم الدردشة والمناداة على @سند.';
             } else if (q.indexOf('عميل') !== -1 || q.indexOf('محتوى') !== -1) {
@@ -2372,7 +2411,7 @@ const htmlContent = `<!DOCTYPE html>
         setInterval(function() {
             pollHttpSync();
             if (!ws || ws.readyState > 1) openSocket();
-        }, 1500);
+        }, 1200);
 
         window.addEventListener('focus', function() {
             syncPresenceNow();
@@ -2392,6 +2431,8 @@ const PORT = process.env.PORT || 3000;
 const socketsMap = new Map();
 const httpPresence = new Map();
 const httpInbox = new Map();
+const recentEventLog = [];
+let globalEventSeq = 1;
 
 function touchHttpPresence(ids) {
     if (!Array.isArray(ids)) return;
@@ -2410,7 +2451,7 @@ function getAllOnlineIds() {
     });
     httpPresence.forEach((ts, id) => {
         const norm = normIdServer(id);
-        if (now - ts < 15000) set.add(norm);
+        if (now - ts < 20000) set.add(norm);
         else httpPresence.delete(id);
     });
     return Array.from(set).filter(Boolean);
@@ -2452,35 +2493,77 @@ function sendToIdSockets(toId, payloadStr) {
     return sent;
 }
 
+function recordRecentEvent(toId, payload) {
+    const clean = normIdServer(toId);
+    if (!clean) return;
+    const seq = globalEventSeq++;
+    recentEventLog.push({ seq, to: clean, ts: Date.now(), payload });
+    if (recentEventLog.length > 400) recentEventLog.shift();
+}
+
 function enqueueHttpEvent(toId, payload) {
     const clean = normIdServer(toId);
     if (!clean) return;
     const list = httpInbox.get(clean) || [];
     list.push(payload);
-    if (list.length > 80) list.shift();
+    if (list.length > 100) list.shift();
     httpInbox.set(clean, list);
 }
 
-function drainHttpEvents(ids) {
+function routeEventToRecipient(destId, normalizedData) {
+    const clean = normIdServer(destId);
+    if (!clean) return;
+    recordRecentEvent(clean, normalizedData);
+    const payloadStr = JSON.stringify(normalizedData);
+    sendToIdSockets(clean, payloadStr);
+    enqueueHttpEvent(clean, normalizedData);
+}
+
+function drainHttpEvents(ids, sinceCursor) {
     const out = [];
+    const seen = new Set();
     if (!Array.isArray(ids)) return out;
-    ids.forEach(id => {
-        const clean = normIdServer(id);
+    const normSet = new Set(ids.map(normIdServer).filter(Boolean));
+    normSet.forEach(clean => {
         const list = httpInbox.get(clean);
         if (list && list.length) {
-            out.push(...list);
+            list.forEach(ev => {
+                const key = ev && ev.eventId ? ev.eventId : JSON.stringify(ev);
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    out.push(ev);
+                }
+            });
             httpInbox.set(clean, []);
+        }
+    });
+    const minSeq = Number(sinceCursor) || 0;
+    const cutoff = Date.now() - 45000;
+    recentEventLog.forEach(item => {
+        if (item.seq > minSeq && item.ts >= cutoff && normSet.has(item.to)) {
+            const ev = item.payload;
+            const key = ev && ev.eventId ? ev.eventId : JSON.stringify(ev);
+            if (!seen.has(key)) {
+                seen.add(key);
+                out.push(ev);
+            }
         }
     });
     return out;
 }
+
+const noCacheHeaders = {
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+};
 
 const server = http.createServer((req, res) => {
     try {
         const urlObj = new URL(req.url || '/', 'http://' + (req.headers.host || 'localhost'));
 
         if (urlObj.pathname === '/manifest.json') {
-            res.writeHead(200, { 'Content-Type': 'application/manifest+json; charset=utf-8' });
+            res.writeHead(200, Object.assign({ 'Content-Type': 'application/manifest+json; charset=utf-8' }, noCacheHeaders));
             res.end(manifestPayload);
             return;
         }
@@ -2490,23 +2573,24 @@ const server = http.createServer((req, res) => {
             urlObj.pathname === '/apple-touch-icon.png' ||
             urlObj.pathname === '/apple-touch-icon-precomposed.png'
         ) {
-            res.writeHead(200, { 'Content-Type': 'image/svg+xml; charset=utf-8', 'Cache-Control': 'public, max-age=86400' });
+            res.writeHead(200, { 'Content-Type': 'image/svg+xml; charset=utf-8', 'Cache-Control': 'public, max-age=3600' });
             res.end(sanadIconSvg);
             return;
         }
 
-        if (urlObj.pathname === '/healthz') {
-            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-            res.end(JSON.stringify({ ok: true, onlineIds: getAllOnlineIds() }));
+        if (urlObj.pathname === '/healthz' || urlObj.pathname === '/api/version') {
+            res.writeHead(200, Object.assign({ 'Content-Type': 'application/json; charset=utf-8' }, noCacheHeaders));
+            res.end(JSON.stringify({ ok: true, appVersion: APP_VERSION, cursor: globalEventSeq - 1, onlineIds: getAllOnlineIds() }));
             return;
         }
 
         if (urlObj.pathname === '/api/sync' && req.method === 'GET') {
             const rawIds = (urlObj.searchParams.get('ids') || '').split(',').map(normIdServer).filter(Boolean);
+            const sinceCursor = urlObj.searchParams.get('since') || '0';
             touchHttpPresence(rawIds);
-            const events = drainHttpEvents(rawIds);
-            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-            res.end(JSON.stringify({ onlineIds: getAllOnlineIds(), events }));
+            const events = drainHttpEvents(rawIds, sinceCursor);
+            res.writeHead(200, Object.assign({ 'Content-Type': 'application/json; charset=utf-8' }, noCacheHeaders));
+            res.end(JSON.stringify({ appVersion: APP_VERSION, cursor: globalEventSeq - 1, onlineIds: getAllOnlineIds(), events }));
             return;
         }
 
@@ -2526,24 +2610,23 @@ const server = http.createServer((req, res) => {
                         touchHttpPresence(list);
                         broadcastOnline();
                     } else if (data && data.to) {
+                        if (data.from) touchHttpPresence([data.from]);
                         const normalizedData = Object.assign({}, data, {
                             to: normIdServer(data.to),
                             from: data.from ? normIdServer(data.from) : data.from
                         });
-                        const destId = normIdServer(data.to);
-                        const deliveredLive = sendToIdSockets(destId, JSON.stringify(normalizedData));
-                        if (!deliveredLive) enqueueHttpEvent(destId, normalizedData);
+                        routeEventToRecipient(normalizedData.to, normalizedData);
                     }
                 } catch (e) {}
                 if (!res.writableEnded) {
-                    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-                    res.end(JSON.stringify({ ok: true, onlineIds: getAllOnlineIds() }));
+                    res.writeHead(200, Object.assign({ 'Content-Type': 'application/json; charset=utf-8' }, noCacheHeaders));
+                    res.end(JSON.stringify({ ok: true, appVersion: APP_VERSION, cursor: globalEventSeq - 1, onlineIds: getAllOnlineIds() }));
                 }
             });
             return;
         }
 
-        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.writeHead(200, Object.assign({ 'Content-Type': 'text/html; charset=utf-8' }, noCacheHeaders));
         res.end(htmlContent);
     } catch (e) {
         if (!res.writableEnded) {
@@ -2583,13 +2666,12 @@ wss.on('connection', (clientWs) => {
         }
 
         if (data.to) {
+            if (data.from) touchHttpPresence([data.from]);
             const normalizedData = Object.assign({}, data, {
                 to: normIdServer(data.to),
                 from: data.from ? normIdServer(data.from) : data.from
             });
-            const destId = normIdServer(data.to);
-            const deliveredLive = sendToIdSockets(destId, JSON.stringify(normalizedData));
-            if (!deliveredLive) enqueueHttpEvent(destId, normalizedData);
+            routeEventToRecipient(normalizedData.to, normalizedData);
         }
     });
 
@@ -2602,5 +2684,5 @@ wss.on('connection', (clientWs) => {
 });
 
 server.listen(PORT, () => {
-    console.log('Sanad AI v8.5 running on port ' + PORT);
+    console.log('Sanad AI v8.6 running on port ' + PORT);
 });

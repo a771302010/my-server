@@ -1,7 +1,3 @@
-
-
-
-
 const http = require('http');
 const { WebSocketServer } = require('ws');
 
@@ -151,8 +147,8 @@ const htmlContent = `<!DOCTYPE html>
         button, a { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e6078; border-radius: 9999px; }
-        .sanad-pane { display: none; height: 100%; width: 100%; overflow-y: auto; }
-        .sanad-pane.sanad-pane-active { display: flex; flex-direction: column; }
+        .sanad-pane { display: none !important; height: 100%; width: 100%; overflow-y: auto; flex: 1 1 0%; }
+        .sanad-pane.sanad-pane-active { display: flex !important; flex-direction: column; }
         .msg-highlight-pulse { animation: sanadPulse 1.4s ease; }
         @keyframes sanadPulse {
             0% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.75); }
@@ -314,6 +310,7 @@ const htmlContent = `<!DOCTYPE html>
                         pane.classList.remove('hidden');
                         pane.classList.add('sanad-pane-active');
                         pane.style.setProperty('display', 'flex', 'important');
+                        pane.scrollTop = 0;
                     } else {
                         pane.classList.add('hidden');
                         pane.classList.remove('sanad-pane-active');
@@ -411,7 +408,6 @@ const htmlContent = `<!DOCTYPE html>
         <span class="bg-teal-950 text-teal-200 border border-teal-800/60 px-2 py-1 rounded-lg text-[10px] font-bold shrink-0">فتح</span>
     </div>
 
-    <!-- نافذة المساعدة الصوتية والذكية لمن لا يجيد القراءة والكتابة -->
     <div id="assisted-voice-modal" onclick="if(event.target===this)closeAssistedVoiceHub()" class="hidden fixed inset-0 bg-[#080f18]/85 z-50 flex items-center justify-center p-3.5">
         <div class="bg-[#0f1b29] border border-teal-700/60 rounded-3xl w-full max-w-md p-4 space-y-3 shadow-2xl">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
@@ -453,7 +449,6 @@ const htmlContent = `<!DOCTYPE html>
         </div>
     </div>
 
-    <!-- نافذة قراءة الرسالة الطويلة بالكامل -->
     <div id="long-msg-reader-modal" onclick="if(event.target===this)closeLongMsgReader()" class="hidden fixed inset-0 bg-[#080f18]/85 z-50 flex items-center justify-center p-4">
         <div class="bg-[#0f1b29] border border-slate-700 rounded-3xl w-full max-w-lg max-h-[82vh] flex flex-col shadow-2xl overflow-hidden">
             <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
@@ -469,7 +464,6 @@ const htmlContent = `<!DOCTYPE html>
         </div>
     </div>
 
-    <!-- نافذة توسيع ومراجعة حقل الكتابة -->
     <div id="composer-expand-modal" onclick="if(event.target===this)closeComposerExpand()" class="hidden fixed inset-0 bg-[#080f18]/85 z-50 flex items-center justify-center p-4">
         <div class="bg-[#0f1b29] border border-teal-700/60 rounded-3xl w-full max-w-lg p-4 space-y-3 shadow-2xl">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
@@ -490,7 +484,6 @@ const htmlContent = `<!DOCTYPE html>
         </div>
     </div>
 
-    <!-- قائمة الضغط المطوّل على الرسالة -->
     <div id="msg-context-modal" onclick="if(event.target===this)closeMsgContextMenu()" class="hidden fixed inset-0 bg-[#080f18]/75 z-50 flex items-end sm:items-center justify-center p-3">
         <div class="bg-[#0f1b29] border border-slate-700/80 rounded-2xl w-full max-w-xs p-3 space-y-1.5 shadow-2xl">
             <div class="px-2 py-1 border-b border-slate-800 flex items-center justify-between">
@@ -622,7 +615,6 @@ const htmlContent = `<!DOCTYPE html>
 
             <div id="msgs-box" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar"></div>
 
-            <!-- شريط الرد على رسالة معينة -->
             <div id="replying-msg-banner" class="hidden px-3.5 py-2 bg-[#0c1a28] border-t border-teal-700/70 flex items-center justify-between gap-2 text-xs shrink-0">
                 <div class="border-r-2 border-teal-400 pr-2.5 min-w-0">
                     <p id="replying-to-label" class="text-[10px] font-extrabold text-teal-300 truncate">رد على رسالة</p>
@@ -1467,7 +1459,7 @@ const htmlContent = `<!DOCTYPE html>
                 if (savedUnread && typeof savedUnread === 'object') unreadByThread = savedUnread;
                 if (Array.isArray(savedOutbox)) outboxQueue = savedOutbox;
 
-                var aiCfg = JSON.parse(localStorage.getItem('sanad891_ai_cfg') || localStorage.getItem('sanad89_ai_cfg') || 'null');
+                var aiCfg = JSON.parse(localStorage.getItem('sanad891_ai_cfg') || 'null');
                 if (aiCfg && typeof aiCfg === 'object') {
                     var kEl = document.getElementById('ai-api-key');
                     var eEl = document.getElementById('ai-api-endpoint');

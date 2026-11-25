@@ -3018,6 +3018,12 @@ const htmlContent = `<!DOCTYPE html>
                 '</div>';
         }
 
+        function isSafeMediaUrl(url) {
+            if (typeof url !== 'string' || !url.trim()) return false;
+            var trimmed = url.trim();
+            return /^data:(image|audio|video|application|text)\//i.test(trimmed) || /^https?:\/\//i.test(trimmed) || /^blob:/i.test(trimmed);
+        }
+
         function renderMsgs() {
             renderPinnedBanner();
             renderReplyingBanner();
@@ -3053,15 +3059,16 @@ const htmlContent = `<!DOCTYPE html>
                 var rawText = String(item.text || '');
                 var isLongText = (item.kind === 'text' || !item.kind) && rawText.length > LONG_MSG_THRESHOLD;
                 var isExpanded = expandedLongMsgIds.has(item.id);
+                var safeMediaUrl = isSafeMediaUrl(item.mediaUrl) ? escapeHtml(item.mediaUrl) : '';
 
-                if (item.kind === 'audio' && item.mediaUrl) {
+                if (item.kind === 'audio' && safeMediaUrl) {
                     bodyHtml = '<div class="space-y-1"><p class="text-[11px] font-bold">' + escapeHtml(item.text || 'رسالة صوتية') + '</p>' +
-                        '<audio controls src="' + item.mediaUrl + '" class="max-w-full h-8"></audio></div>';
-                } else if (item.kind === 'image' && item.mediaUrl) {
-                    bodyHtml = '<div class="space-y-1.5"><img src="' + item.mediaUrl + '" alt="' + escapeHtml(item.fileName || 'صورة') + '" class="max-w-[220px] rounded-xl border border-slate-700">' +
+                        '<audio controls src="' + safeMediaUrl + '" class="max-w-full h-8"></audio></div>';
+                } else if (item.kind === 'image' && safeMediaUrl) {
+                    bodyHtml = '<div class="space-y-1.5"><img src="' + safeMediaUrl + '" alt="' + escapeHtml(item.fileName || 'صورة') + '" class="max-w-[220px] rounded-xl border border-slate-700">' +
                         '<p class="text-[11px] font-mono truncate">' + escapeHtml(item.fileName || 'صورة') + '</p></div>';
-                } else if (item.kind === 'file' && item.mediaUrl) {
-                    bodyHtml = '<a href="' + item.mediaUrl + '" download="' + escapeHtml(item.fileName || 'file') + '" class="flex items-center gap-2 text-xs underline font-bold">' +
+                } else if (item.kind === 'file' && safeMediaUrl) {
+                    bodyHtml = '<a href="' + safeMediaUrl + '" download="' + escapeHtml(item.fileName || 'file') + '" class="flex items-center gap-2 text-xs underline font-bold">' +
                         '<i class="fa-solid fa-file-arrow-down"></i><span>' + escapeHtml(item.fileName || item.text || 'ملف مرفق') + '</span></a>';
                 } else {
                     var displayedText = (isLongText && !isExpanded) ? (rawText.slice(0, LONG_MSG_THRESHOLD) + '...') : rawText;
@@ -3146,17 +3153,12 @@ const htmlContent = `<!DOCTYPE html>
                 return recentContext ? ('ملخص سريع بناءً على سياق المحادثة: ' + recentContext.slice(0, 220)) : 'أرسل أو افتح المحادثة المراد تلخيصها وسأستخرج أبرز نقاطها فوراً.';
             }
             if (/مهام|خطة|خطوات/i.test(cleanQ)) {
-                return 'خطوات عملية مقترحة لـ «' + cleanQ + '»:
-1. تحديد الهدف والنتيجة المطلوبة بوضوح.
-2. تقسيم التنفيذ إلى خطوة فورية ومتابعة.
-3. مراجعة المخرجات وتأكيد الإنجاز.';
+                return 'خطوات عملية مقترحة لـ «' + cleanQ + '»:\n1. تحديد الهدف والنتيجة المطلوبة بوضوح.\n2. تقسيم التنفيذ إلى خطوة فورية ومتابعة.\n3. مراجعة المخرجات وتأكيد الإنجاز.';
             }
             if (/سعر|عرض|باقة|عميل/i.test(cleanQ)) {
-                return 'صياغة مقترحة للعميل حول «' + cleanQ + '»:
-أهلاً بك، يسعدنا خدمتكم وتوضيح التفاصيل والباقات المتاحة بكل شفافية وسرعة.';
+                return 'صياغة مقترحة للعميل حول «' + cleanQ + '»:\nأهلاً بك، يسعدنا خدمتكم وتوضيح التفاصيل والباقات المتاحة بكل شفافية وسرعة.';
             }
-            return 'بناءً على طلبك «' + cleanQ + '»' + (recentContext ? ' وسياق المحادثة الحالي' : '') + ':
-الخطوة الأنسب هي معالجة النقطة بوضوح ومباشرة مع متابعة التنفيذ خطوة بخطوة.';
+            return 'بناءً على طلبك «' + cleanQ + '»' + (recentContext ? ' وسياق المحادثة الحالي' : '') + ':\nالخطوة الأنسب هي معالجة النقطة بوضوح ومباشرة مع متابعة التنفيذ خطوة بخطوة.';
         }
 
         function emitPacket(targetPeer, kind, text, mediaUrl, fileName, explicitReplyTo, ownerAcctOverride) {
@@ -3200,13 +3202,10 @@ const htmlContent = `<!DOCTYPE html>
             if (mentionsSanad) {
                 var snapshotThread = threadObj.list.slice();
                 var localAiText = buildSanadAiReply(text || '', snapshotThread);
-                var contextPrompt = 'سياق المحادثة الأخيرة:
-' +
+                var contextPrompt = 'سياق المحادثة الأخيرة:\n' +
                     snapshotThread.filter(function(m) { return !m.deleted && m.kind === 'text' && m.text; }).slice(-6)
-                        .map(function(m) { return (m.from === 'me' ? 'أنا' : (m.senderName || 'الطرف الآخر')) + ': ' + m.text; }).join('
-') +
-                    '
-الرسالة الحالية: ' + (text || '');
+                        .map(function(m) { return (m.from === 'me' ? 'أنا' : (m.senderName || 'الطرف الآخر')) + ': ' + m.text; }).join('\n') +
+                    '\nالرسالة الحالية: ' + (text || '');
 
                 callExternalAi(contextPrompt, 'أنت مساعد سند AI داخل محادثة عربية؛ أجب بشكل عملي، دقيق، ومختصر باللغة العربية.').then(function(extReply) {
                     var finalReply = extReply || localAiText;
@@ -3276,8 +3275,7 @@ const htmlContent = `<!DOCTYPE html>
             };
             var fallbackTxt = map[style] || raw;
             callExternalAi(
-                'أعد صياغة الرسالة التالية باللغة العربية بأسلوب (' + style + ') بشكل طبيعي ومرتب:
-' + raw,
+                'أعد صياغة الرسالة التالية باللغة العربية بأسلوب (' + style + ') بشكل طبيعي ومرتب:\n' + raw,
                 'أنت مساعد صياغة رسائل عربية احترافية.'
             ).then(function(aiTxt) {
                 inp.value = aiTxt || fallbackTxt;
@@ -3292,15 +3290,11 @@ const htmlContent = `<!DOCTYPE html>
             var recent = list.slice(-10);
             var keyPoints = recent.map(function(m) {
                 return '• ' + (m.from === 'me' ? 'أنت' : (m.senderName || formatPeerDisplay(currentPeer))) + ': ' + m.text.replace(/\s+/g, ' ').trim().slice(0, 95);
-            }).join('
-');
-            var localSummary = 'تلخيص المحادثة (' + formatPeerDisplay(currentPeer) + ' • ' + toWesternDigits(recent.length) + ' رسائل):
-' + keyPoints;
+            }).join('\n');
+            var localSummary = 'تلخيص المحادثة (' + formatPeerDisplay(currentPeer) + ' • ' + toWesternDigits(recent.length) + ' رسائل):\n' + keyPoints;
 
             callExternalAi(
-                'لخص المحادثة التالية في نقاط عربية واضحة ومختصرة:
-' + recent.map(function(m) { return (m.from === 'me' ? 'أنا' : 'الطرف الآخر') + ': ' + m.text; }).join('
-'),
+                'لخص المحادثة التالية في نقاط عربية واضحة ومختصرة:\n' + recent.map(function(m) { return (m.from === 'me' ? 'أنا' : 'الطرف الآخر') + ': ' + m.text; }).join('\n'),
                 'أنت مساعد تلخيص محادثات عربي دقيق.'
             ).then(function(aiSum) {
                 var finalSummary = aiSum || localSummary;
@@ -3316,16 +3310,12 @@ const htmlContent = `<!DOCTYPE html>
                 return /مهم|موعد|تسليم|إرسال|ارسال|مراجعة|تأكيد|متابعة|تجهيز|اتصال|حجز|شراء|دفع|يجب|نحتاج/i.test(m.text);
             });
             var sourceItems = (candidates.length ? candidates : list.slice(-5)).slice(-8);
-            var tasksText = 'المهام والبنود المستخرجة:
-' + sourceItems.map(function(m, idx) {
+            var tasksText = 'المهام والبنود المستخرجة:\n' + sourceItems.map(function(m, idx) {
                 return toWesternDigits(idx + 1) + '. ' + m.text.replace(/\s+/g, ' ').trim().slice(0, 110);
-            }).join('
-');
+            }).join('\n');
 
             callExternalAi(
-                'استخرج قائمة مهام عملية مرقمة باللغة العربية من الرسائل التالية:
-' + sourceItems.map(function(m) { return m.text; }).join('
-'),
+                'استخرج قائمة مهام عملية مرقمة باللغة العربية من الرسائل التالية:\n' + sourceItems.map(function(m) { return m.text; }).join('\n'),
                 'أنت مساعد استخراج مهام من المحادثات.'
             ).then(function(aiTasks) {
                 appendAiLog(aiTasks || tasksText);
@@ -3365,18 +3355,12 @@ const htmlContent = `<!DOCTYPE html>
             var qInp = document.getElementById('ai-q');
             var topic = (qInp && qInp.value.trim()) ? qInp.value.trim() : 'خدماتنا وعروضنا الحالية';
             var out = mode === 'promo'
-                ? ('رسالة عميل جاهزة:
-حياكم الله، يسعدنا مشاركتكم أحدث تفاصيل «' + topic + '» عبر سند AI مع استجابة سريعة ومتابعة مباشرة لطلباتكم.')
-                : ('تقرير متابعة عميل:
-• المحادثة: ' + formatPeerDisplay(currentPeer) + '
-• المحور: ' + topic + '
-• الحالة: قيد المتابعة الفورية');
+                ? ('رسالة عميل جاهزة:\nحياكم الله، يسعدنا مشاركتكم أحدث تفاصيل «' + topic + '» عبر سند AI مع استجابة سريعة ومتابعة مباشرة لطلباتكم.')
+                : ('تقرير متابعة عميل:\n• المحادثة: ' + formatPeerDisplay(currentPeer) + '\n• المحور: ' + topic + '\n• الحالة: قيد المتابعة الفورية');
             appendAiLog(out);
             var msgInp = document.getElementById('msg-box-input');
             if (msgInp && !msgInp.value.trim()) {
-                msgInp.value = out.split('
-').slice(1).join('
-').trim();
+                msgInp.value = out.split('\n').slice(1).join('\n').trim();
                 autoResizeComposer(msgInp);
             }
         }
@@ -3568,110 +3552,126 @@ function processIncomingSignalOrMsg(payload, sourceWs = null) {
             const clean = normIdServer(rawId);
             if (clean) registeredIds.set(clean, now);
         });
-        broadcastJson({ type: 'online_users', ids: getOnlineIdsList() }, sourceWs);
+        const onlineIds = getOnlineIdsList();
+        broadcastJson({ type: 'online_users', ids: onlineIds }, sourceWs);
         return;
     }
 
-    const fromClean = normIdServer(payload.from || '');
-    const toClean = normIdServer(payload.to || '');
-    if (fromClean) registeredIds.set(fromClean, Date.now());
-
-    const enriched = Object.assign({}, payload, {
-        from: fromClean || payload.from,
-        to: toClean || payload.to
-    });
-    recordSyncEvent(enriched);
-    broadcastJson(enriched, sourceWs);
+    if (['msg', 'msg_edit', 'msg_delivered', 'msg_read', 'msg_del_all', 'msg_del', 'call_sig'].includes(payload.type)) {
+        const cleanFrom = normIdServer(payload.from || '');
+        const cleanTo = normIdServer(payload.to || '');
+        const now = Date.now();
+        if (cleanFrom) registeredIds.set(cleanFrom, now);
+        const entry = recordSyncEvent(Object.assign({}, payload, {
+            from: cleanFrom || payload.from,
+            to: cleanTo || payload.to
+        }));
+        broadcastJson(entry, sourceWs);
+    }
 }
 
-const server = http.createServer((req, res) => {
-    const reqUrl = new URL(req.url || '/', 'http://' + (req.headers.host || 'localhost'));
+function readJsonBody(req) {
+    return new Promise((resolve, reject) => {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString('utf8');
+            if (body.length > 15 * 1024 * 1024) {
+                reject(new Error('Payload too large'));
+                req.destroy();
+            }
+        });
+        req.on('end', () => {
+            if (!body.trim()) return resolve({});
+            try {
+                resolve(JSON.parse(body));
+            } catch (err) {
+                reject(err);
+            }
+        });
+        req.on('error', reject);
+    });
+}
+
+const server = http.createServer(async (req, res) => {
+    const reqUrl = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
     const pathname = reqUrl.pathname;
 
     if (pathname === '/healthz') {
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
-        res.end(JSON.stringify({ ok: true, appVersion: APP_VERSION, onlineCount: getOnlineIdsList().length }));
-        return;
+        return res.end(JSON.stringify({ ok: true, version: APP_VERSION, ts: Date.now() }));
     }
 
     if (pathname === '/icon.svg') {
-        res.writeHead(200, { 'Content-Type': 'image/svg+xml; charset=utf-8', 'Cache-Control': 'public, max-age=3600' });
-        res.end(sanadIconSvg);
-        return;
+        res.writeHead(200, { 'Content-Type': 'image/svg+xml; charset=utf-8', 'Cache-Control': 'no-cache' });
+        return res.end(sanadIconSvg);
     }
 
     if (pathname === '/apple-touch-icon.png') {
-        res.writeHead(200, { 'Content-Type': 'image/svg+xml; charset=utf-8', 'Cache-Control': 'public, max-age=3600' });
-        res.end(sanadIconSvg);
-        return;
+        const pngFallback = Buffer.from(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+            'base64'
+        );
+        res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'no-cache' });
+        return res.end(pngFallback);
     }
 
     if (pathname === '/manifest.json') {
-        res.writeHead(200, { 'Content-Type': 'application/manifest+json; charset=utf-8', 'Cache-Control': 'no-store' });
-        res.end(manifestPayload);
-        return;
+        res.writeHead(200, { 'Content-Type': 'application/manifest+json; charset=utf-8', 'Cache-Control': 'no-cache' });
+        return res.end(manifestPayload);
     }
 
     if (pathname === '/sw.js') {
-        res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8', 'Cache-Control': 'no-store' });
-        res.end(swContent);
-        return;
+        res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8', 'Cache-Control': 'no-cache, no-store, must-revalidate' });
+        return res.end(swContent);
     }
 
     if (pathname === '/api/sync') {
         if (req.method === 'POST') {
-            let body = '';
-            req.on('data', chunk => {
-                body += chunk.toString('utf8');
-                if (body.length > 15 * 1024 * 1024) req.destroy();
-            });
-            req.on('end', () => {
-                try {
-                    const parsed = JSON.parse(body || '{}');
-                    processIncomingSignalOrMsg(parsed, null);
-                } catch (e) {}
-                const currentCursor = syncEvents.length ? syncEvents[syncEvents.length - 1].cursor : 0;
+            try {
+                const payload = await readJsonBody(req);
+                processIncomingSignalOrMsg(payload, null);
                 res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
-                res.end(JSON.stringify({
+                return res.end(JSON.stringify({
                     ok: true,
                     appVersion: APP_VERSION,
-                    cursor: currentCursor,
-                    onlineIds: getOnlineIdsList(),
-                    events: []
+                    cursor: syncEvents.length,
+                    onlineIds: getOnlineIdsList()
                 }));
-            });
-            return;
+            } catch (e) {
+                res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+                return res.end(JSON.stringify({ ok: false, error: 'Invalid JSON payload' }));
+            }
         }
 
-        const since = Number(toWesternDigitsServer(reqUrl.searchParams.get('since') || '0')) || 0;
-        const idsParam = String(reqUrl.searchParams.get('ids') || '');
-        const watchIds = new Set(idsParam.split(',').map(normIdServer).filter(Boolean));
-        const now = Date.now();
-        watchIds.forEach(id => registeredIds.set(id, now));
+        if (req.method === 'GET') {
+            const since = Math.max(0, Number(reqUrl.searchParams.get('since') || '0') || 0);
+            const rawIds = String(reqUrl.searchParams.get('ids') || '');
+            const watchIds = rawIds.split(',').map(normIdServer).filter(Boolean);
+            const now = Date.now();
+            watchIds.forEach(id => registeredIds.set(id, now));
 
-        const matchingEvents = syncEvents.filter(ev => {
-            if (ev.cursor <= since) return false;
-            if (!watchIds.size) return true;
-            const evTo = normIdServer(ev.to || '');
-            const evFrom = normIdServer(ev.from || '');
-            return watchIds.has(evTo) || watchIds.has(evFrom) || ev.type === 'online_users';
-        });
+            const events = syncEvents.filter(evt => {
+                if (evt.cursor <= since) return false;
+                if (!watchIds.length) return true;
+                const target = normIdServer(evt.to || '');
+                const sender = normIdServer(evt.from || '');
+                return watchIds.includes(target) || watchIds.includes(sender);
+            });
 
-        const currentCursor = syncEvents.length ? syncEvents[syncEvents.length - 1].cursor : since;
-        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
-        res.end(JSON.stringify({
-            ok: true,
-            appVersion: APP_VERSION,
-            cursor: currentCursor,
-            onlineIds: getOnlineIdsList(),
-            events: matchingEvents
-        }));
-        return;
+            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+            return res.end(JSON.stringify({
+                ok: true,
+                appVersion: APP_VERSION,
+                cursor: syncEvents.length,
+                onlineIds: getOnlineIdsList(),
+                events
+            }));
+        }
     }
 
     res.writeHead(200, {
         'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0'
     });
@@ -3680,19 +3680,16 @@ const server = http.createServer((req, res) => {
 
 const wss = new WebSocketServer({ server });
 
-wss.on('connection', socket => {
-    socket.on('message', rawData => {
+wss.on('connection', ws => {
+    ws.on('message', raw => {
         try {
-            const parsed = JSON.parse(rawData.toString('utf8'));
-            processIncomingSignalOrMsg(parsed, socket);
+            const parsed = JSON.parse(raw.toString('utf8'));
+            processIncomingSignalOrMsg(parsed, ws);
         } catch (e) {}
-    });
-    socket.on('close', () => {
-        broadcastJson({ type: 'online_users', ids: getOnlineIdsList() }, socket);
     });
 });
 
-const PORT = Number(toWesternDigitsServer(process.env.PORT || '3000')) || 3000;
-server.listen(PORT, '0.0.0.0', () => {
-    console.log(`Sanad AI Server v${APP_VERSION} running on port ${PORT}`);
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Sanad AI Server v${APP_VERSION} listening on port ${PORT}`);
 });

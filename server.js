@@ -1,7 +1,11 @@
+
+
+
+
 const http = require('http');
 const { WebSocketServer } = require('ws');
 
-const APP_VERSION = '8.9.3';
+const APP_VERSION = '8.9.1';
 const ICON_BG_HEX = '#164e63';
 const ICON_ACCENT_HEX = '#f0fdfa';
 const ICON_SUB_HEX = '#0f3646';
@@ -54,7 +58,7 @@ const sanadIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 5
 </svg>`;
 
 const manifestPayload = JSON.stringify({
-  name: 'Sanad AI v8.9.3 - سند',
+  name: 'Sanad AI v8.9.1 - سند',
   short_name: 'سند AI',
   description: 'تطبيق سند AI للتواصل الذكي والمحادثات والمكالمات الفردية والجماعية والعمل بدون إنترنت والمساعدة الصوتية والذكاء الاصطناعي',
   start_url: '/',
@@ -135,7 +139,7 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="سند AI">
     <meta name="theme-color" content="#164e63">
-    <title>سند AI v8.9.3</title>
+    <title>سند AI v8.9.1</title>
     <link id="sanad-favicon" rel="icon" type="image/svg+xml" href="/icon.svg">
     <link id="sanad-apple-icon" rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
@@ -279,10 +283,10 @@ const htmlContent = `<!DOCTYPE html>
 
         function escapeJsSingle(str) {
             return String(str === undefined || str === null ? '' : str)
-                .replace(/\\/g, '\\\\')
-                .replace(/'/g, "\\'")
-                .replace(/\n/g, ' ')
-                .replace(/\r/g, '');
+                .replace(/\\\\/g, '\\\\\\\\')
+                .replace(/'/g, "\\\\'")
+                .replace(/\\n/g, ' ')
+                .replace(/\\r/g, '');
         }
 
         var SANAD_TAB_LABELS = {
@@ -359,7 +363,7 @@ const htmlContent = `<!DOCTYPE html>
             <div class="min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
                     <h1 class="font-black text-base text-white leading-none">سند</h1>
-                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/60 px-2 py-0.5 rounded-full font-bold">AI v8.9.3</span>
+                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/60 px-2 py-0.5 rounded-full font-bold">AI v8.9.1</span>
                     <span id="current-tab-badge" class="text-[10px] bg-slate-800/90 text-slate-200 border border-slate-700/80 px-2 py-0.5 rounded-full font-bold">الدردشة</span>
                     <span id="device-badge" class="text-[10px] bg-slate-800/90 text-slate-300 border border-slate-700/60 px-2 py-0.5 rounded-full font-semibold">جهاز</span>
                     <span id="net-badge" class="text-[10px] bg-slate-800/90 text-sky-200 border border-sky-800/50 px-2 py-0.5 rounded-full font-bold">وضع مرن</span>
@@ -407,6 +411,7 @@ const htmlContent = `<!DOCTYPE html>
         <span class="bg-teal-950 text-teal-200 border border-teal-800/60 px-2 py-1 rounded-lg text-[10px] font-bold shrink-0">فتح</span>
     </div>
 
+    <!-- نافذة المساعدة الصوتية والذكية لمن لا يجيد القراءة والكتابة -->
     <div id="assisted-voice-modal" onclick="if(event.target===this)closeAssistedVoiceHub()" class="hidden fixed inset-0 bg-[#080f18]/85 z-50 flex items-center justify-center p-3.5">
         <div class="bg-[#0f1b29] border border-teal-700/60 rounded-3xl w-full max-w-md p-4 space-y-3 shadow-2xl">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
@@ -448,6 +453,7 @@ const htmlContent = `<!DOCTYPE html>
         </div>
     </div>
 
+    <!-- نافذة قراءة الرسالة الطويلة بالكامل -->
     <div id="long-msg-reader-modal" onclick="if(event.target===this)closeLongMsgReader()" class="hidden fixed inset-0 bg-[#080f18]/85 z-50 flex items-center justify-center p-4">
         <div class="bg-[#0f1b29] border border-slate-700 rounded-3xl w-full max-w-lg max-h-[82vh] flex flex-col shadow-2xl overflow-hidden">
             <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
@@ -463,6 +469,7 @@ const htmlContent = `<!DOCTYPE html>
         </div>
     </div>
 
+    <!-- نافذة توسيع ومراجعة حقل الكتابة -->
     <div id="composer-expand-modal" onclick="if(event.target===this)closeComposerExpand()" class="hidden fixed inset-0 bg-[#080f18]/85 z-50 flex items-center justify-center p-4">
         <div class="bg-[#0f1b29] border border-teal-700/60 rounded-3xl w-full max-w-lg p-4 space-y-3 shadow-2xl">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
@@ -483,6 +490,7 @@ const htmlContent = `<!DOCTYPE html>
         </div>
     </div>
 
+    <!-- قائمة الضغط المطوّل على الرسالة -->
     <div id="msg-context-modal" onclick="if(event.target===this)closeMsgContextMenu()" class="hidden fixed inset-0 bg-[#080f18]/75 z-50 flex items-end sm:items-center justify-center p-3">
         <div class="bg-[#0f1b29] border border-slate-700/80 rounded-2xl w-full max-w-xs p-3 space-y-1.5 shadow-2xl">
             <div class="px-2 py-1 border-b border-slate-800 flex items-center justify-between">
@@ -515,7 +523,7 @@ const htmlContent = `<!DOCTYPE html>
 
     <div id="call-modal" class="hidden fixed inset-0 bg-[#080f18]/95 z-50 flex flex-col items-center justify-between p-4">
         <div class="text-center mt-1">
-            <p class="text-xs text-teal-300 font-bold">سند AI v8.9.3 • اتصال واضح ومستقر (فردي وجماعي)</p>
+            <p class="text-xs text-teal-300 font-bold">سند AI v8.9.1 • اتصال واضح ومستقر (فردي وجماعي)</p>
             <h2 id="call-peer-title" class="text-lg font-black text-white font-mono mt-0.5">...</h2>
             <p id="call-timer-el" class="text-xs font-mono font-bold text-slate-300 mt-0.5">00:00</p>
             <p id="call-status-msg" class="text-xs text-emerald-300 mt-0.5 font-semibold">جاري الاتصال...</p>
@@ -614,6 +622,7 @@ const htmlContent = `<!DOCTYPE html>
 
             <div id="msgs-box" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar"></div>
 
+            <!-- شريط الرد على رسالة معينة -->
             <div id="replying-msg-banner" class="hidden px-3.5 py-2 bg-[#0c1a28] border-t border-teal-700/70 flex items-center justify-between gap-2 text-xs shrink-0">
                 <div class="border-r-2 border-teal-400 pr-2.5 min-w-0">
                     <p id="replying-to-label" class="text-[10px] font-extrabold text-teal-300 truncate">رد على رسالة</p>
@@ -775,7 +784,7 @@ const htmlContent = `<!DOCTYPE html>
             <div class="bg-[#0f1b29] border border-slate-800 p-4 rounded-2xl space-y-2.5">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-black text-teal-200"><i class="fa-solid fa-brain ml-1"></i> مساعد سند AI وتطوير المحتوى</h2>
-                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/50 px-2 py-0.5 rounded-full font-bold">v8.9.3</span>
+                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/50 px-2 py-0.5 rounded-full font-bold">v8.9.1</span>
                 </div>
                 <div class="flex items-center justify-between bg-[#080f18] p-3 rounded-xl border border-slate-800 text-xs">
                     <span>وضع توفير البيانات للشبكات الضعيفة</span>
@@ -795,7 +804,7 @@ const htmlContent = `<!DOCTYPE html>
                         <button type="button" onclick="saveExternalAiConfig()" class="text-[11px] bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 px-2.5 py-1 rounded-lg font-bold">حفظ الإعداد</button>
                     </div>
                     <input type="password" id="ai-api-key" placeholder="مفتاح API اختياري (يُحفظ محلياً فقط)" class="w-full bg-[#0f1b29] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
-                    <input type="text" id="ai-api-endpoint" placeholder="رابط API اختياري (مثال: .../v1/chat/completions)" class="w-full bg-[#0f1b29] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
+                    <input type="text" id="ai-api-endpoint" placeholder="رابط API اختياري (مثال: .../v1/chat)" class="w-full bg-[#0f1b29] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
                 </div>
                 <div class="grid grid-cols-2 gap-2 pt-1">
                     <button type="button" onclick="readLastIncomingMessageAloud()" class="bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-800/60 text-emerald-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-volume-high ml-1"></i>قراءة آخر رسالة</button>
@@ -810,7 +819,7 @@ const htmlContent = `<!DOCTYPE html>
                     <button type="button" onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
                 </div>
                 <div id="ai-log" class="bg-[#080f18] border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">مرحباً بك في سند AI v8.9.3 — نسخة موحّدة ومطوّرة بالذكاء الاصطناعي مع قراءة صوتية، تلخيص، واستخراج مهام.</div>
+                    <div class="text-slate-400">مرحباً بك في سند AI v8.9.1 — حقل كتابة متوسع + قراءة وتبسيط للرسائل الطويلة + مساعدة صوتية ذكية.</div>
                 </div>
                 <div class="flex gap-2">
                     <input type="text" id="ai-q" onkeydown="if(event.key==='Enter')askSanadAI()" placeholder="اسأل سند AI أو اطلب صياغة محتوى للعملاء..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
@@ -902,57 +911,6 @@ const htmlContent = `<!DOCTYPE html>
             }
         }
 
-        function getExternalAiConfig() {
-            var kEl = document.getElementById('ai-api-key');
-            var eEl = document.getElementById('ai-api-endpoint');
-            var key = kEl ? kEl.value.trim() : '';
-            var endpoint = eEl ? eEl.value.trim() : '';
-            if (!key || !endpoint) {
-                try {
-                    var saved = JSON.parse(localStorage.getItem('sanad893_ai_cfg') || localStorage.getItem('sanad891_ai_cfg') || 'null');
-                    if (saved && typeof saved === 'object') {
-                        if (!key && saved.key) key = String(saved.key).trim();
-                        if (!endpoint && saved.endpoint) endpoint = String(saved.endpoint).trim();
-                    }
-                } catch (e) {}
-            }
-            return { key: key, endpoint: endpoint };
-        }
-
-        function callExternalAi(promptText, systemPrompt) {
-            var cfg = getExternalAiConfig();
-            if (!cfg.key || !cfg.endpoint || (typeof navigator !== 'undefined' && navigator.onLine === false)) {
-                return Promise.resolve(null);
-            }
-            return fetch(cfg.endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + cfg.key
-                },
-                body: JSON.stringify({
-                    model: 'gpt-4o-mini',
-                    messages: [
-                        { role: 'system', content: systemPrompt || 'أنت مساعد ذكي داخل تطبيق سند AI وتجيب باللغة العربية بوضوح ودقة.' },
-                        { role: 'user', content: promptText }
-                    ]
-                })
-            }).then(function(r) {
-                if (!r || !r.ok) return null;
-                return r.json();
-            }).then(function(d) {
-                if (d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) {
-                    return String(d.choices[0].message.content).trim();
-                }
-                if (d && typeof d.reply === 'string' && d.reply.trim()) {
-                    return d.reply.trim();
-                }
-                return null;
-            }).catch(function() {
-                return null;
-            });
-        }
-
         function autoResizeComposer(el) {
             if (!el) return;
             el.style.height = 'auto';
@@ -984,7 +942,7 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function transformTextWithProtocol(rawText, mode) {
-            var src = String(rawText || '').replace(/\s+/g, ' ').trim();
+            var src = String(rawText || '').replace(/\\s+/g, ' ').trim();
             if (!src) return '';
             if (mode === 'simplify') {
                 var parts = src.split(/[.!؟،]+/).map(function(s) { return s.trim(); }).filter(Boolean);
@@ -1001,9 +959,16 @@ const htmlContent = `<!DOCTYPE html>
             return src;
         }
 
-        function applyTransformedTextToUi(transformed) {
-            if (!transformed) return;
+        function aiTransformCurrentDraft(mode) {
             var inp = document.getElementById('msg-box-input');
+            var sourceText = inp && inp.value.trim() ? inp.value.trim() : '';
+            if (!sourceText) {
+                var list = (getThreadMap()[currentPeer] || []).filter(function(m) { return !m.deleted && m.kind === 'text' && m.text; });
+                var lastMsg = list.length ? list[list.length - 1] : null;
+                if (!lastMsg) return alert('اكتب نصاً أو اختر رسالة نصية ليقوم الذكاء الاصطناعي بمعالجتها.');
+                sourceText = lastMsg.text;
+            }
+            var transformed = transformTextWithProtocol(sourceText, mode);
             if (inp) {
                 inp.value = transformed;
                 autoResizeComposer(inp);
@@ -1016,36 +981,12 @@ const htmlContent = `<!DOCTYPE html>
             speakText(transformed);
         }
 
-        function aiTransformCurrentDraft(mode) {
-            var inp = document.getElementById('msg-box-input');
-            var sourceText = inp && inp.value.trim() ? inp.value.trim() : '';
-            if (!sourceText) {
-                var list = (getThreadMap()[currentPeer] || []).filter(function(m) { return !m.deleted && m.kind === 'text' && m.text; });
-                var lastMsg = list.length ? list[list.length - 1] : null;
-                if (!lastMsg) return alert('اكتب نصاً أو اختر رسالة نصية ليقوم الذكاء الاصطناعي بمعالجتها.');
-                sourceText = lastMsg.text;
-            }
-            var localFallback = transformTextWithProtocol(sourceText, mode);
-            callExternalAi(
-                'أعد صياغة النص التالي باللغة العربية حسب المطلوب (' + mode + ') بدون مقدمات زائدة:\n' + sourceText,
-                'أنت مساعد صياغة عربي دقيق ومختصر.'
-            ).then(function(aiRes) {
-                applyTransformedTextToUi(aiRes || localFallback);
-            });
-        }
-
         function aiTransformExpanded(mode) {
             var ta = document.getElementById('expanded-composer-textarea');
             if (!ta || !ta.value.trim()) return;
-            var localFallback = transformTextWithProtocol(ta.value, mode);
-            callExternalAi(
-                'أعد صياغة النص التالي باللغة العربية حسب النمط (' + mode + ') بوضوح:\n' + ta.value,
-                'أنت مساعد صياغة عربي دقيق ومختصر.'
-            ).then(function(aiRes) {
-                ta.value = aiRes || localFallback;
-                syncFromExpandedComposer();
-                speakText(ta.value);
-            });
+            ta.value = transformTextWithProtocol(ta.value, mode);
+            syncFromExpandedComposer();
+            speakText(ta.value);
         }
 
         function openAssistedVoiceHub() {
@@ -1458,14 +1399,14 @@ const htmlContent = `<!DOCTYPE html>
 
         function loadSavedState() {
             try {
-                var savedActive = localStorage.getItem('sanad893_active') || localStorage.getItem('sanad891_active') || localStorage.getItem('sanad89_active') || localStorage.getItem('sanad88_active');
-                var savedAccts = JSON.parse(localStorage.getItem('sanad893_accts') || localStorage.getItem('sanad891_accts') || localStorage.getItem('sanad89_accts') || 'null');
-                var savedContacts = JSON.parse(localStorage.getItem('sanad893_contacts') || localStorage.getItem('sanad891_contacts') || localStorage.getItem('sanad89_contacts') || 'null');
-                var savedThreads = JSON.parse(localStorage.getItem('sanad893_threads') || localStorage.getItem('sanad891_threads') || localStorage.getItem('sanad89_threads') || 'null');
-                var savedGroups = JSON.parse(localStorage.getItem('sanad893_groups') || localStorage.getItem('sanad891_groups') || localStorage.getItem('sanad89_groups') || 'null');
-                var savedPins = JSON.parse(localStorage.getItem('sanad893_pins') || localStorage.getItem('sanad891_pins') || localStorage.getItem('sanad89_pins') || 'null');
-                var savedUnread = JSON.parse(localStorage.getItem('sanad893_unread') || localStorage.getItem('sanad891_unread') || localStorage.getItem('sanad89_unread') || 'null');
-                var savedOutbox = JSON.parse(localStorage.getItem('sanad893_outbox') || localStorage.getItem('sanad891_outbox') || localStorage.getItem('sanad89_outbox') || 'null');
+                var savedActive = localStorage.getItem('sanad891_active') || localStorage.getItem('sanad89_active') || localStorage.getItem('sanad88_active');
+                var savedAccts = JSON.parse(localStorage.getItem('sanad891_accts') || localStorage.getItem('sanad89_accts') || 'null');
+                var savedContacts = JSON.parse(localStorage.getItem('sanad891_contacts') || localStorage.getItem('sanad89_contacts') || 'null');
+                var savedThreads = JSON.parse(localStorage.getItem('sanad891_threads') || localStorage.getItem('sanad89_threads') || 'null');
+                var savedGroups = JSON.parse(localStorage.getItem('sanad891_groups') || localStorage.getItem('sanad89_groups') || 'null');
+                var savedPins = JSON.parse(localStorage.getItem('sanad891_pins') || localStorage.getItem('sanad89_pins') || 'null');
+                var savedUnread = JSON.parse(localStorage.getItem('sanad891_unread') || localStorage.getItem('sanad89_unread') || 'null');
+                var savedOutbox = JSON.parse(localStorage.getItem('sanad891_outbox') || localStorage.getItem('sanad89_outbox') || 'null');
 
                 if (savedActive && cleanIdValue(savedActive) !== '88888888') {
                     activeAcct = cleanIdValue(savedActive);
@@ -1526,7 +1467,7 @@ const htmlContent = `<!DOCTYPE html>
                 if (savedUnread && typeof savedUnread === 'object') unreadByThread = savedUnread;
                 if (Array.isArray(savedOutbox)) outboxQueue = savedOutbox;
 
-                var aiCfg = JSON.parse(localStorage.getItem('sanad893_ai_cfg') || localStorage.getItem('sanad891_ai_cfg') || 'null');
+                var aiCfg = JSON.parse(localStorage.getItem('sanad891_ai_cfg') || localStorage.getItem('sanad89_ai_cfg') || 'null');
                 if (aiCfg && typeof aiCfg === 'object') {
                     var kEl = document.getElementById('ai-api-key');
                     var eEl = document.getElementById('ai-api-endpoint');
@@ -1538,14 +1479,14 @@ const htmlContent = `<!DOCTYPE html>
 
         function persistState() {
             try {
-                localStorage.setItem('sanad893_active', activeAcct);
-                localStorage.setItem('sanad893_accts', JSON.stringify(myAccts));
-                localStorage.setItem('sanad893_contacts', JSON.stringify(contacts));
-                localStorage.setItem('sanad893_threads', JSON.stringify(acctThreads));
-                localStorage.setItem('sanad893_groups', JSON.stringify(sanadGroups));
-                localStorage.setItem('sanad893_pins', JSON.stringify(pinnedByThread));
-                localStorage.setItem('sanad893_unread', JSON.stringify(unreadByThread));
-                localStorage.setItem('sanad893_outbox', JSON.stringify(outboxQueue));
+                localStorage.setItem('sanad891_active', activeAcct);
+                localStorage.setItem('sanad891_accts', JSON.stringify(myAccts));
+                localStorage.setItem('sanad891_contacts', JSON.stringify(contacts));
+                localStorage.setItem('sanad891_threads', JSON.stringify(acctThreads));
+                localStorage.setItem('sanad891_groups', JSON.stringify(sanadGroups));
+                localStorage.setItem('sanad891_pins', JSON.stringify(pinnedByThread));
+                localStorage.setItem('sanad891_unread', JSON.stringify(unreadByThread));
+                localStorage.setItem('sanad891_outbox', JSON.stringify(outboxQueue));
             } catch (e) {}
         }
 
@@ -1553,7 +1494,7 @@ const htmlContent = `<!DOCTYPE html>
             var kEl = document.getElementById('ai-api-key');
             var eEl = document.getElementById('ai-api-endpoint');
             try {
-                localStorage.setItem('sanad893_ai_cfg', JSON.stringify({
+                localStorage.setItem('sanad891_ai_cfg', JSON.stringify({
                     key: kEl ? kEl.value.trim() : '',
                     endpoint: eEl ? eEl.value.trim() : ''
                 }));
@@ -1640,7 +1581,7 @@ const htmlContent = `<!DOCTYPE html>
             var sample = contacts.filter(function(c) { return c.id !== DEFAULT_PEER; }).map(function(c) { return c.id; }).join(', ');
             var raw = prompt('ألصق أرقاماً أو معرّفات (مفصولة بفاصلة أو سطر) لفحص المشتركين/المتصلين:', sample);
             if (raw === null) return;
-            var tokens = toWesternDigits(raw).split(/[\s,،\n]+/).map(function(x) { return x.trim(); }).filter(Boolean);
+            var tokens = toWesternDigits(raw).split(/[\\s,،\\n]+/).map(function(x) { return x.trim(); }).filter(Boolean);
             if (!tokens.length) return alert('لم يتم إدخال أي أرقام للفحص.');
             var matchedOnline = [];
             tokens.forEach(function(num) {
@@ -1665,7 +1606,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!acctThreads[activeAcct]) acctThreads[activeAcct] = {};
             if (!acctThreads[activeAcct][DEFAULT_PEER]) {
                 acctThreads[activeAcct][DEFAULT_PEER] = [
-                    { id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'مرحباً بك في سند AI v8.9.3، كيف نقدر نخدمك اليوم؟', sentAt: formatTimeShort() }
+                    { id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'مرحباً بك في سند AI v8.9.1، كيف نقدر نخدمك اليوم؟', sentAt: formatTimeShort() }
                 ];
             }
             return acctThreads[activeAcct];
@@ -1704,7 +1645,7 @@ const htmlContent = `<!DOCTYPE html>
             }
             box.innerHTML = list.map(function(c) {
                 var picked = selectedGroupMembers.has(c.id);
-                return '<button type="button" onclick="toggleGroupMemberPick(\'' + escapeJsSingle(c.id) + '\')" class="px-2.5 py-1 rounded-lg border text-[11px] font-bold ' +
+                return '<button type="button" onclick="toggleGroupMemberPick(\\'' + escapeJsSingle(c.id) + '\\')" class="px-2.5 py-1 rounded-lg border text-[11px] font-bold ' +
                     (picked ? 'bg-teal-950/80 border-teal-700/70 text-teal-100' : 'bg-[#080f18] border-slate-800 text-slate-300') + '">' +
                     (picked ? '✓ ' : '') + escapeHtml(c.name) + ' <span class="font-mono text-[10px]">(' + escapeHtml(c.id) + ')</span></button>';
             }).join('');
@@ -1715,7 +1656,7 @@ const htmlContent = `<!DOCTYPE html>
             var extraInp = document.getElementById('g-members');
             var gName = nameInp ? nameInp.value.trim() : '';
             if (!gName) return alert('أدخل اسم المجموعة أولاً.');
-            var extraTokens = toWesternDigits(extraInp ? extraInp.value : '').split(/[\s,،\n]+/).map(cleanIdValue).filter(Boolean);
+            var extraTokens = toWesternDigits(extraInp ? extraInp.value : '').split(/[\\s,،\\n]+/).map(cleanIdValue).filter(Boolean);
             var membersSet = new Set([activeAcct]);
             myAccts.forEach(function(a) { if (cleanIdValue(a)) membersSet.add(cleanIdValue(a)); });
             selectedGroupMembers.forEach(function(m) { membersSet.add(cleanIdValue(m)); });
@@ -1788,13 +1729,13 @@ const htmlContent = `<!DOCTYPE html>
                     (unreadCnt > 0 ? '<span class="px-1.5 py-0.5 rounded-full bg-rose-600 text-white text-[10px] font-mono font-bold">' + toWesternDigits(unreadCnt) + '</span>' : '') +
                     '</div>' +
                     '<div class="flex items-center gap-1.5 shrink-0">' +
-                    '<button type="button" onclick="launchGroupCall(\'audio\', \'' + escapeJsSingle(g.id) + '\')" title="مكالمة جماعية للمجموعة" class="bg-emerald-800 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold"><i class="fa-solid fa-phone"></i></button>' +
-                    '<button type="button" onclick="choosePeer(\'' + escapeJsSingle(g.id) + '\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-lg text-xs font-bold">دخول المجموعة</button></div></div>' +
+                    '<button type="button" onclick="launchGroupCall(\\'audio\\', \\'' + escapeJsSingle(g.id) + '\\')" title="مكالمة جماعية للمجموعة" class="bg-emerald-800 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold"><i class="fa-solid fa-phone"></i></button>' +
+                    '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(g.id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-lg text-xs font-bold">دخول المجموعة</button></div></div>' +
                     '<p class="text-[11px] font-mono text-slate-400 truncate">' + escapeHtml(g.id) + ' • ' + toWesternDigits(mCount) + ' أعضاء</p>' +
                     (membersPreview ? '<p class="text-[10px] text-slate-400 truncate">الأعضاء: ' + escapeHtml(membersPreview) + '</p>' : '') +
                     '<div class="flex gap-2 pt-1">' +
-                    '<input type="text" id="add-member-input-' + escapeHtml(safeDomId) + '" oninput="normalizeDigitsInInput(this)" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addMemberToGroup(\'' + escapeJsSingle(g.id) + '\');}" placeholder="رقم أو معرّف عضو جديد..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">' +
-                    '<button type="button" onclick="addMemberToGroup(\'' + escapeJsSingle(g.id) + '\')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">+ إضافة عضو</button>' +
+                    '<input type="text" id="add-member-input-' + escapeHtml(safeDomId) + '" oninput="normalizeDigitsInInput(this)" onkeydown="if(event.key===\\'Enter\\'){event.preventDefault();addMemberToGroup(\\'' + escapeJsSingle(g.id) + '\\');}" placeholder="رقم أو معرّف عضو جديد..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">' +
+                    '<button type="button" onclick="addMemberToGroup(\\'' + escapeJsSingle(g.id) + '\\')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">+ إضافة عضو</button>' +
                     '</div></div>';
             }).join('');
         }
@@ -1889,23 +1830,6 @@ const htmlContent = `<!DOCTYPE html>
             }
         }
 
-        function buildSmartAutoReply(incomingText) {
-            var qTxt = String(incomingText || '').trim();
-            if (/سعر|اسعار|أسعار|باقة|باقات|عرض|عروض|تكلفة|كم/i.test(qTxt)) {
-                return 'أهلاً بك، يسعدنا تزويدك بتفاصيل العروض والباقات؛ اكتب لنا نوع الخدمة أو الباقة المطلوبة وسنرسل لك التفاصيل فوراً.';
-            }
-            if (/موعد|مواعيد|متى|حجز|وقت/i.test(qTxt)) {
-                return 'تم استلام طلب الموعد عبر سند AI، وسنؤكد لك الوقت الأنسب خلال لحظات.';
-            }
-            if (/شكرا|شكراً|يعطيك|مشكور|تسلم/i.test(qTxt)) {
-                return 'العفو، نسعد بخدمتك دائماً على سند AI.';
-            }
-            if (/مشكلة|عطل|لا يعمل|مساعدة|دعم/i.test(qTxt)) {
-                return 'نحن هنا لمساعدتك؛ وضح لنا تفاصيل المشكلة بإيجاز وسنقدم لك الحل أو الخطوة التالية بسرعة.';
-            }
-            return 'أهلاً بك، تم استلام رسالتك عبر سند AI v8.9.3 وسنوافيك بالرد المناسب بأسرع وقت.';
-        }
-
         function handleIncomingPayload(msg) {
             if (!msg || !msg.type) return;
             var eid = msg.eventId || '';
@@ -1950,7 +1874,15 @@ const htmlContent = `<!DOCTYPE html>
                 persistAndDraw();
                 var autoChk = document.getElementById('chk-autoreply');
                 if (autoChk && autoChk.checked && msg.kind === 'text' && normalizeStr(sender) !== normalizeStr(recipient)) {
-                    var smartAuto = buildSmartAutoReply(msg.text || '');
+                    var qTxt = String(msg.text || '');
+                    var smartAuto = 'أهلاً بك، تم استلام رسالتك عبر سند AI v8.9.1 وسنوافيك بالرد الكامل بأسرع وقت.';
+                    if (qTxt.indexOf('سعر') !== -1 || qTxt.indexOf('باقة') !== -1 || qTxt.indexOf('عرض') !== -1) {
+                        smartAuto = 'يسعدنا تزويدك بتفاصيل العروض والباقات؛ يرجى توضيح احتياجك لنرسل لك الخيار الأنسب.';
+                    } else if (qTxt.indexOf('موعد') !== -1 || qTxt.indexOf('متى') !== -1) {
+                        smartAuto = 'تم استلام طلب الموعد، وسنؤكد لك التوقيت المناسب فوراً.';
+                    } else if (qTxt.indexOf('شكرا') !== -1 || qTxt.indexOf('شكراً') !== -1) {
+                        smartAuto = 'العفو، يسعدنا دائماً خدمتك على سند AI.';
+                    }
                     emitPacket(sender, 'text', smartAuto, null, '', null, recipient);
                 }
             } else if (msg.type === 'msg_edit') {
@@ -2252,7 +2184,7 @@ const htmlContent = `<!DOCTYPE html>
             var presetsEl = document.getElementById('group-call-presets');
             if (presetsEl) {
                 presetsEl.innerHTML = sanadGroups.map(function(g) {
-                    return '<button type="button" onclick="applyGroupCallPreset(\'' + escapeJsSingle(g.id) + '\')" class="bg-teal-950/70 hover:bg-teal-900 border border-teal-800/60 text-teal-200 px-2.5 py-1 rounded-lg text-[11px] font-bold"><i class="fa-solid fa-users ml-1"></i>' + escapeHtml(g.name) + '</button>';
+                    return '<button type="button" onclick="applyGroupCallPreset(\\'' + escapeJsSingle(g.id) + '\\')" class="bg-teal-950/70 hover:bg-teal-900 border border-teal-800/60 text-teal-200 px-2.5 py-1 rounded-lg text-[11px] font-bold"><i class="fa-solid fa-users ml-1"></i>' + escapeHtml(g.name) + '</button>';
                 }).join('');
             }
             var pickerEl = document.getElementById('group-call-contact-picker');
@@ -2264,722 +2196,661 @@ const htmlContent = `<!DOCTYPE html>
                 }
                 pickerEl.innerHTML = list.map(function(c) {
                     var active = selectedGroupCallPeers.has(c.id);
-                    return '<button type="button" onclick="toggleGroupCallContact(\'' + escapeJsSingle(c.id) + '\')" class="px-2.5 py-1 rounded-lg border text-[11px] font-bold ' +
+                    return '<button type="button" onclick="toggleGroupCallContact(\\'' + escapeJsSingle(c.id) + '\\')" class="px-2.5 py-1 rounded-lg border text-[11px] font-bold ' +
                         (active ? 'bg-[#164e63] border-teal-500 text-white' : 'bg-[#080f18] border-slate-800 text-slate-300') + '">' +
-                        (active ? '✓ ' : '') + escapeHtml(c.name) + ' <span class="font-mono text-[10px]">(' + escapeHtml(c.id) + ')</span></button>';
+                        (active ? '✓ ' : '') + escapeHtml(c.name) + '</button>';
                 }).join('');
             }
         }
 
-        function renderGroupCallParticipantsBar(targets, mode) {
+        function renderCallParticipantsBar(targets) {
             var bar = document.getElementById('call-participants-bar');
             if (!bar) return;
-            if (!isGroupCallActive || !Array.isArray(targets) || !targets.length) {
+            if (!Array.isArray(targets) || targets.length <= 1) {
                 bar.classList.add('hidden');
                 bar.innerHTML = '';
                 return;
             }
             bar.classList.remove('hidden');
-            bar.innerHTML = targets.map(function(t) {
-                var c = contacts.find(function(x) { return normalizeStr(x.id) === normalizeStr(t); });
-                var label = c ? c.name : t;
-                return '<span class="px-2 py-0.5 rounded-full bg-teal-950/90 border border-teal-700/70 text-teal-100 text-[10px] font-bold">' +
-                    (mode === 'video' ? '<i class="fa-solid fa-video ml-1"></i>' : '<i class="fa-solid fa-phone ml-1"></i>') +
-                    escapeHtml(label) + '</span>';
+            bar.innerHTML = targets.map(function(tId) {
+                var found = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(tId); });
+                var label = found ? found.name : tId;
+                return '<span class="px-2 py-0.5 rounded-full bg-teal-950/90 border border-teal-700/60 text-teal-200 text-[10px] font-bold">' + escapeHtml(label) + '</span>';
             }).join('');
         }
 
-        function buildMediaConstraints(mode, facing) {
-            var weak = isWeakNetworkMode();
-            var audioConfig = weak
-                ? { echoCancellation: true, noiseSuppression: true, autoGainControl: true, sampleRate: 16000, channelCount: 1 }
-                : { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 };
-            if (mode !== 'video') return { audio: audioConfig, video: false };
-            var videoConfig = weak
-                ? { facingMode: facing || facingModeCurrent, width: { ideal: 320, max: 480 }, height: { ideal: 240, max: 360 }, frameRate: { ideal: 15, max: 20 } }
-                : { facingMode: facing || facingModeCurrent, width: { ideal: 640, max: 1280 }, height: { ideal: 480, max: 720 }, frameRate: { ideal: 24, max: 30 } };
-            return { audio: audioConfig, video: videoConfig };
-        }
-
-        function createPeerConnection(targetPeer, mode) {
-            var pc = new RTCPeerConnection(rtcConfig);
-            if (localStreamObj) {
-                localStreamObj.getTracks().forEach(function(track) { pc.addTrack(track, localStreamObj); });
+        function launchGroupCall(mode, explicitGroupId) {
+            if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                return alert('أنت الآن في وضع بدون إنترنت. ستتوفر المكالمات فور عودة الشبكة.');
             }
-            tuneAudioSenderForWeakNet(pc);
-            pc.ontrack = function(ev) {
-                var stream = (ev.streams && ev.streams[0]) || remoteStreamObj || new MediaStream([ev.track]);
-                attachRemoteMediaStream(stream, mode);
-                document.getElementById('call-status-msg').textContent = 'متصل ومباشر الآن';
-            };
-            pc.onicecandidate = function(ev) {
-                if (ev.candidate) {
-                    sendSignalingOrMsg({ type: 'call_sig', to: targetPeer, from: activeAcct, signal: { candidate: ev.candidate } });
-                }
-            };
-            pc.onconnectionstatechange = function() {
-                if (pc.connectionState === 'connected') {
-                    document.getElementById('call-status-msg').textContent = 'متصل ومباشر الآن';
-                    applyAudioOutputPreference();
-                }
-            };
-            return pc;
-        }
-
-        function startSingleCallOffer(targetPeer, mode, isGroupMember) {
-            var cleanTarget = cleanIdValue(targetPeer);
-            if (!cleanTarget || normalizeStr(cleanTarget) === normalizeStr(activeAcct)) return;
-            var peerLabel = formatPeerDisplay(cleanTarget);
-            if (!isGroupMember) {
-                callPeerId = cleanTarget;
-                activeCallMode = mode;
-                document.getElementById('call-modal').classList.remove('hidden');
-                document.getElementById('call-peer-title').textContent = peerLabel;
-                document.getElementById('call-status-msg').textContent = 'جاري الاتصال بـ ' + peerLabel + '...';
-                document.getElementById('accept-btn').classList.add('hidden');
-                var lv = document.getElementById('local-video-el');
-                var rv = document.getElementById('remote-video-el');
-                var vc = document.getElementById('voice-call-card');
-                var swBtn = document.getElementById('switch-cam-btn');
-                if (mode === 'video') {
-                    lv.classList.remove('hidden');
-                    vc.classList.add('hidden');
-                    swBtn.classList.remove('hidden');
-                    document.getElementById('call-mode-label').textContent = isWeakNetworkMode() ? 'مكالمة فيديو • وضع توفير الشبكة' : 'مكالمة فيديو عالية الوضوح';
-                } else {
-                    lv.classList.add('hidden');
-                    rv.classList.add('hidden');
-                    vc.classList.remove('hidden');
-                    swBtn.classList.add('hidden');
-                    document.getElementById('call-mode-label').textContent = 'مكالمة صوتية مباشرة • أولوية جودة الصوت';
-                }
-                applyAudioOutputPreference();
-                startCallTimer();
-            }
-
-            navigator.mediaDevices.getUserMedia(buildMediaConstraints(mode, facingModeCurrent)).then(function(stream) {
-                if (!localStreamObj) localStreamObj = stream;
-                if (mode === 'video') {
-                    var lvEl = document.getElementById('local-video-el');
-                    if (lvEl) lvEl.srcObject = localStreamObj;
-                }
-                if (!isGroupMember) {
-                    rtcConn = createPeerConnection(cleanTarget, mode);
-                    rtcConn.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: mode === 'video' }).then(function(offer) {
-                        return rtcConn.setLocalDescription(offer).then(function() {
-                            var sigPayload = { type: 'call_sig', to: cleanTarget, from: activeAcct, mode: mode, signal: { sdp: rtcConn.localDescription } };
-                            sendSignalingOrMsg(sigPayload);
-                            stopOfferRetryLoop();
-                            var retries = 0;
-                            offerRetryTimer = setInterval(function() {
-                                retries += 1;
-                                if (!rtcConn || rtcConn.remoteDescription || retries > 5) { stopOfferRetryLoop(); return; }
-                                sendSignalingOrMsg(sigPayload);
-                            }, 2500);
-                        });
-                    });
-                } else {
-                    sendSignalingOrMsg({
-                        type: 'call_sig',
-                        to: cleanTarget,
-                        from: activeAcct,
-                        mode: mode,
-                        groupCall: true,
-                        participants: activeGroupCallTargets.slice(),
-                        signal: { groupInvite: true, mode: mode }
-                    });
-                }
-            }).catch(function(err) {
-                var msg = (err && err.name === 'NotAllowedError')
-                    ? 'تم رفض إذن الميكروفون/الكاميرا. فعّل الإذن من إعدادات المتصفح أو الجهاز.'
-                    : 'تعذر الوصول إلى الميكروفون أو الكاميرا على هذا الجهاز.';
-                if (!isGroupMember) {
-                    document.getElementById('call-status-msg').textContent = msg;
-                    alert(msg);
-                    cleanupCallMedia(false);
-                }
-            });
-        }
-
-        function launchCall(mode) {
-            if (!currentPeer || currentPeer === DEFAULT_PEER) {
-                setPane('calls');
-                return alert('اختر جهة اتصال أو اكتب رقماً/معرّفاً لبدء المكالمة.');
-            }
-            var grp = findGroupById(currentPeer);
-            if (grp) {
-                launchGroupCall(mode, grp.id);
-                return;
-            }
-            isGroupCallActive = false;
-            activeGroupCallTargets = [];
-            renderGroupCallParticipantsBar([], mode);
-            startSingleCallOffer(currentPeer, mode, false);
-        }
-
-        function launchGroupCall(mode, presetGroupId) {
             var targets = [];
             var titleLabel = 'مكالمة جماعية';
-            if (presetGroupId) {
-                var grp = findGroupById(presetGroupId);
+            if (explicitGroupId) {
+                var grp = findGroupById(explicitGroupId);
                 if (grp && Array.isArray(grp.members)) {
-                    titleLabel = 'مجموعة: ' + grp.name;
+                    titleLabel = grp.name + ' • جماعية';
                     grp.members.forEach(function(m) {
                         var cm = cleanIdValue(m);
-                        if (cm && normalizeStr(cm) !== normalizeStr(activeAcct) && targets.indexOf(cm) === -1) targets.push(cm);
+                        if (cm && normalizeStr(cm) !== normalizeStr(activeAcct)) targets.push(cm);
                     });
                 }
             } else {
-                selectedGroupCallPeers.forEach(function(p) {
-                    var cp = cleanIdValue(p);
-                    if (cp && normalizeStr(cp) !== normalizeStr(activeAcct) && targets.indexOf(cp) === -1) targets.push(cp);
-                });
+                targets = Array.from(selectedGroupCallPeers);
             }
-            if (!targets.length) return alert('اختر مشاركين أو مجموعة أولاً لبدء مكالمة جماعية.');
+            if (targets.length < 2) {
+                return alert('اختر مجموعة بها عضوان فأكثر أو حدد مشاركين اثنين على الأقل لبدء مكالمة جماعية.');
+            }
             isGroupCallActive = true;
             activeGroupCallTargets = targets.slice();
-            activeCallMode = mode;
             callPeerId = targets[0];
+            activeCallMode = mode || 'audio';
+            stopRingtoneLoop();
+            stopOfferRetryLoop();
+            startCallTimer();
+            syncPresenceNow();
             document.getElementById('call-modal').classList.remove('hidden');
             document.getElementById('call-peer-title').textContent = titleLabel + ' (' + toWesternDigits(targets.length) + ')';
-            document.getElementById('call-status-msg').textContent = 'جاري دعوة ' + toWesternDigits(targets.length) + ' مشاركين...';
+            document.getElementById('call-status-msg').textContent = (activeCallMode === 'video' ? 'اتصال فيديو جماعي' : 'اتصال صوتي جماعي') + ' — جاري طلب المشاركين...';
             document.getElementById('accept-btn').classList.add('hidden');
-            document.getElementById('local-video-el').classList.toggle('hidden', mode !== 'video');
-            document.getElementById('remote-video-el').classList.add('hidden');
-            document.getElementById('voice-call-card').classList.toggle('hidden', mode === 'video');
-            document.getElementById('switch-cam-btn').classList.toggle('hidden', mode !== 'video');
-            document.getElementById('call-mode-label').textContent = mode === 'video' ? 'مكالمة فيديو جماعية مباشرة' : 'مكالمة صوتية جماعية مباشرة';
-            renderGroupCallParticipantsBar(targets, mode);
-            applyAudioOutputPreference();
-            startCallTimer();
-            targets.forEach(function(t) { startSingleCallOffer(t, mode, true); });
-            var threadObj = ensureThreadEntry(activeAcct, presetGroupId || currentPeer || targets[0]);
-            threadObj.list.push({
-                id: 'gcall-' + Date.now(),
-                from: 'me',
-                kind: 'text',
-                text: (mode === 'video' ? 'بدأ مكالمة فيديو جماعية' : 'بدأ مكالمة صوتية جماعية') + ' مع: ' + targets.join('، '),
-                sentAt: formatTimeShort()
+            renderCallParticipantsBar(targets);
+            setCallVisualMode(activeCallMode);
+            var modeLbl = document.getElementById('call-mode-label');
+            if (modeLbl) modeLbl.textContent = 'مكالمة جماعية (' + toWesternDigits(targets.length) + ' مشاركين) • بث متزامن';
+            forceUnmuteAudio();
+
+            var videoConstraints = activeCallMode === 'video'
+                ? (isWeakNetworkMode()
+                    ? { facingMode: facingModeCurrent, width: { ideal: 360 }, height: { ideal: 640 }, frameRate: { ideal: 15, max: 20 } }
+                    : { facingMode: facingModeCurrent, width: { ideal: 720 }, height: { ideal: 1280 } })
+                : false;
+
+            navigator.mediaDevices.getUserMedia({
+                audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+                video: videoConstraints
+            }).then(function(stream) {
+                localStreamObj = stream;
+                if (activeCallMode === 'video') {
+                    var lv = document.getElementById('local-video-el');
+                    lv.srcObject = localStreamObj;
+                    lv.play().catch(function() {});
+                }
+                createRTC(activeCallMode);
+                localStreamObj.getTracks().forEach(function(t) { rtcConn.addTrack(t, localStreamObj); });
+                tuneAudioSenderForWeakNet(rtcConn);
+                return rtcConn.createOffer();
+            }).then(function(offer) {
+                return rtcConn.setLocalDescription(offer).then(function() { return offer; });
+            }).then(function(offer) {
+                var callSessionId = 'gcall-' + Date.now() + '-' + Math.floor(Math.random() * 10000);
+                targets.forEach(function(dest) {
+                    sendSignalingOrMsg({
+                        type: 'call_sig',
+                        to: dest,
+                        from: activeAcct,
+                        sig: { op: 'offer', callSessionId: callSessionId, mode: activeCallMode, groupCall: true, participants: targets, sdp: offer }
+                    });
+                });
+            }).catch(function() {
+                document.getElementById('call-status-msg').textContent = 'يرجى السماح بصلاحية الميكروفون أو الكاميرا';
             });
-            persistAndDraw();
+        }
+
+        function onCallDialInput() {
+            var inp = document.getElementById('call-input');
+            var preview = document.getElementById('call-resolved-preview');
+            var sugBox = document.getElementById('call-contact-suggestions');
+            if (!inp) return;
+            var q = cleanIdValue(inp.value);
+            var matches = findContactMatches(q).filter(function(c) { return c.id !== DEFAULT_PEER; }).slice(0, 5);
+            var exactOrFirst = resolveContactByQuery(q);
+            if (preview) {
+                if (!q) {
+                    preview.textContent = currentPeer && currentPeer !== DEFAULT_PEER ? ('الجهة الحالية: ' + formatPeerDisplay(currentPeer)) : '';
+                } else if (exactOrFirst) {
+                    preview.textContent = 'متطابق تلقائياً: ' + exactOrFirst.name + ' (' + exactOrFirst.id + ')';
+                } else {
+                    preview.textContent = 'سيتم الاتصال بالمعرّف/الرقم: ' + q;
+                }
+            }
+            if (sugBox) {
+                sugBox.innerHTML = matches.map(function(c) {
+                    return '<button type="button" onclick="selectCallSuggestion(\\'' + escapeJsSingle(c.id) + '\\', \\'' + escapeJsSingle(c.name) + '\\')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg text-[11px] font-bold">' +
+                        escapeHtml(c.name) + ' • <span class="font-mono text-teal-200">' + escapeHtml(c.id) + '</span></button>';
+                }).join('');
+            }
+        }
+
+        function selectCallSuggestion(id, name) {
+            var cleanId = cleanIdValue(id);
+            var inp = document.getElementById('call-input');
+            if (inp) inp.value = name ? (name + ' • ' + cleanId) : cleanId;
+            currentPeer = cleanId;
+            onCallDialInput();
         }
 
         function startDialedCall(mode) {
             var inp = document.getElementById('call-input');
-            var raw = inp ? inp.value.trim() : '';
-            if (!raw) return alert('اكتب الاسم أو الرقم أو المعرّف أولاً.');
-            var resolved = resolveContactByQuery(raw);
-            if (resolved && resolved.isGroup) {
-                launchGroupCall(mode, resolved.id);
-                return;
+            var raw = inp ? cleanIdValue(inp.value) : '';
+            var cleanedPart = raw.indexOf('•') !== -1 ? cleanIdValue(raw.split('•').pop()) : raw;
+            var resolved = resolveContactByQuery(cleanedPart || raw);
+            var targetId = resolved ? resolved.id : (cleanedPart || raw || currentPeer);
+            launchCall(mode, targetId);
+        }
+
+        function formatPeerDisplay(peerId) {
+            var cleanId = cleanIdValue(peerId);
+            var grp = findGroupById(cleanId);
+            if (grp) return grp.name + ' • مجموعة';
+            var found = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(cleanId); });
+            if (!found) return cleanId;
+            return found.id === DEFAULT_PEER ? found.name : (found.name + ' • ' + found.id);
+        }
+
+        function launchCall(mode, explicitTarget) {
+            if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                return alert('أنت الآن في وضع بدون إنترنت. ستتوفر المكالمات فور عودة الشبكة.');
             }
-            var targetId = cleanIdValue(resolved ? resolved.id : raw);
-            if (!targetId) return;
+            var rawTarget = cleanIdValue(explicitTarget || currentPeer || '');
+            var matched = resolveContactByQuery(rawTarget);
+            if (matched && matched.isGroup) {
+                return launchGroupCall(mode, matched.id);
+            }
+            var target = matched ? matched.id : rawTarget;
+            if (!target) return alert('اكتب الاسم أو الرقم أو المعرّف لبدء الاتصال.');
             isGroupCallActive = false;
-            activeGroupCallTargets = [];
-            renderGroupCallParticipantsBar([], mode);
-            startSingleCallOffer(targetId, mode, false);
+            activeGroupCallTargets = [target];
+            currentPeer = target;
+            callPeerId = target;
+            activeCallMode = mode || 'audio';
+            stopRingtoneLoop();
+            stopOfferRetryLoop();
+            startCallTimer();
+            syncPresenceNow();
+            document.getElementById('call-modal').classList.remove('hidden');
+            document.getElementById('call-peer-title').textContent = formatPeerDisplay(target);
+            document.getElementById('call-status-msg').textContent = (activeCallMode === 'video' ? 'اتصال فيديو — ' : 'اتصال صوتي — ') + 'جاري الرنين...';
+            document.getElementById('accept-btn').classList.add('hidden');
+            renderCallParticipantsBar([]);
+            setCallVisualMode(activeCallMode);
+            forceUnmuteAudio();
+
+            var videoConstraints = activeCallMode === 'video'
+                ? (isWeakNetworkMode()
+                    ? { facingMode: facingModeCurrent, width: { ideal: 360 }, height: { ideal: 640 }, frameRate: { ideal: 15, max: 20 } }
+                    : { facingMode: facingModeCurrent, width: { ideal: 720 }, height: { ideal: 1280 } })
+                : false;
+
+            navigator.mediaDevices.getUserMedia({
+                audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+                video: videoConstraints
+            }).then(function(stream) {
+                localStreamObj = stream;
+                if (activeCallMode === 'video') {
+                    var lv = document.getElementById('local-video-el');
+                    lv.srcObject = localStreamObj;
+                    lv.play().catch(function() {});
+                }
+                createRTC(activeCallMode);
+                localStreamObj.getTracks().forEach(function(t) { rtcConn.addTrack(t, localStreamObj); });
+                tuneAudioSenderForWeakNet(rtcConn);
+                return rtcConn.createOffer();
+            }).then(function(offer) {
+                return rtcConn.setLocalDescription(offer).then(function() { return offer; });
+            }).then(function(offer) {
+                var callSessionId = 'call-' + Date.now() + '-' + Math.floor(Math.random() * 10000);
+                var sendOfferNow = function() {
+                    if (!rtcConn || !callPeerId) return stopOfferRetryLoop();
+                    sendSignalingOrMsg({ type: 'call_sig', to: callPeerId, from: activeAcct, sig: { op: 'offer', callSessionId: callSessionId, mode: activeCallMode, sdp: offer } });
+                };
+                sendOfferNow();
+                var retries = 0;
+                offerRetryTimer = setInterval(function() {
+                    retries += 1;
+                    if (retries > 6 || !rtcConn || (rtcConn.remoteDescription && rtcConn.remoteDescription.type)) {
+                        return stopOfferRetryLoop();
+                    }
+                    sendOfferNow();
+                }, 2500);
+            }).catch(function() {
+                document.getElementById('call-status-msg').textContent = 'يرجى السماح بصلاحية الميكروفون أو الكاميرا';
+            });
+        }
+
+        function switchCameraFacing() {
+            if (activeCallMode !== 'video' || !rtcConn) return;
+            facingModeCurrent = facingModeCurrent === 'user' ? 'environment' : 'user';
+            navigator.mediaDevices.getUserMedia({
+                audio: false,
+                video: { facingMode: facingModeCurrent, width: { ideal: 720 }, height: { ideal: 1280 } }
+            }).then(function(newStream) {
+                var newVideoTrack = newStream.getVideoTracks()[0];
+                if (!newVideoTrack) return;
+                var sender = rtcConn.getSenders().find(function(s) { return s.track && s.track.kind === 'video'; });
+                if (sender) sender.replaceTrack(newVideoTrack);
+                if (localStreamObj) {
+                    localStreamObj.getVideoTracks().forEach(function(t) { t.stop(); localStreamObj.removeTrack(t); });
+                    localStreamObj.addTrack(newVideoTrack);
+                }
+                var lv = document.getElementById('local-video-el');
+                if (lv && localStreamObj) { lv.srcObject = localStreamObj; lv.play().catch(function() {}); }
+            }).catch(function() {});
         }
 
         function onCallSignal(msg) {
-            var fromId = cleanIdValue(msg.from || '');
-            var sig = msg.signal || {};
-            if (sig.hangup) {
+            var sig = msg.sig;
+            if (!sig) return;
+            if (sig.op === 'offer') {
+                if (pendingCall && pendingCall.sig && pendingCall.sig.callSessionId && sig.callSessionId === pendingCall.sig.callSessionId) {
+                    return;
+                }
+                pendingCall = msg;
+                callPeerId = cleanIdValue(msg.from);
+                activeCallMode = sig.mode || 'audio';
+                isGroupCallActive = Boolean(sig.groupCall);
+                activeGroupCallTargets = Array.isArray(sig.participants) ? sig.participants.map(cleanIdValue).filter(Boolean) : [callPeerId];
+                document.getElementById('call-modal').classList.remove('hidden');
+                document.getElementById('call-peer-title').textContent = isGroupCallActive
+                    ? ('مكالمة جماعية من ' + formatPeerDisplay(callPeerId))
+                    : formatPeerDisplay(callPeerId);
+                document.getElementById('call-status-msg').textContent = (activeCallMode === 'video' ? 'مكالمة فيديو واردة' : 'مكالمة صوتية واردة') + ' — يرن الآن...';
+                document.getElementById('accept-btn').classList.remove('hidden');
+                renderCallParticipantsBar(isGroupCallActive ? activeGroupCallTargets : []);
+                setCallVisualMode(activeCallMode);
+                startRingtoneLoop();
+            } else if (sig.op === 'answer' && rtcConn) {
                 stopOfferRetryLoop();
                 stopRingtoneLoop();
-                stopCallTimer();
-                document.getElementById('call-status-msg').textContent = 'تم إنهاء المكالمة من الطرف الآخر.';
-                setTimeout(function() { cleanupCallMedia(false); }, 900);
-                return;
-            }
-            if (sig.sdp && sig.sdp.type === 'offer') {
-                if (rtcConn && (rtcConn.signalingState === 'have-local-offer' || rtcConn.connectionState === 'connected')) return;
-                pendingCall = { from: fromId, mode: msg.mode || 'audio', offer: sig.sdp };
-                callPeerId = fromId;
-                activeCallMode = msg.mode || 'audio';
-                var callerLabel = formatPeerDisplay(fromId);
-                document.getElementById('call-modal').classList.remove('hidden');
-                document.getElementById('call-peer-title').textContent = callerLabel;
-                document.getElementById('call-status-msg').textContent = (activeCallMode === 'video' ? 'مكالمة فيديو واردة من ' : 'مكالمة صوتية واردة من ') + callerLabel;
-                document.getElementById('accept-btn').classList.remove('hidden');
-                document.getElementById('voice-call-card').classList.remove('hidden');
-                applyAudioOutputPreference();
-                startRingtoneLoop();
-            } else if (sig.groupInvite) {
-                pendingCall = { from: fromId, mode: sig.mode || msg.mode || 'audio', isGroupInvite: true, participants: msg.participants || [] };
-                callPeerId = fromId;
-                activeCallMode = sig.mode || msg.mode || 'audio';
-                document.getElementById('call-modal').classList.remove('hidden');
-                document.getElementById('call-peer-title').textContent = 'مكالمة جماعية من ' + formatPeerDisplay(fromId);
-                document.getElementById('call-status-msg').textContent = 'دعوة مكالمة جماعية واردة...';
-                document.getElementById('accept-btn').classList.remove('hidden');
-                startRingtoneLoop();
-            } else if (sig.sdp && sig.sdp.type === 'answer' && rtcConn) {
-                stopOfferRetryLoop();
-                stopRingtoneLoop();
+                startCallTimer();
                 rtcConn.setRemoteDescription(new RTCSessionDescription(sig.sdp)).then(function() {
-                    document.getElementById('call-status-msg').textContent = 'متصل ومباشر الآن';
-                    applyAudioOutputPreference();
-                    startCallTimer();
+                    document.getElementById('call-status-msg').textContent = 'متصل الآن';
+                    tuneAudioSenderForWeakNet(rtcConn);
+                    forceUnmuteAudio();
                 }).catch(function() {});
-            } else if (sig.candidate && rtcConn) {
+            } else if (sig.op === 'ice' && rtcConn && sig.candidate) {
                 rtcConn.addIceCandidate(new RTCIceCandidate(sig.candidate)).catch(function() {});
+            } else if (sig.op === 'bye') {
+                resetCallState();
             }
         }
 
         function answerCall() {
             if (!pendingCall) return;
             stopRingtoneLoop();
-            var info = pendingCall;
-            pendingCall = null;
+            startCallTimer();
             document.getElementById('accept-btn').classList.add('hidden');
-            document.getElementById('call-status-msg').textContent = 'جاري فتح الاتصال المباشر...';
-            if (info.isGroupInvite) {
-                startSingleCallOffer(info.from, info.mode || 'audio', false);
-                return;
-            }
-            navigator.mediaDevices.getUserMedia(buildMediaConstraints(info.mode, facingModeCurrent)).then(function(stream) {
+            document.getElementById('call-status-msg').textContent = 'جاري فتح الاتصال...';
+            var mode = pendingCall.sig.mode || 'audio';
+            activeCallMode = mode;
+            forceUnmuteAudio();
+
+            navigator.mediaDevices.getUserMedia({
+                audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+                video: mode === 'video' ? { facingMode: facingModeCurrent, width: { ideal: 720 }, height: { ideal: 1280 } } : false
+            }).then(function(stream) {
                 localStreamObj = stream;
-                if (info.mode === 'video') {
+                if (mode === 'video') {
                     var lv = document.getElementById('local-video-el');
-                    lv.srcObject = stream;
-                    lv.classList.remove('hidden');
-                    document.getElementById('voice-call-card').classList.add('hidden');
-                    document.getElementById('switch-cam-btn').classList.remove('hidden');
+                    lv.srcObject = localStreamObj;
+                    lv.play().catch(function() {});
                 }
-                rtcConn = createPeerConnection(info.from, info.mode);
-                return rtcConn.setRemoteDescription(new RTCSessionDescription(info.offer)).then(function() {
-                    return rtcConn.createAnswer();
-                }).then(function(answer) {
-                    return rtcConn.setLocalDescription(answer).then(function() {
-                        sendSignalingOrMsg({ type: 'call_sig', to: info.from, from: activeAcct, signal: { sdp: rtcConn.localDescription } });
-                        document.getElementById('call-status-msg').textContent = 'متصل ومباشر الآن';
-                        applyAudioOutputPreference();
-                        startCallTimer();
-                    });
-                });
-            }).catch(function() {
-                alert('تعذر تشغيل الميكروفون أو الكاميرا للرد على المكالمة.');
-                cleanupCallMedia(false);
-            });
+                createRTC(mode);
+                localStreamObj.getTracks().forEach(function(t) { rtcConn.addTrack(t, localStreamObj); });
+                tuneAudioSenderForWeakNet(rtcConn);
+                return rtcConn.setRemoteDescription(new RTCSessionDescription(pendingCall.sig.sdp));
+            }).then(function() {
+                return rtcConn.createAnswer();
+            }).then(function(ans) {
+                return rtcConn.setLocalDescription(ans).then(function() { return ans; });
+            }).then(function(ans) {
+                sendSignalingOrMsg({ type: 'call_sig', to: cleanIdValue(pendingCall.from), from: activeAcct, sig: { op: 'answer', sdp: ans } });
+                document.getElementById('call-status-msg').textContent = 'متصل الآن';
+                forceUnmuteAudio();
+            }).catch(function() {});
         }
 
-        function switchCameraFacing() {
-            if (!localStreamObj || activeCallMode !== 'video') return;
-            facingModeCurrent = facingModeCurrent === 'user' ? 'environment' : 'user';
-            navigator.mediaDevices.getUserMedia(buildMediaConstraints('video', facingModeCurrent)).then(function(newStream) {
-                var newVideoTrack = newStream.getVideoTracks()[0];
-                if (!newVideoTrack) return;
-                localStreamObj.getVideoTracks().forEach(function(t) { t.stop(); localStreamObj.removeTrack(t); });
-                localStreamObj.addTrack(newVideoTrack);
-                document.getElementById('local-video-el').srcObject = localStreamObj;
-                if (rtcConn && rtcConn.getSenders) {
-                    var sender = rtcConn.getSenders().find(function(s) { return s.track && s.track.kind === 'video'; });
-                    if (sender) sender.replaceTrack(newVideoTrack).catch(function() {});
+        function createRTC(mode) {
+            if (rtcConn) { try { rtcConn.close(); } catch (e) {} }
+            rtcConn = new RTCPeerConnection(rtcConfig);
+            rtcConn.onicecandidate = function(e) {
+                if (e.candidate && callPeerId) {
+                    var iceTargets = (isGroupCallActive && activeGroupCallTargets.length) ? activeGroupCallTargets : [callPeerId];
+                    iceTargets.forEach(function(dest) {
+                        sendSignalingOrMsg({ type: 'call_sig', to: dest, from: activeAcct, sig: { op: 'ice', candidate: e.candidate } });
+                    });
                 }
-                newStream.getAudioTracks().forEach(function(t) { t.stop(); });
-            }).catch(function() {});
+            };
+            rtcConn.ontrack = function(e) {
+                var incomingStream = (e.streams && e.streams[0]) ? e.streams[0] : new MediaStream([e.track]);
+                attachRemoteMediaStream(incomingStream, mode);
+            };
+        }
+
+        function setCallVisualMode(mode) {
+            var lv = document.getElementById('local-video-el');
+            var rv = document.getElementById('remote-video-el');
+            var vc = document.getElementById('voice-call-card');
+            var swBtn = document.getElementById('switch-cam-btn');
+            if (mode === 'video') {
+                lv.classList.remove('hidden');
+                vc.classList.add('hidden');
+                if (swBtn) swBtn.classList.remove('hidden');
+            } else {
+                lv.classList.add('hidden');
+                rv.classList.add('hidden');
+                vc.classList.remove('hidden');
+                if (swBtn) swBtn.classList.add('hidden');
+            }
+            applyAudioOutputPreference();
         }
 
         function toggleMuteTrack() {
             if (!localStreamObj) return;
-            var tracks = localStreamObj.getAudioTracks();
-            if (!tracks.length) return;
-            var nextState = !tracks[0].enabled;
-            tracks.forEach(function(t) { t.enabled = nextState; });
+            var tr = localStreamObj.getAudioTracks()[0];
+            if (!tr) return;
+            tr.enabled = !tr.enabled;
+            var btn = document.getElementById('mute-btn');
             var icon = document.getElementById('mute-icon');
-            if (icon) icon.className = nextState ? 'fa-solid fa-microphone' : 'fa-solid fa-microphone-slash text-rose-400';
+            btn.className = tr.enabled
+                ? 'w-11 h-11 rounded-2xl bg-slate-800 border border-slate-700 text-white flex items-center justify-center'
+                : 'w-11 h-11 rounded-2xl bg-amber-700 text-white flex items-center justify-center';
+            if (icon) icon.className = tr.enabled ? 'fa-solid fa-microphone' : 'fa-solid fa-microphone-slash';
         }
 
-        function cleanupCallMedia(notifyPeer) {
+        function endActiveCall() {
+            var byeTargets = (isGroupCallActive && activeGroupCallTargets.length) ? activeGroupCallTargets : (callPeerId ? [callPeerId] : []);
+            byeTargets.forEach(function(dest) {
+                sendSignalingOrMsg({ type: 'call_sig', to: dest, from: activeAcct, sig: { op: 'bye' } });
+            });
+            resetCallState();
+        }
+
+        function resetCallState() {
             stopOfferRetryLoop();
             stopRingtoneLoop();
             stopCallTimer();
-            if (notifyPeer) {
-                if (isGroupCallActive && activeGroupCallTargets.length) {
-                    activeGroupCallTargets.forEach(function(t) {
-                        sendSignalingOrMsg({ type: 'call_sig', to: t, from: activeAcct, signal: { hangup: true } });
-                    });
-                } else if (callPeerId) {
-                    sendSignalingOrMsg({ type: 'call_sig', to: callPeerId, from: activeAcct, signal: { hangup: true } });
-                }
-            }
+            isGroupCallActive = false;
+            activeGroupCallTargets = [];
+            renderCallParticipantsBar([]);
+            var modeLbl = document.getElementById('call-mode-label');
+            if (modeLbl) modeLbl.textContent = 'مكالمة صوتية مباشرة • أولوية جودة الصوت';
             if (rtcConn) { try { rtcConn.close(); } catch (e) {} rtcConn = null; }
             if (localStreamObj) { localStreamObj.getTracks().forEach(function(t) { t.stop(); }); localStreamObj = null; }
             remoteStreamObj = null;
-            pendingCall = null;
-            callPeerId = null;
-            isGroupCallActive = false;
-            activeGroupCallTargets = [];
-            renderGroupCallParticipantsBar([], 'audio');
             var audEl = document.getElementById('remote-audio-el');
             if (audEl) audEl.srcObject = null;
+            document.getElementById('call-modal').classList.add('hidden');
             document.getElementById('remote-video-el').classList.add('hidden');
             document.getElementById('local-video-el').classList.add('hidden');
-            document.getElementById('call-modal').classList.add('hidden');
+            pendingCall = null;
+            callPeerId = null;
         }
 
-        function endActiveCall() { cleanupCallMedia(true); }
-
-        var mediaRec = null;
-        var audioChunks = [];
-        var isRecordingVoice = false;
-        var recSec = 0;
-        var recTimerInt = null;
-
-        function toggleVoiceCapture() {
-            if (!isRecordingVoice) {
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return alert('المتصفح لا يدعم التسجيل الصوتي.');
-                navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
-                    audioChunks = [];
-                    mediaRec = new MediaRecorder(stream);
-                    mediaRec.ondataavailable = function(e) { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
-                    mediaRec.onstop = function() {
-                        stream.getTracks().forEach(function(t) { t.stop(); });
-                        var blob = new Blob(audioChunks, { type: 'audio/webm' });
-                        var reader = new FileReader();
-                        reader.onload = function() {
-                            var durLabel = 'رسالة صوتية (' + toWesternDigits(recSec) + ' ث)';
-                            emitPacket(currentPeer, 'audio', durLabel, reader.result, 'voice.webm');
-                        };
-                        reader.readAsDataURL(blob);
-                    };
-                    mediaRec.start();
-                    isRecordingVoice = true;
-                    recSec = 0;
-                    document.getElementById('rec-timer').classList.remove('hidden');
-                    document.getElementById('rec-timer').textContent = '00:00';
-                    document.getElementById('voice-btn').className = 'bg-rose-700 text-white p-2.5 rounded-xl animate-pulse shrink-0';
-                    recTimerInt = setInterval(function() {
-                        recSec += 1;
-                        var m = String(Math.floor(recSec / 60)).padStart(2, '0');
-                        var s = String(recSec % 60).padStart(2, '0');
-                        document.getElementById('rec-timer').textContent = toWesternDigits(m + ':' + s);
-                    }, 1000);
-                }).catch(function() { alert('تعذر الوصول إلى الميكروفون للتسجيل الصوتي.'); });
-            } else {
-                isRecordingVoice = false;
-                clearInterval(recTimerInt);
-                document.getElementById('rec-timer').classList.add('hidden');
-                document.getElementById('voice-btn').className = 'bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white p-2.5 rounded-xl transition shrink-0';
-                if (mediaRec && mediaRec.state !== 'inactive') mediaRec.stop();
-            }
-        }
-
-        var speechRecObj = null;
-        var isDictatingNow = false;
+        var speechRec = null;
+        var dictating = false;
 
         function toggleSpeechDictation() {
             var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SR) return alert('ميزة تحويل الصوت إلى نص غير مدعومة في هذا المتصفح.');
-            if (!isDictatingNow) {
-                speechRecObj = new SR();
-                speechRecObj.lang = 'ar-SA';
-                speechRecObj.interimResults = false;
-                speechRecObj.maxAlternatives = 1;
-                isDictatingNow = true;
-                document.getElementById('dictate-btn').className = 'text-emerald-300 bg-emerald-950/60 p-2 rounded-xl animate-pulse shrink-0';
-                speechRecObj.onresult = function(event) {
-                    var transcript = event.results[0][0].transcript;
-                    var inp = document.getElementById('msg-box-input');
-                    inp.value = inp.value ? (inp.value + ' ' + transcript) : transcript;
-                    autoResizeComposer(inp);
-                };
-                speechRecObj.onerror = function() {};
-                speechRecObj.onend = function() {
-                    isDictatingNow = false;
-                    document.getElementById('dictate-btn').className = 'text-emerald-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition shrink-0';
-                };
-                speechRecObj.start();
+            if (!SR) return alert('الإملاء الصوتي المباشر غير مدعوم في هذا المتصفح.');
+            var btn = document.getElementById('dictate-btn');
+            if (!dictating) {
+                try {
+                    speechRec = new SR();
+                    speechRec.lang = 'ar-SA';
+                    speechRec.interimResults = false;
+                    speechRec.onresult = function(ev) {
+                        var transcript = (ev.results && ev.results[0] && ev.results[0][0]) ? ev.results[0][0].transcript : '';
+                        if (transcript) {
+                            var inp = document.getElementById('msg-box-input');
+                            inp.value = (inp.value ? inp.value + ' ' : '') + transcript;
+                            autoResizeComposer(inp);
+                        }
+                    };
+                    speechRec.onend = function() {
+                        dictating = false;
+                        btn.className = 'text-emerald-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition shrink-0';
+                    };
+                    speechRec.start();
+                    dictating = true;
+                    btn.className = 'bg-[#164e63] text-white p-2 rounded-xl animate-pulse shrink-0';
+                } catch (e) {
+                    dictating = false;
+                }
             } else {
-                isDictatingNow = false;
-                if (speechRecObj) { try { speechRecObj.stop(); } catch (e) {} }
-                document.getElementById('dictate-btn').className = 'text-emerald-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition shrink-0';
+                try { if (speechRec) speechRec.stop(); } catch (e) {}
+                dictating = false;
+            }
+        }
+
+        function pickSupportedAudioMime() {
+            var candidates = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/aac'];
+            if (typeof MediaRecorder === 'undefined' || !MediaRecorder.isTypeSupported) return '';
+            for (var i = 0; i < candidates.length; i++) {
+                if (MediaRecorder.isTypeSupported(candidates[i])) return candidates[i];
+            }
+            return '';
+        }
+
+        var mediaRec = null;
+        var audioBlobs = [];
+        var capturingAudio = false;
+        var recSeconds = 0;
+        var recInterval = null;
+        var recTargetPeer = null;
+
+        function resetVoiceUi(stream) {
+            if (recInterval) { clearInterval(recInterval); recInterval = null; }
+            var timerEl = document.getElementById('rec-timer');
+            var btn = document.getElementById('voice-btn');
+            if (timerEl) timerEl.classList.add('hidden');
+            if (btn) btn.className = 'bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white p-2.5 rounded-xl transition shrink-0';
+            if (stream) stream.getTracks().forEach(function(t) { t.stop(); });
+            capturingAudio = false;
+            mediaRec = null;
+        }
+
+        function formatTimer(sec) {
+            return toWesternDigits(String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0'));
+        }
+
+        function toggleVoiceCapture() {
+            var btn = document.getElementById('voice-btn');
+            var timerEl = document.getElementById('rec-timer');
+            if (!capturingAudio) {
+                recTargetPeer = currentPeer;
+                navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }).then(function(stream) {
+                    var mimeType = pickSupportedAudioMime();
+                    var recOpts = mimeType ? { mimeType: mimeType } : {};
+                    if (isWeakNetworkMode()) recOpts.audioBitsPerSecond = 16000;
+                    mediaRec = Object.keys(recOpts).length ? new MediaRecorder(stream, recOpts) : new MediaRecorder(stream);
+                    audioBlobs = [];
+                    mediaRec.ondataavailable = function(e) { if (e.data && e.data.size > 0) audioBlobs.push(e.data); };
+                    mediaRec.onerror = function() { resetVoiceUi(stream); };
+                    mediaRec.onstop = function() {
+                        var finalType = (mediaRec && mediaRec.mimeType) || mimeType || 'audio/mp4';
+                        var blob = new Blob(audioBlobs, { type: finalType });
+                        var destPeer = recTargetPeer || currentPeer;
+                        var durText = formatTimer(recSeconds);
+                        resetVoiceUi(stream);
+                        if (blob.size > 0) {
+                            var reader = new FileReader();
+                            reader.onloadend = function() {
+                                if (reader.result) emitPacket(destPeer, 'audio', 'رسالة صوتية (' + durText + ')', reader.result, 'voice-note');
+                            };
+                            reader.readAsDataURL(blob);
+                        }
+                    };
+                    mediaRec.start(250);
+                    capturingAudio = true;
+                    recSeconds = 0;
+                    timerEl.textContent = '00:00';
+                    timerEl.classList.remove('hidden');
+                    recInterval = setInterval(function() {
+                        recSeconds += 1;
+                        timerEl.textContent = formatTimer(recSeconds);
+                    }, 1000);
+                    btn.className = 'bg-[#164e63] text-white p-2.5 rounded-xl animate-pulse shrink-0';
+                }).catch(function() { resetVoiceUi(null); alert('يرجى السماح بالوصول إلى الميكروفون.'); });
+            } else {
+                try {
+                    if (mediaRec && mediaRec.state !== 'inactive') {
+                        if (mediaRec.requestData) mediaRec.requestData();
+                        mediaRec.stop();
+                    } else { resetVoiceUi(null); }
+                } catch (e) { resetVoiceUi(null); }
             }
         }
 
         function onFilePicked(ev) {
             var file = ev.target.files && ev.target.files[0];
             if (!file) return;
+            if (file.size > 1500000) return alert('الحد الأقصى للمرفق المباشر 1.5 ميجابايت.');
             var reader = new FileReader();
-            reader.onload = function() {
-                var isImg = file.type && file.type.indexOf('image/') === 0;
-                emitPacket(currentPeer, isImg ? 'image' : 'file', file.name, reader.result, file.name);
+            reader.onloadend = function() {
+                var kind = file.type.indexOf('image/') === 0 ? 'image' : 'file';
+                emitPacket(currentPeer, kind, file.name, reader.result, file.name);
             };
             reader.readAsDataURL(file);
             ev.target.value = '';
         }
 
-        function formatPeerDisplay(id) {
-            if (!id || id === DEFAULT_PEER) return DEFAULT_PEER;
-            var grp = findGroupById(id);
-            if (grp) return grp.name;
-            var c = contacts.find(function(x) { return normalizeStr(x.id) === normalizeStr(id); });
-            return c ? (c.name + ' • ' + c.id) : id;
-        }
-
-        function renderAccts() {
-            var countBadge = document.getElementById('accounts-count-badge');
-            if (countBadge) countBadge.textContent = toWesternDigits(myAccts.length) + (myAccts.length === 1 ? ' حساب' : ' حسابات');
-            document.getElementById('active-acct-label').textContent = activeAcct;
-            var box = document.getElementById('accounts-list');
-            box.innerHTML = myAccts.map(function(id) {
-                var isCur = normalizeStr(id) === normalizeStr(activeAcct);
-                return '<div class="flex items-center justify-between bg-[#080f18] border ' + (isCur ? 'border-teal-600/70' : 'border-slate-800') + ' p-3 rounded-xl">' +
-                    '<div class="min-w-0"><p class="text-xs font-mono font-bold text-white truncate">' + escapeHtml(id) + '</p>' +
-                    '<p class="text-[10px] text-slate-400">' + (isCur ? 'الحساب النشط حالياً' : 'حساب محفوظ') + '</p></div>' +
-                    '<div class="flex items-center gap-1.5 shrink-0">' +
-                    '<button type="button" onclick="copyStringToClipboard(\'' + escapeJsSingle(id) + '\')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1.5 rounded-lg text-[11px] font-bold">نسخ</button>' +
-                    (isCur ? '<span class="text-[11px] bg-teal-950 text-teal-200 border border-teal-800/60 px-2.5 py-1 rounded-lg font-bold">نشط</span>'
-                          : '<button type="button" onclick="switchAcct(\'' + escapeJsSingle(id) + '\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-lg text-[11px] font-bold">تفعيل</button>') +
-                    '</div></div>';
-            }).join('');
-        }
-
-        function showGeneratedCodeBanner(code) {
-            lastGeneratedCode = cleanIdValue(code);
-            var banner = document.getElementById('last-generated-banner');
-            var txt = document.getElementById('last-generated-text');
-            if (banner && txt) {
-                txt.textContent = 'المعرّف الجديد: ' + lastGeneratedCode;
-                banner.classList.remove('hidden');
+        function buildSanadMentionReply(promptText, targetThreadId) {
+            var cleanQ = String(promptText || '').replace(/@سند|@sanad/gi, '').trim();
+            var list = (getThreadMap()[targetThreadId] || []).filter(function(m) { return !m.deleted && m.kind === 'text'; });
+            if (!cleanQ) {
+                return 'أهلاً بك! اكتب بعد @سند ما تريد: تلخيص المحادثة، استخراج المهام، صياغة رد للعملاء، أو تطوير محتوى.';
             }
-        }
-
-        function make8DigitId() {
-            var code = cleanIdValue(Math.floor(10000000 + Math.random() * 90000000));
-            if (myAccts.indexOf(code) === -1) myAccts.unshift(code);
-            activeAcct = code;
-            showGeneratedCodeBanner(code);
-            persistAndDraw();
-            syncPresenceNow();
-            alert('تم توليد المعرّف وتفعيله: ' + code);
-        }
-
-        function addCustomNumberAccount() {
-            var raw = prompt('أدخل رقم الجوال أو المعرّف الخاص بك (مثال: 771234567 أو معرّف من 8 أرقام):');
-            if (!raw) return;
-            var clean = cleanIdValue(raw);
-            if (!clean) return;
-            if (myAccts.indexOf(clean) === -1) myAccts.unshift(clean);
-            activeAcct = clean;
-            showGeneratedCodeBanner(clean);
-            persistAndDraw();
-            syncPresenceNow();
-        }
-
-        function verifyPhoneAccount() {
-            var phone = prompt('أدخل رقم الجوال لتفعيله كمعرّف على سند AI:');
-            if (!phone) return;
-            var cleanPhone = cleanIdValue(phone);
-            if (!cleanPhone) return;
-            var otp = prompt('تم إرسال رمز التحقق التجريبي (1234) إلى ' + cleanPhone + ' — أدخل الرمز:');
-            if (toWesternDigits(otp || '').trim() !== '1234') return alert('رمز التحقق غير صحيح. الرمز التجريبي هو 1234.');
-            if (myAccts.indexOf(cleanPhone) === -1) myAccts.unshift(cleanPhone);
-            activeAcct = cleanPhone;
-            showGeneratedCodeBanner(cleanPhone);
-            persistAndDraw();
-            syncPresenceNow();
-            alert('تم تفعيل رقم الجوال بنجاح: ' + cleanPhone);
-        }
-
-        function switchAcct(id) {
-            activeAcct = cleanIdValue(id);
-            cancelReplyMessage();
-            cancelEditMessage();
-            clearUnreadForPeer(currentPeer);
-            persistAndDraw();
-            syncPresenceNow();
-        }
-
-        function addNewContact() {
-            var n = document.getElementById('c-name').value.trim();
-            var i = cleanIdValue(document.getElementById('c-id').value);
-            if (!i) return alert('أدخل المعرّف أو رقم الجوال أولاً.');
-            upsertContact(n || ('جهة ' + i), i);
-            document.getElementById('c-name').value = '';
-            document.getElementById('c-id').value = '';
-        }
-
-        function saveCurrentPeer() {
-            var clean = cleanIdValue(currentPeer);
-            if (!clean || clean === DEFAULT_PEER || findGroupById(clean)) return;
-            var existing = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(clean); });
-            var suggestedName = existing ? existing.name : ('جهة ' + clean);
-            var n = prompt('أدخل اسماً لحفظ هذه الجهة:', suggestedName);
-            if (n === null) return;
-            upsertContact(n.trim() || suggestedName, clean);
-            alert('تم حفظ جهة الاتصال بنجاح.');
-        }
-
-        function renderChips() {
-            var box = document.getElementById('quick-chips');
-            var searchInp = document.getElementById('peer-input');
-            var queryVal = searchInp ? searchInp.value.trim() : '';
-            var list = queryVal ? findContactMatches(queryVal) : getSortedContacts().slice(0, 8);
-            if (!list.length) {
-                box.innerHTML = '<span class="text-[11px] text-slate-400">لا توجد نتائج مطابقة — يمكنك الضغط على «فتح» لفتح المعرّف مباشرة.</span>';
-                return;
+            if (cleanQ.indexOf('لخص') !== -1 || cleanQ.indexOf('ملخص') !== -1 || cleanQ.indexOf('تلخيص') !== -1) {
+                var recent = list.slice(-5).map(function(m) { return m.text; }).join(' • ');
+                return 'ملخص المحادثة عبر @سند: ' + (recent || 'لا توجد رسائل كافية للتلخيص بعد.');
             }
-            box.innerHTML = list.map(function(c) {
-                var active = normalizeStr(c.id) === normalizeStr(currentPeer);
-                var online = isPeerOnline(c.id);
-                var unread = getUnreadCountForPeer(c.id);
-                return '<button type="button" onclick="choosePeer(\'' + escapeJsSingle(c.id) + '\')" class="px-3 py-1 rounded-full border text-[11px] font-bold whitespace-nowrap flex items-center gap-1.5 ' +
-                    (active ? 'bg-[#164e63] border-teal-500/80 text-white' : 'bg-[#080f18] border-slate-800 text-slate-200 hover:border-slate-700') + '">' +
-                    '<span class="w-2 h-2 rounded-full ' + (online ? 'bg-emerald-400' : 'bg-slate-600') + '"></span>' +
-                    '<span>' + escapeHtml(c.name) + '</span>' +
-                    (c.id !== DEFAULT_PEER ? '<span class="font-mono text-[10px] text-slate-300">' + escapeHtml(c.id) + '</span>' : '') +
-                    (unread > 0 ? '<span class="px-1.5 py-0.2 rounded-full bg-rose-600 text-white text-[9px] font-mono font-black">' + toWesternDigits(unread) + '</span>' : '') +
-                    '</button>';
-            }).join('');
-        }
-
-        function onTopPeerSearchInput() {
-            renderChips();
-            var inp = document.getElementById('peer-input');
-            var q = inp ? inp.value.trim() : '';
-            if (!q) return;
-            var matches = findContactMatches(q);
-            if (matches.length === 1 && normalizeStr(matches[0].id) !== normalizeStr(currentPeer)) {
-                choosePeer(matches[0].id, { keepSearchInput: true });
+            if (cleanQ.indexOf('مهام') !== -1 || cleanQ.indexOf('خطوات') !== -1 || cleanQ.indexOf('خطة') !== -1) {
+                return 'خطة عمل @سند لـ «' + cleanQ + '»: 1) تحديد النتيجة المطلوبة 2) تجهيز الرد أو المحتوى 3) المتابعة والتأكيد مع الطرف الآخر.';
             }
-        }
-
-        function openFirstMatchedContact() {
-            var qInp = document.getElementById('contact-search-input');
-            var matches = findContactMatches(qInp ? qInp.value : '');
-            if (matches.length) choosePeer(matches[0].id);
-        }
-
-        function onCallDialInput() {
-            var inp = document.getElementById('call-input');
-            var prev = document.getElementById('call-resolved-preview');
-            var sugBox = document.getElementById('call-contact-suggestions');
-            var raw = inp ? inp.value.trim() : '';
-            var matches = findContactMatches(raw).filter(function(c) { return c.id !== DEFAULT_PEER; }).slice(0, 6);
-            if (sugBox) {
-                sugBox.innerHTML = matches.map(function(c) {
-                    return '<button type="button" onclick="selectDialContact(\'' + escapeJsSingle(c.name) + '\', \'' + escapeJsSingle(c.id) + '\')" class="px-2.5 py-1 rounded-lg bg-[#080f18] hover:bg-slate-800 border border-slate-800 text-[11px] font-bold text-slate-200">' +
-                        escapeHtml(c.name) + ' <span class="font-mono text-[10px] text-teal-300">' + escapeHtml(c.id) + '</span></button>';
-                }).join('');
+            if (cleanQ.indexOf('عميل') !== -1 || cleanQ.indexOf('عرض') !== -1 || cleanQ.indexOf('محتوى') !== -1) {
+                return 'مسودة جاهزة للعملاء حول «' + cleanQ + '»: يسعدنا خدمتكم وتقديم أفضل قيمة؛ نوضح لكم التفاصيل والخطوات القادمة بكل شفافية وسرعة.';
             }
-            if (!prev) return;
-            if (!raw) {
-                prev.textContent = matches.length ? ('اختر جهة أو اكتب رقماً أو معرّفاً للاتصال') : '';
-                return;
-            }
-            var resolved = resolveContactByQuery(raw);
-            if (resolved) {
-                var on = !resolved.isGroup && isPeerOnline(resolved.id);
-                prev.textContent = (resolved.isGroup ? 'مجموعة: ' : 'جهة: ') + resolved.name + ' (' + resolved.id + ')' + (resolved.isGroup ? '' : (on ? ' • متصل الآن' : ' • جاهز للاتصال'));
-            } else {
-                prev.textContent = 'سيتم الاتصال بالمعرّف/الرقم: ' + cleanIdValue(raw);
-            }
+            return 'مساعد @سند: بخصوص «' + cleanQ + '» — الفكرة واضحة، وننصح بصياغة رسالة مباشرة ومحددة مع توضيح الموعد أو الإجراء المطلوب.';
         }
 
-        function selectDialContact(name, id) {
-            var inp = document.getElementById('call-input');
-            if (inp) inp.value = name + ' • ' + id;
-            onCallDialInput();
-        }
-
-        function renderPresence() {
-            renderChips();
-            renderGroupsList();
-            renderGroupCallSelector();
-            var grp = findGroupById(currentPeer);
-            var online = !grp && (currentPeer === DEFAULT_PEER || isPeerOnline(currentPeer));
-            document.getElementById('peer-title').textContent = formatPeerDisplay(currentPeer);
-            document.getElementById('peer-dot').className = grp ? 'w-2.5 h-2.5 rounded-full bg-teal-400 shrink-0'
-                : (online ? 'w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0' : 'w-2.5 h-2.5 rounded-full bg-slate-600 shrink-0');
-            var stEl = document.getElementById('peer-status');
-            if (grp) {
-                stEl.textContent = 'مجموعة (' + toWesternDigits((grp.members || []).length || 1) + ')';
-                stEl.className = 'text-[11px] font-bold text-teal-300 shrink-0 whitespace-nowrap';
-            } else if (online) {
-                stEl.textContent = 'متصل';
-                stEl.className = 'text-[11px] font-bold text-emerald-300 shrink-0 whitespace-nowrap';
-            } else {
-                stEl.textContent = 'غير متصل';
-                stEl.className = 'text-[11px] font-bold text-slate-400 shrink-0 whitespace-nowrap';
-            }
-
-            var qInp = document.getElementById('contact-search-input');
-            var list = findContactMatches(qInp ? qInp.value : '');
-            var sumBadge = document.getElementById('contacts-summary-badge');
-            if (sumBadge) sumBadge.textContent = toWesternDigits(list.length) + ' جهة';
-
-            var box = document.getElementById('contacts-list');
-            if (!box) return;
-            box.innerHTML = list.map(function(c) {
-                var isOn = c.id === DEFAULT_PEER || isPeerOnline(c.id);
-                var unread = getUnreadCountForPeer(c.id);
-                return '<div class="flex items-center justify-between bg-[#0f1b29] border border-slate-800 p-3 rounded-xl">' +
-                    '<div class="flex items-center gap-2.5 min-w-0">' +
-                    '<span class="w-2.5 h-2.5 rounded-full shrink-0 ' + (isOn ? 'bg-emerald-400' : 'bg-slate-600') + '"></span>' +
-                    '<div class="min-w-0"><div class="flex items-center gap-1.5"><p class="text-xs font-bold text-white truncate">' + escapeHtml(c.name) + '</p>' +
-                    (unread > 0 ? '<span class="px-1.5 py-0.2 rounded-full bg-rose-600 text-white text-[9px] font-mono font-bold">' + toWesternDigits(unread) + '</span>' : '') +
-                    '</div>' +
-                    '<p class="text-[11px] font-mono text-slate-400 truncate">' + escapeHtml(c.id) + ' • <span class="' + (isOn ? 'text-emerald-300' : 'text-slate-400') + '">' + (isOn ? 'متصل' : 'غير متصل') + '</span></p></div></div>' +
-                    '<div class="flex items-center gap-1.5 shrink-0">' +
-                    (c.id !== DEFAULT_PEER ? '<button type="button" onclick="directCallContact(\'' + escapeJsSingle(c.id) + '\', \'audio\')" title="اتصال صوتي" class="bg-emerald-800 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold"><i class="fa-solid fa-phone"></i></button>' : '') +
-                    '<button type="button" onclick="choosePeer(\'' + escapeJsSingle(c.id) + '\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-lg text-xs font-bold">مراسلة</button></div></div>';
-            }).join('');
-        }
-
-        function directCallContact(peerId, mode) {
-            choosePeer(peerId);
-            startSingleCallOffer(peerId, mode || 'audio', false);
-        }
-
-        function choosePeer(id, opts) {
-            var rawVal = cleanIdValue(id) || DEFAULT_PEER;
-            var resolved = resolveContactByQuery(rawVal);
-            currentPeer = cleanIdValue(resolved ? resolved.id : rawVal) || DEFAULT_PEER;
-            cancelReplyMessage();
-            cancelEditMessage();
-            clearUnreadForPeer(currentPeer);
-            var inp = document.getElementById('peer-input');
-            if (inp && !(opts && opts.keepSearchInput)) inp.value = '';
-            setPane('chats');
-            persistAndDraw();
-            markCurrentThreadAsRead();
-        }
-
-        function openPeerByInput() {
-            var val = document.getElementById('peer-input').value.trim();
-            if (!val) return;
-            choosePeer(val);
-        }
-
-        function markCurrentThreadAsRead() {
-            var grp = findGroupById(currentPeer);
-            if (grp || currentPeer === DEFAULT_PEER) return;
-            var list = getThreadMap()[currentPeer] || [];
-            list.forEach(function(m) {
-                if (m.from === 'them' && m.id) sendReadReceiptIfViewing(currentPeer, m.id);
+        function triggerSanadMentionIfPresent(targetThreadId, sentText) {
+            if (!sentText || !/@سند|@sanad/i.test(sentText)) return;
+            var replyText = buildSanadMentionReply(sentText, targetThreadId);
+            var map = getThreadMap();
+            if (!map[targetThreadId]) map[targetThreadId] = [];
+            map[targetThreadId].push({
+                id: 'ai-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+                from: 'them',
+                senderName: '@سند AI',
+                kind: 'text',
+                text: replyText,
+                sentAt: formatTimeShort()
             });
+            persistAndDraw();
         }
 
-        function toggleThreadSearchBar() {
-            var bar = document.getElementById('thread-search-bar');
-            bar.classList.toggle('hidden');
-            if (!bar.classList.contains('hidden')) document.getElementById('thread-search-input').focus();
-            else { document.getElementById('thread-search-input').value = ''; renderMsgs(); }
+        function emitPacket(to, kind, text, mediaUrl, fileName, existingMsgId, forcedSender) {
+            var cleanTo = cleanIdValue(to);
+            if (!cleanTo) return;
+            var senderId = cleanIdValue(forcedSender || activeAcct) || activeAcct;
+            var timeNow = formatTimeShort();
+            var grp = findGroupById(cleanTo);
+            var msgId = existingMsgId || ('m-' + Date.now() + '-' + Math.floor(Math.random() * 10000));
+            var replyPayload = (!existingMsgId && replyingToMsg) ? Object.assign({}, replyingToMsg) : null;
+            if (!existingMsgId && replyingToMsg) cancelReplyMessage();
+
+            var threadObj = ensureThreadEntry(senderId, cleanTo);
+            var entry = {
+                id: msgId,
+                from: 'me',
+                kind: kind,
+                text: text,
+                mediaUrl: mediaUrl,
+                fileName: fileName,
+                replyTo: replyPayload,
+                sentAt: timeNow,
+                delivered: Boolean(grp),
+                read: false,
+                status: grp ? 'delivered' : 'sent'
+            };
+            if (!existingMsgId) {
+                threadObj.list.push(entry);
+            } else {
+                acctThreads[threadObj.owner][threadObj.key] = threadObj.list.map(function(m) {
+                    return m.id === existingMsgId ? Object.assign({}, m, { delivered: m.delivered || Boolean(grp), status: m.read ? 'read' : ((m.delivered || grp) ? 'delivered' : 'sent') }) : m;
+                });
+            }
+            if (normalizeStr(cleanTo) !== normalizeStr(currentPeer) && !forcedSender) currentPeer = cleanTo;
+            persistAndDraw();
+            if (kind === 'text') triggerSanadMentionIfPresent(threadObj.key, text);
+            if (grp && Array.isArray(grp.members)) {
+                grp.members.forEach(function(memId) {
+                    var cleanMem = cleanIdValue(memId);
+                    if (cleanMem && normalizeStr(cleanMem) !== normalizeStr(senderId)) {
+                        sendSignalingOrMsg({ type: 'msg', to: cleanMem, from: cleanTo, senderName: senderId, msgId: msgId, kind: kind, text: text, mediaUrl: mediaUrl, fileName: fileName, replyTo: replyPayload, sentAt: timeNow });
+                    }
+                });
+            } else {
+                sendSignalingOrMsg({ type: 'msg', to: cleanTo, from: senderId, senderName: senderId, msgId: msgId, kind: kind, text: text, mediaUrl: mediaUrl, fileName: fileName, replyTo: replyPayload, sentAt: timeNow });
+            }
         }
 
-        function closeThreadSearchBar() {
-            document.getElementById('thread-search-bar').classList.add('hidden');
-            document.getElementById('thread-search-input').value = '';
-            renderMsgs();
+        function retryMessage(msgId) {
+            var list = getThreadMap()[currentPeer] || [];
+            var item = list.find(function(m) { return m.id === msgId; });
+            if (item) emitPacket(currentPeer, item.kind, item.text, item.mediaUrl, item.fileName, item.id);
+        }
+
+        function sendTextMsg() {
+            var inp = document.getElementById('msg-box-input');
+            if (!inp) return;
+            var val = inp.value.trim();
+            if (!val) return;
+            if (editingMsgId) {
+                var targetId = editingMsgId;
+                var editedAt = formatTimeShort();
+                var map = getThreadMap();
+                if (map[currentPeer]) {
+                    map[currentPeer] = map[currentPeer].map(function(m) {
+                        if (m.id !== targetId) return m;
+                        return Object.assign({}, m, { text: val, edited: true, editedAt: editedAt });
+                    });
+                }
+                cancelEditMessage();
+                persistAndDraw();
+                var grpEd = findGroupById(currentPeer);
+                if (grpEd && Array.isArray(grpEd.members)) {
+                    grpEd.members.forEach(function(memId) {
+                        var cleanMem = cleanIdValue(memId);
+                        if (cleanMem && normalizeStr(cleanMem) !== normalizeStr(activeAcct)) {
+                            sendSignalingOrMsg({ type: 'msg_edit', to: cleanMem, from: currentPeer, msgId: targetId, text: val, editedAt: editedAt });
+                        }
+                    });
+                } else {
+                    sendSignalingOrMsg({ type: 'msg_edit', to: currentPeer, from: activeAcct, msgId: targetId, text: val, editedAt: editedAt });
+                }
+                return;
+            }
+            inp.value = '';
+            autoResizeComposer(inp);
+            document.getElementById('smart-replies-bar').classList.add('hidden');
+            emitPacket(currentPeer, 'text', val, null, '');
+        }
+
+        function insertSanadMention() {
+            var inp = document.getElementById('msg-box-input');
+            if (!inp) return;
+            if (inp.value.indexOf('@سند') === -1) {
+                inp.value = '@سند ' + inp.value.trim();
+            }
+            autoResizeComposer(inp);
+            inp.focus();
         }
 
         function pinThreadMsg(msgId) {
             var list = getThreadMap()[currentPeer] || [];
-            var found = list.find(function(m) { return m.id === msgId; });
-            if (!found || found.deleted) return;
-            pinnedByThread[currentPeer] = { id: found.id, text: found.text || found.fileName || 'مرفق' };
+            var found = list.find(function(m) { return m.id === msgId && !m.deleted; });
+            if (!found) return;
+            pinnedByThread[currentPeer] = found.text || found.fileName || 'رسالة مثبتة';
             persistAndDraw();
         }
 
@@ -2990,121 +2861,21 @@ const htmlContent = `<!DOCTYPE html>
 
         function renderPinnedBanner() {
             var banner = document.getElementById('pinned-msg-banner');
-            var pin = pinnedByThread[currentPeer];
-            if (pin && pin.text) {
-                document.getElementById('pinned-msg-text').textContent = 'مثبّت: ' + pin.text;
+            var txt = document.getElementById('pinned-msg-text');
+            if (!banner || !txt) return;
+            var pinVal = pinnedByThread[currentPeer];
+            if (pinVal) {
+                txt.textContent = pinVal;
                 banner.classList.remove('hidden');
             } else {
                 banner.classList.add('hidden');
             }
         }
 
-        function renderDeliveryTicks(item) {
-            if (item.from !== 'me') return '';
-            var isRead = Boolean(item.read || item.status === 'read');
-            var isDelivered = Boolean(item.delivered || item.status === 'delivered' || isRead);
-            if (isRead) return '<span class="text-sky-300 font-black mr-1" title="مقروءة">✓✓</span>';
-            if (isDelivered) return '<span class="text-slate-300 font-bold mr-1" title="تم التسليم">✓✓</span>';
-            return '<span class="text-slate-400 mr-1" title="مرسلة">✓</span>';
-        }
-
-        function renderQuotedBlock(item) {
-            if (!item || !item.replyTo || !item.replyTo.snippet) return '';
-            var qId = item.replyTo.id ? escapeJsSingle(item.replyTo.id) : '';
-            var clickAttr = qId ? (' onclick="scrollToQuotedMessage(\'' + qId + '\')"') : '';
-            return '<div' + clickAttr + ' class="mb-1.5 px-2.5 py-1.5 rounded-xl bg-black/25 border-r-2 border-teal-300 cursor-pointer text-[11px]">' +
-                '<p class="font-extrabold text-teal-200 text-[10px] truncate">' + escapeHtml(item.replyTo.senderLabel || 'رسالة مقتبسة') + '</p>' +
-                '<p class="text-slate-200/90 truncate">' + escapeHtml(item.replyTo.snippet) + '</p>' +
-                '</div>';
-        }
-
-        function isSafeMediaUrl(url) {
-            if (typeof url !== 'string' || !url.trim()) return false;
-            var trimmed = url.trim();
-            return /^data:(image|audio|video|application|text)\//i.test(trimmed) || /^https?:\/\//i.test(trimmed) || /^blob:/i.test(trimmed);
-        }
-
-        function renderMsgs() {
-            renderPinnedBanner();
-            renderReplyingBanner();
-            var box = document.getElementById('msgs-box');
-            var list = getThreadMap()[currentPeer] || [];
-            var qInput = document.getElementById('thread-search-input');
-            var q = qInput ? normalizeStr(qInput.value) : '';
-            var countEl = document.getElementById('thread-search-count');
-
-            var filtered = q ? list.filter(function(m) {
-                return !m.deleted && (normalizeStr(m.text || '').indexOf(q) !== -1 || normalizeStr(m.fileName || '').indexOf(q) !== -1);
-            }) : list;
-
-            if (q && countEl) countEl.textContent = toWesternDigits(filtered.length) + ' نتيجة';
-
-            if (!filtered.length) {
-                box.innerHTML = '<div class="text-center text-xs text-slate-500 py-10">' + (q ? 'لا توجد رسائل مطابقة للبحث.' : 'لا توجد رسائل بعد. ابدأ المحادثة الآن أو اكتب @سند لأي مساعدة.') + '</div>';
-                return;
-            }
-
-            var LONG_MSG_THRESHOLD = 420;
-            box.innerHTML = filtered.map(function(item) {
-                var isMe = item.from === 'me';
-                var safeDomId = 'msg-item-' + String(item.id || '').replace(/[^a-zA-Z0-9_-]/g, '_');
-                if (item.deleted) {
-                    return '<div id="' + escapeHtml(safeDomId) + '" class="flex ' + (isMe ? 'justify-start' : 'justify-end') + '">' +
-                        '<div class="max-w-[82%] px-3.5 py-2 rounded-2xl text-xs italic text-slate-400 bg-[#0f1b29]/70 border border-slate-800/70">تم حذف هذه الرسالة</div></div>';
-                }
-                var bubbleClass = isMe
-                    ? 'bg-[#164e63] text-white rounded-bl-sm border border-teal-700/50'
-                    : 'bg-[#0f1b29] text-slate-100 rounded-br-sm border border-slate-800';
-                var bodyHtml = '';
-                var rawText = String(item.text || '');
-                var isLongText = (item.kind === 'text' || !item.kind) && rawText.length > LONG_MSG_THRESHOLD;
-                var isExpanded = expandedLongMsgIds.has(item.id);
-                var safeMediaUrl = isSafeMediaUrl(item.mediaUrl) ? escapeHtml(item.mediaUrl) : '';
-
-                if (item.kind === 'audio' && safeMediaUrl) {
-                    bodyHtml = '<div class="space-y-1"><p class="text-[11px] font-bold">' + escapeHtml(item.text || 'رسالة صوتية') + '</p>' +
-                        '<audio controls src="' + safeMediaUrl + '" class="max-w-full h-8"></audio></div>';
-                } else if (item.kind === 'image' && safeMediaUrl) {
-                    bodyHtml = '<div class="space-y-1.5"><img src="' + safeMediaUrl + '" alt="' + escapeHtml(item.fileName || 'صورة') + '" class="max-w-[220px] rounded-xl border border-slate-700">' +
-                        '<p class="text-[11px] font-mono truncate">' + escapeHtml(item.fileName || 'صورة') + '</p></div>';
-                } else if (item.kind === 'file' && safeMediaUrl) {
-                    bodyHtml = '<a href="' + safeMediaUrl + '" download="' + escapeHtml(item.fileName || 'file') + '" class="flex items-center gap-2 text-xs underline font-bold">' +
-                        '<i class="fa-solid fa-file-arrow-down"></i><span>' + escapeHtml(item.fileName || item.text || 'ملف مرفق') + '</span></a>';
-                } else {
-                    var displayedText = (isLongText && !isExpanded) ? (rawText.slice(0, LONG_MSG_THRESHOLD) + '...') : rawText;
-                    bodyHtml = '<p class="text-xs md:text-sm leading-relaxed whitespace-pre-wrap break-words">' + escapeHtml(displayedText) + '</p>';
-                    if (isLongText) {
-                        bodyHtml += '<div class="mt-1.5 flex items-center gap-2 text-[10px] font-bold">' +
-                            '<button type="button" onclick="event.stopPropagation(); toggleLongMsgExpand(\'' + escapeJsSingle(item.id) + '\')" class="px-2 py-0.5 rounded bg-black/25 text-teal-200 hover:text-white">' +
-                            (isExpanded ? 'إخفاء النص الطويل' : 'قراءة باقي الرسالة') + '</button>' +
-                            '<button type="button" onclick="event.stopPropagation(); openLongMsgReader(\'' + escapeJsSingle(item.id) + '\')" class="px-2 py-0.5 rounded bg-black/25 text-emerald-200 hover:text-white">نافذة قراءة كاملة</button>' +
-                            '</div>';
-                    }
-                }
-
-                var senderTag = (!isMe && item.senderName) ? '<p class="text-[10px] font-extrabold text-teal-300 mb-0.5">' + escapeHtml(item.senderName) + '</p>' : '';
-                var metaLine = '<div class="flex items-center justify-between gap-2 mt-1 text-[10px] text-slate-300/80">' +
-                    '<span>' + escapeHtml(item.sentAt || '') + (item.edited ? ' • معدّلة' : '') + '</span>' +
-                    '<span>' + renderDeliveryTicks(item) + '</span></div>';
-
-                return '<div id="' + escapeHtml(safeDomId) + '" class="flex ' + (isMe ? 'justify-start' : 'justify-end') + '">' +
-                    '<div ondblclick="startReplyToMessage(\'' + escapeJsSingle(item.id) + '\')" oncontextmenu="event.preventDefault(); openMsgContextMenu(\'' + escapeJsSingle(item.id) + '\');" class="max-w-[84%] px-3.5 py-2.5 rounded-2xl shadow ' + bubbleClass + '">' +
-                    senderTag + renderQuotedBlock(item) + bodyHtml + metaLine +
-                    '<div class="flex items-center gap-2.5 mt-1.5 pt-1 border-t border-white/10 text-[10px] font-bold">' +
-                    '<button type="button" onclick="event.stopPropagation(); startReplyToMessage(\'' + escapeJsSingle(item.id) + '\')" class="text-teal-200 hover:text-white" title="رد"><i class="fa-solid fa-reply ml-0.5"></i>رد</button>' +
-                    '<button type="button" onclick="event.stopPropagation(); openMsgContextMenu(\'' + escapeJsSingle(item.id) + '\')" class="text-slate-200 hover:text-white" title="خيارات"><i class="fa-solid fa-ellipsis ml-0.5"></i>خيارات</button>' +
-                    (item.kind === 'text' && item.text ? '<button type="button" onclick="event.stopPropagation(); speakText(\'' + escapeJsSingle(item.text) + '\')" class="text-emerald-200 hover:text-white" title="قراءة صوتية"><i class="fa-solid fa-volume-high"></i></button>' : '') +
-                    '<button type="button" onclick="event.stopPropagation(); pinThreadMsg(\'' + escapeJsSingle(item.id) + '\')" class="text-amber-200 hover:text-white" title="تثبيت"><i class="fa-solid fa-thumbtack"></i></button>' +
-                    (isMe && item.kind === 'text' ? '<button type="button" onclick="event.stopPropagation(); contextMenuMsgId=\'' + escapeJsSingle(item.id) + '\'; ctxEditAction();" class="text-sky-200 hover:text-white" title="تعديل"><i class="fa-solid fa-pen"></i></button>' : '') +
-                    '<button type="button" onclick="event.stopPropagation(); openDeleteModal(\'' + escapeJsSingle(item.id) + '\', ' + (isMe ? 'true' : 'false') + ')" class="text-rose-200 hover:text-white" title="حذف"><i class="fa-solid fa-trash"></i></button>' +
-                    '</div></div></div>';
-            }).join('');
-            box.scrollTop = box.scrollHeight;
-        }
-
         function openDeleteModal(msgId, isMine) {
             pendingDeleteMsgId = msgId;
-            document.getElementById('del-everyone-btn').classList.toggle('hidden', !isMine);
+            var delAllBtn = document.getElementById('del-everyone-btn');
+            if (delAllBtn) delAllBtn.classList.toggle('hidden', !isMine);
             document.getElementById('delete-modal').classList.remove('hidden');
         }
 
@@ -3113,233 +2884,99 @@ const htmlContent = `<!DOCTYPE html>
             document.getElementById('delete-modal').classList.add('hidden');
         }
 
-        function confirmDeleteChoice(scope) {
+        function confirmDeleteChoice(mode) {
             var msgId = pendingDeleteMsgId;
             closeDeleteModal();
             if (!msgId) return;
             var map = getThreadMap();
-            if (map[currentPeer]) {
-                if (scope === 'all') {
-                    map[currentPeer] = map[currentPeer].map(function(m) { return m.id === msgId ? Object.assign({}, m, { deleted: true, deletedBy: 'all' }) : m; });
-                    var grp = findGroupById(currentPeer);
-                    if (grp && Array.isArray(grp.members)) {
-                        grp.members.forEach(function(m) {
-                            if (normalizeStr(m) !== normalizeStr(activeAcct)) sendSignalingOrMsg({ type: 'msg_del_all', to: m, from: activeAcct, msgId: msgId });
-                        });
-                    } else if (currentPeer !== DEFAULT_PEER) {
-                        sendSignalingOrMsg({ type: 'msg_del_all', to: currentPeer, from: activeAcct, msgId: msgId });
-                    }
-                } else {
-                    map[currentPeer] = map[currentPeer].filter(function(m) { return m.id !== msgId; });
-                }
-            }
-            persistAndDraw();
-        }
-
-        function buildSanadAiReply(userPrompt, threadMessages) {
-            var q = String(userPrompt || '').trim();
-            var recentContext = (threadMessages || [])
-                .filter(function(m) { return !m.deleted && m.kind === 'text' && m.text; })
-                .slice(-6)
-                .map(function(m) { return (m.from === 'me' ? 'المرسل' : (m.senderName || 'الطرف الآخر')) + ': ' + m.text; })
-                .join(' | ');
-            var cleanQ = q.replace(/@سند/g, '').trim();
-            if (!cleanQ) {
-                return recentContext
-                    ? ('أهلاً بك، اطّلعت على آخر رسائل المحادثة (' + recentContext.slice(0, 140) + ') — كيف أساعدك الآن؟')
-                    : 'أهلاً بك، أنا @سند في سند AI v8.9.3. اكتب سؤالك أو اطلب تلخيصاً أو صياغة أو خطة عمل وسأجيبك فوراً.';
-            }
-            if (/تلخيص|لخص/i.test(cleanQ)) {
-                return recentContext ? ('ملخص سريع بناءً على سياق المحادثة: ' + recentContext.slice(0, 220)) : 'أرسل أو افتح المحادثة المراد تلخيصها وسأستخرج أبرز نقاطها فوراً.';
-            }
-            if (/مهام|خطة|خطوات/i.test(cleanQ)) {
-                return 'خطوات عملية مقترحة لـ «' + cleanQ + '»:\n1. تحديد الهدف والنتيجة المطلوبة بوضوح.\n2. تقسيم التنفيذ إلى خطوة فورية ومتابعة.\n3. مراجعة المخرجات وتأكيد الإنجاز.';
-            }
-            if (/سعر|عرض|باقة|عميل/i.test(cleanQ)) {
-                return 'صياغة مقترحة للعميل حول «' + cleanQ + '»:\nأهلاً بك، يسعدنا خدمتكم وتوضيح التفاصيل والباقات المتاحة بكل شفافية وسرعة.';
-            }
-            return 'بناءً على طلبك «' + cleanQ + '»' + (recentContext ? ' وسياق المحادثة الحالي' : '') + ':\nالخطوة الأنسب هي معالجة النقطة بوضوح ومباشرة مع متابعة التنفيذ خطوة بخطوة.';
-        }
-
-        function emitPacket(targetPeer, kind, text, mediaUrl, fileName, explicitReplyTo, ownerAcctOverride) {
-            var cleanTarget = cleanIdValue(targetPeer) || DEFAULT_PEER;
-            var ownerAcct = cleanIdValue(ownerAcctOverride || activeAcct) || activeAcct;
-            var msgId = 'm-' + Date.now() + '-' + Math.floor(Math.random() * 100000);
-            var sentAt = formatTimeShort();
-            var quoteObj = explicitReplyTo || (replyingToMsg ? {
-                id: replyingToMsg.id,
-                senderLabel: replyingToMsg.senderLabel,
-                snippet: replyingToMsg.snippet
-            } : null);
-
-            var threadObj = ensureThreadEntry(ownerAcct, cleanTarget);
-            threadObj.list.push({
-                id: msgId,
-                from: 'me',
-                kind: kind,
-                text: text || '',
-                mediaUrl: mediaUrl || null,
-                fileName: fileName || '',
-                replyTo: quoteObj,
-                sentAt: sentAt,
-                status: 'sent'
+            if (!map[currentPeer]) return;
+            map[currentPeer] = map[currentPeer].map(function(m) {
+                return m.id === msgId ? Object.assign({}, m, { deleted: true, deletedBy: mode === 'all' ? 'all' : 'me' }) : m;
             });
-            if (explicitReplyTo) cancelReplyMessage();
             persistAndDraw();
-
-            var grp = findGroupById(cleanTarget);
-            if (grp && Array.isArray(grp.members)) {
-                grp.members.forEach(function(m) {
-                    if (normalizeStr(m) !== normalizeStr(ownerAcct)) {
-                        sendSignalingOrMsg({ type: 'msg', to: m, from: ownerAcct, senderName: ownerAcct, msgId: msgId, kind: kind, text: text || '', mediaUrl: mediaUrl || null, fileName: fileName || '', replyTo: quoteObj, sentAt: sentAt });
-                    }
-                });
-            } else if (cleanTarget !== DEFAULT_PEER) {
-                sendSignalingOrMsg({ type: 'msg', to: cleanTarget, from: ownerAcct, senderName: ownerAcct, msgId: msgId, kind: kind, text: text || '', mediaUrl: mediaUrl || null, fileName: fileName || '', replyTo: quoteObj, sentAt: sentAt });
-            }
-
-            var mentionsSanad = kind === 'text' && (/@سند/i.test(text || '') || cleanTarget === DEFAULT_PEER);
-            if (mentionsSanad) {
-                var snapshotThread = threadObj.list.slice();
-                var localAiText = buildSanadAiReply(text || '', snapshotThread);
-                var contextPrompt = 'سياق المحادثة الأخيرة:\n' +
-                    snapshotThread.filter(function(m) { return !m.deleted && m.kind === 'text' && m.text; }).slice(-6)
-                        .map(function(m) { return (m.from === 'me' ? 'أنا' : (m.senderName || 'الطرف الآخر')) + ': ' + m.text; }).join('\n') +
-                    '\nالرسالة الحالية: ' + (text || '');
-
-                callExternalAi(contextPrompt, 'أنت مساعد سند AI داخل محادثة عربية؛ أجب بشكل عملي، دقيق، ومختصر باللغة العربية.').then(function(extReply) {
-                    var finalReply = extReply || localAiText;
-                    setTimeout(function() {
-                        var currentListObj = ensureThreadEntry(ownerAcct, cleanTarget);
-                        currentListObj.list.push({
-                            id: 'ai-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-                            from: 'them',
-                            senderName: '@سند',
-                            kind: 'text',
-                            text: finalReply,
-                            sentAt: formatTimeShort()
-                        });
-                        playSoftChime();
-                        persistAndDraw();
-                    }, 350);
-                });
-            }
+            if (mode === 'all') sendSignalingOrMsg({ type: 'msg_del_all', to: currentPeer, from: activeAcct, msgId: msgId });
         }
 
-        function sendTextMsg() {
+        function clearThreadMsgs() { getThreadMap()[currentPeer] = []; persistAndDraw(); }
+
+        function toggleThreadSearchBar() {
+            var bar = document.getElementById('thread-search-bar');
+            var inp = document.getElementById('thread-search-input');
+            if (!bar) return;
+            bar.classList.toggle('hidden');
+            if (!bar.classList.contains('hidden') && inp) inp.focus();
+            renderMsgs();
+        }
+
+        function closeThreadSearchBar() {
+            var bar = document.getElementById('thread-search-bar');
+            var inp = document.getElementById('thread-search-input');
+            if (inp) inp.value = '';
+            if (bar) bar.classList.add('hidden');
+            renderMsgs();
+        }
+
+        function polishDraft(tone) {
             var inp = document.getElementById('msg-box-input');
-            var txt = inp.value.trim();
-            if (!txt) return;
-            if (editingMsgId) {
-                var targetId = editingMsgId;
-                cancelEditMessage();
-                var map = getThreadMap();
-                if (map[currentPeer]) {
-                    map[currentPeer] = map[currentPeer].map(function(m) {
-                        if (m.id !== targetId) return m;
-                        return Object.assign({}, m, { text: txt, edited: true, editedAt: formatTimeShort() });
-                    });
-                }
-                if (currentPeer !== DEFAULT_PEER && !findGroupById(currentPeer)) {
-                    sendSignalingOrMsg({ type: 'msg_edit', to: currentPeer, from: activeAcct, msgId: targetId, text: txt, editedAt: formatTimeShort() });
-                }
-                persistAndDraw();
-                return;
+            var raw = inp.value.trim();
+            if (!raw) return alert('اكتب نصاً أولاً لتحسين صياغته.');
+            var cleaned = raw.replace(/\\s+/g, ' ').trim();
+            if (tone === 'formal') {
+                cleaned = 'السلام عليكم ورحمة الله وبركاته، نود إفادتكم بأن ' + cleaned;
+            } else if (tone === 'client') {
+                cleaned = 'أهلاً بك، يسعدنا خدمتك: ' + cleaned + ' — في حال وجود أي استفسار إضافي نحن بالخدمة.';
+            } else if (tone === 'short') {
+                cleaned = cleaned.length > 80 ? (cleaned.slice(0, 80).trim() + '...') : cleaned;
+            } else {
+                if (cleaned.indexOf('أهلاً') !== 0 && cleaned.length < 50) cleaned = 'أهلاً بك، ' + cleaned;
             }
-            var activeQuote = replyingToMsg ? {
-                id: replyingToMsg.id,
-                senderLabel: replyingToMsg.senderLabel,
-                snippet: replyingToMsg.snippet
-            } : null;
-            inp.value = '';
+            inp.value = /[.!؟…]$/.test(cleaned) ? cleaned : cleaned + '.';
             autoResizeComposer(inp);
-            cancelReplyMessage();
-            emitPacket(currentPeer, 'text', txt, null, '', activeQuote);
         }
 
-        function insertSanadMention() {
-            var inp = document.getElementById('msg-box-input');
-            inp.value = inp.value ? (inp.value + ' @سند ') : '@سند ';
-            autoResizeComposer(inp);
-            inp.focus();
-        }
-
-        function polishDraft(style) {
-            var inp = document.getElementById('msg-box-input');
-            var raw = inp.value.trim() || 'نشكرك على تواصلك معنا، تم استلام طلبك وسيتم متابعته في أقرب وقت.';
-            var map = {
-                friendly: 'أهلاً بك 😊 ' + raw + ' يسعدنا دائماً خدمتك!',
-                formal: 'السلام عليكم ورحمة الله وبركاته، نفيدكم بأنه: ' + raw + ' مع خالص التقدير.',
-                short: raw.length > 90 ? (raw.slice(0, 90).trim() + '...') : raw,
-                client: 'حياك الله، بخصوص استفسارك: ' + raw + ' — نحن بالخدمة لأي تفاصيل إضافية.'
-            };
-            var fallbackTxt = map[style] || raw;
-            callExternalAi(
-                'أعد صياغة الرسالة التالية باللغة العربية بأسلوب (' + style + ') بشكل طبيعي ومرتب:\n' + raw,
-                'أنت مساعد صياغة رسائل عربية احترافية.'
-            ).then(function(aiTxt) {
-                inp.value = aiTxt || fallbackTxt;
-                autoResizeComposer(inp);
-                inp.focus();
-            });
+        function craftCustomerContent(mode) {
+            var qInp = document.getElementById('ai-q');
+            var topic = (qInp && qInp.value.trim()) ? qInp.value.trim() : ('تحديثات ' + currentPeer);
+            var log = document.getElementById('ai-log');
+            var output = mode === 'promo'
+                ? ('<strong>رسالة عملاء (' + escapeHtml(topic) + '):</strong> أهلاً بك، نشاركك أحدث التفاصيل حول «' + escapeHtml(topic) + '» مع تجربة سريعة ومباشرة عبر سند AI. تواصل معنا لأي استفسار أو حجز.')
+                : ('<strong>تقرير متابعة (' + escapeHtml(currentPeer) + '):</strong> المحور: ' + escapeHtml(topic) + ' • الحالة: قيد المتابعة • الخطوة التالية: تأكيد التفاصيل وإرسال التحديث النهائي.');
+            log.innerHTML += '<div class="bg-[#0f1b29] border border-teal-800/50 p-2 rounded-lg text-slate-100">' + output + '</div>';
+            log.scrollTop = log.scrollHeight;
         }
 
         function summarizeCurrentThread() {
-            var list = (getThreadMap()[currentPeer] || []).filter(function(m) { return !m.deleted && m.kind === 'text' && m.text; });
-            if (!list.length) return alert('لا توجد رسائل نصية لتلخيصها في هذه المحادثة.');
-            var recent = list.slice(-10);
-            var keyPoints = recent.map(function(m) {
-                return '• ' + (m.from === 'me' ? 'أنت' : (m.senderName || formatPeerDisplay(currentPeer))) + ': ' + m.text.replace(/\s+/g, ' ').trim().slice(0, 95);
-            }).join('\n');
-            var localSummary = 'تلخيص المحادثة (' + formatPeerDisplay(currentPeer) + ' • ' + toWesternDigits(recent.length) + ' رسائل):\n' + keyPoints;
-
-            callExternalAi(
-                'لخص المحادثة التالية في نقاط عربية واضحة ومختصرة:\n' + recent.map(function(m) { return (m.from === 'me' ? 'أنا' : 'الطرف الآخر') + ': ' + m.text; }).join('\n'),
-                'أنت مساعد تلخيص محادثات عربي دقيق.'
-            ).then(function(aiSum) {
-                var finalSummary = aiSum || localSummary;
-                appendAiLog(finalSummary);
-                alert(finalSummary);
-            });
+            var list = (getThreadMap()[currentPeer] || []).filter(function(m) { return !m.deleted && m.kind === 'text'; });
+            if (!list.length) return alert('لا توجد رسائل نصية كافية لتلخيصها.');
+            var lastFew = list.slice(-6).map(function(m) { return (m.from === 'me' ? 'أنت: ' : 'الطرف: ') + m.text; }).join(' • ');
+            setPane('ai');
+            var log = document.getElementById('ai-log');
+            log.innerHTML += '<div class="bg-[#080f18] border border-teal-800/50 p-2 rounded-lg text-slate-200"><strong>ملخص (' + escapeHtml(currentPeer) + '):</strong> ' + escapeHtml(lastFew) + '</div>';
+            log.scrollTop = log.scrollHeight;
         }
 
         function extractTasksFromThread() {
-            var list = (getThreadMap()[currentPeer] || []).filter(function(m) { return !m.deleted && m.kind === 'text' && m.text; });
-            if (!list.length) return alert('لا توجد رسائل لاستخراج المهام منها.');
-            var candidates = list.filter(function(m) {
-                return /مهم|موعد|تسليم|إرسال|ارسال|مراجعة|تأكيد|متابعة|تجهيز|اتصال|حجز|شراء|دفع|يجب|نحتاج/i.test(m.text);
-            });
-            var sourceItems = (candidates.length ? candidates : list.slice(-5)).slice(-8);
-            var tasksText = 'المهام والبنود المستخرجة:\n' + sourceItems.map(function(m, idx) {
-                return toWesternDigits(idx + 1) + '. ' + m.text.replace(/\s+/g, ' ').trim().slice(0, 110);
-            }).join('\n');
-
-            callExternalAi(
-                'استخرج قائمة مهام عملية مرقمة باللغة العربية من الرسائل التالية:\n' + sourceItems.map(function(m) { return m.text; }).join('\n'),
-                'أنت مساعد استخراج مهام من المحادثات.'
-            ).then(function(aiTasks) {
-                appendAiLog(aiTasks || tasksText);
-                setPane('ai');
-            });
+            var list = (getThreadMap()[currentPeer] || []).filter(function(m) { return !m.deleted && m.kind === 'text'; });
+            if (!list.length) return alert('لا توجد رسائل نصية لاستخراج المهام منها.');
+            var tasks = list.slice(-5).map(function(m, idx) { return toWesternDigits(idx + 1) + '. متابعة: ' + m.text; }).join(' | ');
+            var log = document.getElementById('ai-log');
+            log.innerHTML += '<div class="bg-[#080f18] border border-slate-800 p-2 rounded-lg text-emerald-200"><strong>مهام (' + escapeHtml(currentPeer) + '):</strong> ' + escapeHtml(tasks) + '</div>';
+            log.scrollTop = log.scrollHeight;
         }
 
         function suggestSmartReplies() {
-            var list = (getThreadMap()[currentPeer] || []).filter(function(m) { return !m.deleted && m.kind === 'text' && m.text; });
-            var lastIn = list.slice().reverse().find(function(m) { return m.from === 'them'; }) || list[list.length - 1];
-            var lastTxt = lastIn ? lastIn.text : '';
-            var bar = document.getElementById('smart-replies-bar');
-            var suggestions = ['تمام، يعطيك العافية 👍', 'تم الاستلام وجاري المتابعة', 'ممكن توضح لي التفاصيل أكثر؟'];
-            if (/سعر|اسعار|أسعار|باقة|عرض|كم/i.test(lastTxt)) {
-                suggestions = ['أرسل لنا تفاصيل الباقة المطلوبة وسنزودك بالسعر فوراً', 'الأسعار موضحة حسب الباقة؛ هل تفضل باقة شهرية أم سنوية؟', 'تواصل معنا لتأكيد العرض الأنسب لك'];
-            } else if (/موعد|وقت|متى|حجز/i.test(lastTxt)) {
-                suggestions = ['مناسب جداً، نؤكد الموعد في نفس الوقت', 'هل يناسبك موعد آخر خلال الفترة المسائية؟', 'تم تسجيل الموعد وسنذكرك قبلها'];
-            } else if (/مشكلة|عطل|خطأ|مساعدة/i.test(lastTxt)) {
-                suggestions = ['نأسف لذلك، سنفحص المشكلة فوراً', 'أرسل صورة أو تفاصيل إضافية لنساعدك أسرع', 'تمت معالجة المشكلة، يرجى التأكيد'];
+            var list = (getThreadMap()[currentPeer] || []).filter(function(m) { return !m.deleted && m.kind === 'text'; });
+            var lastIncoming = list.slice().reverse().find(function(m) { return m.from === 'them'; });
+            var base = lastIncoming ? lastIncoming.text : '';
+            var options = ['تمام، وصلت الفكرة', 'سأرد عليك خلال دقائق', 'ممتاز، يعطيك العافية'];
+            if (base.indexOf('؟') !== -1 || base.indexOf('كيف') !== -1 || base.indexOf('متى') !== -1) {
+                options = ['بالتأكيد، نرتبها الآن', 'نعم، مناسب جداً', 'أعطني لحظة للتأكيد'];
             }
-            bar.innerHTML = '<span class="text-teal-300 font-bold shrink-0"><i class="fa-solid fa-bolt"></i></span>' +
-                suggestions.map(function(s) {
-                    return '<button type="button" onclick="applySmartReply(\'' + escapeJsSingle(s) + '\')" class="bg-[#080f18] hover:bg-slate-800 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-full whitespace-nowrap">' + escapeHtml(s) + '</button>';
-                }).join('');
+            setPane('chats');
+            var bar = document.getElementById('smart-replies-bar');
+            bar.innerHTML = '<span class="text-teal-200 font-bold shrink-0">ردود:</span>' + options.map(function(opt) {
+                return '<button type="button" onclick="applySmartReply(\\'' + escapeJsSingle(opt) + '\\')" class="bg-[#0f1b29] hover:bg-slate-800 border border-slate-700 text-slate-100 px-2.5 py-1 rounded-lg shrink-0">' + escapeHtml(opt) + '</button>';
+            }).join('');
             bar.classList.remove('hidden');
         }
 
@@ -3347,118 +2984,450 @@ const htmlContent = `<!DOCTYPE html>
             var inp = document.getElementById('msg-box-input');
             inp.value = txt;
             autoResizeComposer(inp);
-            document.getElementById('smart-replies-bar').classList.add('hidden');
             inp.focus();
-        }
-
-        function craftCustomerContent(mode) {
-            var qInp = document.getElementById('ai-q');
-            var topic = (qInp && qInp.value.trim()) ? qInp.value.trim() : 'خدماتنا وعروضنا الحالية';
-            var out = mode === 'promo'
-                ? ('رسالة عميل جاهزة:\nحياكم الله، يسعدنا مشاركتكم أحدث تفاصيل «' + topic + '» عبر سند AI مع استجابة سريعة ومتابعة مباشرة لطلباتكم.')
-                : ('تقرير متابعة عميل:\n• المحادثة: ' + formatPeerDisplay(currentPeer) + '\n• المحور: ' + topic + '\n• الحالة: قيد المتابعة الفورية');
-            appendAiLog(out);
-            var msgInp = document.getElementById('msg-box-input');
-            if (msgInp && !msgInp.value.trim()) {
-                msgInp.value = out.split('\n').slice(1).join('\n').trim();
-                autoResizeComposer(msgInp);
-            }
-        }
-
-        function appendAiLog(text) {
-            var log = document.getElementById('ai-log');
-            var div = document.createElement('div');
-            div.className = 'p-2.5 rounded-xl bg-[#0f1b29] border border-slate-800 text-slate-200 whitespace-pre-wrap leading-relaxed';
-            div.textContent = text;
-            log.appendChild(div);
-            log.scrollTop = log.scrollHeight;
         }
 
         function askSanadAI() {
             var inp = document.getElementById('ai-q');
             var q = inp.value.trim();
             if (!q) return;
+            var log = document.getElementById('ai-log');
+            log.innerHTML += '<div class="bg-teal-950/60 border border-teal-800/50 p-2 rounded-lg text-teal-100"><strong>أنت:</strong> ' + escapeHtml(q) + '</div>';
+
+            var kEl = document.getElementById('ai-api-key');
+            var eEl = document.getElementById('ai-api-endpoint');
+            var apiKey = kEl ? kEl.value.trim() : '';
+            var endpoint = eEl ? eEl.value.trim() : '';
+
+            if (apiKey && endpoint && (typeof navigator === 'undefined' || navigator.onLine !== false)) {
+                log.innerHTML += '<div class="bg-[#0f1b29] border border-slate-800 p-2 rounded-lg text-slate-400">جاري الاتصال بالنموذج الذكي...</div>';
+                log.scrollTop = log.scrollHeight;
+                fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + apiKey
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-4o-mini',
+                        messages: [{ role: 'user', content: q }]
+                    })
+                }).then(function(r) { return r.json(); }).then(function(d) {
+                    var content = (d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content)
+                        ? d.choices[0].message.content
+                        : 'تم استلام الاستجابة من النموذج الخارجي.';
+                    log.innerHTML += '<div class="bg-[#0f1b29] border border-slate-800 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> ' + escapeHtml(content) + '</div>';
+                    log.scrollTop = log.scrollHeight;
+                }).catch(function() {
+                    log.innerHTML += '<div class="bg-[#0f1b29] border border-slate-800 p-2 rounded-lg text-amber-200"><strong>سند AI:</strong> تعذر الوصول للنموذج الخارجي، تأكد من الرابط والمفتاح.</div>';
+                    log.scrollTop = log.scrollHeight;
+                });
+                inp.value = '';
+                return;
+            }
+
+            var reply = 'مساعد سند AI v8.9.1 يدعم القراءة الصوتية للرسائل، التحدث للكتابة، تبسيط النصوص الطويلة، والرد الفوري داخل المحادثة.';
+            if (q.indexOf('نت') !== -1 || q.indexOf('انترنت') !== -1) {
+                reply = 'يعمل سند AI بذاكرة محلية (Service Worker) تتيح تصفح الرسائل والجهات والمجموعات حتى عند انقطاع الإنترنت، وتُرسل الرسائل المجهزة تلقائياً فور عودة الشبكة.';
+            } else if (q.indexOf('مجموع') !== -1) {
+                reply = 'من تبويب «المجموعات» يمكنك إنشاء مجموعة جديدة واختيار الأعضاء أو إضافة أعضاء جدد لأي مجموعة في أي وقت ثم الدردشة والمناداة على @سند.';
+            } else if (q.indexOf('عميل') !== -1 || q.indexOf('محتوى') !== -1) {
+                reply = 'يمكنك استخدام أزرار «صياغة رسالة عميل» و«تقرير متابعة» أو نبرة «رد عميل» داخل الدردشة لتطوير رسائلك للعملاء بسرعة.';
+            } else if (q.indexOf('سند') !== -1 || q.indexOf('@') !== -1) {
+                reply = 'اكتب @سند متبوعاً بطلبك (مثل: @سند لخص النقاش أو @سند خطوات) وسيظهر الرد الذكي مباشرة داخل المحادثة.';
+            }
+            log.innerHTML += '<div class="bg-[#0f1b29] border border-slate-800 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> ' + escapeHtml(reply) + '</div>';
             inp.value = '';
-            appendAiLog('أنت: ' + q);
-            var threadList = getThreadMap()[currentPeer] || [];
-            var localAns = buildSanadAiReply(q, threadList);
-            callExternalAi(q, 'أنت مساعد سند AI الذكي؛ أجب باللغة العربية بوضوح ومساعدة عملية.').then(function(extAns) {
-                appendAiLog('@سند: ' + (extAns || localAns));
-            });
-        }
-
-        function shareInviteLink() {
-            var link = location.origin + '/?peer=' + encodeURIComponent(activeAcct);
-            copyStringToClipboard(link);
-            alert('تم نسخ رابط الدعوة الخاص بحسابك: ' + link);
-        }
-
-        function clearThreadMsgs() {
-            if (!confirm('هل تريد مسح رسائل هذه المحادثة على جهازك؟')) return;
-            var map = getThreadMap();
-            map[currentPeer] = [];
-            persistAndDraw();
+            log.scrollTop = log.scrollHeight;
         }
 
         function exportBackup() {
-            var payload = {
-                version: '8.9.3',
-                activeAcct: activeAcct,
-                myAccts: myAccts,
-                contacts: contacts,
-                sanadGroups: sanadGroups,
-                acctThreads: acctThreads,
-                pinnedByThread: pinnedByThread
-            };
-            var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-            var url = URL.createObjectURL(blob);
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = 'sanad-ai-8.9.3-backup.json';
-            a.click();
-            URL.revokeObjectURL(url);
+            var data = JSON.stringify({ activeAcct: activeAcct, myAccts: myAccts, contacts: contacts, sanadGroups: sanadGroups, acctThreads: acctThreads, pinnedByThread: pinnedByThread });
+            if (navigator.clipboard) navigator.clipboard.writeText(data).then(function() { alert('تم نسخ النسخة الاحتياطية إلى الحافظة.'); }).catch(function() { prompt('انسخ بيانات النسخة الاحتياطية:', data); });
+            else prompt('انسخ بيانات النسخة الاحتياطية:', data);
         }
 
         function importBackup() {
-            var input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'application/json';
-            input.onchange = function(ev) {
-                var f = ev.target.files && ev.target.files[0];
-                if (!f) return;
-                var r = new FileReader();
-                r.onload = function() {
-                    try {
-                        var data = JSON.parse(r.result);
-                        if (Array.isArray(data.myAccts) && data.myAccts.length) myAccts = data.myAccts.map(cleanIdValue).filter(Boolean);
-                        if (data.activeAcct) activeAcct = cleanIdValue(data.activeAcct);
-                        if (Array.isArray(data.contacts) && data.contacts.length) contacts = data.contacts;
-                        if (Array.isArray(data.sanadGroups)) sanadGroups = data.sanadGroups;
-                        if (data.acctThreads && typeof data.acctThreads === 'object') acctThreads = data.acctThreads;
-                        if (data.pinnedByThread && typeof data.pinnedByThread === 'object') pinnedByThread = data.pinnedByThread;
-                        persistAndDraw();
-                        syncPresenceNow();
-                        alert('تمت استعادة النسخة الاحتياطية بنجاح.');
-                    } catch (e) { alert('تعذر قراءة ملف النسخة الاحتياطية.'); }
-                };
-                r.readAsText(f);
-            };
-            input.click();
+            var raw = prompt('الصق بيانات النسخة الاحتياطية هنا:');
+            if (!raw) return;
+            try {
+                var parsed = JSON.parse(raw);
+                if (parsed.activeAcct) activeAcct = cleanIdValue(parsed.activeAcct);
+                if (Array.isArray(parsed.myAccts)) myAccts = parsed.myAccts.map(cleanIdValue).filter(Boolean);
+                if (Array.isArray(parsed.contacts)) {
+                    contacts = parsed.contacts.map(function(c) {
+                        return c && c.id ? { name: c.name || cleanIdValue(c.id), id: cleanIdValue(c.id) } : null;
+                    }).filter(Boolean);
+                }
+                if (Array.isArray(parsed.sanadGroups)) sanadGroups = parsed.sanadGroups;
+                if (parsed.acctThreads && typeof parsed.acctThreads === 'object') acctThreads = parsed.acctThreads;
+                if (parsed.pinnedByThread && typeof parsed.pinnedByThread === 'object') pinnedByThread = parsed.pinnedByThread;
+                persistAndDraw();
+                syncPresenceNow();
+                alert('تمت استعادة النسخة الاحتياطية بنجاح.');
+            } catch (e) { alert('صيغة النسخة الاحتياطية غير صحيحة.'); }
+        }
+
+        function markCurrentThreadAsRead() {
+            var list = getThreadMap()[currentPeer] || [];
+            list.forEach(function(m) {
+                if (m.from === 'them' && !m.deleted && m.id) {
+                    sendSignalingOrMsg({ type: 'msg_read', to: currentPeer, from: activeAcct, msgId: m.id });
+                }
+            });
+        }
+
+        function choosePeer(id) {
+            var cleanRaw = cleanIdValue(id);
+            var matched = resolveContactByQuery(cleanRaw);
+            var clean = matched ? matched.id : cleanRaw;
+            if (!clean) return;
+            currentPeer = clean;
+            cancelReplyMessage();
+            clearUnreadForPeer(clean);
+            var grp = findGroupById(clean);
+            var callInp = document.getElementById('call-input');
+            if (callInp) {
+                callInp.value = (clean === DEFAULT_PEER || grp) ? '' : (matched ? (matched.name + ' • ' + matched.id) : clean);
+            }
+            var map = getThreadMap();
+            if (!map[currentPeer]) map[currentPeer] = [];
+            setPane('chats');
+            persistAndDraw();
+            markCurrentThreadAsRead();
+            pollHttpSync();
+        }
+
+        function onTopPeerSearchInput() { renderPresence(); }
+
+        function openPeerByInput() {
+            var inp = document.getElementById('peer-input');
+            var val = inp ? cleanIdValue(inp.value) : '';
+            if (!val) return alert('أدخل اسم جهة اتصال أو مجموعة أو كود أو رقم.');
+            var matched = resolveContactByQuery(val);
+            if (inp) inp.value = '';
+            choosePeer(matched ? matched.id : val);
+        }
+
+        function openFirstMatchedContact() {
+            var searchInp = document.getElementById('contact-search-input');
+            var val = searchInp ? cleanIdValue(searchInp.value) : '';
+            if (!val) return;
+            var matches = findContactMatches(val);
+            if (matches.length) choosePeer(matches[0].id);
+        }
+
+        function saveCurrentPeer() {
+            if (!currentPeer || currentPeer === DEFAULT_PEER || findGroupById(currentPeer)) return;
+            var existing = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(currentPeer); });
+            var defaultName = existing ? existing.name : ('جهة ' + currentPeer);
+            var name = prompt('اسم جهة الاتصال للرقم/المعرّف ' + currentPeer + ':', defaultName);
+            if (name === null) return;
+            upsertContact(name || defaultName, currentPeer);
+        }
+
+        function addNewContact() {
+            var name = document.getElementById('c-name').value.trim();
+            var id = cleanIdValue(document.getElementById('c-id').value);
+            if (!name || !id) return alert('أدخل الاسم والكود أو الرقم.');
+            upsertContact(name, id);
+            document.getElementById('c-name').value = '';
+            document.getElementById('c-id').value = '';
+            choosePeer(id);
+        }
+
+        function deleteContactById(id) {
+            if (String(id) === DEFAULT_PEER) return;
+            contacts = contacts.filter(function(c) { return normalizeStr(c.id) !== normalizeStr(id); });
+            persistAndDraw();
+        }
+
+        function shareInviteLink() {
+            var msg = 'تواصل معي على سند AI عبر المعرّف: ' + activeAcct + ' على الرابط: ' + location.origin;
+            if (navigator.share) navigator.share({ title: 'سند AI', text: msg, url: location.origin }).catch(function() {});
+            else if (navigator.clipboard) { navigator.clipboard.writeText(msg).catch(function() {}); alert('تم نسخ الدعوة: ' + msg); }
+            else alert(msg);
+        }
+
+        function showGeneratedCodeBanner(code8) {
+            var westernCode = cleanIdValue(code8);
+            lastGeneratedCode = westernCode;
+            var banner = document.getElementById('last-generated-banner');
+            var txt = document.getElementById('last-generated-text');
+            if (banner && txt) { txt.textContent = 'المعرّف الجديد: ' + westernCode; banner.classList.remove('hidden'); }
+        }
+
+        function make8DigitId() {
+            var code8 = toWesternDigits(Math.floor(10000000 + Math.random() * 90000000).toString());
+            if (myAccts.indexOf(code8) === -1) myAccts.push(code8);
+            showGeneratedCodeBanner(code8);
+            copyStringToClipboard(code8);
+            activateAccount(code8);
+            alert('تم توليد المعرّف (8 أرقام): ' + code8 + ' وتم نسخه تلقائياً.');
+        }
+
+        function addCustomNumberAccount() {
+            var num = prompt('أدخل أي رقم أو معرّف إضافي لتفعيله:');
+            if (!num || !num.trim()) return;
+            var clean = cleanIdValue(num);
+            if (!clean) return;
+            if (myAccts.indexOf(clean) === -1) myAccts.push(clean);
+            activateAccount(clean);
+        }
+
+        function verifyPhoneAccount() {
+            var ph = prompt('أدخل رقم الجوال الدولي (مثال: +967772302010):');
+            if (!ph || !ph.trim()) return;
+            var otp = toWesternDigits(Math.floor(100000 + Math.random() * 900000).toString());
+            var code = prompt('كود التفعيل الخاص برقمك هو: ' + otp + '\\nأدخل الكود لتأكيد التفعيل:');
+            if (!code || cleanIdValue(code) !== otp) return alert('كود التفعيل غير مطابق.');
+            var cleanPh = cleanIdValue(ph);
+            if (!cleanPh) return;
+            if (myAccts.indexOf(cleanPh) === -1) myAccts.push(cleanPh);
+            activateAccount(cleanPh);
+        }
+
+        function activateAccount(id) {
+            activeAcct = cleanIdValue(id) || activeAcct;
+            if (myAccts.indexOf(activeAcct) === -1) myAccts.push(activeAcct);
+            getThreadMap();
+            setPane('chats');
+            persistAndDraw();
+            syncPresenceNow();
+        }
+
+        function renderPresence() {
+            var grp = findGroupById(currentPeer);
+            var isOn = grp ? true : isPeerOnline(currentPeer);
+            var matchedPeer = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(currentPeer); });
+            var dot = document.getElementById('peer-dot');
+            var lbl = document.getElementById('peer-status');
+            var pTitle = document.getElementById('peer-title');
+            if (pTitle) {
+                if (grp) pTitle.textContent = grp.name + ' • مجموعة (' + toWesternDigits(grp.members ? grp.members.length : 1) + ')';
+                else pTitle.textContent = matchedPeer
+                    ? (matchedPeer.id === DEFAULT_PEER ? matchedPeer.name : (matchedPeer.name + ' • ' + currentPeer))
+                    : currentPeer;
+            }
+            if (dot && lbl) {
+                if (grp) {
+                    dot.className = 'w-2.5 h-2.5 rounded-full bg-teal-300';
+                    lbl.className = 'text-[11px] font-bold text-teal-200 whitespace-nowrap';
+                    lbl.textContent = 'مجموعة نشطة';
+                } else if (isOn) {
+                    dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+                    lbl.className = 'text-[11px] font-bold text-emerald-300 whitespace-nowrap';
+                    lbl.textContent = 'متصل الآن';
+                } else {
+                    dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-600';
+                    lbl.className = 'text-[11px] font-bold text-slate-400 whitespace-nowrap';
+                    lbl.textContent = 'غير متصل';
+                }
+            }
+
+            var topInp = document.getElementById('peer-input');
+            var topVal = topInp ? cleanIdValue(topInp.value) : '';
+            var chipList = findContactMatches(topVal);
+            var chips = document.getElementById('quick-chips');
+            if (chips) {
+                var grpChips = sanadGroups.map(function(g) {
+                    var un = getUnreadCountForPeer(g.id);
+                    return '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(g.id) + '\\')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] shrink-0 ' +
+                        (g.id === currentPeer ? 'bg-teal-950/80 border-teal-700/70 text-white font-bold' : 'bg-slate-800/85 border-slate-700 text-slate-200') + '">' +
+                        '<i class="fa-solid fa-users text-[10px] text-teal-300"></i><span>' + escapeHtml(g.name) + '</span>' +
+                        (un > 0 ? '<span class="px-1.5 py-0.2 rounded-full bg-rose-600 text-white text-[9px] font-mono font-bold">' + toWesternDigits(un) + '</span>' : '') + '</button>';
+                }).join('');
+                chips.innerHTML = '<span class="text-[11px] text-slate-400 shrink-0">وصول سريع:</span>' + grpChips + chipList.map(function(c) {
+                    var on = isPeerOnline(c.id);
+                    var un = getUnreadCountForPeer(c.id);
+                    return '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(c.id) + '\\')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] shrink-0 ' +
+                        (c.id === currentPeer ? 'bg-[#164e63] border-teal-600 text-white font-bold' : 'bg-slate-800/85 border-slate-700 text-slate-200') + '">' +
+                        '<span class="w-2 h-2 rounded-full ' + (on ? 'bg-emerald-400' : 'bg-slate-500') + '"></span>' +
+                        '<span>' + escapeHtml(c.name) + '</span>' +
+                        (un > 0 ? '<span class="px-1.5 py-0.2 rounded-full bg-rose-600 text-white text-[9px] font-mono font-bold">' + toWesternDigits(un) + '</span>' : '') + '</button>';
+                }).join('');
+            }
+
+            var searchInp = document.getElementById('contact-search-input');
+            var q = searchInp ? cleanIdValue(searchInp.value) : '';
+            var filtered = findContactMatches(q);
+            var onlineCount = filtered.filter(function(c) { return isPeerOnline(c.id); }).length;
+            var summaryBadge = document.getElementById('contacts-summary-badge');
+            if (summaryBadge) summaryBadge.textContent = toWesternDigits(filtered.length) + ' جهة (' + toWesternDigits(onlineCount) + ' متصل)';
+
+            var cBox = document.getElementById('contacts-list');
+            if (!cBox) return;
+            if (!filtered.length) {
+                cBox.innerHTML = '<div class="text-center text-xs text-slate-500 py-6">لا توجد نتائج مطابقة للبحث.</div>';
+                return;
+            }
+            cBox.innerHTML = filtered.map(function(c) {
+                var on = isPeerOnline(c.id);
+                var un = getUnreadCountForPeer(c.id);
+                var subTag = on ? 'متصل الآن' : 'محفوظ';
+                var metaText = c.id === DEFAULT_PEER ? subTag : (c.id + ' • ' + subTag);
+                var delBtn = c.id === DEFAULT_PEER ? '' : '<button type="button" onclick="deleteContactById(\\'' + escapeJsSingle(c.id) + '\\')" class="bg-rose-950/60 border border-rose-900/50 text-rose-300 px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>';
+                return '<div class="bg-[#0f1b29] border border-slate-800 p-3 rounded-xl flex justify-between items-center gap-2">' +
+                    '<div class="flex items-center gap-2.5 min-w-0">' +
+                    '<span class="w-2.5 h-2.5 rounded-full shrink-0 ' + (on ? 'bg-emerald-400' : 'bg-slate-600') + '"></span>' +
+                    '<div class="truncate"><div class="flex items-center gap-1.5"><p class="text-xs font-bold text-white truncate">' + escapeHtml(c.name) + '</p>' +
+                    (un > 0 ? '<span class="px-1.5 py-0.2 rounded-full bg-rose-600 text-white text-[9px] font-mono font-bold">' + toWesternDigits(un) + '</span>' : '') + '</div>' +
+                    '<p class="text-[11px] font-mono ' + (on ? 'text-emerald-300' : 'text-slate-400') + '">' + escapeHtml(metaText) + '</p></div></div>' +
+                    '<div class="flex gap-1.5 shrink-0">' +
+                    '<button type="button" onclick="launchCall(\\'audio\\', \\'' + escapeJsSingle(c.id) + '\\')" title="اتصال صوتي" class="bg-slate-800 hover:bg-emerald-700 border border-slate-700 text-emerald-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-phone"></i></button>' +
+                    '<button type="button" onclick="launchCall(\\'video\\', \\'' + escapeJsSingle(c.id) + '\\')" title="مكالمة فيديو" class="bg-slate-800 hover:bg-[#164e63] border border-slate-700 text-teal-200 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-video"></i></button>' +
+                    '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(c.id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-2.5 py-1.5 rounded-lg text-xs font-bold">مراسلة</button>' +
+                    delBtn +
+                    '</div></div>';
+            }).join('');
+            onCallDialInput();
+            renderGroupCallSelector();
+        }
+
+        function buildDeliveryBadge(m) {
+            var editedTag = m.edited ? ' • <span>معدّلة</span>' : '';
+            var timePart = m.sentAt ? (' • <span class="font-mono opacity-85">' + escapeHtml(m.sentAt) + '</span>') : '';
+            if (m.read || m.status === 'read') return '<span class="text-emerald-200 font-bold shrink-0">✓✓ تم قراءتها' + editedTag + timePart + '</span>';
+            if (m.delivered || m.status === 'delivered' || isPeerOnline(currentPeer)) return '<span class="text-teal-100 font-semibold shrink-0">✓✓ مستلمة' + editedTag + timePart + '</span>';
+            return '<span class="shrink-0">✓ مرسلة' + editedTag + timePart + ' • <button type="button" onclick="retryMessage(\\'' + escapeJsSingle(m.id) + '\\')" class="underline">إعادة إرسال</button></span>';
+        }
+
+        function renderMsgs() {
+            renderPinnedBanner();
+            renderReplyingBanner();
+            var box = document.getElementById('msgs-box');
+            if (!box) return;
+            var rawList = getThreadMap()[currentPeer] || [];
+            var searchInp = document.getElementById('thread-search-input');
+            var q = normalizeStr(searchInp ? searchInp.value : '');
+            var countEl = document.getElementById('thread-search-count');
+            var list = rawList;
+            if (q) {
+                list = rawList.filter(function(m) {
+                    if (m.deleted) return false;
+                    var hay = normalizeStr((m.text || '') + ' ' + (m.fileName || ''));
+                    return hay.indexOf(q) !== -1;
+                });
+            }
+            if (countEl) countEl.textContent = toWesternDigits(list.length) + (list.length === 1 ? ' نتيجة' : ' نتائج');
+            if (!list.length) {
+                box.innerHTML = '<div class="text-center text-xs text-slate-500 py-8">' + (q ? 'لا توجد رسائل مطابقة للبحث في هذه المحادثة.' : 'ابدأ المراسلة أو أرسل صوتاً أو مرفقاً أو ابدأ مكالمة.') + '</div>';
+                return;
+            }
+            box.innerHTML = list.map(function(m) {
+                if (m.deleted) {
+                    var delLabel = m.deletedBy === 'all' ? 'تم حذف الرسالة لدى الجميع' : 'تم حذف الرسالة من جهازك';
+                    return '<div class="text-center text-[11px] text-slate-500 italic">' + escapeHtml(delLabel) + '</div>';
+                }
+                var mine = m.from === 'me';
+                var senderTag = (!mine && m.senderName) ? '<p class="text-[10px] font-bold text-teal-200 mb-0.5">' + escapeHtml(m.senderName) + '</p>' : '';
+                var quoteHtml = '';
+                if (m.replyTo && (m.replyTo.snippet || m.replyTo.senderLabel)) {
+                    var qTargetId = escapeJsSingle(m.replyTo.id || '');
+                    quoteHtml = '<div onclick="event.stopPropagation(); scrollToQuotedMessage(\\'' + qTargetId + '\\');" class="' +
+                        (mine ? 'bg-teal-950/65 border-teal-200/70' : 'bg-[#080f18]/80 border-teal-400/70') +
+                        ' border-r-2 rounded-lg px-2.5 py-1.5 mb-1.5 text-[11px] cursor-pointer hover:opacity-90">' +
+                        '<p class="font-extrabold text-[10px] text-teal-200 truncate"><i class="fa-solid fa-reply ml-1"></i>' + escapeHtml(m.replyTo.senderLabel || 'رد') + '</p>' +
+                        '<p class="text-slate-200/90 truncate">' + escapeHtml(m.replyTo.snippet || '') + '</p></div>';
+                }
+                var safeIdJs = escapeJsSingle(m.id);
+                var rawTextStr = String(m.text || '');
+                var isLongText = (m.kind === 'text') && (rawTextStr.length > 360 || rawTextStr.split(/\\n/).length > 7);
+                var isExpanded = expandedLongMsgIds.has(m.id);
+                var shownText = (isLongText && !isExpanded) ? (rawTextStr.slice(0, 340).trim() + '...') : rawTextStr;
+
+                var body = '<p class="whitespace-pre-wrap break-words leading-relaxed">' + escapeHtml(shownText) + '</p>';
+                if (isLongText) {
+                    body += '<div class="flex items-center gap-3 mt-1.5 pt-1 border-t border-white/10 text-[10px] font-bold">' +
+                        '<button type="button" onclick="event.stopPropagation(); toggleLongMsgExpand(\\'' + safeIdJs + '\\');" class="underline text-teal-200">' + (isExpanded ? 'إخفاء الطويل' : 'عرض الكل') + '</button>' +
+                        '<button type="button" onclick="event.stopPropagation(); openLongMsgReader(\\'' + safeIdJs + '\\');" class="underline text-emerald-200">قراءة مريحة</button>' +
+                        '<button type="button" onclick="event.stopPropagation(); speakText(\\'' + escapeJsSingle(rawTextStr) + '\\');" class="underline text-sky-200"><i class="fa-solid fa-volume-high ml-0.5"></i>استماع</button>' +
+                        '</div>';
+                }
+                if (m.kind === 'audio' && m.mediaUrl) body = '<div class="space-y-1"><audio controls preload="metadata" src="' + escapeHtml(m.mediaUrl) + '" class="max-w-full h-9"></audio><p class="text-[10px] opacity-85">' + escapeHtml(m.text || 'رسالة صوتية') + '</p></div>';
+                else if (m.kind === 'image' && m.mediaUrl) body = '<img src="' + escapeHtml(m.mediaUrl) + '" alt="' + escapeHtml(m.fileName || 'صورة') + '" class="max-w-full max-h-56 rounded-xl object-contain"><p class="text-[11px] mt-1">' + escapeHtml(m.text) + '</p>';
+                else if (m.kind === 'file' && m.mediaUrl) body = '<a href="' + escapeHtml(m.mediaUrl) + '" download="' + escapeHtml(m.fileName || 'file') + '" class="underline flex items-center gap-1.5 text-xs"><i class="fa-solid fa-file-arrow-down"></i><span>' + escapeHtml(m.fileName || m.text) + '</span></a>';
+                var editedIn = (!mine && m.edited) ? ' • معدّلة' : '';
+                var incomingFooter = '✓✓ مستلمة' + editedIn + (m.sentAt ? (' • <span class="font-mono opacity-80">' + escapeHtml(m.sentAt) + '</span>') : '');
+                var deliveryLabel = mine ? buildDeliveryBadge(m) : '<span class="text-emerald-300 font-semibold shrink-0">' + incomingFooter + '</span>';
+                var safeDomMsgId = String(m.id).replace(/[^a-zA-Z0-9_-]/g, '_');
+                return '<div id="msg-item-' + escapeHtml(safeDomMsgId) + '" class="flex ' + (mine ? 'justify-end' : 'justify-start') + '">' +
+                    '<div oncontextmenu="event.preventDefault(); openMsgContextMenu(\\'' + safeIdJs + '\\');" ' +
+                    'onpointerdown="var self=this; self.__lpTimer=setTimeout(function(){ openMsgContextMenu(\\'' + safeIdJs + '\\'); }, 520);" ' +
+                    'onpointerup="if(this.__lpTimer){clearTimeout(this.__lpTimer);this.__lpTimer=null;}" ' +
+                    'onpointercancel="if(this.__lpTimer){clearTimeout(this.__lpTimer);this.__lpTimer=null;}" ' +
+                    'onpointerleave="if(this.__lpTimer){clearTimeout(this.__lpTimer);this.__lpTimer=null;}" ' +
+                    'class="' + (mine ? 'bg-[#164e63] border border-teal-700/50 text-white rounded-tl-none' : 'bg-[#0f1b29] border border-slate-800 text-slate-100 rounded-tr-none') + ' p-3 rounded-2xl max-w-md text-xs md:text-sm shadow space-y-1 cursor-pointer">' +
+                    senderTag + quoteHtml + body +
+                    '<div class="flex justify-between items-center gap-3 pt-1 text-[10px] ' + (mine ? 'text-teal-100/90' : 'text-slate-400') + '">' +
+                    deliveryLabel +
+                    '<div class="flex items-center gap-1">' +
+                    '<button type="button" onclick="event.stopPropagation(); startReplyToMessage(\\'' + safeIdJs + '\\');" title="رد على الرسالة" class="opacity-75 hover:opacity-100 px-1"><i class="fa-solid fa-reply"></i></button>' +
+                    '<button type="button" onclick="event.stopPropagation(); openMsgContextMenu(\\'' + safeIdJs + '\\');" title="خيارات الرسالة" class="opacity-75 hover:opacity-100 px-1"><i class="fa-solid fa-ellipsis"></i></button>' +
+                    '</div></div></div></div>';
+            }).join('');
+            if (!q) box.scrollTop = box.scrollHeight;
+        }
+
+        function renderAccts() {
+            var badge = document.getElementById('accounts-count-badge');
+            if (badge) badge.textContent = toWesternDigits(myAccts.length) + (myAccts.length === 1 ? ' حساب' : ' حسابات');
+            var box = document.getElementById('accounts-list');
+            if (!box) return;
+            box.innerHTML = myAccts.map(function(id) {
+                var cleanId = cleanIdValue(id);
+                return '<div onclick="activateAccount(\\'' + escapeJsSingle(cleanId) + '\\')" class="bg-[#080f18] border ' + (cleanId === activeAcct ? 'border-teal-600' : 'border-slate-800') + ' p-3 rounded-xl flex justify-between items-center cursor-pointer">' +
+                    '<span class="text-xs font-mono font-bold text-white">' + escapeHtml(cleanId) + '</span>' +
+                    '<span class="text-[10px] ' + (cleanId === activeAcct ? 'text-teal-200 font-bold' : 'text-slate-400') + '">' + (cleanId === activeAcct ? 'نشط' : 'تبديل') + '</span></div>';
+            }).join('');
         }
 
         function persistAndDraw() {
             persistState();
-            renderAccts();
-            renderPresence();
-            renderMsgs();
             updateUnreadBadgesUI();
+            var acctLbl = document.getElementById('active-acct-label');
+            if (acctLbl) acctLbl.textContent = activeAcct;
+            updateNetBadge();
             updateQueueBadge();
+            if (activePane === 'chats') {
+                renderPresence();
+                renderMsgs();
+            } else if (activePane === 'groups') {
+                renderGroupsList();
+            } else if (activePane === 'accounts') {
+                renderAccts();
+            } else if (activePane === 'contacts') {
+                renderPresence();
+            } else if (activePane === 'calls') {
+                onCallDialInput();
+                renderGroupCallSelector();
+            }
+        }
+
+        var devBadge = document.getElementById('device-badge');
+        if (devBadge) devBadge.textContent = detectDevice();
+        loadSavedState();
+        clearUnreadForPeer(currentPeer);
+        var acctLblInit = document.getElementById('active-acct-label');
+        if (acctLblInit) acctLblInit.textContent = activeAcct;
+        updateNetBadge();
+        updateQueueBadge();
+        updateUnreadBadgesUI();
+        renderPresence();
+        renderMsgs();
+        applySanadPaneDisplay(window.__sanadCurrentTab || 'chats');
+
+        if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+            updateOfflineNetworkUI(true);
+        } else {
+            setHeaderStatus('متصل', true);
+            syncPresenceNow();
+            openSocket();
         }
 
         window.addEventListener('online', function() {
             updateOfflineNetworkUI(false);
             updateNetBadge();
-            setHeaderStatus('متصل', true);
             reconnectNow();
             flushOutboxQueue();
         });
@@ -3468,228 +3437,294 @@ const htmlContent = `<!DOCTYPE html>
             updateNetBadge();
         });
 
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden && activePane === 'chats') {
-                clearUnreadForPeer(currentPeer);
-                markCurrentThreadAsRead();
-                pollHttpSync();
-            }
-        });
-
-        loadSavedState();
-        document.getElementById('device-badge').textContent = detectDevice();
-        updateNetBadge();
-        updateOfflineNetworkUI(typeof navigator !== 'undefined' && navigator.onLine === false);
-
-        var urlParams = new URLSearchParams(location.search);
-        var peerParam = cleanIdValue(urlParams.get('peer'));
-        if (peerParam && peerParam !== '88888888') {
-            currentPeer = peerParam;
-            if (!contacts.some(function(c) { return normalizeStr(c.id) === normalizeStr(peerParam); })) {
-                contacts.push({ name: 'جهة ' + peerParam, id: peerParam });
-            }
-        }
-
-        var initialHashTab = String(location.hash || '').replace(/^#tab-/, '');
-        setPane(SANAD_TAB_LABELS[initialHashTab] ? initialHashTab : 'chats');
-        persistAndDraw();
-        openSocket();
-        syncPresenceNow();
         setInterval(function() {
             if (typeof navigator !== 'undefined' && navigator.onLine === false) {
                 updateOfflineNetworkUI(true);
                 return;
             }
             pollHttpSync();
-            if (!ws || ws.readyState !== 1) openSocket();
-        }, 2500);
+            if (!ws || ws.readyState > 1) openSocket();
+        }, 1200);
+
+        window.addEventListener('focus', function() {
+            syncPresenceNow();
+        });
+
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                syncPresenceNow();
+                if (activePane === 'chats') {
+                    clearUnreadForPeer(currentPeer);
+                    markCurrentThreadAsRead();
+                }
+            }
+        });
     </script>
 </body>
 </html>`;
 
-const syncEvents = [];
-const registeredIds = new Map();
+const PORT = process.env.PORT || 3000;
+const socketsMap = new Map();
+const httpPresence = new Map();
+const httpInbox = new Map();
+const recentEventLog = [];
+let globalEventSeq = 1;
 
-function recordSyncEvent(evt) {
-    const entry = Object.assign({}, evt, {
-        cursor: syncEvents.length + 1,
-        ts: Date.now(),
-        eventId: evt.eventId || ('srv-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8))
-    });
-    syncEvents.push(entry);
-    if (syncEvents.length > 2000) {
-        syncEvents.splice(0, syncEvents.length - 2000);
-    }
-    return entry;
-}
-
-function getOnlineIdsList() {
+function touchHttpPresence(ids) {
+    if (!Array.isArray(ids)) return;
     const now = Date.now();
-    const list = [];
-    for (const [id, lastSeen] of registeredIds.entries()) {
-        if (now - lastSeen < 45000) list.push(id);
-        else registeredIds.delete(id);
-    }
-    return list;
-}
-
-function broadcastJson(obj, excludeWs = null) {
-    const raw = JSON.stringify(obj);
-    wss.clients.forEach(client => {
-        if (client !== excludeWs && client.readyState === 1) {
-            try { client.send(raw); } catch (e) {}
-        }
+    ids.forEach(id => {
+        const clean = normIdServer(id);
+        if (clean) httpPresence.set(clean, now);
     });
 }
 
-function processIncomingSignalOrMsg(payload, sourceWs = null) {
-    if (!payload || typeof payload !== 'object') return;
-    if (payload.type === 'register_ids') {
-        const ids = Array.isArray(payload.ids) ? payload.ids : [];
-        if (payload.activeId) ids.push(payload.activeId);
-        const now = Date.now();
-        ids.forEach(rawId => {
-            const clean = normIdServer(rawId);
-            if (clean) registeredIds.set(clean, now);
-        });
-        const onlineIds = getOnlineIdsList();
-        broadcastJson({ type: 'online_users', ids: onlineIds }, sourceWs);
-        return;
-    }
-
-    if (['msg', 'msg_edit', 'msg_delivered', 'msg_read', 'msg_del_all', 'msg_del', 'call_sig'].includes(payload.type)) {
-        const cleanFrom = normIdServer(payload.from || '');
-        const cleanTo = normIdServer(payload.to || '');
-        const now = Date.now();
-        if (cleanFrom) registeredIds.set(cleanFrom, now);
-        const entry = recordSyncEvent(Object.assign({}, payload, {
-            from: cleanFrom || payload.from,
-            to: cleanTo || payload.to
-        }));
-        broadcastJson(entry, sourceWs);
-    }
-}
-
-function readJsonBody(req) {
-    return new Promise((resolve, reject) => {
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString('utf8');
-            if (body.length > 15 * 1024 * 1024) {
-                reject(new Error('Payload too large'));
-                req.destroy();
-            }
-        });
-        req.on('end', () => {
-            if (!body.trim()) return resolve({});
-            try {
-                resolve(JSON.parse(body));
-            } catch (err) {
-                reject(err);
-            }
-        });
-        req.on('error', reject);
+function getAllOnlineIds() {
+    const now = Date.now();
+    const set = new Set();
+    socketsMap.forEach((sockSet, id) => {
+        if (sockSet && sockSet.size > 0) set.add(normIdServer(id));
     });
+    httpPresence.forEach((ts, id) => {
+        const norm = normIdServer(id);
+        if (now - ts < 20000) set.add(norm);
+        else httpPresence.delete(id);
+    });
+    return Array.from(set).filter(Boolean);
 }
 
-const server = http.createServer(async (req, res) => {
-    const reqUrl = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
-    const pathname = reqUrl.pathname;
-
-    if (pathname === '/healthz') {
-        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
-        return res.end(JSON.stringify({ ok: true, version: APP_VERSION, ts: Date.now() }));
+function registerSocketForId(id, clientWs) {
+    const clean = normIdServer(id);
+    if (!clean) return;
+    let set = socketsMap.get(clean);
+    if (!set) {
+        set = new Set();
+        socketsMap.set(clean, set);
     }
+    set.add(clientWs);
+}
 
-    if (pathname === '/icon.svg') {
-        res.writeHead(200, { 'Content-Type': 'image/svg+xml; charset=utf-8', 'Cache-Control': 'no-cache' });
-        return res.end(sanadIconSvg);
-    }
+function unregisterSocketForId(id, clientWs) {
+    const clean = normIdServer(id);
+    const set = socketsMap.get(clean);
+    if (!set) return;
+    set.delete(clientWs);
+    if (set.size === 0) socketsMap.delete(clean);
+}
 
-    if (pathname === '/apple-touch-icon.png') {
-        const pngFallback = Buffer.from(
-            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
-            'base64'
-        );
-        res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'no-cache' });
-        return res.end(pngFallback);
-    }
-
-    if (pathname === '/manifest.json') {
-        res.writeHead(200, { 'Content-Type': 'application/manifest+json; charset=utf-8', 'Cache-Control': 'no-cache' });
-        return res.end(manifestPayload);
-    }
-
-    if (pathname === '/sw.js') {
-        res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8', 'Cache-Control': 'no-cache, no-store, must-revalidate' });
-        return res.end(swContent);
-    }
-
-    if (pathname === '/api/sync') {
-        if (req.method === 'POST') {
-            try {
-                const payload = await readJsonBody(req);
-                processIncomingSignalOrMsg(payload, null);
-                res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
-                return res.end(JSON.stringify({
-                    ok: true,
-                    appVersion: APP_VERSION,
-                    cursor: syncEvents.length,
-                    onlineIds: getOnlineIdsList()
-                }));
-            } catch (e) {
-                res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
-                return res.end(JSON.stringify({ ok: false, error: 'Invalid JSON payload' }));
+function sendToIdSockets(toId, payloadStr) {
+    const clean = normIdServer(toId);
+    const set = socketsMap.get(clean);
+    let sent = false;
+    if (set && set.size > 0) {
+        set.forEach(client => {
+            if (client && client.readyState === 1) {
+                try {
+                    client.send(payloadStr);
+                    sent = true;
+                } catch (e) {}
             }
-        }
+        });
+    }
+    return sent;
+}
 
-        if (req.method === 'GET') {
-            const since = Math.max(0, Number(reqUrl.searchParams.get('since') || '0') || 0);
-            const rawIds = String(reqUrl.searchParams.get('ids') || '');
-            const watchIds = rawIds.split(',').map(normIdServer).filter(Boolean);
-            const now = Date.now();
-            watchIds.forEach(id => registeredIds.set(id, now));
+function recordRecentEvent(toId, payload) {
+    const clean = normIdServer(toId);
+    if (!clean) return;
+    const seq = globalEventSeq++;
+    recentEventLog.push({ seq, to: clean, ts: Date.now(), payload });
+    if (recentEventLog.length > 500) recentEventLog.shift();
+}
 
-            const events = syncEvents.filter(evt => {
-                if (evt.cursor <= since) return false;
-                if (!watchIds.length) return true;
-                const target = normIdServer(evt.to || '');
-                const sender = normIdServer(evt.from || '');
-                return watchIds.includes(target) || watchIds.includes(sender);
+function enqueueHttpEvent(toId, payload) {
+    const clean = normIdServer(toId);
+    if (!clean) return;
+    const list = httpInbox.get(clean) || [];
+    list.push(payload);
+    if (list.length > 150) list.shift();
+    httpInbox.set(clean, list);
+}
+
+function routeEventToRecipient(destId, normalizedData) {
+    const clean = normIdServer(destId);
+    if (!clean) return;
+    recordRecentEvent(clean, normalizedData);
+    const payloadStr = JSON.stringify(normalizedData);
+    sendToIdSockets(clean, payloadStr);
+    enqueueHttpEvent(clean, normalizedData);
+}
+
+function drainHttpEvents(ids, sinceCursor) {
+    const out = [];
+    const seen = new Set();
+    if (!Array.isArray(ids)) return out;
+    const normSet = new Set(ids.map(normIdServer).filter(Boolean));
+    normSet.forEach(clean => {
+        const list = httpInbox.get(clean);
+        if (list && list.length) {
+            list.forEach(ev => {
+                const key = ev && ev.eventId ? ev.eventId : JSON.stringify(ev);
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    out.push(ev);
+                }
             });
+            httpInbox.set(clean, []);
+        }
+    });
+    const minSeq = Number(sinceCursor) || 0;
+    const cutoff = Date.now() - 120000;
+    recentEventLog.forEach(item => {
+        if (item.seq > minSeq && item.ts >= cutoff && normSet.has(item.to)) {
+            const ev = item.payload;
+            const key = ev && ev.eventId ? ev.eventId : JSON.stringify(ev);
+            if (!seen.has(key)) {
+                seen.add(key);
+                out.push(ev);
+            }
+        }
+    });
+    return out;
+}
 
-            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
-            return res.end(JSON.stringify({
-                ok: true,
-                appVersion: APP_VERSION,
-                cursor: syncEvents.length,
-                onlineIds: getOnlineIdsList(),
-                events
-            }));
+const noCacheHeaders = {
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+};
+
+const server = http.createServer((req, res) => {
+    try {
+        const urlObj = new URL(req.url || '/', 'http://' + (req.headers.host || 'localhost'));
+
+        if (urlObj.pathname === '/sw.js') {
+            res.writeHead(200, Object.assign({ 'Content-Type': 'application/javascript; charset=utf-8' }, noCacheHeaders));
+            res.end(swContent);
+            return;
+        }
+
+        if (urlObj.pathname === '/manifest.json') {
+            res.writeHead(200, Object.assign({ 'Content-Type': 'application/manifest+json; charset=utf-8' }, noCacheHeaders));
+            res.end(manifestPayload);
+            return;
+        }
+
+        if (
+            urlObj.pathname === '/icon.svg' ||
+            urlObj.pathname === '/apple-touch-icon.png' ||
+            urlObj.pathname === '/apple-touch-icon-precomposed.png'
+        ) {
+            res.writeHead(200, { 'Content-Type': 'image/svg+xml; charset=utf-8', 'Cache-Control': 'public, max-age=3600' });
+            res.end(sanadIconSvg);
+            return;
+        }
+
+        if (urlObj.pathname === '/healthz' || urlObj.pathname === '/api/version') {
+            res.writeHead(200, Object.assign({ 'Content-Type': 'application/json; charset=utf-8' }, noCacheHeaders));
+            res.end(JSON.stringify({ ok: true, appVersion: APP_VERSION, cursor: globalEventSeq - 1, onlineIds: getAllOnlineIds() }));
+            return;
+        }
+
+        if (urlObj.pathname === '/api/sync' && req.method === 'GET') {
+            const rawIds = (urlObj.searchParams.get('ids') || '').split(',').map(normIdServer).filter(Boolean);
+            const sinceCursor = urlObj.searchParams.get('since') || '0';
+            touchHttpPresence(rawIds);
+            const events = drainHttpEvents(rawIds, sinceCursor);
+            res.writeHead(200, Object.assign({ 'Content-Type': 'application/json; charset=utf-8' }, noCacheHeaders));
+            res.end(JSON.stringify({ appVersion: APP_VERSION, cursor: globalEventSeq - 1, onlineIds: getAllOnlineIds(), events }));
+            return;
+        }
+
+        if (urlObj.pathname === '/api/sync' && req.method === 'POST') {
+            let body = '';
+            req.on('data', chunk => {
+                body += chunk.toString();
+                if (body.length > 5 * 1024 * 1024) {
+                    try { req.destroy(); } catch (e) {}
+                }
+            });
+            req.on('end', () => {
+                try {
+                    const data = JSON.parse(body || '{}');
+                    if (data && data.type === 'register_ids') {
+                        const list = Array.isArray(data.ids) ? data.ids : [data.activeId].filter(Boolean);
+                        touchHttpPresence(list);
+                        broadcastOnline();
+                    } else if (data && data.to) {
+                        if (data.from) touchHttpPresence([data.from]);
+                        const normalizedData = Object.assign({}, data, {
+                            to: normIdServer(data.to),
+                            from: data.from ? normIdServer(data.from) : data.from
+                        });
+                        routeEventToRecipient(normalizedData.to, normalizedData);
+                    }
+                } catch (e) {}
+                if (!res.writableEnded) {
+                    res.writeHead(200, Object.assign({ 'Content-Type': 'application/json; charset=utf-8' }, noCacheHeaders));
+                    res.end(JSON.stringify({ ok: true, appVersion: APP_VERSION, cursor: globalEventSeq - 1, onlineIds: getAllOnlineIds() }));
+                }
+            });
+            return;
+        }
+
+        res.writeHead(200, Object.assign({ 'Content-Type': 'text/html; charset=utf-8' }, noCacheHeaders));
+        res.end(htmlContent);
+    } catch (e) {
+        if (!res.writableEnded) {
+            res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ ok: false }));
         }
     }
-
-    res.writeHead(200, {
-        'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-    });
-    res.end(htmlContent);
 });
 
 const wss = new WebSocketServer({ server });
 
-wss.on('connection', ws => {
-    ws.on('message', raw => {
-        try {
-            const parsed = JSON.parse(raw.toString('utf8'));
-            processIncomingSignalOrMsg(parsed, ws);
-        } catch (e) {}
+function broadcastOnline() {
+    const msg = JSON.stringify({ type: 'online_users', ids: getAllOnlineIds() });
+    wss.clients.forEach(c => {
+        if (c && c.readyState === 1) {
+            try { c.send(msg); } catch (e) {}
+        }
     });
+}
+
+wss.on('connection', (clientWs) => {
+    let registeredIds = [];
+
+    clientWs.on('message', (raw) => {
+        let data;
+        try { data = JSON.parse(raw.toString()); } catch (e) { return; }
+        if (!data || typeof data !== 'object') return;
+
+        if (data.type === 'register_ids') {
+            registeredIds.forEach(old => unregisterSocketForId(old, clientWs));
+            const list = Array.isArray(data.ids) ? data.ids : [data.activeId].filter(Boolean);
+            registeredIds = list.map(normIdServer).filter(Boolean);
+            registeredIds.forEach(id => registerSocketForId(id, clientWs));
+            touchHttpPresence(registeredIds);
+            broadcastOnline();
+            return;
+        }
+
+        if (data.to) {
+            if (data.from) touchHttpPresence([data.from]);
+            const normalizedData = Object.assign({}, data, {
+                to: normIdServer(data.to),
+                from: data.from ? normIdServer(data.from) : data.from
+            });
+            routeEventToRecipient(normalizedData.to, normalizedData);
+        }
+    });
+
+    clientWs.on('close', () => {
+        registeredIds.forEach(id => unregisterSocketForId(id, clientWs));
+        broadcastOnline();
+    });
+
+    clientWs.on('error', () => {});
 });
 
-const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`Sanad AI Server v${APP_VERSION} listening on port ${PORT}`);
+    console.log('Sanad AI v8.9.1 running on port ' + PORT);
 });

@@ -1,7 +1,7 @@
 const http = require('http');
 const { WebSocketServer } = require('ws');
 
-const APP_VERSION = '8.9.2';
+const APP_VERSION = '8.9.3';
 const ICON_BG_HEX = '#164e63';
 const ICON_ACCENT_HEX = '#f0fdfa';
 const ICON_SUB_HEX = '#0f3646';
@@ -59,7 +59,7 @@ const sanadIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 5
 </svg>`;
 
 const manifestPayload = JSON.stringify({
-  name: 'Sanad AI v8.9.2 - سند',
+  name: 'Sanad AI v8.9.3 - سند',
   short_name: 'سند AI',
   description: 'تطبيق سند AI للتواصل الذكي والمحادثات والمكالمات الفردية والجماعية والعمل بدون إنترنت والمساعدة الصوتية والذكاء الاصطناعي',
   start_url: '/',
@@ -187,7 +187,7 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="سند AI">
     <meta name="theme-color" content="#164e63">
-    <title>سند AI v8.9.2</title>
+    <title>سند AI v8.9.3</title>
     <link id="sanad-favicon" rel="icon" type="image/svg+xml" href="/icon.svg">
     <link id="sanad-apple-icon" rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
@@ -412,7 +412,7 @@ const htmlContent = `<!DOCTYPE html>
             <div class="min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
                     <h1 class="font-black text-base text-white leading-none">سند</h1>
-                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/60 px-2 py-0.5 rounded-full font-bold">AI v8.9.2</span>
+                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/60 px-2 py-0.5 rounded-full font-bold">AI v8.9.3</span>
                     <span id="current-tab-badge" class="text-[10px] bg-slate-800/90 text-slate-200 border border-slate-700/80 px-2 py-0.5 rounded-full font-bold">الدردشة</span>
                     <span id="device-badge" class="text-[10px] bg-slate-800/90 text-slate-300 border border-slate-700/60 px-2 py-0.5 rounded-full font-semibold">جهاز</span>
                     <span id="net-badge" class="text-[10px] bg-slate-800/90 text-sky-200 border border-sky-800/50 px-2 py-0.5 rounded-full font-bold">وضع مرن</span>
@@ -568,7 +568,7 @@ const htmlContent = `<!DOCTYPE html>
 
     <div id="call-modal" class="hidden fixed inset-0 bg-[#080f18]/95 z-50 flex flex-col items-center justify-between p-4">
         <div class="text-center mt-1">
-            <p class="text-xs text-teal-300 font-bold">سند AI v8.9.2 • اتصال واضح ومستقر (فردي وجماعي)</p>
+            <p class="text-xs text-teal-300 font-bold">سند AI v8.9.3 • اتصال واضح ومستقر (فردي وجماعي)</p>
             <h2 id="call-peer-title" class="text-lg font-black text-white font-mono mt-0.5">...</h2>
             <p id="call-timer-el" class="text-xs font-mono font-bold text-slate-300 mt-0.5">00:00</p>
             <p id="call-status-msg" class="text-xs text-emerald-300 mt-0.5 font-semibold">جاري الاتصال...</p>
@@ -828,7 +828,7 @@ const htmlContent = `<!DOCTYPE html>
             <div class="bg-[#0f1b29] border border-slate-800 p-4 rounded-2xl space-y-2.5">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-black text-teal-200"><i class="fa-solid fa-brain ml-1"></i> مساعد سند AI وتطوير المحتوى</h2>
-                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/50 px-2 py-0.5 rounded-full font-bold">v8.9.2</span>
+                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/50 px-2 py-0.5 rounded-full font-bold">v8.9.3</span>
                 </div>
                 <div class="flex items-center justify-between bg-[#080f18] p-3 rounded-xl border border-slate-800 text-xs">
                     <span>وضع توفير البيانات للشبكات الضعيفة</span>
@@ -864,7 +864,7 @@ const htmlContent = `<!DOCTYPE html>
                     <button type="button" onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
                 </div>
                 <div id="ai-log" class="bg-[#080f18] border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">مرحباً بك في سند AI v8.9.2 — حقل كتابة متوسع + قراءة وتبسيط للرسائل الطويلة + مساعدة صوتية ذكية.</div>
+                    <div class="text-slate-400">مرحباً بك في سند AI v8.9.3 — حقل كتابة متوسع + قراءة وتبسيط للرسائل الطويلة + مساعدة صوتية ذكية.</div>
                 </div>
                 <div class="flex gap-2">
                     <input type="text" id="ai-q" onkeydown="if(event.key==='Enter')askSanadAI()" placeholder="اسأل سند AI أو اطلب صياغة محتوى للعملاء..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
@@ -1651,7 +1651,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!acctThreads[activeAcct]) acctThreads[activeAcct] = {};
             if (!acctThreads[activeAcct][DEFAULT_PEER]) {
                 acctThreads[activeAcct][DEFAULT_PEER] = [
-                    { id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'مرحباً بك في سند AI v8.9.2، كيف نقدر نخدمك اليوم؟', sentAt: formatTimeShort() }
+                    { id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'مرحباً بك في سند AI v8.9.3، كيف نقدر نخدمك اليوم؟', sentAt: formatTimeShort() }
                 ];
             }
             return acctThreads[activeAcct];
@@ -2005,7 +2005,7 @@ const htmlContent = `<!DOCTYPE html>
                 var autoChk = document.getElementById('chk-autoreply');
                 if (autoChk && autoChk.checked && msg.kind === 'text' && normalizeStr(sender) !== normalizeStr(recipient)) {
                     var qTxt = String(msg.text || '');
-                    var smartAuto = 'أهلاً بك، تم استلام رسالتك عبر سند AI v8.9.2 وسنوافيك بالرد الكامل بأسرع وقت.';
+                    var smartAuto = 'أهلاً بك، تم استلام رسالتك عبر سند AI v8.9.3 وسنوافيك بالرد الكامل بأسرع وقت.';
                     if (qTxt.indexOf('سعر') !== -1 || qTxt.indexOf('باقة') !== -1 || qTxt.indexOf('عرض') !== -1) {
                         smartAuto = 'يسعدنا تزويدك بتفاصيل العروض والباقات؛ يرجى توضيح احتياجك لنرسل لك الخيار الأنسب.';
                     } else if (qTxt.indexOf('موعد') !== -1 || qTxt.indexOf('متى') !== -1) {
@@ -3156,7 +3156,7 @@ const htmlContent = `<!DOCTYPE html>
                 return;
             }
 
-            var reply = 'مساعد سند AI v8.9.2 يدعم القراءة الصوتية للرسائل، التحدث للكتابة، تبسيط النصوص الطويلة، والرد الفوري داخل المحادثة.';
+            var reply = 'مساعد سند AI v8.9.3 يدعم القراءة الصوتية للرسائل، التحدث للكتابة، تبسيط النصوص الطويلة، والرد الفوري داخل المحادثة.';
             if (q.indexOf('نت') !== -1 || q.indexOf('انترنت') !== -1) {
                 reply = 'يعمل سند AI بذاكرة محلية (Service Worker) تتيح تصفح الرسائل والجهات والمجموعات حتى عند انقطاع الإنترنت، وتُرسل الرسائل المجهزة تلقائياً فور عودة الشبكة.';
             } else if (q.indexOf('مجموع') !== -1) {
@@ -3872,5 +3872,5 @@ wss.on('connection', (clientWs) => {
 });
 
 server.listen(PORT, () => {
-    console.log('Sanad AI v8.9.2 running on port ' + PORT);
+    console.log('Sanad AI v8.9.3 running on port ' + PORT);
 });

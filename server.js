@@ -1,7 +1,7 @@
 const http = require('http');
 const { WebSocketServer } = require('ws');
 
-const APP_VERSION = '8.8.0';
+const APP_VERSION = '8.9.0';
 const ICON_BG_HEX = '#164e63';
 const ICON_ACCENT_HEX = '#f0fdfa';
 const ICON_SUB_HEX = '#0f3646';
@@ -54,7 +54,7 @@ const sanadIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 5
 </svg>`;
 
 const manifestPayload = JSON.stringify({
-  name: 'Sanad AI v8.8 - سند',
+  name: 'Sanad AI v8.9 - سند',
   short_name: 'سند AI',
   description: 'تطبيق سند AI للتواصل الذكي والمحادثات والمكالمات الفردية والجماعية والعمل بدون إنترنت وتطوير المحتوى',
   start_url: '/',
@@ -135,7 +135,7 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="سند AI">
     <meta name="theme-color" content="#164e63">
-    <title>سند AI v8.8</title>
+    <title>سند AI v8.9</title>
     <link id="sanad-favicon" rel="icon" type="image/svg+xml" href="/icon.svg">
     <link id="sanad-apple-icon" rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
@@ -354,7 +354,7 @@ const htmlContent = `<!DOCTYPE html>
             <div class="min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
                     <h1 class="font-black text-base text-white leading-none">سند</h1>
-                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/60 px-2 py-0.5 rounded-full font-bold">AI v8.8</span>
+                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/60 px-2 py-0.5 rounded-full font-bold">AI v8.9</span>
                     <span id="current-tab-badge" class="text-[10px] bg-slate-800/90 text-slate-200 border border-slate-700/80 px-2 py-0.5 rounded-full font-bold">الدردشة</span>
                     <span id="device-badge" class="text-[10px] bg-slate-800/90 text-slate-300 border border-slate-700/60 px-2 py-0.5 rounded-full font-semibold">جهاز</span>
                     <span id="net-badge" class="text-[10px] bg-slate-800/90 text-sky-200 border border-sky-800/50 px-2 py-0.5 rounded-full font-bold">وضع مرن</span>
@@ -399,9 +399,37 @@ const htmlContent = `<!DOCTYPE html>
         <span class="bg-teal-950 text-teal-200 border border-teal-800/60 px-2 py-1 rounded-lg text-[10px] font-bold shrink-0">فتح</span>
     </div>
 
+    <!-- قائمة الضغط المطوّل على الرسالة -->
+    <div id="msg-context-modal" onclick="if(event.target===this)closeMsgContextMenu()" class="hidden fixed inset-0 bg-[#080f18]/75 z-50 flex items-end sm:items-center justify-center p-3">
+        <div class="bg-[#0f1b29] border border-slate-700/80 rounded-2xl w-full max-w-xs p-3 space-y-1.5 shadow-2xl">
+            <div class="px-2 py-1 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-black text-teal-200">خيارات الرسالة</span>
+                <button type="button" onclick="closeMsgContextMenu()" class="text-slate-400 hover:text-white text-xs"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <button type="button" id="ctx-copy-btn" onclick="ctxCopyAction()" class="w-full text-right px-3 py-2.5 rounded-xl hover:bg-slate-800 text-xs font-bold text-slate-100 flex items-center gap-2.5">
+                <i class="fa-solid fa-copy text-teal-300 w-4"></i><span>نسخ النص</span>
+            </button>
+            <button type="button" id="ctx-paste-btn" onclick="ctxPasteAction()" class="w-full text-right px-3 py-2.5 rounded-xl hover:bg-slate-800 text-xs font-bold text-slate-100 flex items-center gap-2.5">
+                <i class="fa-solid fa-paste text-emerald-300 w-4"></i><span>لصق في حقل الإرسال</span>
+            </button>
+            <button type="button" id="ctx-edit-btn" onclick="ctxEditAction()" class="w-full text-right px-3 py-2.5 rounded-xl hover:bg-slate-800 text-xs font-bold text-sky-200 flex items-center gap-2.5">
+                <i class="fa-solid fa-pen text-sky-300 w-4"></i><span>تعديل الرسالة</span>
+            </button>
+            <button type="button" id="ctx-pin-btn" onclick="ctxPinAction()" class="w-full text-right px-3 py-2.5 rounded-xl hover:bg-slate-800 text-xs font-bold text-amber-200 flex items-center gap-2.5">
+                <i class="fa-solid fa-thumbtack text-amber-300 w-4"></i><span>تثبيت الرسالة</span>
+            </button>
+            <button type="button" id="ctx-speak-btn" onclick="ctxSpeakAction()" class="w-full text-right px-3 py-2.5 rounded-xl hover:bg-slate-800 text-xs font-bold text-slate-100 flex items-center gap-2.5">
+                <i class="fa-solid fa-volume-high text-teal-200 w-4"></i><span>استماع صوتي</span>
+            </button>
+            <button type="button" id="ctx-delete-btn" onclick="ctxDeleteAction()" class="w-full text-right px-3 py-2.5 rounded-xl hover:bg-rose-950/60 text-xs font-bold text-rose-300 flex items-center gap-2.5">
+                <i class="fa-solid fa-trash text-rose-400 w-4"></i><span>حذف الرسالة</span>
+            </button>
+        </div>
+    </div>
+
     <div id="call-modal" class="hidden fixed inset-0 bg-[#080f18]/95 z-50 flex flex-col items-center justify-between p-4">
         <div class="text-center mt-1">
-            <p class="text-xs text-teal-300 font-bold">سند AI v8.8 • اتصال واضح ومستقر (فردي وجماعي)</p>
+            <p class="text-xs text-teal-300 font-bold">سند AI v8.9 • اتصال واضح ومستقر (فردي وجماعي)</p>
             <h2 id="call-peer-title" class="text-lg font-black text-white font-mono mt-0.5">...</h2>
             <p id="call-timer-el" class="text-xs font-mono font-bold text-slate-300 mt-0.5">00:00</p>
             <p id="call-status-msg" class="text-xs text-emerald-300 mt-0.5 font-semibold">جاري الاتصال...</p>
@@ -498,6 +526,11 @@ const htmlContent = `<!DOCTYPE html>
             </div>
 
             <div id="msgs-box" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar"></div>
+
+            <div id="editing-msg-banner" class="hidden px-3.5 py-1.5 bg-sky-950/90 border-t border-sky-700/60 flex items-center justify-between gap-2 text-[11px] shrink-0">
+                <span class="text-sky-100 font-bold truncate"><i class="fa-solid fa-pen ml-1"></i> تعديل رسالة...</span>
+                <button type="button" onclick="cancelEditMessage()" class="text-sky-200 hover:text-white text-[10px] font-bold shrink-0">إلغاء التعديل</button>
+            </div>
 
             <div id="smart-replies-bar" class="hidden px-3 py-1.5 bg-[#0c1622] border-t border-slate-800/70 flex items-center gap-1.5 overflow-x-auto text-[11px] shrink-0"></div>
 
@@ -643,7 +676,7 @@ const htmlContent = `<!DOCTYPE html>
             <div class="bg-[#0f1b29] border border-slate-800 p-4 rounded-2xl space-y-2.5">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-black text-teal-200"><i class="fa-solid fa-brain ml-1"></i> مساعد سند AI وتطوير المحتوى</h2>
-                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/50 px-2 py-0.5 rounded-full font-bold">v8.8</span>
+                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/50 px-2 py-0.5 rounded-full font-bold">v8.9</span>
                 </div>
                 <div class="flex items-center justify-between bg-[#080f18] p-3 rounded-xl border border-slate-800 text-xs">
                     <span>وضع توفير البيانات للشبكات الضعيفة</span>
@@ -676,7 +709,7 @@ const htmlContent = `<!DOCTYPE html>
                     <button type="button" onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
                 </div>
                 <div id="ai-log" class="bg-[#080f18] border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">مرحباً بك في سند AI v8.8 — ظهور متكامل عند الجميع + تذييل الرسائل + نسخ ولصق بعد الإرسال + مكالمات جماعية.</div>
+                    <div class="text-slate-400">مرحباً بك في سند AI v8.9 — قائمة ضغط مطوّل (نسخ، لصق، تعديل، تثبيت، استماع، حذف) + علبة وارد لكل معرّف + مكالمات جماعية.</div>
                 </div>
                 <div class="flex gap-2">
                     <input type="text" id="ai-q" onkeydown="if(event.key==='Enter')askSanadAI()" placeholder="اسأل سند AI أو اطلب صياغة محتوى للعملاء..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
@@ -735,6 +768,8 @@ const htmlContent = `<!DOCTYPE html>
         var outboxQueue = [];
         var lastGeneratedCode = '';
         var lastCopiedMessageText = '';
+        var editingMsgId = null;
+        var contextMenuMsgId = null;
         var pendingDeleteMsgId = null;
         var toastPeerId = null;
         var toastTimer = null;
@@ -774,29 +809,95 @@ const htmlContent = `<!DOCTYPE html>
             copyToastTimer = setTimeout(function() { el.classList.add('hidden'); }, 1800);
         }
 
-        function copyMsgById(msgId) {
+        function findMsgByIdInActiveThread(msgId) {
             var list = getThreadMap()[currentPeer] || [];
-            var item = list.find(function(m) { return m.id === msgId && !m.deleted; });
+            return list.find(function(m) { return m.id === msgId; }) || null;
+        }
+
+        function openMsgContextMenu(msgId) {
+            var item = findMsgByIdInActiveThread(msgId);
+            if (!item || item.deleted) return;
+            contextMenuMsgId = msgId;
+            var editBtn = document.getElementById('ctx-edit-btn');
+            var speakBtn = document.getElementById('ctx-speak-btn');
+            if (editBtn) editBtn.classList.toggle('hidden', !(item.from === 'me' && item.kind === 'text'));
+            if (speakBtn) speakBtn.classList.toggle('hidden', !(item.kind === 'text' && item.text));
+            document.getElementById('msg-context-modal').classList.remove('hidden');
+        }
+
+        function closeMsgContextMenu() {
+            contextMenuMsgId = null;
+            document.getElementById('msg-context-modal').classList.add('hidden');
+        }
+
+        function ctxCopyAction() {
+            var msgId = contextMenuMsgId;
+            closeMsgContextMenu();
+            var item = findMsgByIdInActiveThread(msgId);
             if (!item) return;
             var txt = String(item.text || item.fileName || '').trim();
             if (!txt) return;
             lastCopiedMessageText = txt;
             copyStringToClipboard(txt);
-            showCopyToast('تم نسخ الرسالة');
+            showCopyToast('تم النسخ');
         }
 
-        function pasteMsgByIdToComposer(msgId) {
-            var list = getThreadMap()[currentPeer] || [];
-            var item = list.find(function(m) { return m.id === msgId && !m.deleted; });
+        function ctxPasteAction() {
+            var msgId = contextMenuMsgId;
+            closeMsgContextMenu();
+            var item = findMsgByIdInActiveThread(msgId);
             var txt = item ? String(item.text || item.fileName || '').trim() : lastCopiedMessageText;
             if (!txt) return;
             lastCopiedMessageText = txt;
             var inp = document.getElementById('msg-box-input');
             if (!inp) return;
             inp.value = inp.value ? (inp.value + ' ' + txt) : txt;
-            setPane('chats');
             inp.focus();
-            showCopyToast('تم لصق الرسالة في حقل الإرسال');
+            showCopyToast('تم اللصق في حقل الإرسال');
+        }
+
+        function ctxEditAction() {
+            var msgId = contextMenuMsgId;
+            closeMsgContextMenu();
+            var item = findMsgByIdInActiveThread(msgId);
+            if (!item || item.from !== 'me' || item.kind !== 'text') return;
+            editingMsgId = item.id;
+            var banner = document.getElementById('editing-msg-banner');
+            if (banner) banner.classList.remove('hidden');
+            var inp = document.getElementById('msg-box-input');
+            if (inp) {
+                inp.value = item.text || '';
+                inp.focus();
+            }
+        }
+
+        function cancelEditMessage() {
+            editingMsgId = null;
+            var banner = document.getElementById('editing-msg-banner');
+            if (banner) banner.classList.add('hidden');
+            var inp = document.getElementById('msg-box-input');
+            if (inp) inp.value = '';
+        }
+
+        function ctxPinAction() {
+            var msgId = contextMenuMsgId;
+            closeMsgContextMenu();
+            if (msgId) pinThreadMsg(msgId);
+        }
+
+        function ctxSpeakAction() {
+            var msgId = contextMenuMsgId;
+            closeMsgContextMenu();
+            var item = findMsgByIdInActiveThread(msgId);
+            if (item && item.text) speakText(item.text);
+        }
+
+        function ctxDeleteAction() {
+            var msgId = contextMenuMsgId;
+            closeMsgContextMenu();
+            var item = findMsgByIdInActiveThread(msgId);
+            if (!item) return;
+            openDeleteModal(item.id, item.from === 'me');
         }
 
         function pasteIntoComposer() {
@@ -811,7 +912,7 @@ const htmlContent = `<!DOCTYPE html>
                     inp.focus();
                     showCopyToast('تم اللصق');
                 }).catch(function() {
-                    if (!lastCopiedMessageText) return alert('الصق النص مباشرة في حقل الكتابة أو استخدم زر لصق بجانب الرسالة.');
+                    if (!lastCopiedMessageText) return alert('الصق النص مباشرة في حقل الكتابة أو اضغط مطولاً على رسالة ثم اختر لصق.');
                     inp.value = inp.value ? (inp.value + ' ' + lastCopiedMessageText) : lastCopiedMessageText;
                     inp.focus();
                     showCopyToast('تم اللصق');
@@ -973,14 +1074,14 @@ const htmlContent = `<!DOCTYPE html>
 
         function loadSavedState() {
             try {
-                var savedActive = localStorage.getItem('sanad88_active') || localStorage.getItem('sanad87_active') || localStorage.getItem('sanad86_active');
-                var savedAccts = JSON.parse(localStorage.getItem('sanad88_accts') || localStorage.getItem('sanad87_accts') || localStorage.getItem('sanad86_accts') || 'null');
-                var savedContacts = JSON.parse(localStorage.getItem('sanad88_contacts') || localStorage.getItem('sanad87_contacts') || localStorage.getItem('sanad86_contacts') || 'null');
-                var savedThreads = JSON.parse(localStorage.getItem('sanad88_threads') || localStorage.getItem('sanad87_threads') || localStorage.getItem('sanad86_threads') || 'null');
-                var savedGroups = JSON.parse(localStorage.getItem('sanad88_groups') || localStorage.getItem('sanad87_groups') || localStorage.getItem('sanad86_groups') || 'null');
-                var savedPins = JSON.parse(localStorage.getItem('sanad88_pins') || localStorage.getItem('sanad87_pins') || localStorage.getItem('sanad86_pins') || 'null');
-                var savedUnread = JSON.parse(localStorage.getItem('sanad88_unread') || localStorage.getItem('sanad87_unread') || 'null');
-                var savedOutbox = JSON.parse(localStorage.getItem('sanad88_outbox') || localStorage.getItem('sanad87_outbox') || 'null');
+                var savedActive = localStorage.getItem('sanad89_active') || localStorage.getItem('sanad88_active') || localStorage.getItem('sanad87_active');
+                var savedAccts = JSON.parse(localStorage.getItem('sanad89_accts') || localStorage.getItem('sanad88_accts') || localStorage.getItem('sanad87_accts') || 'null');
+                var savedContacts = JSON.parse(localStorage.getItem('sanad89_contacts') || localStorage.getItem('sanad88_contacts') || localStorage.getItem('sanad87_contacts') || 'null');
+                var savedThreads = JSON.parse(localStorage.getItem('sanad89_threads') || localStorage.getItem('sanad88_threads') || localStorage.getItem('sanad87_threads') || 'null');
+                var savedGroups = JSON.parse(localStorage.getItem('sanad89_groups') || localStorage.getItem('sanad88_groups') || localStorage.getItem('sanad87_groups') || 'null');
+                var savedPins = JSON.parse(localStorage.getItem('sanad89_pins') || localStorage.getItem('sanad88_pins') || localStorage.getItem('sanad87_pins') || 'null');
+                var savedUnread = JSON.parse(localStorage.getItem('sanad89_unread') || localStorage.getItem('sanad88_unread') || localStorage.getItem('sanad87_unread') || 'null');
+                var savedOutbox = JSON.parse(localStorage.getItem('sanad89_outbox') || localStorage.getItem('sanad88_outbox') || localStorage.getItem('sanad87_outbox') || 'null');
 
                 if (savedActive && cleanIdValue(savedActive) !== '88888888') {
                     activeAcct = cleanIdValue(savedActive);
@@ -1041,7 +1142,7 @@ const htmlContent = `<!DOCTYPE html>
                 if (savedUnread && typeof savedUnread === 'object') unreadByThread = savedUnread;
                 if (Array.isArray(savedOutbox)) outboxQueue = savedOutbox;
 
-                var aiCfg = JSON.parse(localStorage.getItem('sanad88_ai_cfg') || localStorage.getItem('sanad87_ai_cfg') || 'null');
+                var aiCfg = JSON.parse(localStorage.getItem('sanad89_ai_cfg') || localStorage.getItem('sanad88_ai_cfg') || localStorage.getItem('sanad87_ai_cfg') || 'null');
                 if (aiCfg && typeof aiCfg === 'object') {
                     var kEl = document.getElementById('ai-api-key');
                     var eEl = document.getElementById('ai-api-endpoint');
@@ -1053,14 +1154,14 @@ const htmlContent = `<!DOCTYPE html>
 
         function persistState() {
             try {
-                localStorage.setItem('sanad88_active', activeAcct);
-                localStorage.setItem('sanad88_accts', JSON.stringify(myAccts));
-                localStorage.setItem('sanad88_contacts', JSON.stringify(contacts));
-                localStorage.setItem('sanad88_threads', JSON.stringify(acctThreads));
-                localStorage.setItem('sanad88_groups', JSON.stringify(sanadGroups));
-                localStorage.setItem('sanad88_pins', JSON.stringify(pinnedByThread));
-                localStorage.setItem('sanad88_unread', JSON.stringify(unreadByThread));
-                localStorage.setItem('sanad88_outbox', JSON.stringify(outboxQueue));
+                localStorage.setItem('sanad89_active', activeAcct);
+                localStorage.setItem('sanad89_accts', JSON.stringify(myAccts));
+                localStorage.setItem('sanad89_contacts', JSON.stringify(contacts));
+                localStorage.setItem('sanad89_threads', JSON.stringify(acctThreads));
+                localStorage.setItem('sanad89_groups', JSON.stringify(sanadGroups));
+                localStorage.setItem('sanad89_pins', JSON.stringify(pinnedByThread));
+                localStorage.setItem('sanad89_unread', JSON.stringify(unreadByThread));
+                localStorage.setItem('sanad89_outbox', JSON.stringify(outboxQueue));
             } catch (e) {}
         }
 
@@ -1068,7 +1169,7 @@ const htmlContent = `<!DOCTYPE html>
             var kEl = document.getElementById('ai-api-key');
             var eEl = document.getElementById('ai-api-endpoint');
             try {
-                localStorage.setItem('sanad88_ai_cfg', JSON.stringify({
+                localStorage.setItem('sanad89_ai_cfg', JSON.stringify({
                     key: kEl ? kEl.value.trim() : '',
                     endpoint: eEl ? eEl.value.trim() : ''
                 }));
@@ -1180,7 +1281,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!acctThreads[activeAcct]) acctThreads[activeAcct] = {};
             if (!acctThreads[activeAcct][DEFAULT_PEER]) {
                 acctThreads[activeAcct][DEFAULT_PEER] = [
-                    { id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'مرحباً بك في سند AI v8.8، كيف نقدر نخدمك اليوم؟', sentAt: formatTimeShort() }
+                    { id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'مرحباً بك في سند AI v8.9، كيف نقدر نخدمك اليوم؟', sentAt: formatTimeShort() }
                 ];
             }
             return acctThreads[activeAcct];
@@ -1429,7 +1530,7 @@ const htmlContent = `<!DOCTYPE html>
                 var autoChk = document.getElementById('chk-autoreply');
                 if (autoChk && autoChk.checked && msg.kind === 'text' && normalizeStr(sender) !== normalizeStr(recipient)) {
                     var qTxt = String(msg.text || '');
-                    var smartAuto = 'أهلاً بك، تم استلام رسالتك عبر سند AI v8.8 وسنوافيك بالرد الكامل بأسرع وقت.';
+                    var smartAuto = 'أهلاً بك، تم استلام رسالتك عبر سند AI v8.9 وسنوافيك بالرد الكامل بأسرع وقت.';
                     if (qTxt.indexOf('سعر') !== -1 || qTxt.indexOf('باقة') !== -1 || qTxt.indexOf('عرض') !== -1) {
                         smartAuto = 'يسعدنا تزويدك بتفاصيل العروض والباقات؛ يرجى توضيح احتياجك لنرسل لك الخيار الأنسب.';
                     } else if (qTxt.indexOf('موعد') !== -1 || qTxt.indexOf('متى') !== -1) {
@@ -1438,6 +1539,16 @@ const htmlContent = `<!DOCTYPE html>
                         smartAuto = 'العفو، يسعدنا دائماً خدمتك على سند AI.';
                     }
                     emitPacket(sender, 'text', smartAuto, null, '', null, recipient);
+                }
+            } else if (msg.type === 'msg_edit') {
+                var ownerEd = cleanIdValue(msg.to || activeAcct) || activeAcct;
+                var fromPeerEd = cleanIdValue(msg.from || '');
+                if (acctThreads[ownerEd] && acctThreads[ownerEd][fromPeerEd]) {
+                    acctThreads[ownerEd][fromPeerEd] = acctThreads[ownerEd][fromPeerEd].map(function(m) {
+                        if (m.id !== msg.msgId) return m;
+                        return Object.assign({}, m, { text: msg.text || m.text, edited: true, editedAt: msg.editedAt || formatTimeShort() });
+                    });
+                    persistAndDraw();
                 }
             } else if (msg.type === 'msg_delivered') {
                 var ownerDel = cleanIdValue(msg.to || activeAcct) || activeAcct;
@@ -2338,6 +2449,31 @@ const htmlContent = `<!DOCTYPE html>
             if (!inp) return;
             var val = inp.value.trim();
             if (!val) return;
+            if (editingMsgId) {
+                var targetId = editingMsgId;
+                var editedAt = formatTimeShort();
+                var map = getThreadMap();
+                if (map[currentPeer]) {
+                    map[currentPeer] = map[currentPeer].map(function(m) {
+                        if (m.id !== targetId) return m;
+                        return Object.assign({}, m, { text: val, edited: true, editedAt: editedAt });
+                    });
+                }
+                cancelEditMessage();
+                persistAndDraw();
+                var grpEd = findGroupById(currentPeer);
+                if (grpEd && Array.isArray(grpEd.members)) {
+                    grpEd.members.forEach(function(memId) {
+                        var cleanMem = cleanIdValue(memId);
+                        if (cleanMem && normalizeStr(cleanMem) !== normalizeStr(activeAcct)) {
+                            sendSignalingOrMsg({ type: 'msg_edit', to: cleanMem, from: currentPeer, msgId: targetId, text: val, editedAt: editedAt });
+                        }
+                    });
+                } else {
+                    sendSignalingOrMsg({ type: 'msg_edit', to: currentPeer, from: activeAcct, msgId: targetId, text: val, editedAt: editedAt });
+                }
+                return;
+            }
             inp.value = '';
             document.getElementById('smart-replies-bar').classList.add('hidden');
             emitPacket(currentPeer, 'text', val, null, '');
@@ -2530,9 +2666,9 @@ const htmlContent = `<!DOCTYPE html>
                 return;
             }
 
-            var reply = 'مساعد سند AI v8.8 يدعم الظهور المتكامل في الخاص والمجموعات، تذييل الرسائل، النسخ واللصق بعد الإرسال، والمكالمات الجماعية.';
+            var reply = 'مساعد سند AI v8.9 يدعم الضغط المطوّل للنسخ واللصق والتعديل، علبة الوارد لكل معرّف، والظهور المتكامل عند الجميع.';
             if (q.indexOf('نت') !== -1 || q.indexOf('انترنت') !== -1) {
-                reply = 'يعمل سند AI الآن بذاكرة محلية (Service Worker) تتيح لك فتح التطبيق وتصفح الرسائل والجهات والمجموعات حتى عند انقطاع الإنترنت، وتُرسل الرسائل المجهزة تلقائياً فور عودة الشبكة.';
+                reply = 'يعمل سند AI بذاكرة محلية (Service Worker) تتيح تصفح الرسائل والجهات والمجموعات حتى عند انقطاع الإنترنت، وتُرسل الرسائل المجهزة تلقائياً فور عودة الشبكة.';
             } else if (q.indexOf('مجموع') !== -1) {
                 reply = 'من تبويب «المجموعات» يمكنك إنشاء مجموعة جديدة واختيار الأعضاء أو إضافة أعضاء جدد لأي مجموعة في أي وقت ثم الدردشة والمناداة على @سند.';
             } else if (q.indexOf('عميل') !== -1 || q.indexOf('محتوى') !== -1) {
@@ -2788,10 +2924,11 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function buildDeliveryBadge(m) {
+            var editedTag = m.edited ? ' • <span>معدّلة</span>' : '';
             var timePart = m.sentAt ? (' • <span class="font-mono opacity-85">' + escapeHtml(m.sentAt) + '</span>') : '';
-            if (m.read || m.status === 'read') return '<span class="text-emerald-200 font-bold shrink-0">تم قراءتها' + timePart + '</span>';
-            if (m.delivered || m.status === 'delivered') return '<span class="text-teal-100 font-semibold shrink-0">مستلمة' + timePart + '</span>';
-            return '<span class="shrink-0">مرسلة' + timePart + ' • <button type="button" onclick="retryMessage(\\'' + escapeJsSingle(m.id) + '\\')" class="underline">إعادة إرسال</button></span>';
+            if (m.read || m.status === 'read') return '<span class="text-emerald-200 font-bold shrink-0">✓✓ تم قراءتها' + editedTag + timePart + '</span>';
+            if (m.delivered || m.status === 'delivered' || isPeerOnline(currentPeer)) return '<span class="text-teal-100 font-semibold shrink-0">✓✓ مستلمة' + editedTag + timePart + '</span>';
+            return '<span class="shrink-0">✓ مرسلة' + editedTag + timePart + ' • <button type="button" onclick="retryMessage(\\'' + escapeJsSingle(m.id) + '\\')" class="underline">إعادة إرسال</button></span>';
         }
 
         function renderMsgs() {
@@ -2826,20 +2963,22 @@ const htmlContent = `<!DOCTYPE html>
                 if (m.kind === 'audio' && m.mediaUrl) body = '<div class="space-y-1"><audio controls preload="metadata" src="' + escapeHtml(m.mediaUrl) + '" class="max-w-full h-9"></audio><p class="text-[10px] opacity-85">' + escapeHtml(m.text || 'رسالة صوتية') + '</p></div>';
                 else if (m.kind === 'image' && m.mediaUrl) body = '<img src="' + escapeHtml(m.mediaUrl) + '" alt="' + escapeHtml(m.fileName || 'صورة') + '" class="max-w-full max-h-56 rounded-xl object-contain"><p class="text-[11px] mt-1">' + escapeHtml(m.text) + '</p>';
                 else if (m.kind === 'file' && m.mediaUrl) body = '<a href="' + escapeHtml(m.mediaUrl) + '" download="' + escapeHtml(m.fileName || 'file') + '" class="underline flex items-center gap-1.5 text-xs"><i class="fa-solid fa-file-arrow-down"></i><span>' + escapeHtml(m.fileName || m.text) + '</span></a>';
-                var copyBtn = (m.text || m.fileName) ? '<button type="button" onclick="copyMsgById(\\'' + escapeJsSingle(m.id) + '\\')" class="underline ' + (mine ? 'text-teal-100 hover:text-white' : 'text-emerald-300 hover:text-white') + '">نسخ</button>' : '';
-                var pasteBtn = (m.text || m.fileName) ? '<button type="button" onclick="pasteMsgByIdToComposer(\\'' + escapeJsSingle(m.id) + '\\')" class="underline ' + (mine ? 'text-teal-100 hover:text-white' : 'text-sky-300 hover:text-white') + '">لصق</button>' : '';
-                var speakBtn = (m.kind === 'text' && m.text) ? '<button type="button" onclick="speakText(\\'' + escapeJsSingle(m.text) + '\\')" class="underline ' + (mine ? 'text-teal-100 hover:text-white' : 'text-slate-200 hover:text-white') + '">استماع</button>' : '';
-                var pinBtn = '<button type="button" onclick="pinThreadMsg(\\'' + escapeJsSingle(m.id) + '\\')" class="underline ' + (mine ? 'text-teal-100 hover:text-white' : 'text-amber-200 hover:text-white') + '">تثبيت</button>';
-                var incomingFooter = 'مستلمة' + (m.sentAt ? (' • <span class="font-mono opacity-80">' + escapeHtml(m.sentAt) + '</span>') : '');
+                var editedIn = (!mine && m.edited) ? ' • معدّلة' : '';
+                var incomingFooter = '✓✓ مستلمة' + editedIn + (m.sentAt ? (' • <span class="font-mono opacity-80">' + escapeHtml(m.sentAt) + '</span>') : '');
                 var deliveryLabel = mine ? buildDeliveryBadge(m) : '<span class="text-emerald-300 font-semibold shrink-0">' + incomingFooter + '</span>';
+                var safeIdJs = escapeJsSingle(m.id);
                 return '<div class="flex ' + (mine ? 'justify-end' : 'justify-start') + '">' +
-                    '<div class="' + (mine ? 'bg-[#164e63] border border-teal-700/50 text-white rounded-tl-none' : 'bg-[#0f1b29] border border-slate-800 text-slate-100 rounded-tr-none') + ' p-3 rounded-2xl max-w-md text-xs md:text-sm shadow space-y-1">' +
+                    '<div oncontextmenu="event.preventDefault(); openMsgContextMenu(\\'' + safeIdJs + '\\');" ' +
+                    'onpointerdown="var self=this; self.__lpTimer=setTimeout(function(){ openMsgContextMenu(\\'' + safeIdJs + '\\'); }, 520);" ' +
+                    'onpointerup="if(this.__lpTimer){clearTimeout(this.__lpTimer);this.__lpTimer=null;}" ' +
+                    'onpointercancel="if(this.__lpTimer){clearTimeout(this.__lpTimer);this.__lpTimer=null;}" ' +
+                    'onpointerleave="if(this.__lpTimer){clearTimeout(this.__lpTimer);this.__lpTimer=null;}" ' +
+                    'class="' + (mine ? 'bg-[#164e63] border border-teal-700/50 text-white rounded-tl-none' : 'bg-[#0f1b29] border border-slate-800 text-slate-100 rounded-tr-none') + ' p-3 rounded-2xl max-w-md text-xs md:text-sm shadow space-y-1 cursor-pointer">' +
                     senderTag + body +
-                    '<div class="flex justify-between items-center flex-wrap gap-x-3 gap-y-1 pt-1.5 border-t ' + (mine ? 'border-teal-200/20 text-teal-100' : 'border-slate-800 text-slate-400') + ' text-[10px]">' +
+                    '<div class="flex justify-between items-center gap-3 pt-1 text-[10px] ' + (mine ? 'text-teal-100/90' : 'text-slate-400') + '">' +
                     deliveryLabel +
-                    '<div class="flex items-center gap-2.5 flex-wrap shrink-0">' + copyBtn + pasteBtn + pinBtn + speakBtn +
-                    '<button type="button" onclick="openDeleteModal(\\'' + escapeJsSingle(m.id) + '\\', ' + (mine ? 'true' : 'false') + ')" class="underline ' + (mine ? 'text-teal-100 hover:text-white' : 'text-rose-300 hover:text-rose-200') + '">حذف</button>' +
-                    '</div></div></div></div>';
+                    '<button type="button" onclick="event.stopPropagation(); openMsgContextMenu(\\'' + safeIdJs + '\\');" title="خيارات الرسالة" class="opacity-75 hover:opacity-100 px-1"><i class="fa-solid fa-ellipsis"></i></button>' +
+                    '</div></div></div>';
             }).join('');
             if (!q) box.scrollTop = box.scrollHeight;
         }
@@ -3201,5 +3340,5 @@ wss.on('connection', (clientWs) => {
 });
 
 server.listen(PORT, () => {
-    console.log('Sanad AI v8.8 running on port ' + PORT);
+    console.log('Sanad AI v8.9 running on port ' + PORT);
 });

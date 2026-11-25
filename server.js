@@ -1,7 +1,7 @@
 const http = require('http');
 const { WebSocketServer } = require('ws');
 
-const APP_VERSION = '8.9.0';
+const APP_VERSION = '8.9.1';
 const ICON_BG_HEX = '#164e63';
 const ICON_ACCENT_HEX = '#f0fdfa';
 const ICON_SUB_HEX = '#0f3646';
@@ -26,7 +26,7 @@ const sanadIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 5
     <radialGradient id="aiSparkGrad" cx="45%" cy="45%" r="55%">
       <stop offset="0%" stop-color="#ffffff"/>
       <stop offset="55%" stop-color="#ccfbf1"/>
-      <stop offset="100%" stop-color="#164e63" stop-opacity="0"/>
+      <stop offset="100%" stop-color="${ICON_BG_HEX}" stop-opacity="0"/>
     </radialGradient>
   </defs>
   <rect width="512" height="512" fill="url(#sanadBgGrad)"/>
@@ -54,9 +54,9 @@ const sanadIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 5
 </svg>`;
 
 const manifestPayload = JSON.stringify({
-  name: 'Sanad AI v8.9 - سند',
+  name: 'Sanad AI v8.9.1 - سند',
   short_name: 'سند AI',
-  description: 'تطبيق سند AI للتواصل الذكي والمحادثات والمكالمات الفردية والجماعية والعمل بدون إنترنت وتطوير المحتوى',
+  description: 'تطبيق سند AI للتواصل الذكي والمحادثات والمكالمات الفردية والجماعية والعمل بدون إنترنت والمساعدة الصوتية والذكاء الاصطناعي',
   start_url: '/',
   scope: '/',
   display: 'standalone',
@@ -135,7 +135,7 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="سند AI">
     <meta name="theme-color" content="#164e63">
-    <title>سند AI v8.9</title>
+    <title>سند AI v8.9.1</title>
     <link id="sanad-favicon" rel="icon" type="image/svg+xml" href="/icon.svg">
     <link id="sanad-apple-icon" rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
@@ -359,7 +359,7 @@ const htmlContent = `<!DOCTYPE html>
             <div class="min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
                     <h1 class="font-black text-base text-white leading-none">سند</h1>
-                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/60 px-2 py-0.5 rounded-full font-bold">AI v8.9</span>
+                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/60 px-2 py-0.5 rounded-full font-bold">AI v8.9.1</span>
                     <span id="current-tab-badge" class="text-[10px] bg-slate-800/90 text-slate-200 border border-slate-700/80 px-2 py-0.5 rounded-full font-bold">الدردشة</span>
                     <span id="device-badge" class="text-[10px] bg-slate-800/90 text-slate-300 border border-slate-700/60 px-2 py-0.5 rounded-full font-semibold">جهاز</span>
                     <span id="net-badge" class="text-[10px] bg-slate-800/90 text-sky-200 border border-sky-800/50 px-2 py-0.5 rounded-full font-bold">وضع مرن</span>
@@ -377,7 +377,10 @@ const htmlContent = `<!DOCTYPE html>
             </div>
         </div>
 
-        <div class="flex items-center gap-2 shrink-0">
+        <div class="flex items-center gap-1.5 shrink-0">
+            <button type="button" onclick="openAssistedVoiceHub()" title="مساعدة صوتية لمن لا يجيد القراءة والكتابة" class="px-2.5 h-9 rounded-xl bg-emerald-950/80 hover:bg-emerald-800 border border-emerald-700/60 text-emerald-200 hover:text-white flex items-center gap-1 text-[11px] font-bold transition">
+                <i class="fa-solid fa-ear-listen text-xs"></i><span>صوتي</span>
+            </button>
             <button type="button" onclick="launchCall('audio')" title="مكالمة صوتية" class="w-9 h-9 rounded-xl bg-teal-950/70 hover:bg-teal-800 border border-teal-800/60 text-teal-200 hover:text-white flex items-center justify-center transition">
                 <i class="fa-solid fa-phone text-xs"></i>
             </button>
@@ -402,6 +405,85 @@ const htmlContent = `<!DOCTYPE html>
             <p id="toast-body" class="text-slate-200 truncate">...</p>
         </div>
         <span class="bg-teal-950 text-teal-200 border border-teal-800/60 px-2 py-1 rounded-lg text-[10px] font-bold shrink-0">فتح</span>
+    </div>
+
+    <!-- نافذة المساعدة الصوتية والذكية لمن لا يجيد القراءة والكتابة -->
+    <div id="assisted-voice-modal" onclick="if(event.target===this)closeAssistedVoiceHub()" class="hidden fixed inset-0 bg-[#080f18]/85 z-50 flex items-center justify-center p-3.5">
+        <div class="bg-[#0f1b29] border border-teal-700/60 rounded-3xl w-full max-w-md p-4 space-y-3 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div>
+                    <h3 class="text-sm font-black text-teal-200"><i class="fa-solid fa-hands-asl-interpreting ml-1"></i> بروتوكول المساعدة الصوتية والذكية</h3>
+                    <p class="text-[11px] text-slate-400">مصمم للقراءة الصوتية المباشرة، التحدث للكتابة، وتبسيط النصوص بضغطة زر.</p>
+                </div>
+                <button type="button" onclick="closeAssistedVoiceHub()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-xs">
+                <button type="button" onclick="readLastIncomingMessageAloud()" class="bg-emerald-800 hover:bg-emerald-700 text-white py-3 px-3 rounded-2xl font-bold flex flex-col items-center gap-1">
+                    <i class="fa-solid fa-volume-high text-base"></i>
+                    <span>اقرأ آخر رسالة واردة</span>
+                </button>
+                <button type="button" onclick="readWholeThreadAloud()" class="bg-teal-800 hover:bg-teal-700 text-white py-3 px-3 rounded-2xl font-bold flex flex-col items-center gap-1">
+                    <i class="fa-solid fa-book-open-reader text-base"></i>
+                    <span>اقرأ المحادثة صوتياً</span>
+                </button>
+                <button type="button" onclick="closeAssistedVoiceHub(); toggleSpeechDictation();" class="bg-[#164e63] hover:bg-[#1e6078] text-white py-3 px-3 rounded-2xl font-bold flex flex-col items-center gap-1">
+                    <i class="fa-solid fa-microphone-lines text-base"></i>
+                    <span>تحدث لأكتب رسالتك</span>
+                </button>
+                <button type="button" onclick="stopSpeechReading()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-200 py-3 px-3 rounded-2xl font-bold flex flex-col items-center gap-1">
+                    <i class="fa-solid fa-stop text-base"></i>
+                    <span>إيقاف القراءة الصوتية</span>
+                </button>
+            </div>
+
+            <div class="bg-[#080f18] border border-slate-800 rounded-2xl p-3 space-y-2 text-xs">
+                <p class="font-bold text-teal-200">مساعدة الذكاء الاصطناعي للنص الحالي أو الرسالة المحددة:</p>
+                <div class="flex flex-wrap gap-1.5">
+                    <button type="button" onclick="aiTransformCurrentDraft('simplify')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-200 px-2.5 py-1.5 rounded-xl font-bold">تبسيط بلغة سهلة</button>
+                    <button type="button" onclick="aiTransformCurrentDraft('formal')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sky-200 px-2.5 py-1.5 rounded-xl font-bold">صياغة رسمية مرتبة</button>
+                    <button type="button" onclick="aiTransformCurrentDraft('summarize')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-200 px-2.5 py-1.5 rounded-xl font-bold">تلخيص سريع</button>
+                    <button type="button" onclick="readCurrentDraftAloud()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 px-2.5 py-1.5 rounded-xl font-bold">اسمع ما كتبته</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة قراءة الرسالة الطويلة بالكامل -->
+    <div id="long-msg-reader-modal" onclick="if(event.target===this)closeLongMsgReader()" class="hidden fixed inset-0 bg-[#080f18]/85 z-50 flex items-center justify-center p-4">
+        <div class="bg-[#0f1b29] border border-slate-700 rounded-3xl w-full max-w-lg max-h-[82vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+                <span id="long-msg-reader-title" class="text-xs font-black text-teal-200">قراءة الرسالة كاملة</span>
+                <div class="flex items-center gap-2">
+                    <button type="button" id="long-msg-reader-speak-btn" class="bg-teal-900 hover:bg-teal-800 text-teal-100 px-2.5 py-1 rounded-lg text-[11px] font-bold">
+                        <i class="fa-solid fa-volume-high ml-1"></i>استماع
+                    </button>
+                    <button type="button" onclick="closeLongMsgReader()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+            <div id="long-msg-reader-body" class="p-4 overflow-y-auto text-sm leading-relaxed text-slate-100 whitespace-pre-wrap custom-scrollbar"></div>
+        </div>
+    </div>
+
+    <!-- نافذة توسيع ومراجعة حقل الكتابة -->
+    <div id="composer-expand-modal" onclick="if(event.target===this)closeComposerExpand()" class="hidden fixed inset-0 bg-[#080f18]/85 z-50 flex items-center justify-center p-4">
+        <div class="bg-[#0f1b29] border border-teal-700/60 rounded-3xl w-full max-w-lg p-4 space-y-3 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <span class="text-xs font-black text-teal-200"><i class="fa-solid fa-expand ml-1"></i> مراجعة وتحرير الرسالة قبل الإرسال</span>
+                <button type="button" onclick="closeComposerExpand()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <textarea id="expanded-composer-textarea" rows="7" oninput="syncFromExpandedComposer()" placeholder="اكتب رسالتك وراجعها بوضوح هنا..." class="w-full bg-[#080f18] border border-slate-700 rounded-2xl p-3 text-sm leading-relaxed text-white focus:outline-none focus:border-teal-500 custom-scrollbar"></textarea>
+            <div class="flex flex-wrap gap-1.5 text-[11px]">
+                <button type="button" onclick="aiTransformExpanded('simplify')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-200 px-2.5 py-1 rounded-xl font-bold">تبسيط</button>
+                <button type="button" onclick="aiTransformExpanded('formal')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sky-200 px-2.5 py-1 rounded-xl font-bold">رسمي</button>
+                <button type="button" onclick="aiTransformExpanded('summarize')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-200 px-2.5 py-1 rounded-xl font-bold">تلخيص</button>
+                <button type="button" onclick="speakText(document.getElementById('expanded-composer-textarea').value)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 px-2.5 py-1 rounded-xl font-bold"><i class="fa-solid fa-volume-high ml-1"></i>قراءة صوتية</button>
+            </div>
+            <div class="flex justify-end gap-2 pt-1">
+                <button type="button" onclick="closeComposerExpand()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-xl text-xs font-bold">تم</button>
+                <button type="button" onclick="closeComposerExpand(); sendTextMsg();" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-5 py-2 rounded-xl text-xs font-bold">إرسال الآن</button>
+            </div>
+        </div>
     </div>
 
     <!-- قائمة الضغط المطوّل على الرسالة -->
@@ -437,7 +519,7 @@ const htmlContent = `<!DOCTYPE html>
 
     <div id="call-modal" class="hidden fixed inset-0 bg-[#080f18]/95 z-50 flex flex-col items-center justify-between p-4">
         <div class="text-center mt-1">
-            <p class="text-xs text-teal-300 font-bold">سند AI v8.9 • اتصال واضح ومستقر (فردي وجماعي)</p>
+            <p class="text-xs text-teal-300 font-bold">سند AI v8.9.1 • اتصال واضح ومستقر (فردي وجماعي)</p>
             <h2 id="call-peer-title" class="text-lg font-black text-white font-mono mt-0.5">...</h2>
             <p id="call-timer-el" class="text-xs font-mono font-bold text-slate-300 mt-0.5">00:00</p>
             <p id="call-status-msg" class="text-xs text-emerald-300 mt-0.5 font-semibold">جاري الاتصال...</p>
@@ -509,6 +591,7 @@ const htmlContent = `<!DOCTYPE html>
                     <span id="peer-status" class="text-[11px] font-bold text-slate-400 shrink-0 whitespace-nowrap">غير متصل</span>
                 </div>
                 <div class="flex items-center gap-2 shrink-0 text-[11px]">
+                    <button type="button" onclick="readLastIncomingMessageAloud()" title="اقرأ آخر رسالة واردة صوتياً" class="text-emerald-300 hover:text-emerald-200 font-semibold whitespace-nowrap"><i class="fa-solid fa-volume-high ml-0.5"></i>اسمع</button>
                     <button type="button" onclick="toggleThreadSearchBar()" title="بحث داخل رسائل المحادثة" class="text-slate-300 hover:text-white px-1"><i class="fa-solid fa-magnifying-glass"></i></button>
                     <button type="button" onclick="launchCall('audio')" title="اتصال صوتي سريع" class="text-emerald-300 hover:text-emerald-200 px-1"><i class="fa-solid fa-phone"></i></button>
                     <button type="button" onclick="launchCall('video')" title="مكالمة فيديو سريعة" class="text-teal-200 hover:text-white px-1"><i class="fa-solid fa-video"></i></button>
@@ -559,27 +642,29 @@ const htmlContent = `<!DOCTYPE html>
                 <button type="button" onclick="polishDraft('formal')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-slate-200 px-2 py-0.5 rounded shrink-0">رسمي</button>
                 <button type="button" onclick="polishDraft('short')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-slate-200 px-2 py-0.5 rounded shrink-0">مختصر</button>
                 <button type="button" onclick="polishDraft('client')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-teal-200 px-2 py-0.5 rounded shrink-0 font-bold">رد عميل</button>
+                <button type="button" onclick="aiTransformCurrentDraft('simplify')" class="bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-800/60 text-emerald-200 px-2 py-0.5 rounded font-bold shrink-0">تبسيط</button>
+                <button type="button" onclick="openAssistedVoiceHub()" class="bg-sky-950/80 hover:bg-sky-900 border border-sky-800/60 text-sky-200 px-2 py-0.5 rounded font-bold shrink-0"><i class="fa-solid fa-ear-listen ml-0.5"></i>مساعدة صوتية</button>
                 <button type="button" onclick="pasteIntoComposer()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-emerald-200 px-2 py-0.5 rounded font-bold shrink-0"><i class="fa-solid fa-paste ml-1"></i>لصق</button>
                 <button type="button" onclick="insertSanadMention()" class="bg-teal-950/80 hover:bg-teal-900 border border-teal-800/60 text-teal-200 px-2 py-0.5 rounded font-bold shrink-0">@سند</button>
             </div>
 
-            <div class="p-2.5 bg-[#0f1b29] border-t border-slate-800 flex items-center gap-1.5 shrink-0">
+            <div class="p-2.5 bg-[#0f1b29] border-t border-slate-800 flex items-end gap-1.5 shrink-0">
                 <input type="file" id="attach-file" class="hidden" onchange="onFilePicked(event)">
-                <button type="button" onclick="document.getElementById('attach-file').click()" title="إرفاق ملف أو صورة" class="text-slate-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition">
+                <button type="button" onclick="document.getElementById('attach-file').click()" title="إرفاق ملف أو صورة" class="text-slate-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition shrink-0">
                     <i class="fa-solid fa-paperclip text-base"></i>
                 </button>
-                <button type="button" id="dictate-btn" onclick="toggleSpeechDictation()" title="إملاء صوتي" class="text-slate-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition">
+                <button type="button" id="dictate-btn" onclick="toggleSpeechDictation()" title="تحدث بالصوت لتحويل كلامك إلى كتابة" class="text-emerald-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition shrink-0">
                     <i class="fa-solid fa-language text-base"></i>
                 </button>
-                <button type="button" onclick="polishDraft('friendly')" title="تحسين الصياغة" class="text-slate-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-wand-magic-sparkles text-base"></i>
+                <button type="button" onclick="openComposerExpand()" title="توسيع ومراجعة النص الطويل" class="text-teal-200 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition shrink-0">
+                    <i class="fa-solid fa-expand text-base"></i>
                 </button>
-                <input type="text" id="msg-box-input" onkeydown="if(event.key==='Enter'){event.preventDefault();sendTextMsg();}" placeholder="اكتب رسالتك أو ردّك أو استخدم @سند..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-teal-600">
-                <span id="rec-timer" class="hidden text-[11px] font-mono font-bold text-teal-300 px-1">00:00</span>
-                <button type="button" id="voice-btn" onclick="toggleVoiceCapture()" title="تسجيل رسالة صوتية" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white p-2.5 rounded-xl transition">
+                <textarea id="msg-box-input" rows="1" oninput="autoResizeComposer(this)" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendTextMsg();}" placeholder="اكتب رسالتك أو راجعها أو استخدم @سند..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm leading-relaxed text-white placeholder-slate-400 focus:outline-none focus:border-teal-600 resize-none max-h-32 overflow-y-auto custom-scrollbar"></textarea>
+                <span id="rec-timer" class="hidden text-[11px] font-mono font-bold text-teal-300 px-1 py-2 shrink-0">00:00</span>
+                <button type="button" id="voice-btn" onclick="toggleVoiceCapture()" title="تسجيل رسالة صوتية" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white p-2.5 rounded-xl transition shrink-0">
                     <i class="fa-solid fa-microphone text-base"></i>
                 </button>
-                <button type="button" onclick="sendTextMsg()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2.5 rounded-xl text-sm font-bold transition shadow">
+                <button type="button" onclick="sendTextMsg()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2.5 rounded-xl text-sm font-bold transition shadow shrink-0">
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
             </div>
@@ -695,7 +780,7 @@ const htmlContent = `<!DOCTYPE html>
             <div class="bg-[#0f1b29] border border-slate-800 p-4 rounded-2xl space-y-2.5">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-black text-teal-200"><i class="fa-solid fa-brain ml-1"></i> مساعد سند AI وتطوير المحتوى</h2>
-                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/50 px-2 py-0.5 rounded-full font-bold">v8.9</span>
+                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/50 px-2 py-0.5 rounded-full font-bold">v8.9.1</span>
                 </div>
                 <div class="flex items-center justify-between bg-[#080f18] p-3 rounded-xl border border-slate-800 text-xs">
                     <span>وضع توفير البيانات للشبكات الضعيفة</span>
@@ -718,6 +803,8 @@ const htmlContent = `<!DOCTYPE html>
                     <input type="text" id="ai-api-endpoint" placeholder="رابط API اختياري (مثال: .../v1/chat)" class="w-full bg-[#0f1b29] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
                 </div>
                 <div class="grid grid-cols-2 gap-2 pt-1">
+                    <button type="button" onclick="readLastIncomingMessageAloud()" class="bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-800/60 text-emerald-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-volume-high ml-1"></i>قراءة آخر رسالة</button>
+                    <button type="button" onclick="aiTransformCurrentDraft('simplify')" class="bg-sky-950/80 hover:bg-sky-900 border border-sky-800/60 text-sky-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-wand-magic-sparkles ml-1"></i>تبسيط النص</button>
                     <button type="button" onclick="extractTasksFromThread()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-list-check ml-1"></i>استخراج مهام</button>
                     <button type="button" onclick="suggestSmartReplies()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-bolt ml-1"></i>ردود ذكية</button>
                     <button type="button" onclick="craftCustomerContent('promo')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-bullhorn ml-1"></i>صياغة رسالة عميل</button>
@@ -728,7 +815,7 @@ const htmlContent = `<!DOCTYPE html>
                     <button type="button" onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
                 </div>
                 <div id="ai-log" class="bg-[#080f18] border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">مرحباً بك في سند AI v8.9 — رد مباشر على أي رسالة + ضغط مطوّل + مزامنة فورية للرسائل.</div>
+                    <div class="text-slate-400">مرحباً بك في سند AI v8.9.1 — حقل كتابة متوسع + قراءة وتبسيط للرسائل الطويلة + مساعدة صوتية ذكية.</div>
                 </div>
                 <div class="flex gap-2">
                     <input type="text" id="ai-q" onkeydown="if(event.key==='Enter')askSanadAI()" placeholder="اسأل سند AI أو اطلب صياغة محتوى للعملاء..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
@@ -779,6 +866,7 @@ const htmlContent = `<!DOCTYPE html>
         var isGroupCallActive = false;
         var pinnedByThread = {};
         var unreadByThread = {};
+        var expandedLongMsgIds = new Set();
         var currentPeer = DEFAULT_PEER;
         var activePane = 'chats';
         var onlinePeers = new Set();
@@ -817,6 +905,149 @@ const htmlContent = `<!DOCTYPE html>
             } catch (e) {
                 return '';
             }
+        }
+
+        function autoResizeComposer(el) {
+            if (!el) return;
+            el.style.height = 'auto';
+            var nextH = Math.min(el.scrollHeight, 128);
+            el.style.height = Math.max(nextH, 40) + 'px';
+        }
+
+        function openComposerExpand() {
+            var inp = document.getElementById('msg-box-input');
+            var ta = document.getElementById('expanded-composer-textarea');
+            if (!ta) return;
+            ta.value = inp ? inp.value : '';
+            document.getElementById('composer-expand-modal').classList.remove('hidden');
+            ta.focus();
+        }
+
+        function closeComposerExpand() {
+            syncFromExpandedComposer();
+            document.getElementById('composer-expand-modal').classList.add('hidden');
+        }
+
+        function syncFromExpandedComposer() {
+            var inp = document.getElementById('msg-box-input');
+            var ta = document.getElementById('expanded-composer-textarea');
+            if (inp && ta) {
+                inp.value = ta.value;
+                autoResizeComposer(inp);
+            }
+        }
+
+        function transformTextWithProtocol(rawText, mode) {
+            var src = String(rawText || '').replace(/\\s+/g, ' ').trim();
+            if (!src) return '';
+            if (mode === 'simplify') {
+                var parts = src.split(/[.!؟،]+/).map(function(s) { return s.trim(); }).filter(Boolean);
+                var shortCore = parts.slice(0, 3).join('، ');
+                return 'ببساطة: ' + (shortCore.length > 220 ? shortCore.slice(0, 220).trim() + '...' : shortCore);
+            }
+            if (mode === 'formal') {
+                return 'السلام عليكم ورحمة الله وبركاته، نعرض لحضراتكم بكل وضوح وتقدير: ' + src;
+            }
+            if (mode === 'summarize') {
+                var sentences = src.split(/[.!؟]+/).map(function(s) { return s.trim(); }).filter(Boolean);
+                return 'ملخص الفكرة: ' + (sentences.slice(0, 2).join(' — ') || src.slice(0, 180));
+            }
+            return src;
+        }
+
+        function aiTransformCurrentDraft(mode) {
+            var inp = document.getElementById('msg-box-input');
+            var sourceText = inp && inp.value.trim() ? inp.value.trim() : '';
+            if (!sourceText) {
+                var list = (getThreadMap()[currentPeer] || []).filter(function(m) { return !m.deleted && m.kind === 'text' && m.text; });
+                var lastMsg = list.length ? list[list.length - 1] : null;
+                if (!lastMsg) return alert('اكتب نصاً أو اختر رسالة نصية ليقوم الذكاء الاصطناعي بمعالجتها.');
+                sourceText = lastMsg.text;
+            }
+            var transformed = transformTextWithProtocol(sourceText, mode);
+            if (inp) {
+                inp.value = transformed;
+                autoResizeComposer(inp);
+                inp.focus();
+            }
+            var ta = document.getElementById('expanded-composer-textarea');
+            if (ta && !document.getElementById('composer-expand-modal').classList.contains('hidden')) {
+                ta.value = transformed;
+            }
+            speakText(transformed);
+        }
+
+        function aiTransformExpanded(mode) {
+            var ta = document.getElementById('expanded-composer-textarea');
+            if (!ta || !ta.value.trim()) return;
+            ta.value = transformTextWithProtocol(ta.value, mode);
+            syncFromExpandedComposer();
+            speakText(ta.value);
+        }
+
+        function openAssistedVoiceHub() {
+            document.getElementById('assisted-voice-modal').classList.remove('hidden');
+        }
+
+        function closeAssistedVoiceHub() {
+            document.getElementById('assisted-voice-modal').classList.add('hidden');
+        }
+
+        function stopSpeechReading() {
+            try {
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            } catch (e) {}
+        }
+
+        function readLastIncomingMessageAloud() {
+            var list = (getThreadMap()[currentPeer] || []).filter(function(m) { return !m.deleted && m.kind === 'text' && m.text; });
+            var lastIn = list.slice().reverse().find(function(m) { return m.from === 'them'; }) || list[list.length - 1];
+            if (!lastIn || !lastIn.text) return alert('لا توجد رسالة نصية للقراءة الصوتية الآن.');
+            closeAssistedVoiceHub();
+            speakText(lastIn.text);
+        }
+
+        function readWholeThreadAloud() {
+            var list = (getThreadMap()[currentPeer] || []).filter(function(m) { return !m.deleted && m.kind === 'text' && m.text; }).slice(-6);
+            if (!list.length) return alert('لا توجد رسائل نصية في هذه المحادثة.');
+            var fullSpoken = list.map(function(m) {
+                return (m.from === 'me' ? 'أنت قلت: ' : ((m.senderName || 'الطرف الآخر') + ' قال: ')) + m.text;
+            }).join(' ... ');
+            closeAssistedVoiceHub();
+            speakText(fullSpoken);
+        }
+
+        function readCurrentDraftAloud() {
+            var inp = document.getElementById('msg-box-input');
+            var txt = inp ? inp.value.trim() : '';
+            if (!txt) return alert('لا يوجد نص مكتوب حالياً لقراءته.');
+            closeAssistedVoiceHub();
+            speakText(txt);
+        }
+
+        function toggleLongMsgExpand(msgId) {
+            if (!msgId) return;
+            if (expandedLongMsgIds.has(msgId)) expandedLongMsgIds.delete(msgId);
+            else expandedLongMsgIds.add(msgId);
+            renderMsgs();
+        }
+
+        function openLongMsgReader(msgId) {
+            var item = findMsgByIdInActiveThread(msgId);
+            if (!item || item.deleted) return;
+            var titleEl = document.getElementById('long-msg-reader-title');
+            var bodyEl = document.getElementById('long-msg-reader-body');
+            var speakBtn = document.getElementById('long-msg-reader-speak-btn');
+            if (titleEl) titleEl.textContent = (item.from === 'me' ? 'رسالتك' : (item.senderName || formatPeerDisplay(currentPeer))) + (item.sentAt ? (' • ' + item.sentAt) : '');
+            if (bodyEl) bodyEl.textContent = item.text || '';
+            if (speakBtn) {
+                speakBtn.onclick = function() { speakText(item.text || ''); };
+            }
+            document.getElementById('long-msg-reader-modal').classList.remove('hidden');
+        }
+
+        function closeLongMsgReader() {
+            document.getElementById('long-msg-reader-modal').classList.add('hidden');
         }
 
         function showCopyToast(labelText) {
@@ -933,6 +1164,7 @@ const htmlContent = `<!DOCTYPE html>
             var inp = document.getElementById('msg-box-input');
             if (!inp) return;
             inp.value = inp.value ? (inp.value + ' ' + txt) : txt;
+            autoResizeComposer(inp);
             inp.focus();
             showCopyToast('تم اللصق في حقل الإرسال');
         }
@@ -949,6 +1181,7 @@ const htmlContent = `<!DOCTYPE html>
             var inp = document.getElementById('msg-box-input');
             if (inp) {
                 inp.value = item.text || '';
+                autoResizeComposer(inp);
                 inp.focus();
             }
         }
@@ -958,7 +1191,10 @@ const htmlContent = `<!DOCTYPE html>
             var banner = document.getElementById('editing-msg-banner');
             if (banner) banner.classList.add('hidden');
             var inp = document.getElementById('msg-box-input');
-            if (inp) inp.value = '';
+            if (inp) {
+                inp.value = '';
+                autoResizeComposer(inp);
+            }
         }
 
         function ctxPinAction() {
@@ -991,16 +1227,19 @@ const htmlContent = `<!DOCTYPE html>
                     if (!finalTxt) return alert('لا يوجد نص منسوخ للصقه.');
                     lastCopiedMessageText = finalTxt;
                     inp.value = inp.value ? (inp.value + ' ' + finalTxt) : finalTxt;
+                    autoResizeComposer(inp);
                     inp.focus();
                     showCopyToast('تم اللصق');
                 }).catch(function() {
                     if (!lastCopiedMessageText) return alert('الصق النص مباشرة في حقل الكتابة أو اضغط مطولاً على رسالة ثم اختر لصق.');
                     inp.value = inp.value ? (inp.value + ' ' + lastCopiedMessageText) : lastCopiedMessageText;
+                    autoResizeComposer(inp);
                     inp.focus();
                     showCopyToast('تم اللصق');
                 });
             } else if (lastCopiedMessageText) {
                 inp.value = inp.value ? (inp.value + ' ' + lastCopiedMessageText) : lastCopiedMessageText;
+                autoResizeComposer(inp);
                 inp.focus();
                 showCopyToast('تم اللصق');
             }
@@ -1156,14 +1395,14 @@ const htmlContent = `<!DOCTYPE html>
 
         function loadSavedState() {
             try {
-                var savedActive = localStorage.getItem('sanad89_active') || localStorage.getItem('sanad88_active') || localStorage.getItem('sanad87_active');
-                var savedAccts = JSON.parse(localStorage.getItem('sanad89_accts') || localStorage.getItem('sanad88_accts') || localStorage.getItem('sanad87_accts') || 'null');
-                var savedContacts = JSON.parse(localStorage.getItem('sanad89_contacts') || localStorage.getItem('sanad88_contacts') || localStorage.getItem('sanad87_contacts') || 'null');
-                var savedThreads = JSON.parse(localStorage.getItem('sanad89_threads') || localStorage.getItem('sanad88_threads') || localStorage.getItem('sanad87_threads') || 'null');
-                var savedGroups = JSON.parse(localStorage.getItem('sanad89_groups') || localStorage.getItem('sanad88_groups') || localStorage.getItem('sanad87_groups') || 'null');
-                var savedPins = JSON.parse(localStorage.getItem('sanad89_pins') || localStorage.getItem('sanad88_pins') || localStorage.getItem('sanad87_pins') || 'null');
-                var savedUnread = JSON.parse(localStorage.getItem('sanad89_unread') || localStorage.getItem('sanad88_unread') || localStorage.getItem('sanad87_unread') || 'null');
-                var savedOutbox = JSON.parse(localStorage.getItem('sanad89_outbox') || localStorage.getItem('sanad88_outbox') || localStorage.getItem('sanad87_outbox') || 'null');
+                var savedActive = localStorage.getItem('sanad891_active') || localStorage.getItem('sanad89_active') || localStorage.getItem('sanad88_active');
+                var savedAccts = JSON.parse(localStorage.getItem('sanad891_accts') || localStorage.getItem('sanad89_accts') || 'null');
+                var savedContacts = JSON.parse(localStorage.getItem('sanad891_contacts') || localStorage.getItem('sanad89_contacts') || 'null');
+                var savedThreads = JSON.parse(localStorage.getItem('sanad891_threads') || localStorage.getItem('sanad89_threads') || 'null');
+                var savedGroups = JSON.parse(localStorage.getItem('sanad891_groups') || localStorage.getItem('sanad89_groups') || 'null');
+                var savedPins = JSON.parse(localStorage.getItem('sanad891_pins') || localStorage.getItem('sanad89_pins') || 'null');
+                var savedUnread = JSON.parse(localStorage.getItem('sanad891_unread') || localStorage.getItem('sanad89_unread') || 'null');
+                var savedOutbox = JSON.parse(localStorage.getItem('sanad891_outbox') || localStorage.getItem('sanad89_outbox') || 'null');
 
                 if (savedActive && cleanIdValue(savedActive) !== '88888888') {
                     activeAcct = cleanIdValue(savedActive);
@@ -1224,7 +1463,7 @@ const htmlContent = `<!DOCTYPE html>
                 if (savedUnread && typeof savedUnread === 'object') unreadByThread = savedUnread;
                 if (Array.isArray(savedOutbox)) outboxQueue = savedOutbox;
 
-                var aiCfg = JSON.parse(localStorage.getItem('sanad89_ai_cfg') || localStorage.getItem('sanad88_ai_cfg') || localStorage.getItem('sanad87_ai_cfg') || 'null');
+                var aiCfg = JSON.parse(localStorage.getItem('sanad891_ai_cfg') || localStorage.getItem('sanad89_ai_cfg') || 'null');
                 if (aiCfg && typeof aiCfg === 'object') {
                     var kEl = document.getElementById('ai-api-key');
                     var eEl = document.getElementById('ai-api-endpoint');
@@ -1236,14 +1475,14 @@ const htmlContent = `<!DOCTYPE html>
 
         function persistState() {
             try {
-                localStorage.setItem('sanad89_active', activeAcct);
-                localStorage.setItem('sanad89_accts', JSON.stringify(myAccts));
-                localStorage.setItem('sanad89_contacts', JSON.stringify(contacts));
-                localStorage.setItem('sanad89_threads', JSON.stringify(acctThreads));
-                localStorage.setItem('sanad89_groups', JSON.stringify(sanadGroups));
-                localStorage.setItem('sanad89_pins', JSON.stringify(pinnedByThread));
-                localStorage.setItem('sanad89_unread', JSON.stringify(unreadByThread));
-                localStorage.setItem('sanad89_outbox', JSON.stringify(outboxQueue));
+                localStorage.setItem('sanad891_active', activeAcct);
+                localStorage.setItem('sanad891_accts', JSON.stringify(myAccts));
+                localStorage.setItem('sanad891_contacts', JSON.stringify(contacts));
+                localStorage.setItem('sanad891_threads', JSON.stringify(acctThreads));
+                localStorage.setItem('sanad891_groups', JSON.stringify(sanadGroups));
+                localStorage.setItem('sanad891_pins', JSON.stringify(pinnedByThread));
+                localStorage.setItem('sanad891_unread', JSON.stringify(unreadByThread));
+                localStorage.setItem('sanad891_outbox', JSON.stringify(outboxQueue));
             } catch (e) {}
         }
 
@@ -1251,7 +1490,7 @@ const htmlContent = `<!DOCTYPE html>
             var kEl = document.getElementById('ai-api-key');
             var eEl = document.getElementById('ai-api-endpoint');
             try {
-                localStorage.setItem('sanad89_ai_cfg', JSON.stringify({
+                localStorage.setItem('sanad891_ai_cfg', JSON.stringify({
                     key: kEl ? kEl.value.trim() : '',
                     endpoint: eEl ? eEl.value.trim() : ''
                 }));
@@ -1363,7 +1602,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!acctThreads[activeAcct]) acctThreads[activeAcct] = {};
             if (!acctThreads[activeAcct][DEFAULT_PEER]) {
                 acctThreads[activeAcct][DEFAULT_PEER] = [
-                    { id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'مرحباً بك في سند AI v8.9، كيف نقدر نخدمك اليوم؟', sentAt: formatTimeShort() }
+                    { id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'مرحباً بك في سند AI v8.9.1، كيف نقدر نخدمك اليوم؟', sentAt: formatTimeShort() }
                 ];
             }
             return acctThreads[activeAcct];
@@ -1632,7 +1871,7 @@ const htmlContent = `<!DOCTYPE html>
                 var autoChk = document.getElementById('chk-autoreply');
                 if (autoChk && autoChk.checked && msg.kind === 'text' && normalizeStr(sender) !== normalizeStr(recipient)) {
                     var qTxt = String(msg.text || '');
-                    var smartAuto = 'أهلاً بك، تم استلام رسالتك عبر سند AI v8.9 وسنوافيك بالرد الكامل بأسرع وقت.';
+                    var smartAuto = 'أهلاً بك، تم استلام رسالتك عبر سند AI v8.9.1 وسنوافيك بالرد الكامل بأسرع وقت.';
                     if (qTxt.indexOf('سعر') !== -1 || qTxt.indexOf('باقة') !== -1 || qTxt.indexOf('عرض') !== -1) {
                         smartAuto = 'يسعدنا تزويدك بتفاصيل العروض والباقات؛ يرجى توضيح احتياجك لنرسل لك الخيار الأنسب.';
                     } else if (qTxt.indexOf('موعد') !== -1 || qTxt.indexOf('متى') !== -1) {
@@ -2359,15 +2598,16 @@ const htmlContent = `<!DOCTYPE html>
                         if (transcript) {
                             var inp = document.getElementById('msg-box-input');
                             inp.value = (inp.value ? inp.value + ' ' : '') + transcript;
+                            autoResizeComposer(inp);
                         }
                     };
                     speechRec.onend = function() {
                         dictating = false;
-                        btn.className = 'text-slate-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition';
+                        btn.className = 'text-emerald-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition shrink-0';
                     };
                     speechRec.start();
                     dictating = true;
-                    btn.className = 'bg-[#164e63] text-white p-2 rounded-xl animate-pulse';
+                    btn.className = 'bg-[#164e63] text-white p-2 rounded-xl animate-pulse shrink-0';
                 } catch (e) {
                     dictating = false;
                 }
@@ -2398,7 +2638,7 @@ const htmlContent = `<!DOCTYPE html>
             var timerEl = document.getElementById('rec-timer');
             var btn = document.getElementById('voice-btn');
             if (timerEl) timerEl.classList.add('hidden');
-            if (btn) btn.className = 'bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white p-2.5 rounded-xl transition';
+            if (btn) btn.className = 'bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white p-2.5 rounded-xl transition shrink-0';
             if (stream) stream.getTracks().forEach(function(t) { t.stop(); });
             capturingAudio = false;
             mediaRec = null;
@@ -2444,7 +2684,7 @@ const htmlContent = `<!DOCTYPE html>
                         recSeconds += 1;
                         timerEl.textContent = formatTimer(recSeconds);
                     }, 1000);
-                    btn.className = 'bg-[#164e63] text-white p-2.5 rounded-xl animate-pulse';
+                    btn.className = 'bg-[#164e63] text-white p-2.5 rounded-xl animate-pulse shrink-0';
                 }).catch(function() { resetVoiceUi(null); alert('يرجى السماح بالوصول إلى الميكروفون.'); });
             } else {
                 try {
@@ -2587,6 +2827,7 @@ const htmlContent = `<!DOCTYPE html>
                 return;
             }
             inp.value = '';
+            autoResizeComposer(inp);
             document.getElementById('smart-replies-bar').classList.add('hidden');
             emitPacket(currentPeer, 'text', val, null, '');
         }
@@ -2597,6 +2838,7 @@ const htmlContent = `<!DOCTYPE html>
             if (inp.value.indexOf('@سند') === -1) {
                 inp.value = '@سند ' + inp.value.trim();
             }
+            autoResizeComposer(inp);
             inp.focus();
         }
 
@@ -2685,6 +2927,7 @@ const htmlContent = `<!DOCTYPE html>
                 if (cleaned.indexOf('أهلاً') !== 0 && cleaned.length < 50) cleaned = 'أهلاً بك، ' + cleaned;
             }
             inp.value = /[.!؟…]$/.test(cleaned) ? cleaned : cleaned + '.';
+            autoResizeComposer(inp);
         }
 
         function craftCustomerContent(mode) {
@@ -2736,6 +2979,7 @@ const htmlContent = `<!DOCTYPE html>
         function applySmartReply(txt) {
             var inp = document.getElementById('msg-box-input');
             inp.value = txt;
+            autoResizeComposer(inp);
             inp.focus();
         }
 
@@ -2778,7 +3022,7 @@ const htmlContent = `<!DOCTYPE html>
                 return;
             }
 
-            var reply = 'مساعد سند AI v8.9 يدعم الرد المباشر على أي رسالة مع اقتباس مرتب، والضغط المطوّل، ومزامنة الرسائل بين الحسابات.';
+            var reply = 'مساعد سند AI v8.9.1 يدعم القراءة الصوتية للرسائل، التحدث للكتابة، تبسيط النصوص الطويلة، والرد الفوري داخل المحادثة.';
             if (q.indexOf('نت') !== -1 || q.indexOf('انترنت') !== -1) {
                 reply = 'يعمل سند AI بذاكرة محلية (Service Worker) تتيح تصفح الرسائل والجهات والمجموعات حتى عند انقطاع الإنترنت، وتُرسل الرسائل المجهزة تلقائياً فور عودة الشبكة.';
             } else if (q.indexOf('مجموع') !== -1) {
@@ -3082,14 +3326,26 @@ const htmlContent = `<!DOCTYPE html>
                         '<p class="font-extrabold text-[10px] text-teal-200 truncate"><i class="fa-solid fa-reply ml-1"></i>' + escapeHtml(m.replyTo.senderLabel || 'رد') + '</p>' +
                         '<p class="text-slate-200/90 truncate">' + escapeHtml(m.replyTo.snippet || '') + '</p></div>';
                 }
-                var body = '<p class="whitespace-pre-wrap break-words">' + escapeHtml(m.text) + '</p>';
+                var safeIdJs = escapeJsSingle(m.id);
+                var rawTextStr = String(m.text || '');
+                var isLongText = (m.kind === 'text') && (rawTextStr.length > 360 || rawTextStr.split(/\\n/).length > 7);
+                var isExpanded = expandedLongMsgIds.has(m.id);
+                var shownText = (isLongText && !isExpanded) ? (rawTextStr.slice(0, 340).trim() + '...') : rawTextStr;
+
+                var body = '<p class="whitespace-pre-wrap break-words leading-relaxed">' + escapeHtml(shownText) + '</p>';
+                if (isLongText) {
+                    body += '<div class="flex items-center gap-3 mt-1.5 pt-1 border-t border-white/10 text-[10px] font-bold">' +
+                        '<button type="button" onclick="event.stopPropagation(); toggleLongMsgExpand(\\'' + safeIdJs + '\\');" class="underline text-teal-200">' + (isExpanded ? 'إخفاء الطويل' : 'عرض الكل') + '</button>' +
+                        '<button type="button" onclick="event.stopPropagation(); openLongMsgReader(\\'' + safeIdJs + '\\');" class="underline text-emerald-200">قراءة مريحة</button>' +
+                        '<button type="button" onclick="event.stopPropagation(); speakText(\\'' + escapeJsSingle(rawTextStr) + '\\');" class="underline text-sky-200"><i class="fa-solid fa-volume-high ml-0.5"></i>استماع</button>' +
+                        '</div>';
+                }
                 if (m.kind === 'audio' && m.mediaUrl) body = '<div class="space-y-1"><audio controls preload="metadata" src="' + escapeHtml(m.mediaUrl) + '" class="max-w-full h-9"></audio><p class="text-[10px] opacity-85">' + escapeHtml(m.text || 'رسالة صوتية') + '</p></div>';
                 else if (m.kind === 'image' && m.mediaUrl) body = '<img src="' + escapeHtml(m.mediaUrl) + '" alt="' + escapeHtml(m.fileName || 'صورة') + '" class="max-w-full max-h-56 rounded-xl object-contain"><p class="text-[11px] mt-1">' + escapeHtml(m.text) + '</p>';
                 else if (m.kind === 'file' && m.mediaUrl) body = '<a href="' + escapeHtml(m.mediaUrl) + '" download="' + escapeHtml(m.fileName || 'file') + '" class="underline flex items-center gap-1.5 text-xs"><i class="fa-solid fa-file-arrow-down"></i><span>' + escapeHtml(m.fileName || m.text) + '</span></a>';
                 var editedIn = (!mine && m.edited) ? ' • معدّلة' : '';
                 var incomingFooter = '✓✓ مستلمة' + editedIn + (m.sentAt ? (' • <span class="font-mono opacity-80">' + escapeHtml(m.sentAt) + '</span>') : '');
                 var deliveryLabel = mine ? buildDeliveryBadge(m) : '<span class="text-emerald-300 font-semibold shrink-0">' + incomingFooter + '</span>';
-                var safeIdJs = escapeJsSingle(m.id);
                 var safeDomMsgId = String(m.id).replace(/[^a-zA-Z0-9_-]/g, '_');
                 return '<div id="msg-item-' + escapeHtml(safeDomMsgId) + '" class="flex ' + (mine ? 'justify-end' : 'justify-start') + '">' +
                     '<div oncontextmenu="event.preventDefault(); openMsgContextMenu(\\'' + safeIdJs + '\\');" ' +
@@ -3466,5 +3722,5 @@ wss.on('connection', (clientWs) => {
 });
 
 server.listen(PORT, () => {
-    console.log('Sanad AI v8.9 running on port ' + PORT);
+    console.log('Sanad AI v8.9.1 running on port ' + PORT);
 });

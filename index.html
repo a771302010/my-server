@@ -3,274 +3,325 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>سند AI — الإصدار 9.0.0</title>
+  <title>سند AI -- الإصدار 9.0.0</title>
 
-  <meta name="theme-color" content="#0b3b49" />
-  <meta name="msapplication-TileColor" content="#0b3b49" />
-  <meta name="msapplication-TileImage" content="./icons/icon-192.png?v=5" />
+  <meta name="theme-color" content="#071922" />
+  <meta name="msapplication-TileColor" content="#071922" />
+  <meta name="msapplication-TileImage" content="./icons/icon-192.png?v=6" />
 
-  <link rel="icon" href="./icons/sanad-icon.svg?v=5" type="image/svg+xml" />
-  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png?v=5" />
-  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png?v=5" />
-  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png?v=5" />
+  <link rel="icon" href="./icons/sanad-icon.svg?v=6" type="image/svg+xml" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png?v=6" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png?v=6" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png?v=6" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="سند AI" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="manifest" href="./manifest.json?v=5" />
+  <link rel="manifest" href="./manifest.json?v=6" />
 
   <style>
-<<<<<<< main
-    :root { 
-      --bg: #0b1220;
-      --surface: #121c30;
-      --surface-2: #182540;
-      --border: #26385c;
-      --text: #eef4ff;
-      --muted: #98adc9;
-      --primary: #0b84ff;
-      --primary-hover: #006ce0;
-      --success: #16a34a;
-      --warn: #eab308;
-=======
     :root {
-      --bg: #071419;
-      --surface: #0c1d24;
-      --surface-2: #122933;
-      --surface-3: #183643;
-      --border: #1e4352;
-      --text: #f3f9fb;
-      --muted: #98bac6;
-      --teal: #0b3b49;
-      --accent: #14b8a6;
-      --accent-dark: #0d9488;
-      --read: #38bdf8;
->>>>>>> origin/main
+      --bg-app: #040d12;
+      --bg-shell: #07161e;
+      --bg-card: #0c212c;
+      --bg-card-2: #112c3b;
+      --bg-input: #091922;
+      --border: rgba(56, 189, 248, 0.16);
+      --border-strong: rgba(20, 184, 166, 0.34);
+      --text: #f1f8fb;
+      --text-sub: #94b3c2;
+      --brand-teal: #0b3b49;
+      --brand-accent: #14b8a6;
+      --brand-cyan: #38bdf8;
+      --brand-glow: rgba(20, 184, 166, 0.22);
       --danger: #ef4444;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100dvh;
       overflow: hidden;
-      background: var(--bg);
+      background:
+        radial-gradient(circle at 85% 8%, rgba(20, 184, 166, 0.14), transparent 36%),
+        radial-gradient(circle at 12% 92%, rgba(56, 189, 248, 0.12), transparent 40%),
+        var(--bg-app);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Arial, sans-serif;
     }
 
-    .app {
+    .app-frame {
       width: 100%;
       height: 100dvh;
+      max-width: 960px;
+      margin: 0 auto;
       display: flex;
       flex-direction: column;
+      background: var(--bg-shell);
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
       padding-top: var(--safe-top);
       padding-bottom: var(--safe-bottom);
-      background: var(--bg);
       position: relative;
+      box-shadow: 0 0 60px rgba(0, 0, 0, 0.65);
     }
 
     .screen {
       flex: 1;
       min-height: 0;
-      display: none;
+      display: none !important;
       flex-direction: column;
       overflow: hidden;
     }
 
     .screen.active {
-      display: flex;
+      display: flex !important;
     }
 
-    .wa-header {
+    .top-bar {
       flex-shrink: 0;
-      background: var(--surface);
+      min-height: 62px;
+      padding: 10px 16px;
+      background: linear-gradient(180deg, rgba(12, 33, 44, 0.96), rgba(7, 22, 30, 0.96));
       border-bottom: 1px solid var(--border);
-      padding: 10px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      min-height: 58px;
+      gap: 12px;
     }
 
-    .wa-header-title {
-      font-size: 20px;
-      font-weight: 800;
-      margin: 0;
+    .brand-title-wrap {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 11px;
+      min-width: 0;
     }
 
-    .wa-header-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .icon-circle-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: 1px solid var(--border);
-      background: var(--surface-2);
-      color: var(--text);
+    .brand-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--brand-teal), #06212b);
+      border: 1px solid var(--border-strong);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    .search-wrap {
+      overflow: hidden;
       flex-shrink: 0;
-      padding: 8px 14px;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
+      box-shadow: 0 4px 16px var(--brand-glow);
     }
 
-    .search-input {
+    .brand-badge img {
       width: 100%;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 999px;
-      padding: 9px 14px;
-      font-size: 14px;
+      height: 100%;
+      object-fit: cover;
     }
 
-    .scroll-list {
+    .brand-heading {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+      color: var(--text);
+    }
+
+    .brand-tag {
+      font-size: 11px;
+      color: #5eead4;
+      font-weight: 600;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .circle-action {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text);
+      font-size: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .circle-action:active {
+      transform: scale(0.95);
+      border-color: var(--brand-accent);
+      background: var(--bg-card-2);
+    }
+
+    .search-strip {
+      flex-shrink: 0;
+      padding: 10px 14px;
+      background: var(--bg-shell);
+      border-bottom: 1px solid rgba(56, 189, 248, 0.08);
+    }
+
+    .search-field {
+      width: 100%;
+      background: var(--bg-input);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .search-field:focus {
+      border-color: var(--brand-accent);
+    }
+
+    .scroll-area {
       flex: 1;
       min-height: 0;
       overflow-y: auto;
-      padding: 8px 12px 16px;
+      padding: 12px 14px 18px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
 
-    .chat-item {
+    .chat-card {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 10px;
-      border-radius: 14px;
-      background: transparent;
+      padding: 11px 12px;
+      border-radius: 16px;
+      background: rgba(12, 33, 44, 0.72);
+      border: 1px solid rgba(56, 189, 248, 0.1);
       cursor: pointer;
-      border: 1px solid transparent;
+      transition: background 0.15s ease, border-color 0.15s ease;
     }
 
-    .chat-item:hover, .chat-item:active {
-      background: var(--surface);
-      border-color: var(--border);
+    .chat-card:hover,
+    .chat-card:active {
+      background: var(--bg-card-2);
+      border-color: var(--border-strong);
     }
 
-    .avatar {
+    .avatar-circle {
       width: 48px;
       height: 48px;
       border-radius: 50%;
-      background: var(--teal);
-      border: 1px solid var(--accent);
+      background: linear-gradient(145deg, var(--brand-teal), #072631);
+      border: 1px solid rgba(20, 184, 166, 0.45);
+      color: #e6fffa;
+      font-weight: 800;
+      font-size: 17px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 800;
-      font-size: 17px;
-      color: #fff;
       flex-shrink: 0;
     }
 
-    .chat-item-body {
+    .chat-meta-col {
       flex: 1;
       min-width: 0;
     }
 
-    .chat-item-top {
+    .chat-row-top {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
       gap: 8px;
     }
 
-    .chat-name {
-      font-weight: 700;
+    .chat-title {
       font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .chat-time {
+    .chat-stamp {
       font-size: 11px;
-      color: var(--muted);
+      color: var(--text-sub);
       flex-shrink: 0;
     }
 
-    .chat-item-sub {
+    .chat-row-sub {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 8px;
-      margin-top: 3px;
+      margin-top: 4px;
     }
 
-    .chat-preview {
+    .chat-snippet {
       font-size: 13px;
-      color: var(--muted);
+      color: var(--text-sub);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .unread-pill {
-      background: var(--accent);
-      color: #052026;
-      font-weight: 800;
-      font-size: 11px;
-      min-width: 20px;
-      height: 20px;
+    .unread-badge {
+      min-width: 21px;
+      height: 21px;
       padding: 0 6px;
       border-radius: 999px;
+      background: var(--brand-accent);
+      color: #041d22;
+      font-size: 11px;
+      font-weight: 800;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
     }
 
-    /* صفحة المحادثة الفردية بملء الشاشة */
-    .thread-screen {
+    /* شاشة المحادثة الكاملة */
+    .thread-overlay {
       position: fixed;
       inset: 0;
-      z-index: 40;
+      z-index: 50;
       display: none;
       flex-direction: column;
-      background: var(--bg);
+      max-width: 960px;
+      margin: 0 auto;
+      background: var(--bg-shell);
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
       padding-top: var(--safe-top);
       padding-bottom: var(--safe-bottom);
     }
 
-    .thread-screen.open {
+    .thread-overlay.open {
       display: flex;
     }
 
-    .thread-header {
+    .thread-top {
       flex-shrink: 0;
-      background: var(--surface);
+      min-height: 60px;
+      padding: 8px 14px;
+      background: var(--bg-card);
       border-bottom: 1px solid var(--border);
-      padding: 8px 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
-      min-height: 58px;
+      gap: 10px;
     }
 
-    .thread-peer-meta {
+    .thread-peer {
       display: flex;
       align-items: center;
       gap: 10px;
@@ -278,140 +329,160 @@
       flex: 1;
     }
 
-    .thread-peer-name {
-      font-weight: 800;
+    .thread-name {
       font-size: 15px;
+      font-weight: 800;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .thread-peer-sub {
+    .thread-sub {
       font-size: 11px;
-      color: var(--muted);
+      color: var(--text-sub);
       direction: ltr;
       text-align: right;
     }
 
-    .thread-messages {
+    .messages-stream {
       flex: 1;
       min-height: 0;
       overflow-y: auto;
-      padding: 12px;
+      padding: 14px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      background: #061217;
+      gap: 9px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(20, 184, 166, 0.06), transparent 45%),
+        #051016;
     }
 
-    .bubble-row { display: flex; }
-    .bubble-row.mine { justify-content: flex-start; }
-    .bubble-row.theirs { justify-content: flex-end; }
+    .msg-row {
+      display: flex;
+    }
 
-    .bubble {
-      max-width: min(84%, 620px);
-      background: var(--surface-2);
+    .msg-row.mine {
+      justify-content: flex-start;
+    }
+
+    .msg-row.theirs {
+      justify-content: flex-end;
+    }
+
+    .msg-bubble {
+      max-width: min(84%, 600px);
+      padding: 9px 12px;
+      border-radius: 15px;
+      background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 8px 11px;
     }
 
-    .bubble-row.mine .bubble {
-      background: var(--teal);
-      border-color: #1c667a;
+    .msg-row.mine .msg-bubble {
+      background: linear-gradient(135deg, var(--brand-teal), #0c4d5e);
+      border-color: rgba(45, 212, 191, 0.35);
     }
 
-    .quote-box {
+    .quote-preview {
       font-size: 11px;
-      color: var(--muted);
-      background: rgba(0, 0, 0, 0.22);
-      border-right: 3px solid var(--accent);
-      padding: 4px 8px;
-      border-radius: 6px;
-      margin-bottom: 5px;
+      color: #cbe4ee;
+      background: rgba(0, 0, 0, 0.25);
+      border-right: 3px solid var(--brand-accent);
+      padding: 5px 8px;
+      border-radius: 7px;
+      margin-bottom: 6px;
     }
 
-    .bubble-text {
-      font-size: 15px;
-      line-height: 1.5;
+    .msg-body {
+      font-size: 14.5px;
+      line-height: 1.55;
       white-space: pre-wrap;
       word-break: break-word;
     }
 
-    .bubble-meta {
+    .msg-foot {
       display: flex;
       align-items: center;
       justify-content: flex-end;
       gap: 5px;
       font-size: 10px;
-      color: var(--muted);
+      color: var(--text-sub);
       margin-top: 4px;
     }
 
-    .tick-read { color: var(--read); font-weight: 800; }
-
-    .bubble-tools {
-      display: flex;
-      gap: 6px;
-      margin-top: 5px;
+    .read-marks {
+      color: var(--brand-cyan);
+      font-weight: 800;
     }
 
-    .tiny-act {
-      background: rgba(255,255,255,0.08);
+    .msg-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .mini-btn {
+      background: rgba(255, 255, 255, 0.08);
       color: var(--text);
       border: none;
-      border-radius: 6px;
-      padding: 2px 7px;
+      border-radius: 7px;
+      padding: 3px 8px;
       font-size: 11px;
       cursor: pointer;
     }
 
-    .tiny-act.del { color: #fca5a5; }
+    .mini-btn.danger {
+      color: #fca5a5;
+    }
 
-    .reply-strip {
+    .reply-bar {
       flex-shrink: 0;
       display: none;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      padding: 7px 12px;
-      background: var(--surface-2);
+      padding: 8px 14px;
+      background: var(--bg-card-2);
       border-top: 1px solid var(--border);
       font-size: 12px;
     }
 
-    .wa-composer {
+    .composer-bar {
       flex-shrink: 0;
-      background: var(--surface);
+      padding: 9px 12px;
+      background: var(--bg-card);
       border-top: 1px solid var(--border);
-      padding: 8px 10px;
       display: flex;
       align-items: flex-end;
       gap: 8px;
     }
 
-    .wa-input {
+    .composer-input {
       flex: 1;
       min-height: 44px;
-      max-height: 140px;
+      max-height: 136px;
       resize: none;
-      background: var(--surface-2);
+      background: var(--bg-input);
       color: var(--text);
       border: 1px solid var(--border);
-      border-radius: 20px;
+      border-radius: 21px;
       padding: 10px 14px;
-      font-size: 15px;
+      font-size: 14.5px;
       line-height: 1.4;
       font-family: inherit;
+      outline: none;
     }
 
-    .wa-send-btn {
+    .composer-input:focus {
+      border-color: var(--brand-accent);
+    }
+
+    .send-fab {
       width: 44px;
       height: 44px;
       border-radius: 50%;
-      background: var(--accent);
-      color: #041d22;
       border: none;
+      background: linear-gradient(135deg, var(--brand-accent), #0d9488);
+      color: #041d22;
       font-size: 17px;
       font-weight: 800;
       cursor: pointer;
@@ -421,51 +492,72 @@
       justify-content: center;
     }
 
-    /* الإعدادات والحسابات والأكواد */
-    .settings-group {
-      background: var(--surface);
+    /* الإعدادات والحسابات والأكواد في الخلف */
+    .panel-card {
+      background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-      margin-bottom: 10px;
+      border-radius: 16px;
+      padding: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
-    .settings-row {
-      padding: 12px 14px;
+    .menu-stack {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .menu-row {
+      padding: 13px 15px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      border-bottom: 1px solid rgba(30, 67, 82, 0.55);
+      gap: 12px;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.09);
       cursor: pointer;
+      transition: background 0.15s ease;
     }
 
-    .settings-row:last-child { border-bottom: none; }
-
-    .card-box {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    .menu-row:last-child {
+      border-bottom: none;
     }
 
-    input, select {
-      background: var(--surface-2);
+    .menu-row:active,
+    .menu-row.active-tab {
+      background: var(--bg-card-2);
+    }
+
+    .hidden-drawer {
+      display: none !important;
+    }
+
+    .hidden-drawer.open {
+      display: flex !important;
+    }
+
+    input,
+    select {
+      background: var(--bg-input);
       color: var(--text);
       border: 1px solid var(--border);
-      border-radius: 11px;
+      border-radius: 12px;
       padding: 10px 12px;
       font-size: 14px;
       font-family: inherit;
       min-width: 0;
+      outline: none;
     }
 
-    .btn {
+    input:focus {
+      border-color: var(--brand-accent);
+    }
+
+    .action-btn {
       border: none;
-      border-radius: 11px;
+      border-radius: 12px;
       padding: 10px 14px;
       font-size: 13px;
       font-weight: 700;
@@ -477,26 +569,42 @@
       gap: 6px;
     }
 
-    .btn-accent { background: var(--accent); color: #052026; }
-    .btn-dark { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
-    .btn-red { background: var(--danger); color: #fff; }
+    .btn-primary {
+      background: var(--brand-accent);
+      color: #041d22;
+    }
 
-    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    .muted { color: var(--muted); font-size: 12px; }
+    .btn-secondary {
+      background: var(--bg-card-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
 
-    .code-box {
-      background: #061217;
-      border: 1px dashed var(--accent);
-      border-radius: 11px;
-      padding: 10px 12px;
+    .flex-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .sub-note {
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    .generated-code-box {
+      background: #051117;
+      border: 1px dashed rgba(20, 184, 166, 0.55);
+      border-radius: 12px;
+      padding: 10px 13px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
     }
 
-    .code-num {
-      font-family: monospace;
+    .generated-code-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
       font-size: 18px;
       font-weight: 800;
       color: #5eead4;
@@ -504,19 +612,19 @@
       direction: ltr;
     }
 
-    .bottom-nav {
+    .bottom-dock {
       flex-shrink: 0;
-      background: var(--surface);
+      background: rgba(12, 33, 44, 0.97);
       border-top: 1px solid var(--border);
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       padding: 6px 4px;
     }
 
-    .nav-item {
+    .dock-btn {
       background: transparent;
       border: none;
-      color: var(--muted);
+      color: var(--text-sub);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -528,244 +636,274 @@
       font-family: inherit;
     }
 
-    .nav-item.active {
+    .dock-btn.active {
       color: #5eead4;
     }
 
-    .nav-ico { font-size: 18px; line-height: 1; }
+    .dock-icon {
+      font-size: 18px;
+      line-height: 1.1;
+    }
 
-    .toast {
+    .notice-pill {
       position: fixed;
-      bottom: calc(68px + var(--safe-bottom));
+      bottom: calc(70px + var(--safe-bottom));
       left: 50%;
       transform: translateX(-50%);
-      background: var(--teal);
+      background: var(--brand-teal);
       color: #fff;
-      border: 1px solid var(--accent);
-      padding: 7px 14px;
+      border: 1px solid var(--brand-accent);
+      padding: 8px 16px;
       border-radius: 999px;
       font-size: 12px;
       font-weight: 700;
-      z-index: 80;
+      z-index: 90;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.2s;
+      transition: opacity 0.2s ease;
     }
 
-    .toast.show { opacity: 1; }
+    .notice-pill.show {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
-  <div class="app">
-    <!-- 1. شاشة الدردشات -->
+  <div class="app-frame">
+    <!-- 1. الشاشة الرئيسية: الدردشات -->
     <section class="screen active" data-screen="chats">
-      <header class="wa-header">
-        <h1 class="wa-header-title">
-          <img src="./icons/sanad-icon.svg?v=5" alt="سند AI" style="width:28px;height:28px;border-radius:8px;" onerror="this.style.display='none'" />
-          <span>الدردشات</span>
-        </h1>
-        <div class="wa-header-actions">
-          <button type="button" class="icon-circle-btn" id="new-chat-btn" title="محادثة أو جهة جديدة">＋</button>
-          <button type="button" class="icon-circle-btn" id="new-group-quick-btn" title="مجموعة جديدة">👥</button>
+      <header class="top-bar">
+        <div class="brand-title-wrap">
+          <div class="brand-badge">
+            <img src="./icons/sanad-icon.svg?v=6" alt="سند AI" onerror="this.style.display='none'" />
+          </div>
+          <div>
+            <h1 class="brand-heading">سند AI</h1>
+            <div class="brand-tag">منصة التواصل الذكية • v9.0.0</div>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="circle-action" id="new-chat-btn" title="محادثة جديدة">＋</button>
+          <button type="button" class="circle-action" id="new-group-quick-btn" title="مجموعة جديدة">👥</button>
         </div>
       </header>
-      <div class="search-wrap">
-        <input type="search" class="search-input" id="chat-search-input" placeholder="بحث بالاسم أو الرقم أو الكود..." />
+      <div class="search-strip">
+        <input type="search" class="search-field" id="chat-search-input" placeholder="ابحث باسم جهة الاتصال أو الرقم أو الكود..." />
       </div>
-      <div class="scroll-list" id="chats-overview-list"></div>
+      <div class="scroll-area" id="chats-overview-list"></div>
     </section>
 
     <!-- 2. شاشة المكالمات -->
     <section class="screen" data-screen="calls">
-      <header class="wa-header">
-        <h1 class="wa-header-title">المكالمات</h1>
-      </header>
-      <div class="scroll-list">
-        <div class="card-box">
-          <div class="row">
-            <input type="text" id="call-target" placeholder="أدخل رقم الهاتف أو الكود للاتصال" style="flex:1;min-width:160px;" />
-            <button type="button" class="btn btn-accent" id="voice-call-btn">📞 صوتية</button>
-            <button type="button" class="btn btn-dark" id="video-call-btn">🎥 مرئية</button>
+      <header class="top-bar">
+        <div class="brand-title-wrap">
+          <div class="brand-badge">📞</div>
+          <div>
+            <h1 class="brand-heading">المكالمات</h1>
+            <div class="brand-tag">اتصال مباشر بالأرقام والأكواد</div>
           </div>
-          <div class="muted" id="call-live-status">جاهز للاتصال</div>
+        </div>
+      </header>
+      <div class="scroll-area">
+        <div class="panel-card">
+          <div class="flex-row">
+            <input type="text" id="call-target" placeholder="أدخل رقم الهاتف أو الكود للاتصال" style="flex:1;min-width:160px;" />
+            <button type="button" class="action-btn btn-primary" id="voice-call-btn">📞 صوتية</button>
+            <button type="button" class="action-btn btn-secondary" id="video-call-btn">🎥 مرئية</button>
+          </div>
+          <div class="sub-note" id="call-live-status">جاهز للاتصال</div>
         </div>
         <div id="calls-history-list"></div>
       </div>
     </section>
 
-    <!-- 3. شاشة الذكاء الاصطناعي -->
+    <!-- 3. شاشة مساعد سند AI -->
     <section class="screen" data-screen="ai">
-      <header class="wa-header">
-        <h1 class="wa-header-title">سند AI</h1>
+      <header class="top-bar">
+        <div class="brand-title-wrap">
+          <div class="brand-badge">🤖</div>
+          <div>
+            <h1 class="brand-heading">مساعد سند AI</h1>
+            <div class="brand-tag">تلخيص • صياغة ردود • تصنيف ذكي</div>
+          </div>
+        </div>
       </header>
-      <div class="thread-messages" id="ai-thread-box"></div>
-      <div class="card-box" style="border-radius:0;border-left:0;border-right:0;padding:8px 10px;">
-        <div class="row">
-          <button type="button" class="btn btn-dark" id="ai-sum-btn" style="padding:6px 10px;font-size:12px;">📝 تلخيص</button>
-          <button type="button" class="btn btn-dark" id="ai-draft-btn" style="padding:6px 10px;font-size:12px;">✍️ صياغة رد</button>
-          <button type="button" class="btn btn-dark" id="ai-tag-btn" style="padding:6px 10px;font-size:12px;">🏷️ تصنيف</button>
+      <div class="messages-stream" id="ai-thread-box"></div>
+      <div class="panel-card" style="border-radius:0;border-left:0;border-right:0;padding:8px 12px;">
+        <div class="flex-row">
+          <button type="button" class="action-btn btn-secondary" id="ai-sum-btn" style="padding:6px 11px;font-size:12px;">📝 تلخيص</button>
+          <button type="button" class="action-btn btn-secondary" id="ai-draft-btn" style="padding:6px 11px;font-size:12px;">✍️ صياغة رد</button>
+          <button type="button" class="action-btn btn-secondary" id="ai-tag-btn" style="padding:6px 11px;font-size:12px;">🏷️ تصنيف</button>
         </div>
       </div>
-      <div class="wa-composer">
-        <textarea class="wa-input" id="ai-input" rows="1" placeholder="اسأل مساعد سند AI..."></textarea>
-        <button type="button" class="wa-send-btn" id="ai-send-btn">➤</button>
+      <div class="composer-bar">
+        <textarea class="composer-input" id="ai-input" rows="1" placeholder="اسأل مساعد سند AI..."></textarea>
+        <button type="button" class="send-fab" id="ai-send-btn">➤</button>
       </div>
     </section>
 
-    <!-- 4. شاشة الإعدادات (بأسلوب قوائم واضح + الحساب والأكواد العالمية + الجهات) -->
+    <!-- 4. شاشة الإعدادات (الأكواد والجهات مطوية في الخلف حتى يتم فتحها) -->
     <section class="screen" data-screen="settings">
-      <header class="wa-header">
-        <h1 class="wa-header-title">الإعدادات</h1>
+      <header class="top-bar">
+        <div class="brand-title-wrap">
+          <div class="brand-badge">⚙️</div>
+          <div>
+            <h1 class="brand-heading">الإعدادات</h1>
+            <div class="brand-tag">الحساب • الأكواد • جهات الاتصال</div>
+          </div>
+        </div>
       </header>
-      <div class="scroll-list">
-        <div class="settings-group">
-          <div class="settings-row" id="open-profile-card-btn">
+      <div class="scroll-area">
+        <div class="menu-stack">
+          <div class="menu-row" id="open-profile-card-btn">
             <div style="display:flex;align-items:center;gap:12px;">
-              <div class="avatar" id="my-avatar-letter">س</div>
+              <div class="avatar-circle" id="my-avatar-letter">س</div>
               <div>
                 <div style="font-weight:800;font-size:15px;" id="my-display-name">مستخدم سند</div>
-                <div class="muted" id="my-display-code" style="direction:ltr;text-align:right;">+1 555 010 9900</div>
+                <div class="sub-note" id="my-display-code" style="direction:ltr;text-align:right;">+1 555 010 9900</div>
               </div>
             </div>
-            <span class="muted">تعديل ›</span>
+            <span class="sub-note">الحساب النشط</span>
           </div>
         </div>
 
-        <div class="settings-group">
-          <div class="settings-row" data-acc-tab="self">
+        <div class="menu-stack">
+          <div class="menu-row" data-acc-tab="self">
             <div>
               <div style="font-weight:700;">🔑 توليد كود ذاتي</div>
-              <div class="muted">اكتب كودك أو معرّفك الخاص وفعّله مباشرة</div>
+              <div class="sub-note">تعيين كود أو معرّف خاص بك وتفعيله</div>
             </div>
-            <span class="muted">فتح ›</span>
+            <span class="sub-note">فتح ›</span>
           </div>
-          <div class="settings-row" data-acc-tab="auto8">
+          <div class="menu-row" data-acc-tab="auto8">
             <div>
               <div style="font-weight:700;">🎲 توليد كود آلي (8 أرقام)</div>
-              <div class="muted">توليد كود عشوائي فوري من 8 أرقام مع نسخ واعتماد</div>
+              <div class="sub-note">إنشاء كود فوري من 8 أرقام مع نسخ واعتماد</div>
             </div>
-            <span class="muted">فتح ›</span>
+            <span class="sub-note">فتح ›</span>
           </div>
-          <div class="settings-row" data-acc-tab="carrier">
+          <div class="menu-row" data-acc-tab="carrier">
             <div>
               <div style="font-weight:700;">🌐 رقم دولي / شركة اتصالات</div>
-              <div class="muted">إدخال رقم لأي شركة اتصال حول العالم مع مفتاح الدولة</div>
+              <div class="sub-note">تفعيل رقم دولي مع مفتاح الدولة</div>
             </div>
-            <span class="muted">فتح ›</span>
+            <span class="sub-note">فتح ›</span>
           </div>
-          <div class="settings-row" data-acc-tab="contacts">
+          <div class="menu-row" data-acc-tab="contacts">
             <div>
               <div style="font-weight:700;">📇 جهات الاتصال والأسماء</div>
-              <div class="muted">إضافة رقم أو كود وحفظ اسمه ليظهر في كل المحادثات</div>
+              <div class="sub-note">إدارة الأرقام والأكواد المحفوظة</div>
             </div>
-            <span class="muted">فتح ›</span>
+            <span class="sub-note">فتح ›</span>
           </div>
         </div>
 
-        <!-- لوحة توليد كود ذاتي -->
-        <div class="card-box" id="panel-self">
+        <!-- لوحة توليد كود ذاتي (مخفية افتراضياً) -->
+        <div class="panel-card hidden-drawer" id="panel-self">
           <div style="font-weight:700;">توليد / إدخال كود ذاتي</div>
-          <div class="row">
+          <div class="flex-row">
             <input type="text" id="self-code" placeholder="كودك الخاص مثل SANAD-PRO أو 99441122" style="flex:1;min-width:150px;" />
             <input type="text" id="self-name" placeholder="اسمك الظاهر" style="flex:1;min-width:130px;" />
-            <button type="button" class="btn btn-accent" id="save-self-btn">تفعيل</button>
+            <button type="button" class="action-btn btn-primary" id="save-self-btn">تفعيل</button>
           </div>
         </div>
 
-        <!-- لوحة توليد 8 أرقام -->
-        <div class="card-box" id="panel-auto8" style="display:none;">
+        <!-- لوحة توليد 8 أرقام (مخفية افتراضياً) -->
+        <div class="panel-card hidden-drawer" id="panel-auto8">
           <div style="font-weight:700;">توليد كود آلي من 8 أرقام</div>
-          <div class="code-box">
-            <span class="code-num" id="code8-display">12345678</span>
-            <div class="row">
-              <button type="button" class="btn btn-dark" id="gen8-btn">توليد</button>
-              <button type="button" class="btn btn-dark" id="copy8-btn">نسخ</button>
+          <div class="generated-code-box">
+            <span class="generated-code-value" id="code8-display">12345678</span>
+            <div class="flex-row">
+              <button type="button" class="action-btn btn-secondary" id="gen8-btn">توليد</button>
+              <button type="button" class="action-btn btn-secondary" id="copy8-btn">نسخ</button>
             </div>
           </div>
-          <div class="row">
+          <div class="flex-row">
             <input type="text" id="auto8-name" placeholder="اسم الحساب (اختياري)" style="flex:1;min-width:140px;" />
-            <button type="button" class="btn btn-accent" id="use8-btn">اعتماد الكود</button>
+            <button type="button" class="action-btn btn-primary" id="use8-btn">اعتماد الكود</button>
           </div>
         </div>
 
-        <!-- لوحة رقم دولي / شركة اتصالات عالمية -->
-        <div class="card-box" id="panel-carrier" style="display:none;">
+        <!-- لوحة رقم دولي (مخفية افتراضياً) -->
+        <div class="panel-card hidden-drawer" id="panel-carrier">
           <div style="font-weight:700;">رقم أي شركة اتصالات (عالمي)</div>
-          <div class="row">
-            <input type="text" id="intl-dial" placeholder="مفتاح الدولة مثل +1 أو +971 أو +966" style="width:150px;direction:ltr;" />
+          <div class="flex-row">
+            <input type="text" id="intl-dial" placeholder="مفتاح الدولة مثل +1 أو +971 أو +966" style="width:155px;direction:ltr;" />
             <input type="tel" id="intl-phone" placeholder="رقم الهاتف لأي شركة اتصال" style="flex:1;min-width:150px;direction:ltr;" />
           </div>
-          <div class="row">
+          <div class="flex-row">
             <input type="text" id="intl-name" placeholder="الاسم (اختياري)" style="flex:1;min-width:140px;" />
-            <button type="button" class="btn btn-accent" id="save-intl-btn">تفعيل الرقم</button>
+            <button type="button" class="action-btn btn-primary" id="save-intl-btn">تفعيل الرقم</button>
           </div>
         </div>
 
-        <!-- لوحة جهات الاتصال -->
-        <div class="card-box" id="panel-contacts" style="display:none;">
+        <!-- لوحة جهات الاتصال (مخفية افتراضياً) -->
+        <div class="panel-card hidden-drawer" id="panel-contacts">
           <div style="font-weight:700;">إضافة جهة اتصال (رقم أو كود + الاسم)</div>
-          <div class="row">
+          <div class="flex-row">
             <input type="text" id="ct-id" placeholder="الرقم الدولي أو الكود" style="flex:1;min-width:130px;direction:ltr;" />
             <input type="text" id="ct-name" placeholder="الاسم" style="flex:1;min-width:130px;" />
-            <button type="button" class="btn btn-accent" id="ct-add-btn">حفظ</button>
+            <button type="button" class="action-btn btn-primary" id="ct-add-btn">حفظ</button>
           </div>
           <div id="ct-saved-list"></div>
         </div>
       </div>
     </section>
 
-    <!-- شريط التنقل السفلي (4 صفحات أساسية مثل النماذج) -->
-    <nav class="bottom-nav">
-      <button type="button" class="nav-item active" data-go="chats">
-        <span class="nav-ico">💬</span>
+    <!-- شريط التنقل السفلي -->
+    <nav class="bottom-dock">
+      <button type="button" class="dock-btn active" data-go="chats">
+        <span class="dock-icon">💬</span>
         <span>الدردشات</span>
       </button>
-      <button type="button" class="nav-item" data-go="calls">
-        <span class="nav-ico">📞</span>
+      <button type="button" class="dock-btn" data-go="calls">
+        <span class="dock-icon">📞</span>
         <span>المكالمات</span>
       </button>
-      <button type="button" class="nav-item" data-go="ai">
-        <span class="nav-ico">🤖</span>
+      <button type="button" class="dock-btn" data-go="ai">
+        <span class="dock-icon">🤖</span>
         <span>سند AI</span>
       </button>
-      <button type="button" class="nav-item" data-go="settings">
-        <span class="nav-ico">⚙️</span>
+      <button type="button" class="dock-btn" data-go="settings">
+        <span class="dock-icon">⚙️</span>
         <span>الإعدادات</span>
       </button>
     </nav>
   </div>
 
   <!-- صفحة المحادثة الفردية أو الجماعية الكاملة -->
-  <div class="thread-screen" id="thread-screen">
-    <header class="thread-header">
-      <div class="thread-peer-meta">
-        <button type="button" class="icon-circle-btn" id="back-from-thread-btn">→</button>
-        <div class="avatar" id="thread-avatar" style="width:38px;height:38px;font-size:14px;">م</div>
+  <div class="thread-overlay" id="thread-screen">
+    <header class="thread-top">
+      <div class="thread-peer">
+        <button type="button" class="circle-action" id="back-from-thread-btn">→</button>
+        <div class="avatar-circle" id="thread-avatar" style="width:38px;height:38px;font-size:14px;">م</div>
         <div style="min-width:0;">
-          <div class="thread-peer-name" id="thread-title">محادثة</div>
-          <div class="thread-peer-sub" id="thread-subtitle">متصل</div>
+          <div class="thread-name" id="thread-title">محادثة</div>
+          <div class="thread-sub" id="thread-subtitle">متصل</div>
         </div>
       </div>
-      <button type="button" class="icon-circle-btn" id="thread-call-btn" title="اتصال">📞</button>
+      <button type="button" class="circle-action" id="thread-call-btn" title="اتصال">📞</button>
     </header>
 
-    <div class="thread-messages" id="thread-messages"></div>
+    <div class="messages-stream" id="thread-messages"></div>
 
-    <div class="reply-strip" id="thread-reply-strip">
+    <div class="reply-bar" id="thread-reply-strip">
       <span id="thread-reply-label">رد على رسالة</span>
-      <button type="button" class="tiny-act" id="thread-cancel-reply">إلغاء</button>
+      <button type="button" class="mini-btn" id="thread-cancel-reply">إلغاء</button>
     </div>
 
-    <div class="wa-composer">
-      <button type="button" class="icon-circle-btn" id="thread-attach-btn" title="مرفق">📎</button>
+    <div class="composer-bar">
+      <button type="button" class="circle-action" id="thread-attach-btn" title="مرفق">📎</button>
       <input type="file" id="thread-file-input" style="display:none;" />
-      <textarea class="wa-input" id="thread-input" rows="1" placeholder="اكتب رسالة..."></textarea>
-      <button type="button" class="wa-send-btn" id="thread-send-btn">➤</button>
+      <textarea class="composer-input" id="thread-input" rows="1" placeholder="اكتب رسالة..."></textarea>
+      <button type="button" class="send-fab" id="thread-send-btn">➤</button>
     </div>
   </div>
 
-  <div class="toast" id="toast"></div>
+  <div class="notice-pill" id="toast"></div>
 
+  <script src="./sanad-sync.js"></script>
+  <script src="./sanad-audio-media.js"></script>
   <script>
     (() => {
       const KEY = 'sanad_ai_v9_global_wa_v1';
@@ -810,23 +948,44 @@
         toast._t = setTimeout(() => el.classList.remove('show'), 2200);
       }
 
+      function cloneInitial() {
+        return JSON.parse(JSON.stringify(initialData));
+      }
+
       function load() {
         try {
           const raw = localStorage.getItem(KEY);
-          if (!raw) return structuredClone(initialData);
-          return Object.assign(structuredClone(initialData), JSON.parse(raw));
+          if (!raw) return cloneInitial();
+          const parsed = JSON.parse(raw);
+          const base = cloneInitial();
+          return Object.assign(base, parsed, {
+            screen: parsed.screen || 'chats',
+            me: Object.assign(base.me, parsed.me || {}),
+            contacts: Array.isArray(parsed.contacts) ? parsed.contacts : base.contacts,
+            messages: parsed.messages && typeof parsed.messages === 'object' ? parsed.messages : base.messages,
+            calls: Array.isArray(parsed.calls) ? parsed.calls : base.calls,
+            ai: Array.isArray(parsed.ai) ? parsed.ai : base.ai
+          });
         } catch {
-          return structuredClone(initialData);
+          return cloneInitial();
         }
       }
 
       const db = load();
+
       function save() {
-        try { localStorage.setItem(KEY, JSON.stringify(db)); } catch {}
+        try {
+          localStorage.setItem(KEY, JSON.stringify(db));
+        } catch {}
       }
 
       function esc(s) {
-        return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return String(s || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
       }
 
       function resolveName(id) {
@@ -836,14 +995,20 @@
       }
 
       function goScreen(name) {
-        db.screen = name;
+        const valid = ['chats', 'calls', 'ai', 'settings'];
+        const target = valid.includes(name) ? name : 'chats';
+        db.screen = target;
         save();
-        document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('active', s.getAttribute('data-screen') === name));
-        document.querySelectorAll('.nav-item').forEach((b) => b.classList.toggle('active', b.getAttribute('data-go') === name));
-        if (name === 'chats') renderChatsOverview();
-        if (name === 'calls') renderCalls();
-        if (name === 'ai') renderAi();
-        if (name === 'settings') renderSettings();
+        document.querySelectorAll('.screen').forEach((s) => {
+          s.classList.toggle('active', s.getAttribute('data-screen') === target);
+        });
+        document.querySelectorAll('.dock-btn').forEach((b) => {
+          b.classList.toggle('active', b.getAttribute('data-go') === target);
+        });
+        if (target === 'chats') renderChatsOverview();
+        if (target === 'calls') renderCalls();
+        if (target === 'ai') renderAi();
+        if (target === 'settings') renderSettings();
       }
 
       document.addEventListener('click', (e) => {
@@ -855,9 +1020,15 @@
         const accTab = e.target.closest('[data-acc-tab]');
         if (accTab) {
           const tab = accTab.getAttribute('data-acc-tab');
+          document.querySelectorAll('[data-acc-tab]').forEach((row) => {
+            row.classList.toggle('active-tab', row.getAttribute('data-acc-tab') === tab);
+          });
           ['self', 'auto8', 'carrier', 'contacts'].forEach((k) => {
             const p = document.getElementById('panel-' + k);
-            if (p) p.style.display = k === tab ? 'flex' : 'none';
+            if (!p) return;
+            const isTarget = k === tab && !p.classList.contains('open');
+            document.querySelectorAll('.hidden-drawer').forEach((drawer) => drawer.classList.remove('open'));
+            if (isTarget) p.classList.add('open');
           });
         }
       });
@@ -870,7 +1041,7 @@
           !q || c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q)
         );
         if (!items.length) {
-          box.innerHTML = `<div class="muted" style="text-align:center;padding:24px;">لا توجد محادثات مطابقة.</div>`;
+          box.innerHTML = `<div class="sub-note" style="text-align:center;padding:24px;">لا توجد محادثات مطابقة.</div>`;
           return;
         }
         box.innerHTML = items.map((c) => {
@@ -880,16 +1051,16 @@
           const time = last ? last.time : '';
           const letter = (c.name || c.id || 'س').trim().charAt(0);
           return `
-            <div class="chat-item" data-open-thread="${esc(c.id)}">
-              <div class="avatar">${esc(letter)}</div>
-              <div class="chat-item-body">
-                <div class="chat-item-top">
-                  <span class="chat-name">${esc(c.name)}</span>
-                  <span class="chat-time">${esc(time)}</span>
+            <div class="chat-card" data-open-thread="${esc(c.id)}">
+              <div class="avatar-circle">${esc(letter)}</div>
+              <div class="chat-meta-col">
+                <div class="chat-row-top">
+                  <span class="chat-title">${esc(c.name)}</span>
+                  <span class="chat-stamp">${esc(time)}</span>
                 </div>
-                <div class="chat-item-sub">
-                  <span class="chat-preview">${esc(preview)}</span>
-                  ${c.unread > 0 ? `<span class="unread-pill">${c.unread}</span>` : ''}
+                <div class="chat-row-sub">
+                  <span class="chat-snippet">${esc(preview)}</span>
+                  ${c.unread > 0 ? `<span class="unread-badge">${c.unread}</span>` : ''}
                 </div>
               </div>
             </div>
@@ -933,25 +1104,27 @@
         if (!box) return;
         const msgs = db.messages[db.activeThreadId] || [];
         box.innerHTML = msgs.map((m) => {
-          const tick = m.mine ? `<span class="tick-read">✓✓</span>` : '';
+          const tick = m.mine ? `<span class="read-marks">✓✓</span>` : '';
           return `
-            <div class="bubble-row ${m.mine ? 'mine' : 'theirs'}">
-              <div class="bubble">
-                ${m.quote ? `<div class="quote-box">${esc(m.quote)}</div>` : ''}
-                <div class="bubble-text">${esc(m.text)}</div>
-                <div class="bubble-meta">
+            <div class="msg-row ${m.mine ? 'mine' : 'theirs'}">
+              <div class="msg-bubble">
+                ${m.quote ? `<div class="quote-preview">${esc(m.quote)}</div>` : ''}
+                <div class="msg-body">${esc(m.text)}</div>
+                <div class="msg-foot">
                   <span>${esc(m.time)}</span>
                   ${tick}
                 </div>
-                <div class="bubble-tools">
-                  <button type="button" class="tiny-act" data-q="${esc(m.text)}">رد</button>
-                  <button type="button" class="tiny-act del" data-rm="${esc(m.id)}">حذف</button>
+                <div class="msg-actions">
+                  <button type="button" class="mini-btn" data-q="${esc(m.text)}">رد</button>
+                  <button type="button" class="mini-btn danger" data-rm="${esc(m.id)}">حذف</button>
                 </div>
               </div>
             </div>
           `;
         }).join('');
-        requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
+        requestAnimationFrame(() => {
+          box.scrollTop = box.scrollHeight;
+        });
       }
 
       function updateReplyStrip() {
@@ -969,7 +1142,7 @@
       function growInput(el) {
         if (!el) return;
         el.style.height = 'auto';
-        el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+        el.style.height = Math.min(el.scrollHeight, 136) + 'px';
       }
 
       const threadInput = document.getElementById('thread-input');
@@ -1062,21 +1235,20 @@
         toast(`اتصال بـ ${resolveName(target)}`);
       });
 
-      // --- المكالمات ---
       function renderCalls() {
         const list = document.getElementById('calls-history-list');
         if (!list) return;
         if (!db.calls.length) {
-          list.innerHTML = `<div class="muted" style="text-align:center;padding:20px;">لا توجد مكالمات حديثة.</div>`;
+          list.innerHTML = `<div class="sub-note" style="text-align:center;padding:24px;">لا توجد مكالمات حديثة.</div>`;
           return;
         }
         list.innerHTML = db.calls.map((c) => `
-          <div class="card-box" style="margin-bottom:6px;">
+          <div class="panel-card" style="margin-bottom:6px;">
             <div style="display:flex;justify-content:space-between;">
               <strong>${esc(c.name)}</strong>
-              <span class="muted">${esc(c.time)}</span>
+              <span class="sub-note">${esc(c.time)}</span>
             </div>
-            <div class="muted">${esc(c.mode)} • ${esc(c.target)}</div>
+            <div class="sub-note">${esc(c.mode)} • ${esc(c.target)}</div>
           </div>
         `).join('');
       }
@@ -1096,26 +1268,30 @@
       document.getElementById('voice-call-btn')?.addEventListener('click', () => makeCall('مكالمة صوتية'));
       document.getElementById('video-call-btn')?.addEventListener('click', () => makeCall('مكالمة مرئية'));
 
-      // --- الذكاء الاصطناعي ---
       function renderAi() {
         const box = document.getElementById('ai-thread-box');
         if (!box) return;
         box.innerHTML = db.ai.map((m) => `
-          <div class="bubble-row ${m.mine ? 'mine' : 'theirs'}">
-            <div class="bubble">
-              <div class="bubble-text">${esc(m.text)}</div>
-              <div class="bubble-meta"><span>${esc(m.time)}</span></div>
+          <div class="msg-row ${m.mine ? 'mine' : 'theirs'}">
+            <div class="msg-bubble">
+              <div class="msg-body">${esc(m.text)}</div>
+              <div class="msg-foot"><span>${esc(m.time)}</span></div>
             </div>
           </div>
         `).join('');
-        requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
+        requestAnimationFrame(() => {
+          box.scrollTop = box.scrollHeight;
+        });
       }
 
       function askAi(customText, tag) {
         const inp = document.getElementById('ai-input');
         const q = String(customText !== undefined ? customText : (inp?.value || '')).trim();
         if (!q) return;
-        if (inp && customText === undefined) { inp.value = ''; growInput(inp); }
+        if (inp && customText === undefined) {
+          inp.value = '';
+          growInput(inp);
+        }
         db.ai.push({ id: 'ai-' + Date.now(), text: q, time: nowHm(), mine: true });
         let reply = `سند AI: تم استلام طلبك "${q}".`;
         if (tag === 'sum') reply = `📝 تلخيص: النقاط الرئيسية لـ "${q}" جاهزة للمتابعة.`;
@@ -1133,7 +1309,6 @@
       document.getElementById('ai-draft-btn')?.addEventListener('click', () => askAi(aiInp?.value || 'رسالة واردة', 'draft'));
       document.getElementById('ai-tag-btn')?.addEventListener('click', () => askAi(aiInp?.value || 'طلب جديد', 'tag'));
 
-      // --- الإعدادات والأكواد والجهات ---
       function applyMe(newId, newName) {
         const cleanId = String(newId || '').trim();
         if (!cleanId) return;
@@ -1162,7 +1337,9 @@
 
       document.getElementById('copy8-btn')?.addEventListener('click', async () => {
         const c = document.getElementById('code8-display')?.textContent || '';
-        try { await navigator.clipboard.writeText(c); } catch {}
+        try {
+          await navigator.clipboard.writeText(c);
+        } catch {}
         toast(`الكود: ${c}`);
       });
 
@@ -1200,9 +1377,9 @@
         const ctBox = document.getElementById('ct-saved-list');
         if (ctBox) {
           ctBox.innerHTML = db.contacts.filter((c) => !c.isGroup).map((c) => `
-            <div class="row" style="justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(30,67,82,0.4);">
-              <div><strong>${esc(c.name)}</strong> <span class="muted" style="direction:ltr;display:inline-block;">${esc(c.id)}</span></div>
-              <button type="button" class="tiny-act" data-open-thread="${esc(c.id)}">فتح</button>
+            <div class="flex-row" style="justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(56,189,248,0.1);">
+              <div><strong>${esc(c.name)}</strong> <span class="sub-note" style="direction:ltr;display:inline-block;">${esc(c.id)}</span></div>
+              <button type="button" class="mini-btn" data-open-thread="${esc(c.id)}">فتح</button>
             </div>
           `).join('');
         }
@@ -1215,7 +1392,7 @@
 
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js?v=5').catch(() => {});
+          navigator.serviceWorker.register('./sw.js?v=6').catch(() => {});
         });
       }
 
@@ -1224,7 +1401,7 @@
       renderCalls();
       renderAi();
       renderSettings();
-      goScreen(db.screen || 'chats');
+      goScreen('chats');
     })();
   </script>
 </body>

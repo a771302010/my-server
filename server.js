@@ -270,7 +270,7 @@ function isInsideDirectory(parentDir, targetPath) {
 }
 
 function sanitizeRelativeUrlPath(rawPath) {
-  const normalized = path.posix.normalize(String(rawPath || '/').replace(/\/g, '/'));
+  const normalized = path.posix.normalize(String(rawPath || '/').replace(/\\/g, '/'));
   const parts = normalized.split('/').filter((part) => part && part !== '.' && part !== '..');
   return parts.join('/');
 }
@@ -342,7 +342,7 @@ function serveStaticFile(req, res, parsedUrl) {
     return;
   }
 
-  if (decodedPath.includes(' ')) {
+  if (decodedPath.includes('\0')) {
     sendJson(res, 400, { ok: false, error: 'مسار غير صالح' });
     return;
   }
@@ -587,10 +587,7 @@ server.on('clientError', (err, socket) => {
   if (err.code === 'ECONNRESET' || !socket.writable) {
     return;
   }
-  socket.end('HTTP/1.1 400 Bad Request
-Content-Type: text/plain; charset=utf-8
-
-Bad Request');
+  socket.end('HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain; charset=utf-8\r\n\r\nBad Request');
 });
 
 server.on('error', (err) => {

@@ -7,16 +7,16 @@
 
   <meta name="theme-color" content="#071922" />
   <meta name="msapplication-TileColor" content="#071922" />
-  <meta name="msapplication-TileImage" content="./icons/icon-192.png?v=7" />
+  <meta name="msapplication-TileImage" content="./icons/icon-192.png?v=8" />
 
-  <link rel="icon" href="./icons/sanad-icon.svg?v=7" type="image/svg+xml" />
-  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png?v=7" />
-  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png?v=7" />
-  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png?v=7" />
+  <link rel="icon" href="./icons/sanad-icon.svg?v=8" type="image/svg+xml" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png?v=8" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png?v=8" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png?v=8" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="سند AI" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="manifest" href="./manifest.json?v=7" />
+  <link rel="manifest" href="./manifest.json?v=8" />
 
   <style>
     :root {
@@ -26,15 +26,17 @@
       --bg-card-2: #112c3b;
       --bg-input: #091922;
       --border: rgba(56, 189, 248, 0.16);
-      --border-strong: rgba(20, 184, 166, 0.36);
+      --border-strong: rgba(88, 177, 143, 0.34);
       --text: #f1f8fb;
       --text-sub: #94b3c2;
       --brand-teal: #0b3b49;
       --brand-accent: #14b8a6;
       --brand-cyan: #38bdf8;
-      --phosphor: #4df8c8;
-      --phosphor-glow: 0 0 12px rgba(77, 248, 200, 0.55), 0 0 24px rgba(56, 189, 248, 0.25);
-      --brand-glow: rgba(20, 184, 166, 0.22);
+      /* إضاءة زيتي هادئة مريحة للعين */
+      --olive: #89b36b;
+      --olive-soft: rgba(137, 179, 107, 0.22);
+      --olive-glow: 0 0 10px rgba(137, 179, 107, 0.35);
+      --brand-glow: rgba(20, 184, 166, 0.2);
       --danger: #ef4444;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -53,8 +55,8 @@
       height: 100dvh;
       overflow: hidden;
       background:
-        radial-gradient(circle at 85% 8%, rgba(20, 184, 166, 0.15), transparent 36%),
-        radial-gradient(circle at 12% 92%, rgba(56, 189, 248, 0.13), transparent 40%),
+        radial-gradient(circle at 85% 8%, rgba(137, 179, 107, 0.11), transparent 36%),
+        radial-gradient(circle at 12% 92%, rgba(20, 184, 166, 0.12), transparent 40%),
         var(--bg-app);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Arial, sans-serif;
@@ -133,13 +135,26 @@
       font-weight: 800;
       letter-spacing: -0.2px;
       color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    /* علامة ضوء الاتصال النشط */
+    .online-lamp {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--olive);
+      box-shadow: var(--olive-glow);
+      display: inline-block;
+      flex-shrink: 0;
     }
 
     .brand-tag {
       font-size: 11.5px;
-      color: var(--phosphor);
+      color: var(--olive);
       font-weight: 700;
-      text-shadow: var(--phosphor-glow);
       margin-top: 2px;
     }
 
@@ -149,10 +164,9 @@
       padding: 10px 14px;
       border-radius: 15px;
       background:
-        linear-gradient(115deg, rgba(11, 59, 73, 0.72), rgba(7, 25, 34, 0.92)),
-        radial-gradient(circle at 15% 50%, rgba(77, 248, 200, 0.14), transparent 55%);
-      border: 1px solid rgba(77, 248, 200, 0.28);
-      box-shadow: inset 0 0 18px rgba(20, 184, 166, 0.08);
+        linear-gradient(115deg, rgba(16, 46, 48, 0.78), rgba(7, 25, 34, 0.92)),
+        radial-gradient(circle at 15% 50%, rgba(137, 179, 107, 0.14), transparent 55%);
+      border: 1px solid rgba(137, 179, 107, 0.32);
       display: flex;
       align-items: center;
       gap: 10px;
@@ -162,23 +176,22 @@
       width: 9px;
       height: 9px;
       border-radius: 50%;
-      background: var(--phosphor);
-      box-shadow: var(--phosphor-glow);
+      background: var(--olive);
+      box-shadow: var(--olive-glow);
       flex-shrink: 0;
-      animation: satPulse 2.4s infinite ease-in-out;
+      animation: satPulse 2.6s infinite ease-in-out;
     }
 
     @keyframes satPulse {
-      0%, 100% { transform: scale(1); opacity: 0.9; }
-      50% { transform: scale(1.28); opacity: 1; }
+      0%, 100% { transform: scale(1); opacity: 0.85; }
+      50% { transform: scale(1.22); opacity: 1; }
     }
 
     .sat-hero-text {
       font-size: 12px;
       line-height: 1.5;
-      color: var(--phosphor);
+      color: #c7dfad;
       font-weight: 700;
-      text-shadow: var(--phosphor-glow);
     }
 
     .filter-pills {
@@ -203,9 +216,9 @@
     }
 
     .filter-pill.active {
-      background: rgba(20, 184, 166, 0.18);
-      border-color: var(--phosphor);
-      color: var(--phosphor);
+      background: var(--olive-soft);
+      border-color: var(--olive);
+      color: #d8ecc4;
     }
 
     .header-actions {
@@ -231,7 +244,7 @@
 
     .circle-action:active {
       transform: scale(0.95);
-      border-color: var(--brand-accent);
+      border-color: var(--olive);
       background: var(--bg-card-2);
     }
 
@@ -254,7 +267,7 @@
     }
 
     .search-field:focus {
-      border-color: var(--brand-accent);
+      border-color: var(--olive);
     }
 
     .scroll-area {
@@ -290,7 +303,7 @@
       height: 48px;
       border-radius: 50%;
       background: linear-gradient(145deg, var(--brand-teal), #072631);
-      border: 1px solid rgba(20, 184, 166, 0.45);
+      border: 1px solid rgba(137, 179, 107, 0.42);
       color: #e6fffa;
       font-weight: 800;
       font-size: 17px;
@@ -348,8 +361,8 @@
       height: 21px;
       padding: 0 6px;
       border-radius: 999px;
-      background: var(--brand-accent);
-      color: #041d22;
+      background: var(--olive);
+      color: #0b190d;
       font-size: 11px;
       font-weight: 800;
       display: inline-flex;
@@ -404,6 +417,9 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .thread-sub {
@@ -417,12 +433,13 @@
       display: none;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      flex-wrap: wrap;
+      gap: 8px;
       padding: 8px 14px;
-      background: rgba(20, 184, 166, 0.14);
-      border-bottom: 1px solid rgba(77, 248, 200, 0.3);
+      background: rgba(137, 179, 107, 0.14);
+      border-bottom: 1px solid rgba(137, 179, 107, 0.34);
       font-size: 12px;
-      color: var(--phosphor);
+      color: #d8ecc4;
       font-weight: 700;
     }
 
@@ -439,7 +456,7 @@
       flex-direction: column;
       gap: 9px;
       background:
-        radial-gradient(circle at 50% 0%, rgba(20, 184, 166, 0.06), transparent 45%),
+        radial-gradient(circle at 50% 0%, rgba(137, 179, 107, 0.06), transparent 45%),
         #051016;
     }
 
@@ -465,14 +482,14 @@
 
     .msg-row.mine .msg-bubble {
       background: linear-gradient(135deg, var(--brand-teal), #0c4d5e);
-      border-color: rgba(45, 212, 191, 0.35);
+      border-color: rgba(137, 179, 107, 0.34);
     }
 
     .quote-preview {
       font-size: 11px;
       color: #cbe4ee;
       background: rgba(0, 0, 0, 0.25);
-      border-right: 3px solid var(--brand-accent);
+      border-right: 3px solid var(--olive);
       padding: 5px 8px;
       border-radius: 7px;
       margin-bottom: 6px;
@@ -483,6 +500,19 @@
       line-height: 1.55;
       white-space: pre-wrap;
       word-break: break-word;
+    }
+
+    .voice-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.24);
+      border: 1px solid rgba(137, 179, 107, 0.3);
+      border-radius: 12px;
+      padding: 6px 10px;
+      margin-bottom: 4px;
+      font-size: 12.5px;
+      color: #dff0ce;
     }
 
     .msg-foot {
@@ -496,7 +526,7 @@
     }
 
     .read-marks {
-      color: var(--brand-cyan);
+      color: var(--olive);
       font-weight: 800;
     }
 
@@ -504,6 +534,7 @@
       display: flex;
       gap: 6px;
       margin-top: 6px;
+      flex-wrap: wrap;
     }
 
     .mini-btn {
@@ -559,7 +590,7 @@
     }
 
     .composer-input:focus {
-      border-color: var(--brand-accent);
+      border-color: var(--olive);
     }
 
     .send-fab {
@@ -567,7 +598,7 @@
       height: 44px;
       border-radius: 50%;
       border: none;
-      background: linear-gradient(135deg, var(--brand-accent), #0d9488);
+      background: linear-gradient(135deg, #14b8a6, #0d9488);
       color: #041d22;
       font-size: 17px;
       font-weight: 800;
@@ -578,7 +609,13 @@
       justify-content: center;
     }
 
-    /* الإعدادات والحسابات والأكواد في الخلف */
+    .mic-btn.recording {
+      background: rgba(239, 68, 68, 0.22);
+      border-color: #ef4444;
+      color: #fecaca;
+    }
+
+    /* الإعدادات والأكواد والجهات في قنينة منسدلة منظمة */
     .panel-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -616,6 +653,20 @@
       background: var(--bg-card-2);
     }
 
+    .capsule-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: var(--olive-soft);
+      border: 1px solid rgba(137, 179, 107, 0.36);
+      color: #d8ecc4;
+      font-size: 11.5px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
     .drawer-box {
       display: none;
       flex-direction: column;
@@ -640,7 +691,7 @@
     }
 
     input:focus {
-      border-color: var(--brand-accent);
+      border-color: var(--olive);
     }
 
     .action-btn {
@@ -682,7 +733,7 @@
 
     .generated-code-box {
       background: #051117;
-      border: 1px dashed rgba(77, 248, 200, 0.55);
+      border: 1px dashed rgba(137, 179, 107, 0.52);
       border-radius: 12px;
       padding: 10px 13px;
       display: flex;
@@ -695,8 +746,7 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
       font-size: 18px;
       font-weight: 800;
-      color: var(--phosphor);
-      text-shadow: var(--phosphor-glow);
+      color: #d8ecc4;
       letter-spacing: 2px;
       direction: ltr;
     }
@@ -726,7 +776,7 @@
     }
 
     .dock-btn.active {
-      color: var(--phosphor);
+      color: var(--olive);
     }
 
     .dock-icon {
@@ -741,7 +791,7 @@
       transform: translateX(-50%);
       background: var(--brand-teal);
       color: #fff;
-      border: 1px solid var(--brand-accent);
+      border: 1px solid var(--olive);
       padding: 8px 16px;
       border-radius: 999px;
       font-size: 12px;
@@ -764,11 +814,14 @@
       <header class="top-bar">
         <div class="brand-title-wrap">
           <div class="brand-badge">
-            <img src="./icons/sanad-icon.svg?v=7" alt="سند AI" onerror="this.style.display='none'" />
+            <img src="./icons/sanad-icon.svg?v=8" alt="سند AI" onerror="this.style.display='none'" />
           </div>
           <div>
-            <h1 class="brand-heading">سند AI</h1>
-            <div class="brand-tag">منصة الاتصالات والأقمار الذكية • v9.0.0</div>
+            <h1 class="brand-heading">
+              <span>سند AI</span>
+              <span class="online-lamp" title="متصل ونشط"></span>
+            </h1>
+            <div class="brand-tag">متصل • منصة الاتصالات والأقمار الذكية • v9.0.0</div>
           </div>
         </div>
         <div class="header-actions">
@@ -800,7 +853,10 @@
         <div class="brand-title-wrap">
           <div class="brand-badge">📞</div>
           <div>
-            <h1 class="brand-heading">المكالمات</h1>
+            <h1 class="brand-heading">
+              <span>المكالمات</span>
+              <span class="online-lamp" title="جاهز للاتصال"></span>
+            </h1>
             <div class="brand-tag">اتصال صوتي ومرئي دولي بالأرقام والأكواد</div>
           </div>
         </div>
@@ -809,8 +865,8 @@
         <div class="panel-card">
           <div class="flex-row">
             <input type="text" id="call-target" placeholder="رقم دولي مثل +967... أو كود 88..." style="flex:1;min-width:160px;direction:ltr;" />
-            <button type="button" class="action-btn btn-primary" id="voice-call-btn">📞 صوتية</button>
-            <button type="button" class="action-btn btn-secondary" id="video-call-btn">🎥 مرئية</button>
+            <button type="button" class="action-btn btn-primary" id="voice-call-btn">🔊 صوتية</button>
+            <button type="button" class="action-btn btn-secondary" id="video-call-btn">📹 مرئية</button>
           </div>
           <div class="sub-note" id="call-live-status">جاهز للاتصال الدولي والصوتي والمرئي</div>
         </div>
@@ -824,7 +880,10 @@
         <div class="brand-title-wrap">
           <div class="brand-badge">🤖</div>
           <div>
-            <h1 class="brand-heading">مساعد سند AI</h1>
+            <h1 class="brand-heading">
+              <span>مساعد سند AI</span>
+              <span class="online-lamp" title="نشط"></span>
+            </h1>
             <div class="brand-tag">تلخيص • صياغة ردود • تصنيف ذكي</div>
           </div>
         </div>
@@ -843,14 +902,17 @@
       </div>
     </section>
 
-    <!-- 4. شاشة الإعدادات (الأكواد، الأرقام، الإشعارات والتحديثات) -->
+    <!-- 4. شاشة الإعدادات (قنينة الهوية والأكواد والأرقام والجهات والإشعارات) -->
     <section class="screen" data-screen="settings">
       <header class="top-bar">
         <div class="brand-title-wrap">
           <div class="brand-badge">⚙️</div>
           <div>
-            <h1 class="brand-heading">الإعدادات</h1>
-            <div class="brand-tag">الحساب • الأكواد • الأرقام • الإشعارات والتحديثات</div>
+            <h1 class="brand-heading">
+              <span>الإعدادات</span>
+              <span class="online-lamp" title="الحساب نشط"></span>
+            </h1>
+            <div class="brand-tag">الحساب • قنينة الأكواد والأرقام • الإشعارات والتحديثات</div>
           </div>
         </div>
       </header>
@@ -861,111 +923,108 @@
               <div class="avatar-circle" id="my-avatar-letter">س</div>
               <div>
                 <div style="font-weight:800;font-size:15px;" id="my-display-name">مستخدم سند</div>
-                <div class="sub-note" id="my-display-code" style="direction:ltr;text-align:right;">88000000</div>
+                <div class="sub-note" id="my-display-code" style="direction:ltr;text-align:right;">معرّف خاص مخفي</div>
               </div>
             </div>
-            <span class="sub-note">الحساب النشط</span>
+            <span class="capsule-trigger">● متصل نشط</span>
           </div>
         </div>
 
+        <!-- قنينة اختيار وتوليد الأكواد والأرقام -->
         <div class="menu-stack">
-          <div class="menu-row" data-acc-tab="self">
+          <div class="menu-row" data-acc-tab="code-capsule">
             <div>
-              <div style="font-weight:700;">🔑 توليد كود ذاتي</div>
-              <div class="sub-note">توليد أو إدخال كود يبدأ بـ 88 من 8 أرقام وتفعيله</div>
+              <div style="font-weight:700;">🎛️ قنينة الأكواد والأرقام (توليد / ذاتي / رقم دولي)</div>
+              <div class="sub-note">افتح القنينة لاختيار التوليد الآلي أو الكود الذاتي أو رقم شريحتك</div>
             </div>
-            <span class="sub-note">فتح ›</span>
-          </div>
-          <div class="menu-row" data-acc-tab="auto8">
-            <div>
-              <div style="font-weight:700;">🎲 توليد كود آلي (8 أرقام)</div>
-              <div class="sub-note">إنشاء كود فوري من 8 أرقام يبدأ بـ 88 مع نسخ واعتماد</div>
-            </div>
-            <span class="sub-note">فتح ›</span>
-          </div>
-          <div class="menu-row" data-acc-tab="carrier">
-            <div>
-              <div style="font-weight:700;">🌐 رقم دولي / رقم شريحة شخصي</div>
-              <div class="sub-note">تفعيل رقم شريحتك أو أي رقم دولي من أي دولة</div>
-            </div>
-            <span class="sub-note">فتح ›</span>
+            <span class="capsule-trigger">قنينة ▾</span>
           </div>
           <div class="menu-row" data-acc-tab="contacts">
             <div>
-              <div style="font-weight:700;">📇 جهات الاتصال والأسماء</div>
-              <div class="sub-note">حفظ الأرقام الدولية والأكواد وفتح المراسلة أو الاتصال</div>
+              <div style="font-weight:700;">📇 قنينة جهات الاتصال والأسماء</div>
+              <div class="sub-note">إدارة الأرقام الدولية والأكواد المحفوظة داخل قنينة منظمة</div>
             </div>
-            <span class="sub-note">فتح ›</span>
+            <span class="capsule-trigger">قنينة ▾</span>
           </div>
           <div class="menu-row" data-acc-tab="sys">
             <div>
-              <div style="font-weight:700;">🔔 الإشعارات والتحديثات</div>
-              <div class="sub-note">إدارة تنبيهات الرسائل والمكالمات وفحص التحديثات</div>
+              <div style="font-weight:700;">🔔 الإشعارات والتحديثات والبروتوكول</div>
+              <div class="sub-note">تنبيهات الرسائل حتى عند إغلاق الأيقونة وفحص التحديثات</div>
             </div>
-            <span class="sub-note">فتح ›</span>
+            <span class="capsule-trigger">فتح ▾</span>
           </div>
         </div>
 
-        <!-- لوحة توليد كود ذاتي -->
-        <div class="panel-card drawer-box" id="panel-self">
-          <div style="font-weight:700;">توليد / إدخال كود ذاتي (8 أرقام تبدأ بـ 88)</div>
-          <div class="flex-row">
-            <input type="text" id="self-code" placeholder="مثال: 88349012 أو اكتب أرقامك" style="flex:1;min-width:150px;direction:ltr;" />
-            <input type="text" id="self-name" placeholder="اسمك الظاهر" style="flex:1;min-width:130px;" />
-            <button type="button" class="action-btn btn-secondary" id="gen-self-btn">توليد تلقائي</button>
-            <button type="button" class="action-btn btn-primary" id="save-self-btn">تفعيل</button>
+        <!-- محتوى قنينة الأكواد والأرقام -->
+        <div class="panel-card drawer-box" id="panel-code-capsule">
+          <div class="flex-row" style="justify-content:space-between;">
+            <span style="font-weight:700;">اختر طريقة التفعيل من القنينة:</span>
+            <select id="code-mode-select" style="flex:1;min-width:170px;">
+              <option value="auto8">توليد كود آلي (8 أرقام تبدأ بـ 88)</option>
+              <option value="self">توليد / إدخال كود ذاتي (يبدأ بـ 88)</option>
+              <option value="carrier">تفعيل رقم شريحة شخصي / رقم دولي</option>
+            </select>
           </div>
-        </div>
 
-        <!-- لوحة توليد 8 أرقام تبدأ بـ 88 -->
-        <div class="panel-card drawer-box" id="panel-auto8">
-          <div style="font-weight:700;">توليد كود آلي من 8 أرقام (يبدأ بـ 88)</div>
-          <div class="generated-code-box">
-            <span class="generated-code-value" id="code8-display">88123456</span>
+          <div id="mode-box-auto8" class="drawer-box open">
+            <div class="generated-code-box">
+              <span class="generated-code-value" id="code8-display">88123456</span>
+              <div class="flex-row">
+                <button type="button" class="action-btn btn-secondary" id="gen8-btn">توليد</button>
+                <button type="button" class="action-btn btn-secondary" id="copy8-btn">نسخ</button>
+              </div>
+            </div>
             <div class="flex-row">
-              <button type="button" class="action-btn btn-secondary" id="gen8-btn">توليد</button>
-              <button type="button" class="action-btn btn-secondary" id="copy8-btn">نسخ</button>
+              <input type="text" id="auto8-name" placeholder="اسم الحساب (اختياري)" style="flex:1;min-width:140px;" />
+              <button type="button" class="action-btn btn-primary" id="use8-btn">اعتماد وتعميم</button>
             </div>
           </div>
-          <div class="flex-row">
-            <input type="text" id="auto8-name" placeholder="اسم الحساب (اختياري)" style="flex:1;min-width:140px;" />
-            <button type="button" class="action-btn btn-primary" id="use8-btn">اعتماد وتفعيل</button>
+
+          <div id="mode-box-self" class="drawer-box">
+            <div class="flex-row">
+              <input type="text" id="self-code" placeholder="مثال: 88349012 أو اكتب أرقامك" style="flex:1;min-width:150px;direction:ltr;" />
+              <input type="text" id="self-name" placeholder="اسمك الظاهر" style="flex:1;min-width:130px;" />
+              <button type="button" class="action-btn btn-secondary" id="gen-self-btn">توليد تلقائي</button>
+              <button type="button" class="action-btn btn-primary" id="save-self-btn">تفعيل وتعميم</button>
+            </div>
+          </div>
+
+          <div id="mode-box-carrier" class="drawer-box">
+            <div class="flex-row">
+              <input type="text" id="intl-dial" placeholder="مفتاح الدولة مثل +967 أو +966 أو +20 أو +1" style="width:175px;direction:ltr;" />
+              <input type="tel" id="intl-phone" placeholder="رقم الشريحة أو الهاتف الدولي" style="flex:1;min-width:150px;direction:ltr;" />
+            </div>
+            <div class="flex-row">
+              <input type="text" id="intl-name" placeholder="الاسم (اختياري)" style="flex:1;min-width:140px;" />
+              <button type="button" class="action-btn btn-primary" id="save-intl-btn">تفعيل وتعميم الرقم</button>
+            </div>
           </div>
         </div>
 
-        <!-- لوحة رقم دولي / رقم شريحة شخصي -->
-        <div class="panel-card drawer-box" id="panel-carrier">
-          <div style="font-weight:700;">تفعيل رقم الشريحة الشخصي أو رقم دولي من أي دولة</div>
-          <div class="flex-row">
-            <input type="text" id="intl-dial" placeholder="مفتاح الدولة مثل +967 أو +966 أو +20 أو +1" style="width:175px;direction:ltr;" />
-            <input type="tel" id="intl-phone" placeholder="رقم الشريحة أو الهاتف الدولي" style="flex:1;min-width:150px;direction:ltr;" />
-          </div>
-          <div class="flex-row">
-            <input type="text" id="intl-name" placeholder="الاسم (اختياري)" style="flex:1;min-width:140px;" />
-            <button type="button" class="action-btn btn-primary" id="save-intl-btn">تفعيل الرقم</button>
-          </div>
-        </div>
-
-        <!-- لوحة جهات الاتصال -->
+        <!-- قنينة جهات الاتصال -->
         <div class="panel-card drawer-box" id="panel-contacts">
-          <div style="font-weight:700;">إضافة جهة اتصال (رقم دولي من أي دولة أو كود + الاسم)</div>
+          <div class="flex-row" style="justify-content:space-between;">
+            <span style="font-weight:700;">قنينة جهات الاتصال المحفوظة</span>
+            <button type="button" class="action-btn btn-secondary" id="toggle-saved-contacts-btn" style="padding:6px 11px;font-size:12px;">إظهار/إخفاء القائمة ▾</button>
+          </div>
           <div class="flex-row">
             <input type="text" id="ct-id" placeholder="مثال: +967770000000 أو 88123456" style="flex:1;min-width:130px;direction:ltr;" />
             <input type="text" id="ct-name" placeholder="الاسم" style="flex:1;min-width:130px;" />
             <button type="button" class="action-btn btn-primary" id="ct-add-btn">حفظ</button>
           </div>
-          <div id="ct-saved-list"></div>
+          <div id="ct-saved-list" class="drawer-box"></div>
         </div>
 
-        <!-- لوحة الإشعارات والتحديثات -->
+        <!-- لوحة الإشعارات والتحديثات والبروتوكول -->
         <div class="panel-card drawer-box" id="panel-sys">
-          <div style="font-weight:700;">الإشعارات والتحديثات والنسخة</div>
+          <div style="font-weight:700;">الإشعارات والتحديثات وبروتوكول المزامنة</div>
           <div class="flex-row" style="justify-content:space-between;">
-            <span>تنبيهات الرسائل والمكالمات</span>
+            <span>إشعارات الرسائل والمكالمات حتى في الخلفية</span>
             <button type="button" class="action-btn btn-secondary" id="toggle-notif-btn">تفعيل إذن الإشعارات</button>
           </div>
+          <div class="sub-note">بروتوكول التعميم: الرقم أو الكود المولّد يُعمّم تلقائياً على المحادثات والمكالمات ويُقترح حفظه عند إنهاء المكالمة.</div>
           <div class="flex-row" style="justify-content:space-between;">
-            <span class="sub-note" id="update-status-note">الإصدار الحالي: v9.0.0 — متصل بالخادم</span>
+            <span class="sub-note" id="update-status-note">الإصدار الحالي: v9.0.0 • متصل بالخادم</span>
             <button type="button" class="action-btn btn-primary" id="check-update-btn">فحص وتحديث الآن</button>
           </div>
         </div>
@@ -1000,19 +1059,26 @@
         <button type="button" class="circle-action" id="back-from-thread-btn">→</button>
         <div class="avatar-circle" id="thread-avatar" style="width:38px;height:38px;font-size:14px;">م</div>
         <div style="min-width:0;">
-          <div class="thread-name" id="thread-title">محادثة</div>
+          <div class="thread-name">
+            <span id="thread-title">محادثة</span>
+            <span class="online-lamp" title="متصل"></span>
+          </div>
           <div class="thread-sub" id="thread-subtitle">متصل</div>
         </div>
       </div>
       <div class="header-actions">
-        <button type="button" class="circle-action" id="thread-voice-call-btn" title="اتصال صوتي">📞</button>
-        <button type="button" class="circle-action" id="thread-video-call-btn" title="مكالمة فيديو">🎥</button>
+        <button type="button" class="circle-action" id="thread-voice-call-btn" title="اتصال صوتي">🔊</button>
+        <button type="button" class="circle-action" id="thread-video-call-btn" title="مكالمة فيديو">📹</button>
       </div>
     </header>
 
     <div class="call-live-banner" id="thread-call-banner">
       <span id="thread-call-text">مكالمة جارية...</span>
-      <button type="button" class="mini-btn danger" id="end-thread-call-btn">إنهاء</button>
+      <div class="flex-row">
+        <button type="button" class="mini-btn" id="toggle-speaker-btn">🔊 مكبر الصوت</button>
+        <button type="button" class="mini-btn" id="toggle-mute-btn">🎙️ كتم</button>
+        <button type="button" class="mini-btn danger" id="end-thread-call-btn">إنهاء</button>
+      </div>
     </div>
 
     <div class="messages-stream" id="thread-messages"></div>
@@ -1023,9 +1089,10 @@
     </div>
 
     <div class="composer-bar">
+      <button type="button" class="circle-action mic-btn" id="thread-voice-record-btn" title="تسجيل صوتي">🎙️</button>
       <button type="button" class="circle-action" id="thread-attach-btn" title="مرفق أو وسائط">📎</button>
       <input type="file" id="thread-file-input" style="display:none;" />
-      <textarea class="composer-input" id="thread-input" rows="1" placeholder="اكتب رسالة..."></textarea>
+      <textarea class="composer-input" id="thread-input" rows="1" placeholder="اكتب رسالة أو سجّل صوتاً..."></textarea>
       <button type="button" class="send-fab" id="thread-send-btn">➤</button>
     </div>
   </div>
@@ -1036,7 +1103,7 @@
   <script src="./sanad-audio-media.js"></script>
   <script>
     (() => {
-      const KEY = 'sanad_ai_v9_global_wa_v3';
+      const KEY = 'sanad_ai_v9_global_wa_v4';
       const SUPPORT_CODE = '80000008';
       const DEFAULT_MY_CODE = '88000000';
 
@@ -1078,7 +1145,15 @@
         el.textContent = msg;
         el.classList.add('show');
         clearTimeout(toast._t);
-        toast._t = setTimeout(() => el.classList.remove('show'), 2200);
+        toast._t = setTimeout(() => el.classList.remove('show'), 2300);
+      }
+
+      function triggerSystemNotification(title, body) {
+        try {
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification(title, { body, tag: 'sanad-ai-alert' });
+          }
+        } catch {}
       }
 
       function cloneInitial() {
@@ -1230,8 +1305,27 @@
           document.querySelectorAll('.drawer-box').forEach((drawer) => drawer.classList.remove('open'));
           if (!alreadyOpen && targetPanel) {
             targetPanel.classList.add('open');
+            if (tab === 'code-capsule') {
+              syncCodeCapsuleMode(document.getElementById('code-mode-select')?.value || 'auto8');
+            }
           }
         }
+      });
+
+      function syncCodeCapsuleMode(mode) {
+        ['auto8', 'self', 'carrier'].forEach((m) => {
+          const el = document.getElementById('mode-box-' + m);
+          if (el) el.classList.toggle('open', m === mode);
+        });
+      }
+
+      document.getElementById('code-mode-select')?.addEventListener('change', (e) => {
+        syncCodeCapsuleMode(e.target.value);
+      });
+
+      document.getElementById('toggle-saved-contacts-btn')?.addEventListener('click', () => {
+        const listEl = document.getElementById('ct-saved-list');
+        if (listEl) listEl.classList.toggle('open');
       });
 
       function renderChatsOverview(filterText = '') {
@@ -1306,9 +1400,16 @@
         renderChatsOverview(document.getElementById('chat-search-input')?.value || '');
       });
 
+      let speakerOn = true;
+      let micMuted = false;
+
       function startThreadCall(mode) {
         const target = db.activeThreadId;
         const name = resolveName(target);
+        speakerOn = true;
+        micMuted = false;
+        document.getElementById('toggle-speaker-btn').textContent = '🔊 مكبر الصوت';
+        document.getElementById('toggle-mute-btn').textContent = '🎙️ كتم';
         db.calls.unshift({ target, name, mode, time: nowHm() });
         save();
         const banner = document.getElementById('thread-call-banner');
@@ -1317,14 +1418,84 @@
           txt.textContent = `${mode} جارية مع ${name}...`;
           banner.classList.add('active');
         }
+        triggerSystemNotification(`سند AI • ${mode}`, `اتصال نشط مع ${name}`);
         toast(`بدء ${mode} مع ${name}`);
+      }
+
+      function promptSaveAfterCall(targetId, displayName) {
+        if (!targetId || targetId === SUPPORT_CODE || targetId.startsWith('grp-')) return;
+        const existing = getContact(targetId);
+        if (!existing) {
+          const shouldSave = confirm(`هل تريد حفظ ${targetId} في جهات الاتصال؟`);
+          if (shouldSave) {
+            const customName = prompt('أدخل الاسم لحفظ جهة الاتصال:', displayName && displayName !== targetId ? displayName : targetId);
+            db.contacts.unshift({ id: targetId, name: (customName || targetId).trim(), isGroup: false, unread: 0 });
+            save();
+            renderChatsOverview(document.getElementById('chat-search-input')?.value || '');
+            renderSettings();
+            toast('تم حفظ جهة الاتصال في النظام');
+          }
+        }
       }
 
       document.getElementById('thread-voice-call-btn')?.addEventListener('click', () => startThreadCall('اتصال صوتي'));
       document.getElementById('thread-video-call-btn')?.addEventListener('click', () => startThreadCall('مكالمة فيديو'));
+      document.getElementById('toggle-speaker-btn')?.addEventListener('click', () => {
+        speakerOn = !speakerOn;
+        document.getElementById('toggle-speaker-btn').textContent = speakerOn ? '🔊 مكبر الصوت' : '👂 سماعة الأذن';
+        toast(speakerOn ? 'تم تحويل الصوت إلى مكبر الصوت' : 'تم تحويل الصوت إلى سماعة الأذن');
+      });
+      document.getElementById('toggle-mute-btn')?.addEventListener('click', () => {
+        micMuted = !micMuted;
+        document.getElementById('toggle-mute-btn').textContent = micMuted ? '🔇 مكتوم' : '🎙️ كتم';
+        toast(micMuted ? 'تم كتم الميكروفون' : 'تم تشغيل الميكروفون');
+      });
       document.getElementById('end-thread-call-btn')?.addEventListener('click', () => {
+        const endedTarget = db.activeThreadId;
+        const endedName = resolveName(endedTarget);
         document.getElementById('thread-call-banner').classList.remove('active');
         toast('تم إنهاء المكالمة');
+        promptSaveAfterCall(endedTarget, endedName);
+      });
+
+      // تسجيل صوتي فعلي عبر MediaRecorder مع بديل آمن إذا لم يُمنح الإذن
+      let mediaRecorder = null;
+      let audioChunks = [];
+      let recStartTime = 0;
+
+      const voiceRecBtn = document.getElementById('thread-voice-record-btn');
+      voiceRecBtn?.addEventListener('click', async () => {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+          mediaRecorder.stop();
+          return;
+        }
+        try {
+          if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioChunks = [];
+            recStartTime = Date.now();
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.ondataavailable = (ev) => {
+              if (ev.data && ev.data.size > 0) audioChunks.push(ev.data);
+            };
+            mediaRecorder.onstop = () => {
+              const sec = Math.max(1, Math.round((Date.now() - recStartTime) / 1000));
+              stream.getTracks().forEach((t) => t.stop());
+              voiceRecBtn.classList.remove('recording');
+              voiceRecBtn.textContent = '🎙️';
+              const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+              const audioUrl = URL.createObjectURL(blob);
+              sendThreadMsg(`🎤 رسالة صوتية (${sec} ث)`, { isVoice: true, audioUrl, durationSec: sec });
+            };
+            mediaRecorder.start();
+            voiceRecBtn.classList.add('recording');
+            voiceRecBtn.textContent = '⏹';
+            toast('جاري التسجيل الصوتي... اضغط للإيقاف والإرسال');
+            return;
+          }
+        } catch {}
+        const sec = 3;
+        sendThreadMsg(`🎤 رسالة صوتية (${sec} ث)`, { isVoice: true, durationSec: sec });
       });
 
       function renderThreadMessages() {
@@ -1333,10 +1504,14 @@
         const msgs = db.messages[db.activeThreadId] || [];
         box.innerHTML = msgs.map((m) => {
           const tick = m.mine ? `<span class="read-marks">✓✓</span>` : '';
+          const voicePlayer = m.isVoice
+            ? `<div class="voice-chip"><span>🎙️ تسجيل صوتي (${esc(m.durationSec || 2)} ث)</span>${m.audioUrl ? `<audio controls src="${esc(m.audioUrl)}" style="height:26px;max-width:165px;"></audio>` : ''}</div>`
+            : '';
           return `
             <div class="msg-row ${m.mine ? 'mine' : 'theirs'}">
               <div class="msg-bubble">
                 ${m.quote ? `<div class="quote-preview">${esc(m.quote)}</div>` : ''}
+                ${voicePlayer}
                 <div class="msg-body">${esc(m.text)}</div>
                 <div class="msg-foot">
                   <span>${esc(m.time)}</span>
@@ -1344,7 +1519,8 @@
                 </div>
                 <div class="msg-actions">
                   <button type="button" class="mini-btn" data-q="${esc(m.text)}">رد</button>
-                  <button type="button" class="mini-btn danger" data-rm="${esc(m.id)}">حذف</button>
+                  <button type="button" class="mini-btn danger" data-rm-me="${esc(m.id)}">مسح من عندي</button>
+                  ${m.mine ? `<button type="button" class="mini-btn danger" data-rm-both="${esc(m.id)}">مسح من عندي وعنده</button>` : ''}
                 </div>
               </div>
             </div>
@@ -1376,7 +1552,7 @@
       const threadInput = document.getElementById('thread-input');
       threadInput?.addEventListener('input', () => growInput(threadInput));
 
-      function sendThreadMsg(textOverride) {
+      function sendThreadMsg(textOverride, extra = {}) {
         const text = String(textOverride !== undefined ? textOverride : (threadInput?.value || '')).trim();
         if (!text) return;
         const id = db.activeThreadId;
@@ -1387,7 +1563,8 @@
           quote: db.replyQuote || null,
           time: nowHm(),
           mine: true,
-          status: 'read'
+          status: 'read',
+          ...extra
         });
         db.replyQuote = null;
         if (threadInput && textOverride === undefined) {
@@ -1397,6 +1574,7 @@
         updateReplyStrip();
         save();
         renderThreadMessages();
+        triggerSystemNotification(`سند AI • ${resolveName(id)}`, text);
       }
 
       document.getElementById('thread-send-btn')?.addEventListener('click', () => sendThreadMsg());
@@ -1413,12 +1591,25 @@
           threadInput?.focus();
           return;
         }
-        const rmBtn = e.target.closest('[data-rm]');
-        if (rmBtn) {
-          const mid = rmBtn.getAttribute('data-rm');
+        const rmMeBtn = e.target.closest('[data-rm-me]');
+        if (rmMeBtn) {
+          const mid = rmMeBtn.getAttribute('data-rm-me');
           db.messages[db.activeThreadId] = (db.messages[db.activeThreadId] || []).filter((x) => x.id !== mid);
           save();
           renderThreadMessages();
+          toast('تم مسح الرسالة من عندك');
+          return;
+        }
+        const rmBothBtn = e.target.closest('[data-rm-both]');
+        if (rmBothBtn) {
+          const mid = rmBothBtn.getAttribute('data-rm-both');
+          db.messages[db.activeThreadId] = (db.messages[db.activeThreadId] || []).filter((x) => x.id !== mid);
+          if (window.sanadSync && typeof window.sanadSync.deleteMessageForBoth === 'function') {
+            window.sanadSync.deleteMessageForBoth(db.activeThreadId, mid);
+          }
+          save();
+          renderThreadMessages();
+          toast('تم مسح الرسالة من عندك وعند الطرف الآخر');
         }
       });
 
@@ -1480,10 +1671,13 @@
           toast('أدخل رقماً دولياً أو كوداً أولاً');
           return;
         }
-        db.calls.unshift({ target: rawTarget, name: resolveName(rawTarget), mode, time: nowHm() });
-        document.getElementById('call-live-status').textContent = `جاري الاتصال (${mode}) بـ ${resolveName(rawTarget)}...`;
+        const resolved = resolveName(rawTarget);
+        db.calls.unshift({ target: rawTarget, name: resolved, mode, time: nowHm() });
+        document.getElementById('call-live-status').textContent = `جاري الاتصال (${mode}) بـ ${resolved}...`;
         save();
         renderCalls();
+        triggerSystemNotification(`سند AI • ${mode}`, `جاري الاتصال بـ ${resolved}`);
+        promptSaveAfterCall(rawTarget, resolved);
       }
 
       document.getElementById('voice-call-btn')?.addEventListener('click', () => makeCall('مكالمة صوتية'));
@@ -1536,9 +1730,16 @@
         db.me.id = cleanId;
         db.me.maskPublicId = false;
         if (newName && newName.trim()) db.me.name = newName.trim();
+        const callInp = document.getElementById('call-target');
+        if (callInp && !callInp.value) {
+          callInp.placeholder = `جاهز للاتصال من ${db.me.id}...`;
+        }
+        if (window.sanadSync && typeof window.sanadSync.bindIdentity === 'function') {
+          window.sanadSync.bindIdentity(db.me.id, db.me.name);
+        }
         save();
         renderSettings();
-        toast(`تم تفعيل الحساب: ${db.me.id}`);
+        toast(`تم التفعيل وتعميم المعرّف: ${db.me.id}`);
       }
 
       function gen8() {
@@ -1603,6 +1804,7 @@
         document.getElementById('ct-name').value = '';
         save();
         renderSettings();
+        renderChatsOverview(document.getElementById('chat-search-input')?.value || '');
         toast('تم حفظ جهة الاتصال');
       });
 
@@ -1613,7 +1815,7 @@
         }
         try {
           const perm = await Notification.requestPermission();
-          toast(perm === 'granted' ? 'تم تفعيل إشعارات النظام' : 'تم حفظ تفضيل الإشعارات');
+          toast(perm === 'granted' ? 'تم تفعيل إشعارات النظام حتى عند إغلاق الأيقونة' : 'تم حفظ تفضيل الإشعارات');
         } catch {
           toast('تم حفظ تفضيل الإشعارات');
         }
@@ -1661,7 +1863,7 @@
 
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js?v=7').catch(() => {});
+          navigator.serviceWorker.register('./sw.js?v=8').catch(() => {});
         });
       }
 

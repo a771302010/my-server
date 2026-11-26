@@ -1,0 +1,20 @@
+{
+  "name": "سند AI — Sanad AI",
+  "short_name": "سند AI",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b1220",
+  "theme_color": "#0b84ff",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "./icons/sanad-icon.svg",
+      "sizes": "180x180 512x512 any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

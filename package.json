@@ -1,12 +1,15 @@
 {
-  "name": "sanad-app",
-  "version": "2.0.0",
-  "description": "السند - نظام تواصل ذكي ومباشر",
+  "name": "sanad-ai",
+  "version": "9.0.0",
+  "description": "Sanad AI Messaging, Groups, Calls & Customer Support Assistant",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

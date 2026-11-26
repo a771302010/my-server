@@ -68,4 +68,3 @@ wsHub.attach(server);
 server.listen(config.port, '0.0.0.0', () => {
   console.log(`[Sanad AI v${config.version}] running on http://0.0.0.0:${config.port}`);
 });
-

@@ -5,1482 +5,1212 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
   <title>سند AI — الإصدار 9.0.0</title>
 
-  <!-- لون شريط الحالة والمظهر الموحد باللون الأزرق الزيتي -->
   <meta name="theme-color" content="#0b3b49" />
   <meta name="msapplication-TileColor" content="#0b3b49" />
-  <meta name="msapplication-TileImage" content="./icons/icon-192.png?v=4" />
+  <meta name="msapplication-TileImage" content="./icons/icon-192.png?v=5" />
 
-  <!-- أيقونات المتصفح والويب والكمبيوتر -->
-  <link rel="icon" href="./icons/sanad-icon.svg?v=4" type="image/svg+xml" />
-  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png?v=4" />
-  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png?v=4" />
-
-  <!-- أيقونة الشاشة الرئيسية للآيفون والآيباد -->
-  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png?v=4" />
+  <link rel="icon" href="./icons/sanad-icon.svg?v=5" type="image/svg+xml" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png?v=5" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png?v=5" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png?v=5" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="سند AI" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-
-  <link rel="manifest" href="./manifest.json?v=4" />
+  <link rel="manifest" href="./manifest.json?v=5" />
 
   <style>
     :root {
-      --bg: #07171d;
-      --surface: #0b222b;
-      --surface-2: #102e3a;
-      --surface-3: #163c4b;
-      --border: #1e4d5e;
-      --text: #f1f8fa;
-      --muted: #9ec0cc;
+      --bg: #071419;
+      --surface: #0c1d24;
+      --surface-2: #122933;
+      --surface-3: #183643;
+      --border: #1e4352;
+      --text: #f3f9fb;
+      --muted: #98bac6;
       --teal: #0b3b49;
-      --primary: #0ea5a4;
-      --primary-hover: #0d9488;
       --accent: #14b8a6;
-      --success: #16a34a;
-      --warn: #eab308;
+      --accent-dark: #0d9488;
+      --read: #38bdf8;
       --danger: #ef4444;
-      --radius: 16px;
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
       --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     html, body {
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100dvh;
-      min-height: 100dvh;
       overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Arial, sans-serif;
     }
 
-    .app-shell {
+    .app {
       width: 100%;
       height: 100dvh;
-      max-width: 100%;
       display: flex;
       flex-direction: column;
       padding-top: var(--safe-top);
       padding-bottom: var(--safe-bottom);
-      background: linear-gradient(180deg, #0b3b49 0%, var(--bg) 96px);
+      background: var(--bg);
+      position: relative;
     }
 
-    .topbar {
+    .screen {
+      flex: 1;
+      min-height: 0;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    .wa-header {
       flex-shrink: 0;
-      background: rgba(11, 59, 73, 0.96);
+      background: var(--surface);
       border-bottom: 1px solid var(--border);
       padding: 10px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      min-height: 56px;
+      min-height: 58px;
     }
 
-    .brand {
+    .wa-header-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin: 0;
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-weight: 700;
-      font-size: clamp(15px, 4vw, 18px);
-      min-width: 0;
+      gap: 8px;
     }
 
-    .brand-logo-box {
+    .wa-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-circle-btn {
       width: 36px;
       height: 36px;
-      border-radius: 11px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
       background: var(--surface-2);
-      border: 1px solid rgba(255,255,255,0.18);
-      display: flex;
+      color: var(--text);
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .search-wrap {
       flex-shrink: 0;
-      font-weight: 800;
-      color: #fff;
+      padding: 8px 14px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 14px;
       font-size: 14px;
     }
 
-    .brand-logo-box img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
+    .scroll-list {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 8px 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
 
-    .brand-title {
+    .chat-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      border-radius: 14px;
+      background: transparent;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .chat-item:hover, .chat-item:active {
+      background: var(--surface);
+      border-color: var(--border);
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--teal);
+      border: 1px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 17px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .chat-item-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .chat-item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .chat-name {
+      font-weight: 700;
+      font-size: 15px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .ver-pill {
+    .chat-time {
       font-size: 11px;
-      background: rgba(20, 184, 166, 0.18);
-      color: #99f6e4;
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(20, 184, 166, 0.4);
+      color: var(--muted);
       flex-shrink: 0;
     }
 
-    .conn-badge {
+    .chat-item-sub {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 3px;
+    }
+
+    .chat-preview {
+      font-size: 13px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .unread-pill {
+      background: var(--accent);
+      color: #052026;
+      font-weight: 800;
+      font-size: 11px;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      border-radius: 999px;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      padding: 5px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.16);
-      background: rgba(7, 23, 29, 0.65);
-      white-space: nowrap;
+      justify-content: center;
       flex-shrink: 0;
     }
 
-    .conn-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--warn);
+    /* صفحة المحادثة الفردية بملء الشاشة */
+    .thread-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: none;
+      flex-direction: column;
+      background: var(--bg);
+      padding-top: var(--safe-top);
+      padding-bottom: var(--safe-bottom);
     }
 
-    .conn-connected .conn-dot { background: var(--success); }
-    .conn-offline .conn-dot { background: var(--accent); }
+    .thread-screen.open {
+      display: flex;
+    }
 
-    .active-id-bar {
+    .thread-header {
       flex-shrink: 0;
       background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 6px 14px;
+      padding: 8px 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      font-size: 12px;
-      color: var(--muted);
+      min-height: 58px;
     }
 
-    .active-id-pill {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      color: #e0f7fa;
-      padding: 3px 9px;
-      border-radius: 999px;
-      font-weight: 700;
-      direction: ltr;
-      unicode-bidi: isolate;
-    }
-
-    .nav-tabs {
-      flex-shrink: 0;
+    .thread-peer-meta {
       display: flex;
-      gap: 6px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      padding: 8px 12px;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .nav-tabs::-webkit-scrollbar { display: none; }
-
-    .tab-btn {
-      background: var(--surface-2);
-      color: var(--muted);
-      border: 1px solid var(--border);
-      padding: 8px 12px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: clamp(12px, 3.2vw, 13px);
-      font-weight: 700;
-      display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .thread-peer-name {
+      font-weight: 800;
+      font-size: 15px;
       white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .tab-btn.active {
-      background: var(--primary);
-      color: #fff;
-      border-color: var(--accent);
-    }
-
-    .badge-count {
-      background: var(--danger);
-      color: #fff;
-      font-size: 10px;
-      padding: 1px 6px;
-      border-radius: 999px;
-    }
-
-    .main-container {
-      flex: 1;
-      min-height: 0;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      padding: 8px 10px 10px;
       overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .pane-card {
-      flex: 1;
-      min-height: 0;
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      overflow: hidden;
+    .thread-peer-sub {
+      font-size: 11px;
+      color: var(--muted);
+      direction: ltr;
+      text-align: right;
     }
 
-    .pane-scroll {
+    .thread-messages {
       flex: 1;
       min-height: 0;
       overflow-y: auto;
+      padding: 12px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      padding-left: 2px;
-    }
-
-    .row-bar {
-      display: flex;
       gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
+      background: #061217;
     }
 
-    input, select, textarea {
+    .bubble-row { display: flex; }
+    .bubble-row.mine { justify-content: flex-start; }
+    .bubble-row.theirs { justify-content: flex-end; }
+
+    .bubble {
+      max-width: min(84%, 620px);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 8px 11px;
+    }
+
+    .bubble-row.mine .bubble {
+      background: var(--teal);
+      border-color: #1c667a;
+    }
+
+    .quote-box {
+      font-size: 11px;
+      color: var(--muted);
+      background: rgba(0, 0, 0, 0.22);
+      border-right: 3px solid var(--accent);
+      padding: 4px 8px;
+      border-radius: 6px;
+      margin-bottom: 5px;
+    }
+
+    .bubble-text {
+      font-size: 15px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .bubble-meta {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 5px;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .tick-read { color: var(--read); font-weight: 800; }
+
+    .bubble-tools {
+      display: flex;
+      gap: 6px;
+      margin-top: 5px;
+    }
+
+    .tiny-act {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: none;
+      border-radius: 6px;
+      padding: 2px 7px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .tiny-act.del { color: #fca5a5; }
+
+    .reply-strip {
+      flex-shrink: 0;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 7px 12px;
+      background: var(--surface-2);
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+    }
+
+    .wa-composer {
+      flex-shrink: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 8px 10px;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .wa-input {
+      flex: 1;
+      min-height: 44px;
+      max-height: 140px;
+      resize: none;
       background: var(--surface-2);
       color: var(--text);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-size: clamp(14px, 3.8vw, 15px);
-      font-family: inherit;
-      min-width: 0;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-
-    button {
-      font-family: inherit;
-      cursor: pointer;
-      border-radius: 12px;
-      border: none;
+      border-radius: 20px;
       padding: 10px 14px;
-      font-size: clamp(12px, 3.5vw, 14px);
-      font-weight: 700;
+      font-size: 15px;
+      line-height: 1.4;
+      font-family: inherit;
+    }
+
+    .wa-send-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #041d22;
+      border: none;
+      font-size: 17px;
+      font-weight: 800;
+      cursor: pointer;
+      flex-shrink: 0;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      white-space: nowrap;
     }
 
-    button:active { transform: scale(0.98); }
+    /* الإعدادات والحسابات والأكواد */
+    .settings-group {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
 
-    .btn-primary { background: var(--primary); color: #fff; }
-    .btn-primary:hover { background: var(--primary-hover); }
-    .btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
-    .btn-danger { background: var(--danger); color: #fff; }
-    .btn-sm { padding: 7px 11px; font-size: 12px; }
+    .settings-row {
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid rgba(30, 67, 82, 0.55);
+      cursor: pointer;
+    }
 
-    .messages-box {
-      flex: 1;
-      min-height: 140px;
-      overflow-y: auto;
-      background: #071920;
+    .settings-row:last-child { border-bottom: none; }
+
+    .card-box {
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 12px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-    }
-
-    .msg-row { display: flex; }
-    .msg-mine { justify-content: flex-start; }
-    .msg-theirs { justify-content: flex-end; }
-
-    .msg-bubble {
-      max-width: min(85%, 640px);
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 10px 12px;
-    }
-
-    .msg-mine .msg-bubble {
-      background: rgba(11, 59, 73, 0.85);
-      border-color: var(--accent);
-    }
-
-    .msg-sender { font-size: 11px; color: #7dd3fc; font-weight: 700; margin-bottom: 3px; }
-    .msg-text { font-size: clamp(14px, 3.8vw, 15px); line-height: 1.55; word-break: break-word; white-space: pre-wrap; }
-
-    .msg-footer {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 6px;
-    }
-
-    .msg-actions {
-      display: flex;
-      gap: 5px;
-      flex-wrap: wrap;
-      margin-top: 6px;
-    }
-
-    .btn-mini {
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text);
-      padding: 4px 8px;
-      font-size: 11px;
-      border-radius: 8px;
-    }
-
-    .btn-danger-mini { color: #fca5a5; }
-
-    .msg-reply-box {
-      font-size: 11px;
-      background: rgba(255, 255, 255, 0.06);
-      border-right: 3px solid var(--accent);
-      padding: 5px 8px;
-      border-radius: 8px;
-      margin-bottom: 6px;
-      color: var(--muted);
-    }
-
-    .msg-image img { max-width: 240px; border-radius: 10px; display: block; margin-top: 4px; }
-    .msg-file a { color: #67e8f9; text-decoration: none; font-weight: 600; }
-
-    .reply-banner {
-      flex-shrink: 0;
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--surface-2);
-      border: 1px solid var(--accent);
-      border-radius: 12px;
-      padding: 8px 12px;
-      font-size: 12px;
       gap: 8px;
     }
 
-    .composer-box {
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      background: #091d25;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 8px;
-    }
-
-    .composer-main-row {
-      display: flex;
-      align-items: flex-end;
-      gap: 8px;
-      width: 100%;
-    }
-
-    .chat-textarea {
-      flex: 1;
-      min-height: 46px;
-      max-height: 130px;
-      resize: none;
-      line-height: 1.45;
-      padding: 11px 13px;
+    input, select {
       background: var(--surface-2);
       color: var(--text);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      font-size: clamp(14px, 4vw, 16px);
-    }
-
-    .send-main-btn {
-      min-height: 46px;
-      padding: 0 18px;
-      font-size: 14px;
-      font-weight: 800;
-      flex-shrink: 0;
-    }
-
-    .composer-tools-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .method-tabs {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      width: 100%;
-    }
-
-    .method-btn {
-      background: var(--surface-2);
-      color: var(--muted);
-      border: 1px solid var(--border);
-      padding: 9px 8px;
       border-radius: 11px;
-      font-size: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-family: inherit;
+      min-width: 0;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 11px;
+      padding: 10px 14px;
+      font-size: 13px;
       font-weight: 700;
-      text-align: center;
+      cursor: pointer;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
 
-    .method-btn.active {
-      background: var(--teal);
-      color: #fff;
-      border-color: var(--accent);
-    }
+    .btn-accent { background: var(--accent); color: #052026; }
+    .btn-dark { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+    .btn-red { background: var(--danger); color: #fff; }
 
-    .code-display-box {
-      background: #071920;
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .muted { color: var(--muted); font-size: 12px; }
+
+    .code-box {
+      background: #061217;
       border: 1px dashed var(--accent);
-      border-radius: 12px;
+      border-radius: 11px;
       padding: 10px 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      flex-wrap: wrap;
     }
 
-    .code-value {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    .code-num {
+      font-family: monospace;
       font-size: 18px;
       font-weight: 800;
-      letter-spacing: 2px;
       color: #5eead4;
+      letter-spacing: 2px;
       direction: ltr;
     }
 
-    .list-card {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 12px;
+    .bottom-nav {
+      flex-shrink: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 6px 4px;
+    }
+
+    .nav-item {
+      background: transparent;
+      border: none;
+      color: var(--muted);
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
+      gap: 3px;
+      padding: 5px 2px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
     }
 
-    .card-active { border-color: var(--accent); background: rgba(11, 59, 73, 0.55); }
-    .card-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-    .muted { color: var(--muted); font-size: 12px; }
-    .online-dot { color: #4ade80; font-weight: 700; }
-    .empty-hint { color: var(--muted); text-align: center; padding: 20px; font-size: 13px; }
-    .video-grid { display: flex; gap: 10px; flex-wrap: wrap; }
-    video { width: 240px; max-width: 100%; border-radius: 12px; background: #000; display: none; }
-
-    .incoming-box {
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      background: rgba(22, 163, 74, 0.16);
-      border: 1px solid rgba(22, 163, 74, 0.45);
-      padding: 10px 12px;
-      border-radius: 12px;
+    .nav-item.active {
+      color: #5eead4;
     }
 
-    .toast-banner {
+    .nav-ico { font-size: 18px; line-height: 1; }
+
+    .toast {
       position: fixed;
-      bottom: calc(16px + var(--safe-bottom));
+      bottom: calc(68px + var(--safe-bottom));
       left: 50%;
       transform: translateX(-50%);
       background: var(--teal);
       color: #fff;
       border: 1px solid var(--accent);
-      padding: 8px 16px;
+      padding: 7px 14px;
       border-radius: 999px;
       font-size: 12px;
       font-weight: 700;
-      z-index: 99;
+      z-index: 80;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.2s ease;
-      max-width: 92vw;
-      text-align: center;
+      transition: opacity 0.2s;
     }
 
-    .toast-banner.show { opacity: 1; }
-
-    @media (max-width: 480px) {
-      .topbar { padding: 8px 10px; }
-      .main-container { padding: 6px 8px 8px; }
-      .pane-card { padding: 8px; border-radius: 14px; }
-      .method-tabs { grid-template-columns: 1fr; }
-    }
+    .toast.show { opacity: 1; }
   </style>
 </head>
 <body>
-  <div class="app-shell">
-    <header class="topbar">
-      <div class="brand">
-        <div class="brand-logo-box" id="brand-logo-fallback">
-          <img src="./icons/sanad-icon.svg?v=4" alt="سند AI" onerror="this.style.display='none'; document.getElementById('brand-logo-txt').style.display='inline';" />
-          <span id="brand-logo-txt" style="display:none;">س</span>
+  <div class="app">
+    <!-- 1. شاشة الدردشات -->
+    <section class="screen active" data-screen="chats">
+      <header class="wa-header">
+        <h1 class="wa-header-title">
+          <img src="./icons/sanad-icon.svg?v=5" alt="سند AI" style="width:28px;height:28px;border-radius:8px;" onerror="this.style.display='none'" />
+          <span>الدردشات</span>
+        </h1>
+        <div class="wa-header-actions">
+          <button type="button" class="icon-circle-btn" id="new-chat-btn" title="محادثة أو جهة جديدة">＋</button>
+          <button type="button" class="icon-circle-btn" id="new-group-quick-btn" title="مجموعة جديدة">👥</button>
         </div>
-        <span class="brand-title">سند AI</span>
-        <span class="ver-pill">v9.0.0</span>
+      </header>
+      <div class="search-wrap">
+        <input type="search" class="search-input" id="chat-search-input" placeholder="بحث بالاسم أو الرقم أو الكود..." />
       </div>
-      <div id="sanad-connection-badge" class="conn-badge conn-offline">
-        <span class="conn-dot"></span>
-        <span id="sanad-connection-text">وضع محلي جاهز • مزامنة</span>
+      <div class="scroll-list" id="chats-overview-list"></div>
+    </section>
+
+    <!-- 2. شاشة المكالمات -->
+    <section class="screen" data-screen="calls">
+      <header class="wa-header">
+        <h1 class="wa-header-title">المكالمات</h1>
+      </header>
+      <div class="scroll-list">
+        <div class="card-box">
+          <div class="row">
+            <input type="text" id="call-target" placeholder="أدخل رقم الهاتف أو الكود للاتصال" style="flex:1;min-width:160px;" />
+            <button type="button" class="btn btn-accent" id="voice-call-btn">📞 صوتية</button>
+            <button type="button" class="btn btn-dark" id="video-call-btn">🎥 مرئية</button>
+          </div>
+          <div class="muted" id="call-live-status">جاهز للاتصال</div>
+        </div>
+        <div id="calls-history-list"></div>
       </div>
-    </header>
+    </section>
 
-    <div class="active-id-bar">
-      <span>الحساب النشط: <strong id="current-account-name">مستخدم سند</strong></span>
-      <span class="active-id-pill" id="current-account-id">+967770000001</span>
-    </div>
-
-    <nav class="nav-tabs" aria-label="التبويبات الرئيسية">
-      <button type="button" class="tab-btn active" data-nav-pane="chats">
-        💬 الدردشة <span class="badge-count" data-unread-for="chats" style="display:none"></span>
-      </button>
-      <button type="button" class="tab-btn" data-nav-pane="groups">
-        👥 المجموعات <span class="badge-count" data-unread-for="groups" style="display:none"></span>
-      </button>
-      <button type="button" class="tab-btn" data-nav-pane="accounts">
-        🔐 الحسابات والأكواد
-      </button>
-      <button type="button" class="tab-btn" data-nav-pane="contacts">
-        📇 الجهات
-      </button>
-      <button type="button" class="tab-btn" data-nav-pane="calls">
-        📞 المكالمات
-      </button>
-      <button type="button" class="tab-btn" data-nav-pane="ai">
-        🤖 الذكاء والخدمة
-      </button>
-    </nav>
-
-    <main class="main-container">
-      <!-- 1. الدردشة -->
-      <section class="pane-card" data-pane="chats">
-        <div class="row-bar" style="flex-shrink:0;">
-          <select id="chat-peer-select" style="flex:1; min-width:170px;"></select>
-          <div id="chat-active-peer-info" class="muted"></div>
+    <!-- 3. شاشة الذكاء الاصطناعي -->
+    <section class="screen" data-screen="ai">
+      <header class="wa-header">
+        <h1 class="wa-header-title">سند AI</h1>
+      </header>
+      <div class="thread-messages" id="ai-thread-box"></div>
+      <div class="card-box" style="border-radius:0;border-left:0;border-right:0;padding:8px 10px;">
+        <div class="row">
+          <button type="button" class="btn btn-dark" id="ai-sum-btn" style="padding:6px 10px;font-size:12px;">📝 تلخيص</button>
+          <button type="button" class="btn btn-dark" id="ai-draft-btn" style="padding:6px 10px;font-size:12px;">✍️ صياغة رد</button>
+          <button type="button" class="btn btn-dark" id="ai-tag-btn" style="padding:6px 10px;font-size:12px;">🏷️ تصنيف</button>
         </div>
+      </div>
+      <div class="wa-composer">
+        <textarea class="wa-input" id="ai-input" rows="1" placeholder="اسأل مساعد سند AI..."></textarea>
+        <button type="button" class="wa-send-btn" id="ai-send-btn">➤</button>
+      </div>
+    </section>
 
-        <div id="chat-messages-list" class="messages-box"></div>
-
-        <div id="chat-reply-banner" class="reply-banner">
-          <span id="chat-reply-text"></span>
-          <button type="button" id="chat-cancel-reply-btn" class="btn-secondary btn-sm">إلغاء الرد</button>
-        </div>
-
-        <div class="composer-box">
-          <div class="composer-main-row">
-            <textarea id="chat-message-input" class="chat-textarea" rows="1" placeholder="اكتب رسالتك هنا..."></textarea>
-            <button type="button" id="chat-send-btn" class="btn-primary send-main-btn">إرسال ➤</button>
-          </div>
-          <div class="composer-tools-row">
-            <div class="row-bar" style="gap:6px;">
-              <button type="button" id="chat-voice-btn" class="btn-secondary btn-sm">🎤 صوت</button>
-              <label class="btn-secondary btn-sm" style="cursor:pointer;">
-                📎 مرفق
-                <input id="chat-file-input" type="file" style="display:none;" />
-              </label>
-            </div>
-            <span class="muted">Enter للإرسال • Shift+Enter سطر جديد</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- 2. المجموعات -->
-      <section class="pane-card" data-pane="groups" style="display:none;">
-        <div class="pane-scroll">
-          <div class="row-bar">
-            <select id="group-select" style="flex:1; min-width:170px;"></select>
-            <input id="group-add-member-input" type="text" placeholder="رقم/معرّف أو كود عضو" style="flex:1; min-width:140px;" />
-            <button type="button" id="group-add-member-btn" class="btn-secondary btn-sm">إضافة عضو</button>
-          </div>
-          <div id="group-members-info" class="muted"></div>
-
-          <div id="group-messages-list" class="messages-box"></div>
-
-          <div class="row-bar">
-            <input id="group-message-input" type="text" placeholder="اكتب رسالة للمجموعة..." style="flex:1; min-width:180px;" />
-            <button type="button" id="group-send-btn" class="btn-primary">إرسال للمجموعة</button>
-          </div>
-
-          <hr style="border:0; border-top:1px solid var(--border); width:100%; margin:2px 0;" />
-          <div class="muted" style="font-weight:700;">إنشاء مجموعة جديدة</div>
-          <div class="row-bar">
-            <input id="new-group-name" type="text" placeholder="اسم المجموعة الجديدة" style="flex:1; min-width:150px;" />
-            <input id="new-group-members" type="text" placeholder="أرقام أو أكواد الأعضاء (مفصولة بفاصلة)" style="flex:1; min-width:180px;" />
-          </div>
-          <div class="row-bar">
-            <input id="new-group-desc" type="text" placeholder="وصف المجموعة (اختياري)" style="flex:1; min-width:160px;" />
-            <button type="button" id="create-group-btn" class="btn-primary">إنشاء مجموعة</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- 3. الحسابات والطرق الثلاث لتوليد وتفعيل الأكواد -->
-      <section class="pane-card" data-pane="accounts" style="display:none;">
-        <div class="pane-scroll">
-          <h3 style="margin:0;">إدارة الحسابات وطرق الأكواد الثلاث</h3>
-
-          <div class="method-tabs" role="tablist">
-            <button type="button" class="method-btn active" data-reg-method="self">1️⃣ توليد ذاتي (كودك)</button>
-            <button type="button" class="method-btn" data-reg-method="auto8">2️⃣ توليد آلي (8 أرقام)</button>
-            <button type="button" class="method-btn" data-reg-method="gsm">3️⃣ رقم GSM / شركة اتصال</button>
-          </div>
-
-          <!-- الطريقة 1: توليد ذاتي -->
-          <div id="reg-panel-self" class="list-card" style="flex-direction:column; align-items:stretch;">
-            <div class="muted">أنشئ كودك أو معرّفك الخاص بنفسك وفعّله فوراً:</div>
-            <div class="row-bar">
-              <input id="self-code-input" type="text" placeholder="اكتب كودك الخاص مثل SANAD-2026 أو +96777123456" style="flex:1; min-width:180px;" />
-              <input id="self-name-input" type="text" placeholder="اسم الحساب" style="flex:1; min-width:140px;" />
-            </div>
-            <div class="row-bar">
-              <input id="self-role-input" type="text" placeholder="الصفة أو الدور (اختياري)" style="flex:1; min-width:150px;" />
-              <button type="button" id="activate-self-btn" class="btn-primary">تفعيل الكود الذاتي</button>
-            </div>
-          </div>
-
-          <!-- الطريقة 2: توليد آلي كود من 8 أرقام -->
-          <div id="reg-panel-auto8" class="list-card" style="display:none; flex-direction:column; align-items:stretch;">
-            <div class="muted">توليد كود عشوائي فوري من 8 أرقام:</div>
-            <div class="code-display-box">
-              <span class="code-value" id="generated-8digit-code">--------</span>
-              <div class="row-bar" style="gap:6px;">
-                <button type="button" id="generate-8digit-btn" class="btn-secondary btn-sm">🎲 توليد 8 أرقام</button>
-                <button type="button" id="copy-8digit-btn" class="btn-secondary btn-sm">📋 نسخ</button>
+    <!-- 4. شاشة الإعدادات (بأسلوب قوائم واضح + الحساب والأكواد العالمية + الجهات) -->
+    <section class="screen" data-screen="settings">
+      <header class="wa-header">
+        <h1 class="wa-header-title">الإعدادات</h1>
+      </header>
+      <div class="scroll-list">
+        <div class="settings-group">
+          <div class="settings-row" id="open-profile-card-btn">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div class="avatar" id="my-avatar-letter">س</div>
+              <div>
+                <div style="font-weight:800;font-size:15px;" id="my-display-name">مستخدم سند</div>
+                <div class="muted" id="my-display-code" style="direction:ltr;text-align:right;">+1 555 010 9900</div>
               </div>
             </div>
-            <div class="row-bar">
-              <input id="auto8-name-input" type="text" placeholder="اسم الحساب (اختياري)" style="flex:1; min-width:150px;" />
-              <button type="button" id="activate-auto8-btn" class="btn-primary">اعتماد وتفعيل الكود</button>
+            <span class="muted">تعديل ›</span>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-row" data-acc-tab="self">
+            <div>
+              <div style="font-weight:700;">🔑 توليد كود ذاتي</div>
+              <div class="muted">اكتب كودك أو معرّفك الخاص وفعّله مباشرة</div>
+            </div>
+            <span class="muted">فتح ›</span>
+          </div>
+          <div class="settings-row" data-acc-tab="auto8">
+            <div>
+              <div style="font-weight:700;">🎲 توليد كود آلي (8 أرقام)</div>
+              <div class="muted">توليد كود عشوائي فوري من 8 أرقام مع نسخ واعتماد</div>
+            </div>
+            <span class="muted">فتح ›</span>
+          </div>
+          <div class="settings-row" data-acc-tab="carrier">
+            <div>
+              <div style="font-weight:700;">🌐 رقم دولي / شركة اتصالات</div>
+              <div class="muted">إدخال رقم لأي شركة اتصال حول العالم مع مفتاح الدولة</div>
+            </div>
+            <span class="muted">فتح ›</span>
+          </div>
+          <div class="settings-row" data-acc-tab="contacts">
+            <div>
+              <div style="font-weight:700;">📇 جهات الاتصال والأسماء</div>
+              <div class="muted">إضافة رقم أو كود وحفظ اسمه ليظهر في كل المحادثات</div>
+            </div>
+            <span class="muted">فتح ›</span>
+          </div>
+        </div>
+
+        <!-- لوحة توليد كود ذاتي -->
+        <div class="card-box" id="panel-self">
+          <div style="font-weight:700;">توليد / إدخال كود ذاتي</div>
+          <div class="row">
+            <input type="text" id="self-code" placeholder="كودك الخاص مثل SANAD-PRO أو 99441122" style="flex:1;min-width:150px;" />
+            <input type="text" id="self-name" placeholder="اسمك الظاهر" style="flex:1;min-width:130px;" />
+            <button type="button" class="btn btn-accent" id="save-self-btn">تفعيل</button>
+          </div>
+        </div>
+
+        <!-- لوحة توليد 8 أرقام -->
+        <div class="card-box" id="panel-auto8" style="display:none;">
+          <div style="font-weight:700;">توليد كود آلي من 8 أرقام</div>
+          <div class="code-box">
+            <span class="code-num" id="code8-display">12345678</span>
+            <div class="row">
+              <button type="button" class="btn btn-dark" id="gen8-btn">توليد</button>
+              <button type="button" class="btn btn-dark" id="copy8-btn">نسخ</button>
             </div>
           </div>
-
-          <!-- الطريقة 3: رقم GSM أو أي شركة اتصال (مثل 77 وغيرها) -->
-          <div id="reg-panel-gsm" class="list-card" style="display:none; flex-direction:column; align-items:stretch;">
-            <div class="muted">أدخل رقم الجوال (GSM) لأي شركة اتصالات (مثل 77 أو أي رقم محلي/دولي):</div>
-            <div class="row-bar">
-              <select id="gsm-carrier-select" style="min-width:150px;">
-                <option value="77">شركة / بادئة 77</option>
-                <option value="73">شركة / بادئة 73</option>
-                <option value="71">شركة / بادئة 71</option>
-                <option value="70">شركة / بادئة 70</option>
-                <option value="78">شركة / بادئة 78</option>
-                <option value="OTHER">شركة أخرى / رقم كامل</option>
-              </select>
-              <input id="gsm-number-input" type="tel" placeholder="مثال: 771234567 أو +967771234567" style="flex:1; min-width:170px;" />
-            </div>
-            <div class="row-bar">
-              <input id="gsm-name-input" type="text" placeholder="اسم صاحب الرقم (اختياري)" style="flex:1; min-width:150px;" />
-              <button type="button" id="send-gsm-otp-btn" class="btn-secondary btn-sm">📩 إصدار رمز تفعيل</button>
-              <input id="gsm-otp-input" type="text" placeholder="رمز التحقق (6 أرقام)" style="width:140px;" />
-              <button type="button" id="activate-gsm-btn" class="btn-primary">تفعيل الرقم</button>
-            </div>
-            <div id="gsm-status-hint" class="muted"></div>
-          </div>
-
-          <div class="muted" style="font-weight:700;">الحسابات المحفوظة</div>
-          <div id="accounts-list" style="display:flex; flex-direction:column; gap:8px;"></div>
-        </div>
-      </section>
-
-      <!-- 4. الجهات -->
-      <section class="pane-card" data-pane="contacts" style="display:none;">
-        <div class="pane-scroll">
-          <h3 style="margin:0;">جهات الاتصال</h3>
-          <div class="row-bar">
-            <input id="new-contact-id" type="text" placeholder="رقم أو كود جهة الاتصال" style="flex:1; min-width:150px;" />
-            <input id="new-contact-name" type="text" placeholder="الاسم" style="flex:1; min-width:130px;" />
-          </div>
-          <div class="row-bar">
-            <input id="new-contact-role" type="text" placeholder="الوصف أو القسم" style="flex:1; min-width:150px;" />
-            <button type="button" id="add-contact-btn" class="btn-primary">إضافة جهة اتصال</button>
-          </div>
-          <div id="contacts-list" style="display:flex; flex-direction:column; gap:8px;"></div>
-        </div>
-      </section>
-
-      <!-- 5. المكالمات -->
-      <section class="pane-card" data-pane="calls" style="display:none;">
-        <div class="pane-scroll">
-          <h3 style="margin:0;">المكالمات الصوتية والمرئية</h3>
-          <div id="incoming-call-box" class="incoming-box">
-            <span id="incoming-call-label">مكالمة واردة</span>
-            <div class="row-bar">
-              <button type="button" id="accept-call-btn" class="btn-primary btn-sm">رد</button>
-              <button type="button" id="reject-call-btn" class="btn-danger btn-sm">رفض</button>
-            </div>
-          </div>
-          <div class="row-bar">
-            <input id="call-target-input" type="text" placeholder="رقم أو كود الطرف للاتصال" style="flex:1; min-width:170px;" />
-            <button type="button" id="start-audio-call-btn" class="btn-primary">📞 صوتية</button>
-            <button type="button" id="start-video-call-btn" class="btn-secondary">🎥 مرئية</button>
-            <button type="button" id="hangup-call-btn" class="btn-danger">إنهاء</button>
-          </div>
-          <div id="call-status-text" class="muted">جاهز لإجراء مكالمة صوتية أو مرئية</div>
-          <div id="call-log-list" style="display:flex; flex-direction:column; gap:6px;"></div>
-          <div class="video-grid">
-            <video id="call-local-video" autoplay muted playsinline></video>
-            <video id="call-remote-video" autoplay playsinline></video>
-            <audio id="call-remote-audio" autoplay></audio>
+          <div class="row">
+            <input type="text" id="auto8-name" placeholder="اسم الحساب (اختياري)" style="flex:1;min-width:140px;" />
+            <button type="button" class="btn btn-accent" id="use8-btn">اعتماد الكود</button>
           </div>
         </div>
-      </section>
 
-      <!-- 6. الذكاء وخدمة العملاء -->
-      <section class="pane-card" data-pane="ai" style="display:none;">
-        <h3 style="margin:0; flex-shrink:0;">مساعد سند AI لخدمة العملاء</h3>
-        <div id="ai-messages-list" class="messages-box"></div>
-        <div class="row-bar" style="flex-shrink:0;">
-          <select id="ai-tone-select">
-            <option value="ودّي">نبرة ودّية</option>
-            <option value="رسمي">نبرة رسمية</option>
-            <option value="مختصر">نبرة مختصرة</option>
-            <option value="حل مشكلة">نبرة حل مشكلة</option>
-          </select>
-          <button type="button" id="ai-summarize-btn" class="btn-secondary btn-sm">📝 تلخيص</button>
-          <button type="button" id="ai-draft-btn" class="btn-secondary btn-sm">✍️ صياغة رد</button>
-          <button type="button" id="ai-classify-btn" class="btn-secondary btn-sm">🏷️ تصنيف</button>
+        <!-- لوحة رقم دولي / شركة اتصالات عالمية -->
+        <div class="card-box" id="panel-carrier" style="display:none;">
+          <div style="font-weight:700;">رقم أي شركة اتصالات (عالمي)</div>
+          <div class="row">
+            <input type="text" id="intl-dial" placeholder="مفتاح الدولة مثل +1 أو +971 أو +966" style="width:150px;direction:ltr;" />
+            <input type="tel" id="intl-phone" placeholder="رقم الهاتف لأي شركة اتصال" style="flex:1;min-width:150px;direction:ltr;" />
+          </div>
+          <div class="row">
+            <input type="text" id="intl-name" placeholder="الاسم (اختياري)" style="flex:1;min-width:140px;" />
+            <button type="button" class="btn btn-accent" id="save-intl-btn">تفعيل الرقم</button>
+          </div>
         </div>
-        <div class="row-bar" style="flex-shrink:0;">
-          <input id="ai-prompt-input" type="text" placeholder="اكتب استفسار عميل أو اطلب مساعدة..." style="flex:1; min-width:170px;" />
-          <button type="button" id="ai-ask-btn" class="btn-primary">إرسال</button>
+
+        <!-- لوحة جهات الاتصال -->
+        <div class="card-box" id="panel-contacts" style="display:none;">
+          <div style="font-weight:700;">إضافة جهة اتصال (رقم أو كود + الاسم)</div>
+          <div class="row">
+            <input type="text" id="ct-id" placeholder="الرقم الدولي أو الكود" style="flex:1;min-width:130px;direction:ltr;" />
+            <input type="text" id="ct-name" placeholder="الاسم" style="flex:1;min-width:130px;" />
+            <button type="button" class="btn btn-accent" id="ct-add-btn">حفظ</button>
+          </div>
+          <div id="ct-saved-list"></div>
         </div>
-      </section>
-    </main>
+      </div>
+    </section>
+
+    <!-- شريط التنقل السفلي (4 صفحات أساسية مثل النماذج) -->
+    <nav class="bottom-nav">
+      <button type="button" class="nav-item active" data-go="chats">
+        <span class="nav-ico">💬</span>
+        <span>الدردشات</span>
+      </button>
+      <button type="button" class="nav-item" data-go="calls">
+        <span class="nav-ico">📞</span>
+        <span>المكالمات</span>
+      </button>
+      <button type="button" class="nav-item" data-go="ai">
+        <span class="nav-ico">🤖</span>
+        <span>سند AI</span>
+      </button>
+      <button type="button" class="nav-item" data-go="settings">
+        <span class="nav-ico">⚙️</span>
+        <span>الإعدادات</span>
+      </button>
+    </nav>
   </div>
 
-  <div id="sanad-toast" class="toast-banner"></div>
+  <!-- صفحة المحادثة الفردية أو الجماعية الكاملة -->
+  <div class="thread-screen" id="thread-screen">
+    <header class="thread-header">
+      <div class="thread-peer-meta">
+        <button type="button" class="icon-circle-btn" id="back-from-thread-btn">→</button>
+        <div class="avatar" id="thread-avatar" style="width:38px;height:38px;font-size:14px;">م</div>
+        <div style="min-width:0;">
+          <div class="thread-peer-name" id="thread-title">محادثة</div>
+          <div class="thread-peer-sub" id="thread-subtitle">متصل</div>
+        </div>
+      </div>
+      <button type="button" class="icon-circle-btn" id="thread-call-btn" title="اتصال">📞</button>
+    </header>
+
+    <div class="thread-messages" id="thread-messages"></div>
+
+    <div class="reply-strip" id="thread-reply-strip">
+      <span id="thread-reply-label">رد على رسالة</span>
+      <button type="button" class="tiny-act" id="thread-cancel-reply">إلغاء</button>
+    </div>
+
+    <div class="wa-composer">
+      <button type="button" class="icon-circle-btn" id="thread-attach-btn" title="مرفق">📎</button>
+      <input type="file" id="thread-file-input" style="display:none;" />
+      <textarea class="wa-input" id="thread-input" rows="1" placeholder="اكتب رسالة..."></textarea>
+      <button type="button" class="wa-send-btn" id="thread-send-btn">➤</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
 
   <script>
     (() => {
-      const STORAGE_KEY = 'sanad_ai_v9_protocol_state_v1';
+      const KEY = 'sanad_ai_v9_global_wa_v1';
 
-      const defaultState = {
-        activePane: 'chats',
-        activeAccount: { id: '+967770000001', name: 'مستخدم سند', role: 'حساب أساسي', method: 'gsm' },
-        accounts: [
-          { id: '+967770000001', name: 'مستخدم سند', role: 'حساب أساسي', method: 'gsm' },
-          { id: '+967770000002', name: 'الدعم الفني', role: 'مشرف', method: 'self' }
-        ],
+      const initialData = {
+        screen: 'chats',
+        me: { id: '+1 555 010 9900', name: 'مستخدم سند' },
         contacts: [
-          { id: '+967770000002', name: 'الدعم الفني', role: 'خدمة العملاء', online: true },
-          { id: '84920174', name: 'حساب بكود 8 أرقام', role: 'عضو شبكة', online: true }
+          { id: '+1 555 010 8822', name: 'الدعم الدولي', isGroup: false, unread: 1 },
+          { id: '70482915', name: 'حساب بكود 8 أرقام', isGroup: false, unread: 0 },
+          { id: 'grp-global', name: 'مجموعة سند العالمية', isGroup: true, members: ['+1 555 010 9900', '+1 555 010 8822'], unread: 2 }
         ],
-        activePeerId: '+967770000002',
-        replyTo: null,
-        chats: {
-          '+967770000002': [
-            {
-              id: 'm1',
-              sender: 'الدعم الفني',
-              senderId: '+967770000002',
-              text: 'مرحباً بك في سند AI v9.0.0. النظام جاهز للمراسلة وتوليد الأكواد والحسابات.',
-              time: nowTime(),
-              mine: false
-            }
+        activeThreadId: '+1 555 010 8822',
+        replyQuote: null,
+        messages: {
+          '+1 555 010 8822': [
+            { id: '1', text: 'أهلاً بك في سند AI. يمكنك المراسلة عبر أي رقم دولي أو كود مخصص أو كود من 8 أرقام.', time: nowHm(), mine: false, status: 'read' }
+          ],
+          '70482915': [
+            { id: '2', text: 'تم ربط الكود بنجاح.', time: nowHm(), mine: false, status: 'read' }
+          ],
+          'grp-global': [
+            { id: '3', sender: 'الدعم الدولي', text: 'مرحباً بالجميع في المجموعة.', time: nowHm(), mine: false, status: 'read' }
           ]
         },
-        groups: [
-          {
-            id: 'grp-main',
-            name: 'فريق سند الرئيسي',
-            desc: 'متابعة التحديثات والتشغيل',
-            members: ['+967770000001', '+967770000002'],
-            messages: [
-              { id: 'gm1', sender: 'الدعم الفني', text: 'تم تفعيل قناة المجموعة بنجاح.', time: nowTime(), mine: false }
-            ]
-          }
-        ],
-        activeGroupId: 'grp-main',
-        callLogs: [],
-        aiMessages: [
-          { id: 'ai1', sender: 'مساعد سند AI', text: 'أهلاً بك! اكتب أي استفسار أو اختر تلخيص أو صياغة رد أو تصنيف.', time: nowTime(), mine: false }
-        ],
-        pendingOtp: null
+        calls: [],
+        ai: [
+          { id: 'a1', text: 'مرحباً بك في مساعد سند AI. اكتب أي نص لتلخيصه أو صياغة رد أو تصنيفه.', time: nowHm(), mine: false }
+        ]
       };
 
-      function nowTime() {
+      function nowHm() {
         return new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
       }
 
-      function showToast(msg) {
-        const el = document.getElementById('sanad-toast');
+      function toast(msg) {
+        const el = document.getElementById('toast');
         if (!el) return;
         el.textContent = msg;
         el.classList.add('show');
-        clearTimeout(showToast._t);
-        showToast._t = setTimeout(() => el.classList.remove('show'), 2400);
+        clearTimeout(toast._t);
+        toast._t = setTimeout(() => el.classList.remove('show'), 2200);
       }
 
-      function loadState() {
+      function load() {
         try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) return structuredClone(defaultState);
-          const parsed = JSON.parse(raw);
-          return Object.assign(structuredClone(defaultState), parsed);
+          const raw = localStorage.getItem(KEY);
+          if (!raw) return structuredClone(initialData);
+          return Object.assign(structuredClone(initialData), JSON.parse(raw));
         } catch {
-          return structuredClone(defaultState);
+          return structuredClone(initialData);
         }
       }
 
-      const state = loadState();
-
-      function saveState() {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        } catch {}
+      const db = load();
+      function save() {
+        try { localStorage.setItem(KEY, JSON.stringify(db)); } catch {}
       }
 
-      function escapeHtml(str) {
-        return String(str || '')
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
+      function esc(s) {
+        return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
       }
 
-      function activatePane(paneName) {
-        if (!paneName) return;
-        state.activePane = paneName;
-        saveState();
-        document.querySelectorAll('[data-nav-pane]').forEach((btn) => {
-          btn.classList.toggle('active', btn.getAttribute('data-nav-pane') === paneName);
-        });
-        document.querySelectorAll('[data-pane]').forEach((sec) => {
-          sec.style.display = sec.getAttribute('data-pane') === paneName ? 'flex' : 'none';
-        });
-        if (paneName === 'chats') scrollToBottom('chat-messages-list');
-        if (paneName === 'groups') scrollToBottom('group-messages-list');
-        if (paneName === 'ai') scrollToBottom('ai-messages-list');
+      function resolveName(id) {
+        if (id === db.me.id) return db.me.name;
+        const found = db.contacts.find((c) => c.id === id);
+        return found ? found.name : id;
       }
 
-      function scrollToBottom(id) {
-        requestAnimationFrame(() => {
-          const box = document.getElementById(id);
-          if (box) box.scrollTop = box.scrollHeight;
-        });
-      }
-
-      function syncHeaderAccount() {
-        const nameEl = document.getElementById('current-account-name');
-        const idEl = document.getElementById('current-account-id');
-        if (nameEl) nameEl.textContent = state.activeAccount.name || 'مستخدم سند';
-        if (idEl) idEl.textContent = state.activeAccount.id || '+967770000001';
-      }
-
-      function setActiveAccount(id, name, role, method) {
-        const cleanId = String(id || '').trim();
-        if (!cleanId) {
-          showToast('يرجى إدخال كود أو رقم صحيح');
-          return;
-        }
-        const acc = {
-          id: cleanId,
-          name: String(name || '').trim() || `حساب ${cleanId}`,
-          role: String(role || '').trim() || 'حساب مفعّل',
-          method: method || 'self'
-        };
-        state.activeAccount = acc;
-        const exists = state.accounts.some((a) => a.id === acc.id);
-        if (!exists) {
-          state.accounts.unshift(acc);
-        } else {
-          state.accounts = state.accounts.map((a) => (a.id === acc.id ? acc : a));
-        }
-        if (!state.chats[acc.id]) {
-          state.chats[acc.id] = [];
-        }
-        saveState();
-        syncHeaderAccount();
-        renderAccounts();
-        renderPeers();
-        showToast(`تم تفعيل الحساب: ${acc.id}`);
-      }
-
-      // --- التبويبات ---
-      document.addEventListener('click', (e) => {
-        const tabBtn = e.target.closest('[data-nav-pane]');
-        if (tabBtn) {
-          e.preventDefault();
-          activatePane(tabBtn.getAttribute('data-nav-pane'));
-        }
-      });
-
-      // --- الدردشة ---
-      function renderPeers() {
-        const select = document.getElementById('chat-peer-select');
-        const info = document.getElementById('chat-active-peer-info');
-        if (!select) return;
-        const allPeers = [...state.contacts];
-        state.accounts.forEach((acc) => {
-          if (acc.id !== state.activeAccount.id && !allPeers.some((p) => p.id === acc.id)) {
-            allPeers.push({ id: acc.id, name: acc.name, role: acc.role, online: true });
-          }
-        });
-        if (!allPeers.some((p) => p.id === state.activePeerId) && allPeers.length > 0) {
-          state.activePeerId = allPeers[0].id;
-        }
-        select.innerHTML = allPeers.map((p) =>
-          `<option value="${escapeHtml(p.id)}" ${p.id === state.activePeerId ? 'selected' : ''}>${escapeHtml(p.name)} (${escapeHtml(p.id)})</option>`
-        ).join('');
-        const currentPeer = allPeers.find((p) => p.id === state.activePeerId);
-        if (info) {
-          info.innerHTML = currentPeer
-            ? `<span class="online-dot">● متصل</span> • ${escapeHtml(currentPeer.role || 'جهة اتصال')}`
-            : '';
-        }
-      }
-
-      function renderChats() {
-        const list = document.getElementById('chat-messages-list');
-        if (!list) return;
-        const msgs = state.chats[state.activePeerId] || [];
-        if (!msgs.length) {
-          list.innerHTML = `<div class="empty-hint">لا توجد رسائل بعد. ابدأ بكتابة رسالتك في الأسفل.</div>`;
-          return;
-        }
-        list.innerHTML = msgs.map((m) => `
-          <div class="msg-row ${m.mine ? 'msg-mine' : 'msg-theirs'}">
-            <div class="msg-bubble">
-              ${!m.mine ? `<div class="msg-sender">${escapeHtml(m.sender || state.activePeerId)}</div>` : ''}
-              ${m.replyTo ? `<div class="msg-reply-box">رد على: ${escapeHtml(m.replyTo)}</div>` : ''}
-              ${m.imageUrl ? `<div class="msg-image"><img src="${escapeHtml(m.imageUrl)}" alt="مرفق صورة" /></div>` : ''}
-              ${m.fileName && !m.imageUrl ? `<div class="msg-file"><a href="${escapeHtml(m.fileUrl || '#')}" download="${escapeHtml(m.fileName)}">📎 ${escapeHtml(m.fileName)}</a></div>` : ''}
-              ${m.text ? `<div class="msg-text">${escapeHtml(m.text)}</div>` : ''}
-              <div class="msg-footer">
-                <span>${escapeHtml(m.time || nowTime())}</span>
-                <span>${m.mine ? '✓✓' : ''}</span>
-              </div>
-              <div class="msg-actions">
-                <button type="button" class="btn-mini" data-reply-msg="${escapeHtml(m.text || m.fileName || 'رسالة')}">رد</button>
-                <button type="button" class="btn-mini btn-danger-mini" data-del-msg="${escapeHtml(m.id)}">حذف</button>
-              </div>
-            </div>
-          </div>
-        `).join('');
-        scrollToBottom('chat-messages-list');
-      }
-
-      function updateReplyBanner() {
-        const banner = document.getElementById('chat-reply-banner');
-        const txt = document.getElementById('chat-reply-text');
-        if (!banner || !txt) return;
-        if (state.replyTo) {
-          txt.textContent = `الرد على: ${state.replyTo}`;
-          banner.style.display = 'flex';
-        } else {
-          banner.style.display = 'none';
-        }
-      }
-
-      function autoResizeTextarea(el) {
-        if (!el) return;
-        el.style.height = 'auto';
-        el.style.height = Math.min(el.scrollHeight, 130) + 'px';
-      }
-
-      function sendChatMessage(extra = {}) {
-        const input = document.getElementById('chat-message-input');
-        const text = (extra.text !== undefined ? extra.text : (input ? input.value : '')).trim();
-        if (!text && !extra.imageUrl && !extra.fileName) {
-          showToast('اكتب رسالة أولاً');
-          return;
-        }
-        const peerId = state.activePeerId || '+967770000002';
-        if (!state.chats[peerId]) state.chats[peerId] = [];
-        state.chats[peerId].push({
-          id: 'msg-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
-          sender: state.activeAccount.name,
-          senderId: state.activeAccount.id,
-          text,
-          replyTo: state.replyTo || null,
-          imageUrl: extra.imageUrl || null,
-          fileName: extra.fileName || null,
-          fileUrl: extra.fileUrl || null,
-          time: nowTime(),
-          mine: true
-        });
-        state.replyTo = null;
-        if (input && extra.text === undefined) {
-          input.value = '';
-          autoResizeTextarea(input);
-        }
-        updateReplyBanner();
-        saveState();
-        renderChats();
-        showToast('تم إرسال الرسالة');
-      }
-
-      document.getElementById('chat-peer-select')?.addEventListener('change', (e) => {
-        state.activePeerId = e.target.value;
-        saveState();
-        renderPeers();
-        renderChats();
-      });
-
-      const chatInput = document.getElementById('chat-message-input');
-      chatInput?.addEventListener('input', () => autoResizeTextarea(chatInput));
-      chatInput?.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          sendChatMessage();
-        }
-      });
-
-      document.getElementById('chat-send-btn')?.addEventListener('click', () => sendChatMessage());
-      document.getElementById('chat-cancel-reply-btn')?.addEventListener('click', () => {
-        state.replyTo = null;
-        updateReplyBanner();
-      });
-
-      document.getElementById('chat-messages-list')?.addEventListener('click', (e) => {
-        const replyBtn = e.target.closest('[data-reply-msg]');
-        if (replyBtn) {
-          state.replyTo = replyBtn.getAttribute('data-reply-msg');
-          updateReplyBanner();
-          chatInput?.focus();
-          return;
-        }
-        const delBtn = e.target.closest('[data-del-msg]');
-        if (delBtn) {
-          const msgId = delBtn.getAttribute('data-del-msg');
-          state.chats[state.activePeerId] = (state.chats[state.activePeerId] || []).filter((m) => m.id !== msgId);
-          saveState();
-          renderChats();
-          showToast('تم حذف الرسالة');
-        }
-      });
-
-      document.getElementById('chat-file-input')?.addEventListener('change', (e) => {
-        const file = e.target.files && e.target.files[0];
-        if (!file) return;
-        const url = URL.createObjectURL(file);
-        const isImg = file.type.startsWith('image/');
-        sendChatMessage({
-          text: isImg ? '' : `ملف مرفق: ${file.name}`,
-          imageUrl: isImg ? url : null,
-          fileName: file.name,
-          fileUrl: url
-        });
-        e.target.value = '';
-      });
-
-      document.getElementById('chat-voice-btn')?.addEventListener('click', async () => {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          sendChatMessage({ text: '🎤 رسالة صوتية (وضع محاكاة)' });
-          return;
-        }
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          stream.getTracks().forEach((t) => t.stop());
-          sendChatMessage({ text: '🎤 تسجيل صوتي جاهز' });
-        } catch {
-          sendChatMessage({ text: '🎤 ملاحظة صوتية مرسلة' });
-        }
-      });
-
-      // --- المجموعات ---
-      function renderGroups() {
-        const sel = document.getElementById('group-select');
-        const info = document.getElementById('group-members-info');
-        const list = document.getElementById('group-messages-list');
-        if (!sel || !list) return;
-        if (!state.groups.length) {
-          sel.innerHTML = '';
-          list.innerHTML = `<div class="empty-hint">لا توجد مجموعات بعد.</div>`;
-          return;
-        }
-        if (!state.groups.some((g) => g.id === state.activeGroupId)) {
-          state.activeGroupId = state.groups[0].id;
-        }
-        sel.innerHTML = state.groups.map((g) =>
-          `<option value="${escapeHtml(g.id)}" ${g.id === state.activeGroupId ? 'selected' : ''}>${escapeHtml(g.name)}</option>`
-        ).join('');
-        const grp = state.groups.find((g) => g.id === state.activeGroupId);
-        if (info && grp) {
-          info.textContent = `الأعضاء (${grp.members.length}): ${grp.members.join(' ، ')}${grp.desc ? ' — ' + grp.desc : ''}`;
-        }
-        const msgs = (grp && grp.messages) || [];
-        list.innerHTML = msgs.length
-          ? msgs.map((m) => `
-              <div class="msg-row ${m.mine ? 'msg-mine' : 'msg-theirs'}">
-                <div class="msg-bubble">
-                  ${!m.mine ? `<div class="msg-sender">${escapeHtml(m.sender || 'عضو')}</div>` : ''}
-                  <div class="msg-text">${escapeHtml(m.text)}</div>
-                  <div class="msg-footer"><span>${escapeHtml(m.time || nowTime())}</span></div>
-                </div>
-              </div>
-            `).join('')
-          : `<div class="empty-hint">لا توجد رسائل في هذه المجموعة بعد.</div>`;
-        scrollToBottom('group-messages-list');
-      }
-
-      document.getElementById('group-select')?.addEventListener('change', (e) => {
-        state.activeGroupId = e.target.value;
-        saveState();
-        renderGroups();
-      });
-
-      document.getElementById('group-add-member-btn')?.addEventListener('click', () => {
-        const inp = document.getElementById('group-add-member-input');
-        const member = (inp?.value || '').trim();
-        const grp = state.groups.find((g) => g.id === state.activeGroupId);
-        if (!member || !grp) return;
-        if (!grp.members.includes(member)) grp.members.push(member);
-        inp.value = '';
-        saveState();
-        renderGroups();
-        showToast('تمت إضافة العضو');
-      });
-
-      document.getElementById('group-send-btn')?.addEventListener('click', () => {
-        const inp = document.getElementById('group-message-input');
-        const text = (inp?.value || '').trim();
-        const grp = state.groups.find((g) => g.id === state.activeGroupId);
-        if (!text || !grp) return;
-        grp.messages.push({ id: 'gm-' + Date.now(), sender: state.activeAccount.name, text, time: nowTime(), mine: true });
-        inp.value = '';
-        saveState();
-        renderGroups();
-      });
-
-      document.getElementById('create-group-btn')?.addEventListener('click', () => {
-        const nameEl = document.getElementById('new-group-name');
-        const membersEl = document.getElementById('new-group-members');
-        const descEl = document.getElementById('new-group-desc');
-        const name = (nameEl?.value || '').trim();
-        if (!name) {
-          showToast('اكتب اسم المجموعة أولاً');
-          return;
-        }
-        const extraMembers = (membersEl?.value || '').split(',').map((s) => s.trim()).filter(Boolean);
-        const members = Array.from(new Set([state.activeAccount.id, ...extraMembers]));
-        const newGrp = {
-          id: 'grp-' + Date.now(),
-          name,
-          desc: (descEl?.value || '').trim(),
-          members,
-          messages: []
-        };
-        state.groups.push(newGrp);
-        state.activeGroupId = newGrp.id;
-        nameEl.value = '';
-        membersEl.value = '';
-        descEl.value = '';
-        saveState();
-        renderGroups();
-        showToast('تم إنشاء المجموعة');
-      });
-
-      // --- الحسابات والطرق الثلاث (ذاتي / 8 أرقام / GSM) ---
-      function switchRegMethod(method) {
-        document.querySelectorAll('[data-reg-method]').forEach((b) => {
-          b.classList.toggle('active', b.getAttribute('data-reg-method') === method);
-        });
-        document.getElementById('reg-panel-self').style.display = method === 'self' ? 'flex' : 'none';
-        document.getElementById('reg-panel-auto8').style.display = method === 'auto8' ? 'flex' : 'none';
-        document.getElementById('reg-panel-gsm').style.display = method === 'gsm' ? 'flex' : 'none';
+      function goScreen(name) {
+        db.screen = name;
+        save();
+        document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('active', s.getAttribute('data-screen') === name));
+        document.querySelectorAll('.nav-item').forEach((b) => b.classList.toggle('active', b.getAttribute('data-go') === name));
+        if (name === 'chats') renderChatsOverview();
+        if (name === 'calls') renderCalls();
+        if (name === 'ai') renderAi();
+        if (name === 'settings') renderSettings();
       }
 
       document.addEventListener('click', (e) => {
-        const mBtn = e.target.closest('[data-reg-method]');
-        if (mBtn) switchRegMethod(mBtn.getAttribute('data-reg-method'));
-      });
-
-      function generate8DigitCode() {
-        const code = String(Math.floor(10000000 + Math.random() * 90000000));
-        const box = document.getElementById('generated-8digit-code');
-        if (box) box.textContent = code;
-        return code;
-      }
-
-      document.getElementById('generate-8digit-btn')?.addEventListener('click', () => {
-        const code = generate8DigitCode();
-        showToast(`تم توليد كود من 8 أرقام: ${code}`);
-      });
-
-      document.getElementById('copy-8digit-btn')?.addEventListener('click', async () => {
-        const code = document.getElementById('generated-8digit-code')?.textContent || '';
-        if (!code || code.includes('-')) return;
-        try {
-          await navigator.clipboard.writeText(code);
-          showToast('تم نسخ الكود');
-        } catch {
-          showToast(`الكود: ${code}`);
-        }
-      });
-
-      document.getElementById('activate-self-btn')?.addEventListener('click', () => {
-        const code = document.getElementById('self-code-input')?.value || '';
-        const name = document.getElementById('self-name-input')?.value || '';
-        const role = document.getElementById('self-role-input')?.value || 'توليد ذاتي';
-        setActiveAccount(code, name, role, 'self');
-      });
-
-      document.getElementById('activate-auto8-btn')?.addEventListener('click', () => {
-        let code = document.getElementById('generated-8digit-code')?.textContent || '';
-        if (!/^\d{8}$/.test(code)) code = generate8DigitCode();
-        const name = document.getElementById('auto8-name-input')?.value || `حساب ${code}`;
-        setActiveAccount(code, name, 'كود آلي 8 أرقام', 'auto8');
-      });
-
-      document.getElementById('send-gsm-otp-btn')?.addEventListener('click', () => {
-        const carrier = document.getElementById('gsm-carrier-select')?.value || '';
-        let num = (document.getElementById('gsm-number-input')?.value || '').trim();
-        if (!num && carrier !== 'OTHER') {
-          num = carrier + String(Math.floor(1000000 + Math.random() * 9000000));
-          document.getElementById('gsm-number-input').value = num;
-        }
-        if (!num) {
-          showToast('أدخل رقم الجوال أولاً');
+        const navBtn = e.target.closest('[data-go]');
+        if (navBtn) {
+          goScreen(navBtn.getAttribute('data-go'));
           return;
         }
-        const otp = String(Math.floor(100000 + Math.random() * 900000));
-        state.pendingOtp = { number: num, otp };
-        const otpInput = document.getElementById('gsm-otp-input');
-        if (otpInput) otpInput.value = otp;
-        const hint = document.getElementById('gsm-status-hint');
-        if (hint) hint.textContent = `تم إصدار رمز التحقق (${otp}) للرقم ${num} — اضغط «تفعيل الرقم».`;
-        saveState();
-        showToast(`رمز التحقق: ${otp}`);
+        const accTab = e.target.closest('[data-acc-tab]');
+        if (accTab) {
+          const tab = accTab.getAttribute('data-acc-tab');
+          ['self', 'auto8', 'carrier', 'contacts'].forEach((k) => {
+            const p = document.getElementById('panel-' + k);
+            if (p) p.style.display = k === tab ? 'flex' : 'none';
+          });
+        }
       });
 
-      document.getElementById('activate-gsm-btn')?.addEventListener('click', () => {
-        const carrier = document.getElementById('gsm-carrier-select')?.value || 'GSM';
-        const num = (document.getElementById('gsm-number-input')?.value || '').trim();
-        const name = (document.getElementById('gsm-name-input')?.value || '').trim() || `رقم ${num}`;
-        if (!num) {
-          showToast('أدخل رقم الجوال GSM');
+      function renderChatsOverview(filterText = '') {
+        const box = document.getElementById('chats-overview-list');
+        if (!box) return;
+        const q = String(filterText || '').trim().toLowerCase();
+        const items = db.contacts.filter((c) =>
+          !q || c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q)
+        );
+        if (!items.length) {
+          box.innerHTML = `<div class="muted" style="text-align:center;padding:24px;">لا توجد محادثات مطابقة.</div>`;
           return;
         }
-        setActiveAccount(num, name, `GSM (${carrier})`, 'gsm');
-      });
-
-      function renderAccounts() {
-        const list = document.getElementById('accounts-list');
-        if (!list) return;
-        list.innerHTML = state.accounts.map((acc) => {
-          const isActive = acc.id === state.activeAccount.id;
+        box.innerHTML = items.map((c) => {
+          const list = db.messages[c.id] || [];
+          const last = list[list.length - 1];
+          const preview = last ? last.text : (c.isGroup ? 'مجموعة' : c.id);
+          const time = last ? last.time : '';
+          const letter = (c.name || c.id || 'س').trim().charAt(0);
           return `
-            <div class="list-card ${isActive ? 'card-active' : ''}">
-              <div>
-                <div><strong>${escapeHtml(acc.name)}</strong> ${isActive ? '<span class="online-dot">• نشط</span>' : ''}</div>
-                <div class="muted">${escapeHtml(acc.id)} — ${escapeHtml(acc.role || '')}</div>
-              </div>
-              <div class="card-actions">
-                <button type="button" class="btn-secondary btn-sm" data-use-acc="${escapeHtml(acc.id)}">تفعيل</button>
+            <div class="chat-item" data-open-thread="${esc(c.id)}">
+              <div class="avatar">${esc(letter)}</div>
+              <div class="chat-item-body">
+                <div class="chat-item-top">
+                  <span class="chat-name">${esc(c.name)}</span>
+                  <span class="chat-time">${esc(time)}</span>
+                </div>
+                <div class="chat-item-sub">
+                  <span class="chat-preview">${esc(preview)}</span>
+                  ${c.unread > 0 ? `<span class="unread-pill">${c.unread}</span>` : ''}
+                </div>
               </div>
             </div>
           `;
         }).join('');
       }
 
-      document.getElementById('accounts-list')?.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-use-acc]');
-        if (!btn) return;
-        const id = btn.getAttribute('data-use-acc');
-        const found = state.accounts.find((a) => a.id === id);
-        if (found) setActiveAccount(found.id, found.name, found.role, found.method);
+      document.getElementById('chat-search-input')?.addEventListener('input', (e) => {
+        renderChatsOverview(e.target.value);
       });
 
-      // --- الجهات ---
-      function renderContacts() {
-        const list = document.getElementById('contacts-list');
-        if (!list) return;
-        list.innerHTML = state.contacts.map((c) => `
-          <div class="list-card">
-            <div>
-              <div><strong>${escapeHtml(c.name)}</strong> <span class="online-dot">● متاح</span></div>
-              <div class="muted">${escapeHtml(c.id)} — ${escapeHtml(c.role || '')}</div>
-            </div>
-            <div class="card-actions">
-              <button type="button" class="btn-primary btn-sm" data-chat-contact="${escapeHtml(c.id)}">مراسلة</button>
-            </div>
-          </div>
-        `).join('');
+      function openThread(peerId) {
+        db.activeThreadId = peerId;
+        const c = db.contacts.find((x) => x.id === peerId);
+        if (c) c.unread = 0;
+        if (!db.messages[peerId]) db.messages[peerId] = [];
+        save();
+        renderChatsOverview(document.getElementById('chat-search-input')?.value || '');
+        const screen = document.getElementById('thread-screen');
+        document.getElementById('thread-title').textContent = resolveName(peerId);
+        document.getElementById('thread-subtitle').textContent = c && c.isGroup ? 'مجموعة' : peerId;
+        document.getElementById('thread-avatar').textContent = (resolveName(peerId) || 'س').trim().charAt(0);
+        screen.classList.add('open');
+        renderThreadMessages();
       }
 
-      document.getElementById('add-contact-btn')?.addEventListener('click', () => {
-        const idEl = document.getElementById('new-contact-id');
-        const nameEl = document.getElementById('new-contact-name');
-        const roleEl = document.getElementById('new-contact-role');
-        const id = (idEl?.value || '').trim();
-        const name = (nameEl?.value || '').trim() || id;
-        const role = (roleEl?.value || '').trim() || 'جهة اتصال';
-        if (!id) {
-          showToast('أدخل رقم أو كود جهة الاتصال');
-          return;
-        }
-        if (!state.contacts.some((c) => c.id === id)) {
-          state.contacts.push({ id, name, role, online: true });
-        }
-        idEl.value = '';
-        nameEl.value = '';
-        roleEl.value = '';
-        saveState();
-        renderContacts();
-        renderPeers();
-        showToast('تمت إضافة جهة الاتصال');
+      document.getElementById('chats-overview-list')?.addEventListener('click', (e) => {
+        const item = e.target.closest('[data-open-thread]');
+        if (item) openThread(item.getAttribute('data-open-thread'));
       });
 
-      document.getElementById('contacts-list')?.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-chat-contact]');
-        if (!btn) return;
-        state.activePeerId = btn.getAttribute('data-chat-contact');
-        saveState();
-        renderPeers();
-        renderChats();
-        activatePane('chats');
+      document.getElementById('back-from-thread-btn')?.addEventListener('click', () => {
+        document.getElementById('thread-screen').classList.remove('open');
+        db.replyQuote = null;
+        updateReplyStrip();
+        renderChatsOverview(document.getElementById('chat-search-input')?.value || '');
+      });
+
+      function renderThreadMessages() {
+        const box = document.getElementById('thread-messages');
+        if (!box) return;
+        const msgs = db.messages[db.activeThreadId] || [];
+        box.innerHTML = msgs.map((m) => {
+          const tick = m.mine ? `<span class="tick-read">✓✓</span>` : '';
+          return `
+            <div class="bubble-row ${m.mine ? 'mine' : 'theirs'}">
+              <div class="bubble">
+                ${m.quote ? `<div class="quote-box">${esc(m.quote)}</div>` : ''}
+                <div class="bubble-text">${esc(m.text)}</div>
+                <div class="bubble-meta">
+                  <span>${esc(m.time)}</span>
+                  ${tick}
+                </div>
+                <div class="bubble-tools">
+                  <button type="button" class="tiny-act" data-q="${esc(m.text)}">رد</button>
+                  <button type="button" class="tiny-act del" data-rm="${esc(m.id)}">حذف</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+        requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
+      }
+
+      function updateReplyStrip() {
+        const strip = document.getElementById('thread-reply-strip');
+        const lbl = document.getElementById('thread-reply-label');
+        if (!strip || !lbl) return;
+        if (db.replyQuote) {
+          lbl.textContent = `الرد على: ${db.replyQuote}`;
+          strip.style.display = 'flex';
+        } else {
+          strip.style.display = 'none';
+        }
+      }
+
+      function growInput(el) {
+        if (!el) return;
+        el.style.height = 'auto';
+        el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+      }
+
+      const threadInput = document.getElementById('thread-input');
+      threadInput?.addEventListener('input', () => growInput(threadInput));
+
+      function sendThreadMsg(textOverride) {
+        const text = String(textOverride !== undefined ? textOverride : (threadInput?.value || '')).trim();
+        if (!text) return;
+        const id = db.activeThreadId;
+        if (!db.messages[id]) db.messages[id] = [];
+        db.messages[id].push({
+          id: 'm-' + Date.now(),
+          text,
+          quote: db.replyQuote || null,
+          time: nowHm(),
+          mine: true,
+          status: 'read'
+        });
+        db.replyQuote = null;
+        if (threadInput && textOverride === undefined) {
+          threadInput.value = '';
+          growInput(threadInput);
+        }
+        updateReplyStrip();
+        save();
+        renderThreadMessages();
+      }
+
+      document.getElementById('thread-send-btn')?.addEventListener('click', () => sendThreadMsg());
+      document.getElementById('thread-cancel-reply')?.addEventListener('click', () => {
+        db.replyQuote = null;
+        updateReplyStrip();
+      });
+
+      document.getElementById('thread-messages')?.addEventListener('click', (e) => {
+        const qBtn = e.target.closest('[data-q]');
+        if (qBtn) {
+          db.replyQuote = qBtn.getAttribute('data-q');
+          updateReplyStrip();
+          threadInput?.focus();
+          return;
+        }
+        const rmBtn = e.target.closest('[data-rm]');
+        if (rmBtn) {
+          const mid = rmBtn.getAttribute('data-rm');
+          db.messages[db.activeThreadId] = (db.messages[db.activeThreadId] || []).filter((x) => x.id !== mid);
+          save();
+          renderThreadMessages();
+        }
+      });
+
+      document.getElementById('thread-attach-btn')?.addEventListener('click', () => {
+        document.getElementById('thread-file-input')?.click();
+      });
+
+      document.getElementById('thread-file-input')?.addEventListener('change', (e) => {
+        const f = e.target.files && e.target.files[0];
+        if (f) sendThreadMsg(`📎 مرفق: ${f.name}`);
+        e.target.value = '';
+      });
+
+      document.getElementById('new-chat-btn')?.addEventListener('click', () => {
+        const val = prompt('أدخل الرقم الدولي أو الكود (ويمكن كتابة الاسم بعد فاصلة مثل: +971501234567, أحمد)');
+        if (!val) return;
+        const parts = val.split(',');
+        const cid = String(parts[0] || '').trim();
+        if (!cid) return;
+        const cname = String(parts[1] || cid).trim();
+        if (!db.contacts.some((c) => c.id === cid)) {
+          db.contacts.unshift({ id: cid, name: cname, isGroup: false, unread: 0 });
+        }
+        save();
+        openThread(cid);
+      });
+
+      document.getElementById('new-group-quick-btn')?.addEventListener('click', () => {
+        const gname = prompt('اسم المجموعة الجديدة:');
+        if (!gname || !gname.trim()) return;
+        const gid = 'grp-' + Date.now();
+        db.contacts.unshift({ id: gid, name: gname.trim(), isGroup: true, unread: 0 });
+        db.messages[gid] = [];
+        save();
+        openThread(gid);
+      });
+
+      document.getElementById('thread-call-btn')?.addEventListener('click', () => {
+        const target = db.activeThreadId;
+        db.calls.unshift({ target, name: resolveName(target), mode: 'صوتية', time: nowHm() });
+        save();
+        toast(`اتصال بـ ${resolveName(target)}`);
       });
 
       // --- المكالمات ---
-      function renderCallLogs() {
-        const list = document.getElementById('call-log-list');
+      function renderCalls() {
+        const list = document.getElementById('calls-history-list');
         if (!list) return;
-        if (!state.callLogs.length) {
-          list.innerHTML = `<div class="muted">لا توجد مكالمات مسجلة في هذه الجلسة.</div>`;
+        if (!db.calls.length) {
+          list.innerHTML = `<div class="muted" style="text-align:center;padding:20px;">لا توجد مكالمات حديثة.</div>`;
           return;
         }
-        list.innerHTML = state.callLogs.slice(0, 8).map((c) => `
-          <div class="list-card">
-            <span>${escapeHtml(c.type)} إلى <strong>${escapeHtml(c.target)}</strong></span>
-            <span class="muted">${escapeHtml(c.time)}</span>
+        list.innerHTML = db.calls.map((c) => `
+          <div class="card-box" style="margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;">
+              <strong>${esc(c.name)}</strong>
+              <span class="muted">${esc(c.time)}</span>
+            </div>
+            <div class="muted">${esc(c.mode)} • ${esc(c.target)}</div>
           </div>
         `).join('');
       }
 
-      function startCall(mode) {
-        const target = (document.getElementById('call-target-input')?.value || state.activePeerId || '').trim();
-        const statusEl = document.getElementById('call-status-text');
-        if (!target) {
-          showToast('أدخل رقم أو كود الطرف أولاً');
+      function makeCall(mode) {
+        const rawTarget = (document.getElementById('call-target')?.value || '').trim();
+        if (!rawTarget) {
+          toast('أدخل رقماً أو كوداً أولاً');
           return;
         }
-        const label = mode === 'video' ? 'مكالمة مرئية' : 'مكالمة صوتية';
-        if (statusEl) statusEl.textContent = `جاري الاتصال (${label}) بالطرف: ${target}...`;
-        state.callLogs.unshift({ type: label, target, time: nowTime() });
-        saveState();
-        renderCallLogs();
-        showToast(`بدأ الاتصال بـ ${target}`);
+        db.calls.unshift({ target: rawTarget, name: resolveName(rawTarget), mode, time: nowHm() });
+        document.getElementById('call-live-status').textContent = `جاري الاتصال (${mode}) بـ ${resolveName(rawTarget)}...`;
+        save();
+        renderCalls();
       }
 
-      document.getElementById('start-audio-call-btn')?.addEventListener('click', () => startCall('audio'));
-      document.getElementById('start-video-call-btn')?.addEventListener('click', () => startCall('video'));
-      document.getElementById('hangup-call-btn')?.addEventListener('click', () => {
-        const statusEl = document.getElementById('call-status-text');
-        if (statusEl) statusEl.textContent = 'تم إنهاء المكالمة — جاهز لإجراء مكالمة جديدة';
-        showToast('تم إنهاء المكالمة');
-      });
+      document.getElementById('voice-call-btn')?.addEventListener('click', () => makeCall('مكالمة صوتية'));
+      document.getElementById('video-call-btn')?.addEventListener('click', () => makeCall('مكالمة مرئية'));
 
       // --- الذكاء الاصطناعي ---
       function renderAi() {
-        const list = document.getElementById('ai-messages-list');
-        if (!list) return;
-        list.innerHTML = state.aiMessages.map((m) => `
-          <div class="msg-row ${m.mine ? 'msg-mine' : 'msg-theirs'}">
-            <div class="msg-bubble">
-              ${!m.mine ? `<div class="msg-sender">${escapeHtml(m.sender || 'مساعد سند AI')}</div>` : ''}
-              <div class="msg-text">${escapeHtml(m.text)}</div>
-              <div class="msg-footer"><span>${escapeHtml(m.time || nowTime())}</span></div>
+        const box = document.getElementById('ai-thread-box');
+        if (!box) return;
+        box.innerHTML = db.ai.map((m) => `
+          <div class="bubble-row ${m.mine ? 'mine' : 'theirs'}">
+            <div class="bubble">
+              <div class="bubble-text">${esc(m.text)}</div>
+              <div class="bubble-meta"><span>${esc(m.time)}</span></div>
             </div>
           </div>
         `).join('');
-        scrollToBottom('ai-messages-list');
+        requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
       }
 
-      function pushAiReply(userPrompt, modeLabel) {
-        const tone = document.getElementById('ai-tone-select')?.value || 'ودّي';
-        const base = userPrompt || 'طلب خدمة عملاء';
-        let reply = '';
-        if (modeLabel === 'تلخيص') {
-          reply = `📝 ملخص (${tone}): تم استلام "${base}" وإسناده إلى القسم المختص للمتابعة الفورية.`;
-        } else if (modeLabel === 'صياغة رد') {
-          reply = `✍️ رد مقترح (${tone}): أهلاً بك، بخصوص "${base}" نؤكد اهتمامنا وسنوافيك بالتفاصيل فوراً.`;
-        } else if (modeLabel === 'تصنيف') {
-          reply = `🏷️ تصنيف الطلب (${tone}): دعم فني / متابعة حساب — أولوية متوسطة.`;
-        } else {
-          reply = `🤖 مساعد سند AI (${tone}): تم استلام سؤالك "${base}". كيف يمكنني مساعدتك خطوة أخرى؟`;
-        }
-        state.aiMessages.push({ id: 'aiu-' + Date.now(), sender: state.activeAccount.name, text: base, time: nowTime(), mine: true });
-        state.aiMessages.push({ id: 'aib-' + (Date.now() + 1), sender: 'مساعد سند AI', text: reply, time: nowTime(), mine: false });
-        saveState();
+      function askAi(customText, tag) {
+        const inp = document.getElementById('ai-input');
+        const q = String(customText !== undefined ? customText : (inp?.value || '')).trim();
+        if (!q) return;
+        if (inp && customText === undefined) { inp.value = ''; growInput(inp); }
+        db.ai.push({ id: 'ai-' + Date.now(), text: q, time: nowHm(), mine: true });
+        let reply = `سند AI: تم استلام طلبك "${q}".`;
+        if (tag === 'sum') reply = `📝 تلخيص: النقاط الرئيسية لـ "${q}" جاهزة للمتابعة.`;
+        if (tag === 'draft') reply = `✍️ مسودة رد: أهلاً بك، بخصوص "${q}" يسعدنا خدمتك وإتمام المطلوب فوراً.`;
+        if (tag === 'tag') reply = `🏷️ تصنيف: استفسار عام / متابعة سريعة.`;
+        db.ai.push({ id: 'air-' + (Date.now() + 1), text: reply, time: nowHm(), mine: false });
+        save();
         renderAi();
       }
 
-      document.getElementById('ai-ask-btn')?.addEventListener('click', () => {
-        const inp = document.getElementById('ai-prompt-input');
-        const txt = (inp?.value || '').trim();
-        if (!txt) {
-          showToast('اكتب سؤالك أو النص أولاً');
-          return;
+      const aiInp = document.getElementById('ai-input');
+      aiInp?.addEventListener('input', () => growInput(aiInp));
+      document.getElementById('ai-send-btn')?.addEventListener('click', () => askAi());
+      document.getElementById('ai-sum-btn')?.addEventListener('click', () => askAi(aiInp?.value || 'محادثة حالية', 'sum'));
+      document.getElementById('ai-draft-btn')?.addEventListener('click', () => askAi(aiInp?.value || 'رسالة واردة', 'draft'));
+      document.getElementById('ai-tag-btn')?.addEventListener('click', () => askAi(aiInp?.value || 'طلب جديد', 'tag'));
+
+      // --- الإعدادات والأكواد والجهات ---
+      function applyMe(newId, newName) {
+        const cleanId = String(newId || '').trim();
+        if (!cleanId) return;
+        db.me.id = cleanId;
+        if (newName && newName.trim()) db.me.name = newName.trim();
+        save();
+        renderSettings();
+        toast(`تم التفعيل: ${db.me.id}`);
+      }
+
+      function gen8() {
+        const c = String(Math.floor(10000000 + Math.random() * 90000000));
+        const el = document.getElementById('code8-display');
+        if (el) el.textContent = c;
+        return c;
+      }
+
+      document.getElementById('save-self-btn')?.addEventListener('click', () => {
+        applyMe(document.getElementById('self-code')?.value, document.getElementById('self-name')?.value);
+      });
+
+      document.getElementById('gen8-btn')?.addEventListener('click', () => {
+        gen8();
+        toast('تم توليد كود من 8 أرقام');
+      });
+
+      document.getElementById('copy8-btn')?.addEventListener('click', async () => {
+        const c = document.getElementById('code8-display')?.textContent || '';
+        try { await navigator.clipboard.writeText(c); } catch {}
+        toast(`الكود: ${c}`);
+      });
+
+      document.getElementById('use8-btn')?.addEventListener('click', () => {
+        const c = document.getElementById('code8-display')?.textContent || gen8();
+        applyMe(c, document.getElementById('auto8-name')?.value || `حساب ${c}`);
+      });
+
+      document.getElementById('save-intl-btn')?.addEventListener('click', () => {
+        const dial = (document.getElementById('intl-dial')?.value || '').trim();
+        const ph = (document.getElementById('intl-phone')?.value || '').trim();
+        if (!ph) return;
+        const full = dial ? `${dial} ${ph}`.trim() : ph;
+        applyMe(full, document.getElementById('intl-name')?.value || full);
+      });
+
+      document.getElementById('ct-add-btn')?.addEventListener('click', () => {
+        const id = (document.getElementById('ct-id')?.value || '').trim();
+        const name = (document.getElementById('ct-name')?.value || '').trim() || id;
+        if (!id) return;
+        const existing = db.contacts.find((x) => x.id === id);
+        if (existing) existing.name = name;
+        else db.contacts.unshift({ id, name, isGroup: false, unread: 0 });
+        document.getElementById('ct-id').value = '';
+        document.getElementById('ct-name').value = '';
+        save();
+        renderSettings();
+        toast('تم حفظ جهة الاتصال');
+      });
+
+      function renderSettings() {
+        document.getElementById('my-display-name').textContent = db.me.name;
+        document.getElementById('my-display-code').textContent = db.me.id;
+        document.getElementById('my-avatar-letter').textContent = (db.me.name || 'س').trim().charAt(0);
+        const ctBox = document.getElementById('ct-saved-list');
+        if (ctBox) {
+          ctBox.innerHTML = db.contacts.filter((c) => !c.isGroup).map((c) => `
+            <div class="row" style="justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(30,67,82,0.4);">
+              <div><strong>${esc(c.name)}</strong> <span class="muted" style="direction:ltr;display:inline-block;">${esc(c.id)}</span></div>
+              <button type="button" class="tiny-act" data-open-thread="${esc(c.id)}">فتح</button>
+            </div>
+          `).join('');
         }
-        inp.value = '';
-        pushAiReply(txt, 'سؤال');
-      });
+      }
 
-      document.getElementById('ai-summarize-btn')?.addEventListener('click', () => {
-        const txt = (document.getElementById('ai-prompt-input')?.value || '').trim();
-        pushAiReply(txt || 'محادثة عميل', 'تلخيص');
-      });
-
-      document.getElementById('ai-draft-btn')?.addEventListener('click', () => {
-        const txt = (document.getElementById('ai-prompt-input')?.value || '').trim();
-        pushAiReply(txt || 'استفسار عميل', 'صياغة رد');
-      });
-
-      document.getElementById('ai-classify-btn')?.addEventListener('click', () => {
-        const txt = (document.getElementById('ai-prompt-input')?.value || '').trim();
-        pushAiReply(txt || 'طلب جديد', 'تصنيف');
+      document.getElementById('ct-saved-list')?.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-open-thread]');
+        if (b) openThread(b.getAttribute('data-open-thread'));
       });
 
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js?v=4').catch(() => {});
+          navigator.serviceWorker.register('./sw.js?v=5').catch(() => {});
         });
       }
 
-      syncHeaderAccount();
-      generate8DigitCode();
-      renderPeers();
-      renderChats();
-      renderGroups();
-      renderAccounts();
-      renderContacts();
-      renderCallLogs();
+      gen8();
+      renderChatsOverview();
+      renderCalls();
       renderAi();
-      activatePane(state.activePane || 'chats');
+      renderSettings();
+      goScreen(db.screen || 'chats');
     })();
   </script>
 </body>

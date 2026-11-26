@@ -1,13 +1,29 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <meta name="theme-color" content="#0b84ff" />
-  <title>سند AI — الإصدار 9.0.0</title>
-  <link rel="manifest" href="./manifest.json" />
-  <link rel="icon" href="./icons/sanad-icon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="./icons/sanad-icon.svg" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>سند AI - 9.0.0 الإصدار</title>
+
+  <!-- لون شريط الحالة والمظهر الموحد -->
+  <meta name="theme-color" content="#0b3b49" />
+  <meta name="msapplication-TileColor" content="#0b3b49" />
+  <meta name="msapplication-TileImage" content="./icons/icon-192.png?v=2" />
+
+  <!-- أيقونات المتصفح والويب والكمبيوتر -->
+  <link rel="icon" type="image/svg+xml" href="./sanad-icon.svg?v=2" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png?v=2" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png?v=2" />
+
+  <!-- أيقونة الشاشة الرئيسية للآيفون والآيباد (iOS / iPadOS) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png?v=2" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="سند AI" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <!-- ملف تعريف التطبيق -->
+  <link rel="manifest" href="./manifest.json?v=2" />
+
   <style>
     :root {
       --bg: #0b1220;
@@ -16,438 +32,23 @@
       --border: #26385c;
       --text: #eef4ff;
       --muted: #98adc9;
-      --primary: #0b84ff;
-      --primary-hover: #006ce0;
-      --success: #16a34a;
-      --warn: #eab308;
-      --danger: #ef4444;
-      --radius: 14px;
+      --accent: #0b3b49;
     }
-    * { box-sizing: border-box; }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 30;
-      background: rgba(18, 28, 48, 0.96);
-      border-bottom: 1px solid var(--border);
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 700;
-      font-size: 16px;
-    }
-    .brand img {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-    }
-    .ver-pill {
-      font-size: 11px;
-      background: rgba(11, 132, 255, 0.16);
-      color: #7cc0ff;
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(11, 132, 255, 0.35);
-    }
-    .conn-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      padding: 5px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: var(--surface-2);
-    }
-    .conn-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--warn);
-    }
-    .conn-connected .conn-dot { background: var(--success); }
-    .conn-offline .conn-dot { background: var(--danger); }
-    .nav-tabs {
-      display: flex;
-      gap: 6px;
-      overflow-x: auto;
-      padding: 8px 14px;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-    }
-    .tab-btn {
-      background: var(--surface-2);
-      color: var(--muted);
-      border: 1px solid var(--border);
-      padding: 8px 12px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-    }
-    .tab-btn.active {
-      background: var(--primary);
-      color: #fff;
-      border-color: var(--primary);
-    }
-    .badge-count {
-      background: var(--danger);
-      color: #fff;
-      font-size: 10px;
-      padding: 1px 6px;
-      border-radius: 999px;
-    }
-    .main-container {
-      flex: 1;
-      width: 100%;
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 14px;
-    }
-    .pane-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .row-bar {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    input, select, textarea {
-      background: var(--surface-2);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 9px 12px;
-      font-size: 14px;
-      font-family: inherit;
-    }
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-    button {
-      font-family: inherit;
-      cursor: pointer;
-      border-radius: 10px;
-      border: none;
-      padding: 9px 14px;
-      font-size: 13px;
-      font-weight: 600;
-    }
-    .btn-primary { background: var(--primary); color: #fff; }
-    .btn-primary:hover { background: var(--primary-hover); }
-    .btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
-    .btn-danger { background: var(--danger); color: #fff; }
-    .btn-sm { padding: 6px 10px; font-size: 12px; }
-    .messages-box {
-      min-height: 300px;
-      max-height: 52vh;
-      overflow-y: auto;
-      background: #0d1526;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .msg-row { display: flex; }
-    .msg-mine { justify-content: flex-start; }
-    .msg-theirs { justify-content: flex-end; }
-    .msg-bubble {
-      max-width: 82%;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 9px 12px;
-    }
-    .msg-mine .msg-bubble {
-      background: rgba(11, 132, 255, 0.2);
-      border-color: rgba(11, 132, 255, 0.45);
-    }
-    .msg-sender { font-size: 11px; color: #7cc0ff; font-weight: 700; margin-bottom: 3px; }
-    .msg-text { font-size: 14px; line-height: 1.5; word-break: break-word; }
-    .msg-footer {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 5px;
-    }
-    .msg-actions {
-      display: flex;
-      gap: 5px;
-      flex-wrap: wrap;
-      margin-top: 6px;
-    }
-    .btn-mini {
-      background: rgba(255, 255, 255, 0.06);
-      color: var(--text);
-      padding: 3px 7px;
-      font-size: 11px;
-      border-radius: 6px;
-    }
-    .btn-danger-mini { color: #fca5a5; }
-    .msg-reply-box {
-      font-size: 11px;
-      background: rgba(255, 255, 255, 0.06);
-      border-right: 3px solid var(--primary);
-      padding: 4px 8px;
-      border-radius: 6px;
-      margin-bottom: 5px;
-      color: var(--muted);
-    }
-    .msg-image img { max-width: 240px; border-radius: 10px; display: block; }
-    .msg-file a { color: #7cc0ff; text-decoration: none; }
-    .reply-banner {
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 8px 12px;
-      font-size: 12px;
-    }
-    .list-card {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .card-active { border-color: var(--primary); }
-    .card-actions { display: flex; gap: 6px; }
-    .muted { color: var(--muted); font-size: 12px; }
-    .online-dot { color: #4ade80; font-weight: 700; }
-    .offline-dot { color: var(--muted); }
-    .empty-hint { color: var(--muted); text-align: center; padding: 24px; font-size: 13px; }
-    .video-grid { display: flex; gap: 10px; flex-wrap: wrap; }
-    video { width: 240px; max-width: 100%; border-radius: 12px; background: #000; display: none; }
-    .incoming-box {
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      background: rgba(22, 163, 74, 0.16);
-      border: 1px solid rgba(22, 163, 74, 0.45);
-      padding: 10px 12px;
-      border-radius: 12px;
+      font-family: system-ui, -apple-system, sans-serif;
     }
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <img src="./icons/sanad-icon.svg" alt="سند AI" />
-      <span>سند AI</span>
-      <span class="ver-pill">v9.0.0</span>
-    </div>
-    <div id="sanad-connection-badge" class="conn-badge conn-connecting">
-      <span class="conn-dot"></span>
-      <span id="sanad-connection-text">جاري الاتصال بالسيرفر...</span>
-    </div>
-  </header>
-
-  <nav class="nav-tabs" aria-label="التبويبات الرئيسية">
-    <button type="button" class="tab-btn active" data-nav-pane="chats">
-      💬 الدردشة <span class="badge-count" data-unread-for="chats" style="display:none"></span>
-    </button>
-    <button type="button" class="tab-btn" data-nav-pane="groups">
-      👥 المجموعات <span class="badge-count" data-unread-for="groups" style="display:none"></span>
-    </button>
-    <button type="button" class="tab-btn" data-nav-pane="accounts">
-      🔐 الحسابات
-    </button>
-    <button type="button" class="tab-btn" data-nav-pane="contacts">
-      📇 الجهات
-    </button>
-    <button type="button" class="tab-btn" data-nav-pane="calls">
-      📞 المكالمات
-    </button>
-    <button type="button" class="tab-btn" data-nav-pane="ai">
-      🤖 الذكاء وخدمة العملاء
-    </button>
-  </nav>
-
-  <main class="main-container">
-    <!-- 1. الدردشة -->
-    <section class="pane-card" data-pane="chats">
-      <div class="row-bar">
-        <select id="chat-peer-select" style="flex:1; min-width:200px;"></select>
-        <div id="chat-active-peer-info" class="muted"></div>
-      </div>
-
-      <div id="chat-messages-list" class="messages-box"></div>
-
-      <div id="chat-reply-banner" class="reply-banner">
-        <span id="chat-reply-text"></span>
-        <button type="button" id="chat-cancel-reply-btn" class="btn-secondary btn-sm">إلغاء الرد</button>
-      </div>
-
-      <div class="row-bar">
-        <input id="chat-message-input" type="text" placeholder="اكتب رسالتك هنا..." style="flex:1; min-width:180px;" />
-        <button type="button" id="chat-voice-btn" class="btn-secondary">🎤 تسجيل صوت</button>
-        <label class="btn-secondary" style="padding:9px 12px; cursor:pointer; border-radius:10px; font-size:13px;">
-          📎 مرفق
-          <input id="chat-file-input" type="file" style="display:none;" />
-        </label>
-        <button type="button" id="chat-send-btn" class="btn-primary">إرسال</button>
-      </div>
-    </section>
-
-    <!-- 2. المجموعات -->
-    <section class="pane-card" data-pane="groups" style="display:none;">
-      <div class="row-bar">
-        <select id="group-select" style="flex:1; min-width:200px;"></select>
-        <input id="group-add-member-input" type="text" placeholder="رقم/معرّف عضو لإضافته" />
-        <button type="button" id="group-add-member-btn" class="btn-secondary">إضافة عضو</button>
-      </div>
-      <div id="group-members-info" class="muted"></div>
-
-      <div id="group-messages-list" class="messages-box"></div>
-
-      <div class="row-bar">
-        <input id="group-message-input" type="text" placeholder="اكتب رسالة للمجموعة..." style="flex:1;" />
-        <button type="button" id="group-send-btn" class="btn-primary">إرسال للمجموعة</button>
-      </div>
-
-      <hr style="border:0; border-top:1px solid var(--border); width:100%;" />
-      <div class="row-bar">
-        <input id="new-group-name" type="text" placeholder="اسم المجموعة الجديدة" />
-        <input id="new-group-members" type="text" placeholder="أرقام الأعضاء (مفصولة بفاصلة)" />
-        <input id="new-group-desc" type="text" placeholder="وصف المجموعة (اختياري)" />
-        <button type="button" id="create-group-btn" class="btn-primary">إنشاء مجموعة</button>
-      </div>
-    </section>
-
-    <!-- 3. الحسابات -->
-    <section class="pane-card" data-pane="accounts" style="display:none;">
-      <h3>إدارة وتفعيل الحسابات</h3>
-      <div class="row-bar">
-        <input id="new-account-id" type="text" placeholder="رقم الهاتف أو المعرّف مثل +967770000005" />
-        <input id="new-account-name" type="text" placeholder="اسم الحساب" />
-        <input id="new-account-role" type="text" placeholder="الدور / الصفة" />
-        <button type="button" id="add-account-btn" class="btn-primary">حفظ وتفعيل الحساب</button>
-      </div>
-      <div id="accounts-list" style="display:flex; flex-direction:column; gap:8px;"></div>
-    </section>
-
-    <!-- 4. الجهات -->
-    <section class="pane-card" data-pane="contacts" style="display:none;">
-      <h3>جهات الاتصال وحالة الظهور</h3>
-      <div class="row-bar">
-        <input id="new-contact-id" type="text" placeholder="رقم أو معرّف جهة الاتصال" />
-        <input id="new-contact-name" type="text" placeholder="الاسم" />
-        <input id="new-contact-role" type="text" placeholder="الوصف أو القسم" />
-        <button type="button" id="add-contact-btn" class="btn-primary">إضافة جهة اتصال</button>
-      </div>
-      <div id="contacts-list" style="display:flex; flex-direction:column; gap:8px;"></div>
-    </section>
-
-    <!-- 5. المكالمات -->
-    <section class="pane-card" data-pane="calls" style="display:none;">
-      <h3>المكالمات الصوتية والمرئية (WebRTC)</h3>
-      <div id="incoming-call-box" class="incoming-box">
-        <span id="incoming-call-label">مكالمة واردة</span>
-        <div class="row-bar">
-          <button type="button" id="accept-call-btn" class="btn-primary btn-sm">رد</button>
-          <button type="button" id="reject-call-btn" class="btn-danger btn-sm">رفض</button>
-        </div>
-      </div>
-      <div class="row-bar">
-        <input id="call-target-input" type="text" placeholder="رقم أو معرّف الطرف للاتصال" style="flex:1; min-width:190px;" />
-        <button type="button" id="start-audio-call-btn" class="btn-primary">📞 مكالمة صوتية</button>
-        <button type="button" id="start-video-call-btn" class="btn-secondary">🎥 مكالمة مرئية</button>
-        <button type="button" id="hangup-call-btn" class="btn-danger">إنهاء</button>
-      </div>
-      <div id="call-status-text" class="muted">جاهز لإجراء مكالمة صوتية أو مرئية</div>
-      <div class="video-grid">
-        <video id="call-local-video" autoplay muted playsinline></video>
-        <video id="call-remote-video" autoplay playsinline></video>
-        <audio id="call-remote-audio" autoplay></audio>
-      </div>
-    </section>
-
-    <!-- 6. الذكاء وخدمة العملاء -->
-    <section class="pane-card" data-pane="ai" style="display:none;">
-      <h3>مساعد سند AI لخدمة العملاء</h3>
-      <div id="ai-messages-list" class="messages-box"></div>
-      <div class="row-bar">
-        <select id="ai-tone-select">
-          <option value="ودّي">نبرة ودّية</option>
-          <option value="رسمي">نبرة رسمية</option>
-          <option value="مختصر">نبرة مختصرة</option>
-          <option value="حل مشكلة">نبرة حل مشكلة</option>
-        </select>
-        <button type="button" id="ai-summarize-btn" class="btn-secondary btn-sm">📝 تلخيص وإسناد</button>
-        <button type="button" id="ai-draft-btn" class="btn-secondary btn-sm">✍️ صياغة رد</button>
-        <button type="button" id="ai-classify-btn" class="btn-secondary btn-sm">🏷️ تصنيف الطلب</button>
-      </div>
-      <div class="row-bar">
-        <input id="ai-prompt-input" type="text" placeholder="اكتب استفسار عميل أو اطلب تلخيص أو صياغة رد..." style="flex:1;" />
-        <button type="button" id="ai-ask-btn" class="btn-primary">إرسال للمساعد</button>
-      </div>
-    </section>
-  </main>
-
-  <script src="./js/state.js"></script>
-  <script src="./js/navigation.js"></script>
-  <script src="./js/chats.js"></script>
-  <script src="./js/groups.js"></script>
-  <script src="./js/contacts.js"></script>
-  <script src="./js/calls.js"></script>
-  <script src="./js/ai-client.js"></script>
-  <script src="./js/realtime.js"></script>
-  <script>
-    (() => {
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js').catch(() => {});
-        });
-      }
-      window.SanadNav.bindNavigation();
-      window.SanadChats.bindChats();
-      window.SanadGroups.bindGroups();
-      window.SanadContacts.bindContacts();
-      window.SanadCalls.bindCalls();
-      window.SanadAi.bindAi();
-      window.SanadRealtime.connectWs();
-      window.SanadRealtime.requestSync();
-    })();
-  </script>
+  <div id="app"></div>
+  <script type="module" src="./navigation.js?v=2"></script>
 </body>
 </html>

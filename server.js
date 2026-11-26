@@ -1,3 +1,4 @@
+
 const http = require('http');
 const { WebSocketServer } = require('ws');
 
@@ -407,7 +408,7 @@ const htmlContent = `<!DOCTYPE html>
     </div>
 
     <div id="copy-toast-banner" class="hidden fixed top-14 left-1/2 -translate-x-1/2 bg-teal-900/95 border border-teal-500/50 text-teal-50 px-4 py-1.5 rounded-full shadow-xl z-50 text-[11px] font-semibold">
-        تم التنفيذ بنجاح
+        تم النسخ إلى الحافظة
     </div>
 
     <div id="live-toast" onclick="jumpToToastChat()" class="hidden fixed top-16 left-3 right-3 max-w-md mx-auto bg-[#0d1926]/95 border border-teal-800/70 text-slate-100 px-3.5 py-2.5 rounded-2xl shadow-2xl z-40 flex items-center justify-between gap-2 cursor-pointer text-xs">
@@ -705,12 +706,9 @@ const htmlContent = `<!DOCTYPE html>
 
         <section id="pane-contacts" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-[#0d1926] border border-slate-800 p-3.5 rounded-2xl space-y-2.5">
-                <div class="flex items-center justify-between gap-2 flex-wrap">
+                <div class="flex items-center justify-between">
                     <h2 class="text-sm font-bold text-teal-200">جهات الاتصال</h2>
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                        <button type="button" onclick="cleanUnwantedSavedNamesAI()" class="bg-rose-950/80 hover:bg-rose-900 border border-rose-800/60 text-rose-200 px-3 py-1 rounded-lg text-[11px] font-semibold transition"><i class="fa-solid fa-broom ml-1"></i>تنظيف الأسماء غير المرغوبة</button>
-                        <button type="button" onclick="scanNumbersForSanad()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-1 rounded-lg text-[11px] font-semibold transition"><i class="fa-solid fa-user-check ml-1"></i>فحص أرقام</button>
-                    </div>
+                    <button type="button" onclick="scanNumbersForSanad()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-1 rounded-lg text-[11px] font-semibold transition"><i class="fa-solid fa-user-check ml-1"></i>فحص أرقام</button>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-2">
                     <input type="text" id="c-name" onkeydown="if(event.key==='Enter')addNewContact()" placeholder="الاسم" class="bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
@@ -769,7 +767,6 @@ const htmlContent = `<!DOCTYPE html>
                     <div class="flex flex-wrap gap-1.5 text-[11px]">
                         <button type="button" onclick="scratchpadTransform('simplify')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-200 px-2.5 py-1 rounded-lg font-semibold">تبسيط</button>
                         <button type="button" onclick="scratchpadTransform('formal')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sky-200 px-2.5 py-1 rounded-lg font-semibold">رسمي</button>
-                        <button type="button" onclick="scratchpadTransform('polish')" class="bg-teal-950/80 hover:bg-teal-900 border border-teal-800/60 text-teal-200 px-2.5 py-1 rounded-lg font-semibold">لمسة ذكية</button>
                         <button type="button" onclick="speakText(document.getElementById('ai-scratchpad-ta').value)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 px-2.5 py-1 rounded-lg font-semibold"><i class="fa-solid fa-volume-high ml-1"></i>قراءة</button>
                         <button type="button" onclick="sendScratchpadToChat()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1 rounded-lg font-semibold">نقل إلى الدردشة</button>
                     </div>
@@ -962,17 +959,17 @@ const htmlContent = `<!DOCTYPE html>
             try { persistState(); } catch (e) {}
             location.replace(location.origin + location.pathname + '?v=' + encodeURIComponent(serverVer) + (location.hash || ''));
         }
-        function copyStringToClipboard(text, customLabel) {
+        function copyStringToClipboard(text) {
             var str = String(text || '');
-            if (str && navigator.clipboard && navigator.clipboard.writeText) {
+            if (!str) return;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(str).catch(function() {});
             }
             var t = document.getElementById('copy-toast-banner');
             if (t) {
-                t.textContent = customLabel || 'تم النسخ إلى الحافظة';
                 t.classList.remove('hidden');
                 clearTimeout(copyToastTimer);
-                copyToastTimer = setTimeout(function() { t.classList.add('hidden'); }, 2000);
+                copyToastTimer = setTimeout(function() { t.classList.add('hidden'); }, 1800);
             }
         }
         function playChimeSound() {
@@ -1075,14 +1072,6 @@ const htmlContent = `<!DOCTYPE html>
         function smartTransformText(rawText, mode) {
             var t = String(rawText || '').trim();
             if (!t) return '';
-            if (mode === 'polish') {
-                var cleanLines = t
-                    .replace(/\\s+/g, ' ')
-                    .replace(/([،؛:.!?؟])\\s*/g, '$1 ')
-                    .trim();
-                if (!/[.!?؟]$/.test(cleanLines)) cleanLines += '.';
-                return '✨ ' + cleanLines;
-            }
             if (mode === 'formal') {
                 return 'السلام عليكم ورحمة الله وبركاته، ' + t.replace(/^(يا\s*اخي|يا\s*أخي|هلا|مرحبا)\s*/i, '') + ' -- مع خالص التقدير.';
             }
@@ -1143,7 +1132,6 @@ const htmlContent = `<!DOCTYPE html>
             if (!ta || !ta.value.trim()) return;
             ta.value = smartTransformText(ta.value.trim(), mode);
             saveScratchpadDraft();
-            appendAiLog('تم تطبيق (' + mode + ') على المسودة.', 'ai');
         }
 
         function saveScratchpadDraft() {
@@ -1240,15 +1228,13 @@ const htmlContent = `<!DOCTYPE html>
             appendAiLog(q, 'me');
             var reply = '';
             if (/كود|رقم|معرّف|معرف/i.test(q)) {
-                reply = 'يمكنك توليد معرّف فوري من تبويب (الحسابات ← + توليد معرّف 8 أرقام) أو إضافة أي رقم دولي ومشاركته مع الطرف الآخر، ويمكنك حذف أي حساب إضافي بعد حفظه.';
-            } else if (/اسم|أسماء|حذف|مسح|تنظيف/i.test(q)) {
-                reply = 'يمكنك حذف أي جهة اتصال أو مجموعة أو كود بعد حفظه مباشرة من زر (حذف)، كما يوفّر زر (تنظيف الأسماء غير المرغوبة) في تبويب الجهات فرزاً ذكياً للأسماء التلقائية أو المكررة.';
+                reply = 'يمكنك توليد معرّف فوري من تبويب (الحسابات ← + توليد معرّف 8 أرقام) أو إضافة أي رقم دولي ومشاركته مع الطرف الآخر.';
             } else if (/مكالم|فيديو|صوت/i.test(q)) {
                 reply = 'لإجراء مكالمة حية بين جهازين، تأكد من السماح للمتصفح بالوصول إلى الميكروفون أو الكاميرا وأن الطرف الآخر متصل بالشبكة.';
             } else if (/لخص|تلخيص/i.test(q)) {
                 reply = smartTransformText(q, 'summarize');
             } else {
-                reply = smartTransformText(q, 'polish') + ' -- يمكنك استخدام أزرار (تبسيط، رسمي، رد عميل) في شريط الصياغة لتجهيز ردك فوراً.';
+                reply = 'تم فهم طلبك: ' + q + ' -- يمكنك استخدام أزرار (تبسيط، رسمي، رد عميل) في شريط الصياغة لتجهيز ردك فوراً.';
             }
             appendAiLog(reply, 'ai');
         }
@@ -1356,7 +1342,7 @@ const htmlContent = `<!DOCTYPE html>
             }
         }
 
-        // المجموعات والجهات والحسابات + حذف ما بعد الخزن والتنظيف الذكي
+        // المجموعات والجهات والحسابات
         function findGroupById(id) {
             return sanadGroups.find(function(g) { return normalizeStr(g.id) === normalizeStr(id); }) || null;
         }
@@ -1383,122 +1369,6 @@ const htmlContent = `<!DOCTYPE html>
             var found = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(cleanId); });
             if (!found) return cleanId;
             return found.id === DEFAULT_PEER ? found.name : (found.name + ' • ' + found.id);
-        }
-
-        function isUnwantedContactAI(contactObj) {
-            if (!contactObj || contactObj.id === DEFAULT_PEER) return false;
-            var cleanName = String(contactObj.name || '').trim();
-            var cleanId = cleanIdValue(contactObj.id);
-            if (!cleanId) return true;
-            if (!cleanName) return true;
-            if (/^(رقم|معرّف|معرف|مدعو)\s+/i.test(cleanName)) return true;
-            if (/^[\s._\-؟?]+$/.test(cleanName)) return true;
-            return false;
-        }
-
-        function cleanUnwantedSavedNamesAI() {
-            var seenIds = new Set();
-            var removedCount = 0;
-            var cleanedList = [];
-
-            contacts.forEach(function(c) {
-                if (!c || !c.id) { removedCount += 1; return; }
-                var normId = normalizeStr(c.id);
-                if (c.id === DEFAULT_PEER) {
-                    if (!seenIds.has(normId)) {
-                        seenIds.add(normId);
-                        cleanedList.push(c);
-                    }
-                    return;
-                }
-                if (seenIds.has(normId) || isUnwantedContactAI(c)) {
-                    removedCount += 1;
-                    return;
-                }
-                seenIds.add(normId);
-                cleanedList.push({
-                    id: cleanIdValue(c.id),
-                    name: String(c.name || '').trim().replace(/\\s+/g, ' ')
-                });
-            });
-
-            if (removedCount === 0) {
-                copyStringToClipboard('', 'لا توجد أسماء غير مرغوبة أو مكررة');
-                return;
-            }
-
-            if (!confirm('اكتشف الذكاء الاصطناعي ' + toWesternDigits(removedCount) + ' اسماً أو إدخالاً غير مرغوب أو مكرراً بعد الحفظ. هل تريد مسحها الآن؟')) {
-                return;
-            }
-
-            contacts = cleanedList;
-            if (normalizeStr(currentPeer) !== normalizeStr(DEFAULT_PEER) &&
-                !findGroupById(currentPeer) &&
-                !contacts.some(function(x) { return normalizeStr(x.id) === normalizeStr(currentPeer); })) {
-                currentPeer = DEFAULT_PEER;
-            }
-            persistAndDraw();
-            copyStringToClipboard('', 'تم مسح ' + toWesternDigits(removedCount) + ' من الأسماء غير المرغوبة');
-        }
-
-        function deleteSavedContact(contactId) {
-            var targetId = cleanIdValue(contactId);
-            if (!targetId || targetId === DEFAULT_PEER) return;
-            var found = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(targetId); });
-            var label = found ? (found.name + ' (' + found.id + ')') : targetId;
-            if (!confirm('هل تريد حذف جهة الاتصال "' + label + '" بعد حفظها؟')) return;
-
-            contacts = contacts.filter(function(c) { return normalizeStr(c.id) !== normalizeStr(targetId); });
-            selectedGroupMembers.delete(targetId);
-            selectedGroupCallPeers.delete(targetId);
-            delete pinnedByThread[normalizeStr(targetId)];
-            delete unreadByThread[normalizeStr(targetId)];
-            if (acctThreads[activeAcct]) {
-                delete acctThreads[activeAcct][targetId];
-            }
-            if (normalizeStr(currentPeer) === normalizeStr(targetId)) {
-                currentPeer = DEFAULT_PEER;
-            }
-            persistAndDraw();
-            copyStringToClipboard('', 'تم حذف جهة الاتصال');
-        }
-
-        function deleteSavedAccount(acctId) {
-            var target = cleanIdValue(acctId);
-            if (!target) return;
-            if (myAccts.length <= 1) {
-                return alert('يجب الإبقاء على حساب واحد على الأقل.');
-            }
-            if (!confirm('هل تريد حذف الحساب/المعرّف "' + target + '"؟')) return;
-
-            myAccts = myAccts.filter(function(a) { return normalizeStr(a) !== normalizeStr(target); });
-            delete acctThreads[target];
-            if (normalizeStr(activeAcct) === normalizeStr(target)) {
-                activeAcct = myAccts[0];
-                currentPeer = DEFAULT_PEER;
-            }
-            persistAndDraw();
-            syncPresenceNow();
-            copyStringToClipboard('', 'تم حذف الحساب');
-        }
-
-        function deleteSavedGroup(groupId) {
-            var target = cleanIdValue(groupId);
-            var grp = findGroupById(target);
-            if (!grp) return;
-            if (!confirm('هل تريد حذف المجموعة "' + grp.name + '"؟')) return;
-
-            sanadGroups = sanadGroups.filter(function(g) { return normalizeStr(g.id) !== normalizeStr(target); });
-            if (acctThreads[activeAcct]) {
-                delete acctThreads[activeAcct][grp.id];
-            }
-            delete pinnedByThread[normalizeStr(grp.id)];
-            delete unreadByThread[normalizeStr(grp.id)];
-            if (normalizeStr(currentPeer) === normalizeStr(grp.id)) {
-                currentPeer = DEFAULT_PEER;
-            }
-            persistAndDraw();
-            copyStringToClipboard('', 'تم حذف المجموعة');
         }
 
         function choosePeer(id) {
@@ -1629,10 +1499,7 @@ const htmlContent = `<!DOCTYPE html>
                 return '<div class="flex items-center justify-between bg-[#0d1926] border border-slate-800 p-3 rounded-xl text-xs gap-2">' +
                     '<div class="min-w-0"><p class="font-bold text-white truncate">👥 ' + escapeHtml(g.name) + '</p>' +
                     '<p class="text-[11px] text-slate-400 font-mono truncate">' + toWesternDigits((g.members || []).length) + ' أعضاء</p></div>' +
-                    '<div class="flex gap-1.5 shrink-0">' +
-                    '<button type="button" onclick="deleteSavedGroup(\\'' + escapeJsSingle(g.id) + '\\')" class="bg-rose-950/80 hover:bg-rose-900 border border-rose-800/60 text-rose-200 px-2.5 py-1.5 rounded-lg font-semibold">حذف</button>' +
-                    '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(g.id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-lg font-semibold">فتح</button>' +
-                    '</div></div>';
+                    '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(g.id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-lg font-semibold shrink-0">فتح</button></div>';
             }).join('');
         }
 
@@ -2260,13 +2127,11 @@ const htmlContent = `<!DOCTYPE html>
             if (!box) return;
             box.innerHTML = myAccts.map(function(acc) {
                 var isCur = normalizeStr(acc) === normalizeStr(activeAcct);
-                var canDelete = myAccts.length > 1;
-                return '<div class="flex items-center justify-between bg-[#08101a] border ' + (isCur ? 'border-teal-600' : 'border-slate-800') + ' p-2.5 rounded-xl text-xs gap-2">' +
-                    '<span class="font-mono font-semibold text-white truncate">' + escapeHtml(acc) + (isCur ? ' <span class="text-[10px] text-teal-300">(نشط)</span>' : '') + '</span>' +
-                    '<div class="flex gap-1.5 shrink-0">' +
+                return '<div class="flex items-center justify-between bg-[#08101a] border ' + (isCur ? 'border-teal-600' : 'border-slate-800') + ' p-2.5 rounded-xl text-xs">' +
+                    '<span class="font-mono font-semibold text-white">' + escapeHtml(acc) + (isCur ? ' <span class="text-[10px] text-teal-300">(نشط)</span>' : '') + '</span>' +
+                    '<div class="flex gap-1.5">' +
                     '<button type="button" onclick="copyStringToClipboard(\\'' + escapeJsSingle(acc) + '\\')" class="bg-slate-800 px-2.5 py-1 rounded-lg text-[11px] text-slate-200">نسخ</button>' +
                     (!isCur ? '<button type="button" onclick="switchActiveAccount(\\'' + escapeJsSingle(acc) + '\\')" class="bg-[#164e63] px-2.5 py-1 rounded-lg text-[11px] text-white font-semibold">تفعيل</button>' : '') +
-                    (canDelete ? '<button type="button" onclick="deleteSavedAccount(\\'' + escapeJsSingle(acc) + '\\')" class="bg-rose-950/80 hover:bg-rose-900 border border-rose-800/60 px-2.5 py-1 rounded-lg text-[11px] text-rose-200 font-semibold">حذف</button>' : '') +
                     '</div></div>';
             }).join('');
         }
@@ -2284,7 +2149,6 @@ const htmlContent = `<!DOCTYPE html>
             if (!box) return;
             box.innerHTML = filtered.map(function(c) {
                 var online = isPeerOnline(c.id) || c.id === DEFAULT_PEER;
-                var isDefault = c.id === DEFAULT_PEER;
                 return '<div class="flex items-center justify-between bg-[#0d1926] border border-slate-800 p-3 rounded-xl text-xs gap-2">' +
                     '<div class="min-w-0">' +
                     '<p class="font-bold text-white truncate">' + escapeHtml(c.name) + ' <span class="text-[10px] font-normal ' + (online ? 'text-emerald-400' : 'text-slate-500') + '">• ' + (online ? 'متصل' : 'غير متصل') + '</span></p>' +
@@ -2293,7 +2157,6 @@ const htmlContent = `<!DOCTYPE html>
                     '<div class="flex gap-1.5 shrink-0">' +
                     '<button type="button" onclick="launchCall(\\'audio\\', \\'' + escapeJsSingle(c.id) + '\\')" class="bg-emerald-800 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded-lg"><i class="fa-solid fa-phone"></i></button>' +
                     '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(c.id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-lg font-semibold">دردشة</button>' +
-                    (!isDefault ? '<button type="button" onclick="deleteSavedContact(\\'' + escapeJsSingle(c.id) + '\\')" title="حذف جهة الاتصال" class="bg-rose-950/80 hover:bg-rose-900 border border-rose-800/60 text-rose-200 px-2.5 py-1.5 rounded-lg font-semibold">حذف</button>' : '') +
                     '</div></div>';
             }).join('');
         }
@@ -3108,5 +2971,4 @@ wss.on('connection', wsClient => {
 });
 
 server.listen(PORT, () => {
-    console.log(`Sanad AI v${APP_VERSION} running on http://localhost:${PORT}`);
-});
+    console.log(`Sanad AI v${APP_VERSION} 

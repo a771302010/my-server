@@ -3,7 +3,7 @@ const path = require('path');
 const http = require('http');
 const { URL } = require('url');
 const { config } = require('./config/env');
-const { wshHub } = require('./realtime/wsHub');
+const wsHubModule = require('./realtime/wsHub');
 const { handleApiRequest } = require('./realtime/syncApi');
 
 const STATIC_MIME = {
@@ -58,6 +58,19 @@ function serveStaticFile(req, res, parsedUrl) {
   fs.createReadStream(fullPath).pipe(res);
 }
 
+function attachWebSocketHub(server) {
+  const hub = wsHubModule && wsHubModule.wshHub ? wsHubModule.wshHub : wsHubModule;
+  if (hub && typeof hub.attach === 'function') {
+    hub.attach(server);
+  } else if (typeof hub === 'function') {
+    hub(server);
+  } else if (wsHubModule && typeof wsHubModule.attachWsHub === 'function') {
+    wsHubModule.attachWsHub(server);
+  } else {
+    console.warn('[Sanad AI] wsHub attach method not found; continuing HTTP server.');
+  }
+}
+
 const server = http.createServer(async (req, res) => {
   const parsedUrl = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
 
@@ -73,7 +86,7 @@ const server = http.createServer(async (req, res) => {
   serveStaticFile(req, res, parsedUrl);
 });
 
-wshHub.attach(server);
+attachWebSocketHub(server);
 
 server.listen(config.port, '0.0.0.0', () => {
   console.log(`[Sanad AI v${config.version}] running on http://0.0.0.0:${config.port}`);

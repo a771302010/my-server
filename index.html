@@ -8,23 +8,24 @@
   <!-- لون شريط الحالة والمظهر الموحد باللون الأزرق الزيتي -->
   <meta name="theme-color" content="#0b3b49" />
   <meta name="msapplication-TileColor" content="#0b3b49" />
-  <meta name="msapplication-TileImage" content="./icons/icon-192.png?v=2" />
+  <meta name="msapplication-TileImage" content="./icons/icon-192.png?v=3" />
 
   <!-- أيقونات المتصفح والويب والكمبيوتر -->
-  <link rel="icon" href="./icons/sanad-icon.svg?v=2" type="image/svg+xml" />
-  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png?v=2" />
-  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png?v=2" />
+  <link rel="icon" href="./icons/sanad-icon.svg?v=3" type="image/svg+xml" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png?v=3" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png?v=3" />
 
   <!-- أيقونة الشاشة الرئيسية للآيفون والآيباد (iOS / iPadOS) -->
-  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png?v=2" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png?v=3" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="سند AI" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
   <!-- ملف تعريف التطبيق -->
-  <link rel="manifest" href="./manifest.json?v=2" />
+  <link rel="manifest" href="./manifest.json?v=3" />
+
   <style>
-    :root { 
+    :root {
       --bg: #0b1220;
       --surface: #121c30;
       --surface-2: #182540;
@@ -38,7 +39,9 @@
       --danger: #ef4444;
       --radius: 14px;
     }
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Arial, sans-serif;
@@ -48,6 +51,7 @@
       display: flex;
       flex-direction: column;
     }
+
     .topbar {
       position: sticky;
       top: 0;
@@ -61,6 +65,7 @@
       gap: 10px;
       flex-wrap: wrap;
     }
+
     .brand {
       display: flex;
       align-items: center;
@@ -68,11 +73,13 @@
       font-weight: 700;
       font-size: 16px;
     }
+
     .brand img {
       width: 34px;
       height: 34px;
       border-radius: 10px;
     }
+
     .ver-pill {
       font-size: 11px;
       background: rgba(11, 132, 255, 0.16);
@@ -81,6 +88,7 @@
       border-radius: 999px;
       border: 1px solid rgba(11, 132, 255, 0.35);
     }
+
     .conn-badge {
       display: inline-flex;
       align-items: center;
@@ -91,14 +99,17 @@
       border: 1px solid var(--border);
       background: var(--surface-2);
     }
+
     .conn-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
       background: var(--warn);
     }
+
     .conn-connected .conn-dot { background: var(--success); }
     .conn-offline .conn-dot { background: var(--danger); }
+
     .nav-tabs {
       display: flex;
       gap: 6px;
@@ -107,6 +118,7 @@
       background: var(--surface);
       border-bottom: 1px solid var(--border);
     }
+
     .tab-btn {
       background: var(--surface-2);
       color: var(--muted);
@@ -121,11 +133,13 @@
       gap: 6px;
       white-space: nowrap;
     }
+
     .tab-btn.active {
       background: var(--primary);
       color: #fff;
       border-color: var(--primary);
     }
+
     .badge-count {
       background: var(--danger);
       color: #fff;
@@ -133,6 +147,7 @@
       padding: 1px 6px;
       border-radius: 999px;
     }
+
     .main-container {
       flex: 1;
       width: 100%;
@@ -140,6 +155,7 @@
       margin: 0 auto;
       padding: 14px;
     }
+
     .pane-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -149,12 +165,14 @@
       flex-direction: column;
       gap: 12px;
     }
+
     .row-bar {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
       align-items: center;
     }
+
     input, select, textarea {
       background: var(--surface-2);
       color: var(--text);
@@ -164,10 +182,12 @@
       font-size: 14px;
       font-family: inherit;
     }
+
     input:focus, select:focus, textarea:focus {
       outline: none;
       border-color: var(--primary);
     }
+
     button {
       font-family: inherit;
       cursor: pointer;
@@ -177,11 +197,13 @@
       font-size: 13px;
       font-weight: 600;
     }
+
     .btn-primary { background: var(--primary); color: #fff; }
     .btn-primary:hover { background: var(--primary-hover); }
     .btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
     .btn-danger { background: var(--danger); color: #fff; }
     .btn-sm { padding: 6px 10px; font-size: 12px; }
+
     .messages-box {
       min-height: 300px;
       max-height: 52vh;
@@ -194,9 +216,11 @@
       flex-direction: column;
       gap: 10px;
     }
+
     .msg-row { display: flex; }
     .msg-mine { justify-content: flex-start; }
     .msg-theirs { justify-content: flex-end; }
+
     .msg-bubble {
       max-width: 82%;
       background: var(--surface-2);
@@ -204,12 +228,15 @@
       border-radius: 12px;
       padding: 9px 12px;
     }
+
     .msg-mine .msg-bubble {
       background: rgba(11, 132, 255, 0.2);
       border-color: rgba(11, 132, 255, 0.45);
     }
+
     .msg-sender { font-size: 11px; color: #7cc0ff; font-weight: 700; margin-bottom: 3px; }
     .msg-text { font-size: 14px; line-height: 1.5; word-break: break-word; }
+
     .msg-footer {
       display: flex;
       justify-content: space-between;
@@ -218,12 +245,14 @@
       color: var(--muted);
       margin-top: 5px;
     }
+
     .msg-actions {
       display: flex;
       gap: 5px;
       flex-wrap: wrap;
       margin-top: 6px;
     }
+
     .btn-mini {
       background: rgba(255, 255, 255, 0.06);
       color: var(--text);
@@ -231,7 +260,9 @@
       font-size: 11px;
       border-radius: 6px;
     }
+
     .btn-danger-mini { color: #fca5a5; }
+
     .msg-reply-box {
       font-size: 11px;
       background: rgba(255, 255, 255, 0.06);
@@ -241,8 +272,10 @@
       margin-bottom: 5px;
       color: var(--muted);
     }
+
     .msg-image img { max-width: 240px; border-radius: 10px; display: block; }
     .msg-file a { color: #7cc0ff; text-decoration: none; }
+
     .reply-banner {
       display: none;
       align-items: center;
@@ -253,6 +286,7 @@
       padding: 8px 12px;
       font-size: 12px;
     }
+
     .list-card {
       background: var(--surface-2);
       border: 1px solid var(--border);
@@ -264,6 +298,7 @@
       gap: 10px;
       flex-wrap: wrap;
     }
+
     .card-active { border-color: var(--primary); }
     .card-actions { display: flex; gap: 6px; }
     .muted { color: var(--muted); font-size: 12px; }
@@ -272,6 +307,7 @@
     .empty-hint { color: var(--muted); text-align: center; padding: 24px; font-size: 13px; }
     .video-grid { display: flex; gap: 10px; flex-wrap: wrap; }
     video { width: 240px; max-width: 100%; border-radius: 12px; background: #000; display: none; }
+
     .incoming-box {
       display: none;
       align-items: center;
@@ -287,7 +323,7 @@
 <body>
   <header class="topbar">
     <div class="brand">
-      <img src="./icons/sanad-icon.svg?v=2" alt="سند AI" />
+      <img src="./icons/sanad-icon.svg?v=3" alt="سند AI" />
       <span>سند AI</span>
       <span class="ver-pill">v9.0.0</span>
     </div>
@@ -449,19 +485,53 @@
   <script src="./js/realtime.js"></script>
   <script>
     (() => {
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js?v=2').catch(() => {});
+      function activatePane(paneName) {
+        if (!paneName) return;
+        document.querySelectorAll('[data-nav-pane]').forEach((btn) => {
+          const isMatch = btn.getAttribute('data-nav-pane') === paneName;
+          btn.classList.toggle('active', isMatch);
+        });
+        document.querySelectorAll('[data-pane]').forEach((sec) => {
+          const isMatch = sec.getAttribute('data-pane') === paneName;
+          sec.style.display = isMatch ? '' : 'none';
         });
       }
-      window.SanadNav.bindNavigation();
-      window.SanadChats.bindChats();
-      window.SanadGroups.bindGroups();
-      window.SanadContacts.bindContacts();
-      window.SanadCalls.bindCalls();
-      window.SanadAi.bindAi();
-      window.SanadRealtime.connectWs();
-      window.SanadRealtime.requestSync();
+
+      document.addEventListener('click', (e) => {
+        const tabBtn = e.target.closest('[data-nav-pane]');
+        if (!tabBtn) return;
+        e.preventDefault();
+        const targetPane = tabBtn.getAttribute('data-nav-pane');
+        activatePane(targetPane);
+      });
+
+      window.addEventListener('DOMContentLoaded', () => {
+        const activeTab = document.querySelector('[data-nav-pane].active');
+        activatePane(activeTab ? activeTab.getAttribute('data-nav-pane') : 'chats');
+      });
+
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js?v=3').catch(() => {});
+        });
+      }
+
+      const safeBind = (fn) => {
+        try {
+          if (typeof fn === 'function') fn();
+        } catch (err) {
+          console.warn('[Sanad AI init warning]:', err);
+        }
+      };
+
+      safeBind(window.SanadNav && window.SanadNav.bindNavigation);
+      safeBind(window.SanadChats && window.SanadChats.bindChats);
+      safeBind(window.SanadGroups && window.SanadGroups.bindGroups);
+      safeBind(window.SanadContacts && window.SanadContacts.bindContacts);
+      safeBind(window.SanadCalls && window.SanadCalls.bindCalls);
+      safeBind(window.SanadAi && window.SanadAi.bindAi);
+      safeBind(window.SanadRealtime && window.SanadRealtime.connectWs);
+      safeBind(window.SanadRealtime && window.SanadRealtime.requestSync);
     })();
   </script>
 </body>

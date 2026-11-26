@@ -1,20 +1,33 @@
 {
-  "name": "سند AI — Sanad AI",
+  "name": "سند AI - Sanad",
   "short_name": "سند AI",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#0b1220",
-  "theme_color": "#0b84ff",
+  "description": "منصة سند للذكاء الاصطناعي والاتصال",
   "lang": "ar",
   "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0b3b49",
+  "theme_color": "#0b3b49",
   "icons": [
     {
-      "src": "./icons/sanad-icon.svg",
-      "sizes": "180x180 512x512 any",
-      "type": "image/svg+xml",
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

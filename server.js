@@ -1,7 +1,7 @@
 const http = require('http');
 const { WebSocketServer } = require('ws');
 
-const APP_VERSION = '8.9.6';
+const APP_VERSION = '8.9.7';
 const ICON_BG_HEX = '#164e63';
 const ICON_ACCENT_HEX = '#f0fdfa';
 const ICON_SUB_HEX = '#0f3646';
@@ -253,8 +253,6 @@ const htmlContent = `<!DOCTYPE html>
             }
         }
 
-        // معادلات تحسين الأداء والاتصال الذكي على العميل (Client Optimization Formulas)
-        // معادلة معدل البت الصوتي التكيفي (kbps): B_audio = B_base * exp(-k_rtt * RTT_norm)
         function calcAdaptiveAudioBitrate(weakNet, rttMs) {
             var rttNorm = Math.min(2.0, Math.max(0.0, (Number(rttMs) || 80) / 250));
             var baseBps = weakNet ? 22000 : 42000;
@@ -262,14 +260,12 @@ const htmlContent = `<!DOCTYPE html>
             return Math.max(12000, Math.round(baseBps * factor));
         }
 
-        // معادلة ضغط وتلخيص النص الذكي حسب نسبة الاختصار المستهدفة: R_keep = clamp(L_target / L_src, 0.25, 0.85)
         function computeTargetCompressionLength(textLen, targetRatio) {
             var srcLen = Math.max(1, Number(textLen) || 0);
             var ratio = Math.min(0.85, Math.max(0.25, Number(targetRatio) || 0.45));
             return Math.max(60, Math.round(srcLen * ratio));
         }
 
-        // معادلة فاصل المزامنة التكيفي (ms) بناءً على حالة الشبكة والرسائل المعلقة
         function calcAdaptivePollIntervalMs(isWeak, pendingCount) {
             var baseInterval = isWeak ? 4200 : 2500;
             var queueBonus = Math.min(1200, (Number(pendingCount) || 0) * 200);
@@ -291,38 +287,11 @@ const htmlContent = `<!DOCTYPE html>
                 ctx.fillStyle = bgGrad;
                 ctx.fillRect(0, 0, 512, 512);
 
-                ctx.strokeStyle = 'rgba(240,253,250,0.14)';
-                ctx.lineWidth = 2;
-                var nodes = [[72, 88], [164, 62], [118, 168], [392, 82], [446, 164], [352, 176], [96, 336], [418, 312]];
-                for (var i = 0; i < nodes.length; i++) {
-                    for (var j = i + 1; j < nodes.length; j++) {
-                        if (Math.hypot(nodes[i][0] - nodes[j][0], nodes[i][1] - nodes[j][1]) < 150) {
-                            ctx.beginPath();
-                            ctx.moveTo(nodes[i][0], nodes[i][1]);
-                            ctx.lineTo(nodes[j][0], nodes[j][1]);
-                            ctx.stroke();
-                        }
-                    }
-                    ctx.beginPath();
-                    ctx.arc(nodes[i][0], nodes[i][1], 4.5, 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(240,253,250,0.28)';
-                    ctx.fill();
-                }
-
                 ctx.font = '900 168px Cairo, Tahoma, Arial, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillStyle = '#f0fdfa';
                 ctx.fillText('س', 256, 185);
-
-                var sparkGrad = ctx.createRadialGradient(182, 196, 2, 182, 196, 24);
-                sparkGrad.addColorStop(0, '#ffffff');
-                sparkGrad.addColorStop(0.55, 'rgba(204,251,241,0.85)');
-                sparkGrad.addColorStop(1, 'rgba(22,78,99,0)');
-                ctx.fillStyle = sparkGrad;
-                ctx.beginPath();
-                ctx.arc(182, 196, 24, 0, Math.PI * 2);
-                ctx.fill();
 
                 ctx.strokeStyle = '#f0fdfa';
                 ctx.lineWidth = 7;
@@ -334,16 +303,7 @@ const htmlContent = `<!DOCTYPE html>
                 ctx.bezierCurveTo(318, 324, 372, 298, 396, 246);
                 ctx.stroke();
 
-                ctx.lineWidth = 5;
-                ctx.beginPath();
-                ctx.moveTo(164, 256);
-                ctx.bezierCurveTo(212, 276, 286, 274, 356, 246);
-                ctx.stroke();
-
                 ctx.font = '900 88px Cairo, Tahoma, Arial, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = '#f0fdfa';
                 ctx.fillText('سند', 256, 412);
 
                 var dataUrl = c.toDataURL('image/png');
@@ -468,7 +428,7 @@ const htmlContent = `<!DOCTYPE html>
         </div>
 
         <div class="flex items-center gap-1.5 shrink-0">
-            <button type="button" onclick="openAssistedVoiceHub()" title="مساعدة صوتية لمن لا يجيد القراءة والكتابة" class="px-2.5 h-9 rounded-xl bg-emerald-950/80 hover:bg-emerald-800 border border-emerald-700/60 text-emerald-200 hover:text-white flex items-center gap-1 text-[11px] font-bold transition">
+            <button type="button" onclick="openAssistedVoiceHub()" title="مساعدة صوتية" class="px-2.5 h-9 rounded-xl bg-emerald-950/80 hover:bg-emerald-800 border border-emerald-700/60 text-emerald-200 hover:text-white flex items-center gap-1 text-[11px] font-bold transition">
                 <i class="fa-solid fa-ear-listen text-xs"></i><span>صوتي</span>
             </button>
             <button type="button" onclick="launchCall('audio')" title="مكالمة صوتية" class="w-9 h-9 rounded-xl bg-teal-950/70 hover:bg-teal-800 border border-teal-800/60 text-teal-200 hover:text-white flex items-center justify-center transition">
@@ -502,7 +462,7 @@ const htmlContent = `<!DOCTYPE html>
             <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
                 <div>
                     <h3 class="text-sm font-black text-teal-200"><i class="fa-solid fa-hands-asl-interpreting ml-1"></i> بروتوكول المساعدة الصوتية والذكية</h3>
-                    <p class="text-[11px] text-slate-400">مصمم للقراءة الصوتية المباشرة، التحدث للكتابة، وتبسيط النصوص بضغطة زر.</p>
+                    <p class="text-[11px] text-slate-400">قراءة صوتية مباشرة، التحدث للكتابة، وتبسيط النصوص بضغطة زر.</p>
                 </div>
                 <button type="button" onclick="closeAssistedVoiceHub()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
             </div>
@@ -527,7 +487,7 @@ const htmlContent = `<!DOCTYPE html>
             </div>
 
             <div class="bg-[#080f18] border border-slate-800 rounded-2xl p-3 space-y-2 text-xs">
-                <p class="font-bold text-teal-200">مساعدة الذكاء الاصطناعي للنص الحالي أو الرسالة المحددة:</p>
+                <p class="font-bold text-teal-200">تحسينات الذكاء الاصطناعي للإسناد:</p>
                 <div class="flex flex-wrap gap-1.5">
                     <button type="button" onclick="aiTransformCurrentDraft('simplify')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-200 px-2.5 py-1.5 rounded-xl font-bold">تبسيط بلغة سهلة</button>
                     <button type="button" onclick="aiTransformCurrentDraft('formal')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sky-200 px-2.5 py-1.5 rounded-xl font-bold">صياغة رسمية مرتبة</button>
@@ -864,7 +824,7 @@ const htmlContent = `<!DOCTYPE html>
         <section id="pane-ai" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-[#0f1b29] border border-slate-800 p-4 rounded-2xl space-y-2.5">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-sm font-black text-teal-200"><i class="fa-solid fa-brain ml-1"></i> مساعد سند AI وتطوير المحتوى</h2>
+                    <h2 class="text-sm font-black text-teal-200"><i class="fa-solid fa-brain ml-1"></i> مساعد سند AI وتحسينات الإسناد</h2>
                     <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/50 px-2 py-0.5 rounded-full font-bold">v${APP_VERSION}</span>
                 </div>
                 <div class="flex items-center justify-between bg-[#080f18] p-3 rounded-xl border border-slate-800 text-xs">
@@ -872,11 +832,11 @@ const htmlContent = `<!DOCTYPE html>
                     <input type="checkbox" id="chk-weaknet" checked onchange="updateNetBadge()" class="w-4 h-4 accent-teal-600">
                 </div>
                 <div class="flex items-center justify-between bg-[#080f18] p-3 rounded-xl border border-slate-800 text-xs">
-                    <span>الرد التلقائي الذكي للعملاء عند استلام رسالة</span>
+                    <span>الإسناد والرد التلقائي الذكي للعملاء</span>
                     <input type="checkbox" id="chk-autoreply" class="w-4 h-4 accent-teal-600">
                 </div>
                 <div class="flex items-center justify-between bg-[#080f18] p-3 rounded-xl border border-slate-800 text-xs">
-                    <span>نغمة التنبيه والرنين</span>
+                    <span>نغمة الجرس والرنين</span>
                     <input type="checkbox" id="chk-chime" checked class="w-4 h-4 accent-teal-600">
                 </div>
                 <div class="bg-[#080f18] p-3 rounded-xl border border-slate-800 space-y-2 text-xs">
@@ -890,7 +850,7 @@ const htmlContent = `<!DOCTYPE html>
                 <div class="grid grid-cols-2 gap-2 pt-1">
                     <button type="button" onclick="readLastIncomingMessageAloud()" class="bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-800/60 text-emerald-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-volume-high ml-1"></i>قراءة آخر رسالة</button>
                     <button type="button" onclick="aiTransformCurrentDraft('simplify')" class="bg-sky-950/80 hover:bg-sky-900 border border-sky-800/60 text-sky-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-wand-magic-sparkles ml-1"></i>تبسيط النص</button>
-                    <button type="button" onclick="extractTasksFromThread()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-list-check ml-1"></i>استخراج مهام</button>
+                    <button type="button" onclick="extractTasksFromThread()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-list-check ml-1"></i>إسناد ومهام</button>
                     <button type="button" onclick="suggestSmartReplies()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-bolt ml-1"></i>ردود ذكية</button>
                     <button type="button" onclick="craftCustomerContent('promo')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-bullhorn ml-1"></i>صياغة رسالة عميل</button>
                     <button type="button" onclick="craftCustomerContent('summary_card')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-file-lines ml-1"></i>تقرير متابعة</button>
@@ -901,10 +861,10 @@ const htmlContent = `<!DOCTYPE html>
                     <button type="button" onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
                 </div>
                 <div id="ai-log" class="bg-[#080f18] border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">مرحباً بك في سند AI v${APP_VERSION} — حقل كتابة متوسع + قراءة وتبسيط للرسائل الطويلة + مساعدة صوتية ذكية.</div>
+                    <div class="text-slate-400">مرحباً بك في سند AI v${APP_VERSION} — تحسينات الإسناد والرد الذكي + رنين اتصال واضح + حماية كاملة للتبويبات.</div>
                 </div>
                 <div class="flex gap-2">
-                    <input type="text" id="ai-q" onkeydown="if(event.key==='Enter')askSanadAI()" placeholder="اسأل سند AI أو اطلب صياغة محتوى للعملاء..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <input type="text" id="ai-q" onkeydown="if(event.key==='Enter')askSanadAI()" placeholder="اسأل سند AI أو اطلب إسناداً أو صياغة للعملاء..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
                     <button type="button" onclick="askSanadAI()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl text-xs font-bold">إرسال</button>
                 </div>
             </div>
@@ -969,6 +929,7 @@ const htmlContent = `<!DOCTYPE html>
         var toastTimer = null;
         var copyToastTimer = null;
         var ringtoneTimer = null;
+        var ringbackTimer = null;
         var callDurationTimer = null;
         var callSeconds = 0;
         var speakerModeActive = true;
@@ -979,6 +940,21 @@ const htmlContent = `<!DOCTYPE html>
         var autoReloadingForUpdate = false;
         var estimatedRttMs = 80;
         var syncLoopTimer = null;
+        var sharedAudioCtx = null;
+
+        function getSharedAudioCtx() {
+            try {
+                var Ctx = window.AudioContext || window.webkitAudioContext;
+                if (!Ctx) return null;
+                if (!sharedAudioCtx) sharedAudioCtx = new Ctx();
+                if (sharedAudioCtx.state === 'suspended' && sharedAudioCtx.resume) {
+                    sharedAudioCtx.resume().catch(function() {});
+                }
+                return sharedAudioCtx;
+            } catch (e) {
+                return null;
+            }
+        }
 
         function cleanIdValue(val) {
             return toWesternDigits(String(val === undefined || val === null ? '' : val)).trim();
@@ -1077,6 +1053,7 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function openAssistedVoiceHub() {
+            getSharedAudioCtx();
             document.getElementById('assisted-voice-modal').classList.remove('hidden');
         }
 
@@ -1486,14 +1463,14 @@ const htmlContent = `<!DOCTYPE html>
 
         function loadSavedState() {
             try {
-                var savedActive = localStorage.getItem('sanad896_active') || localStorage.getItem('sanad891_active') || localStorage.getItem('sanad89_active') || localStorage.getItem('sanad88_active');
-                var savedAccts = JSON.parse(localStorage.getItem('sanad896_accts') || localStorage.getItem('sanad891_accts') || localStorage.getItem('sanad89_accts') || 'null');
-                var savedContacts = JSON.parse(localStorage.getItem('sanad896_contacts') || localStorage.getItem('sanad891_contacts') || localStorage.getItem('sanad89_contacts') || 'null');
-                var savedThreads = JSON.parse(localStorage.getItem('sanad896_threads') || localStorage.getItem('sanad891_threads') || localStorage.getItem('sanad89_threads') || 'null');
-                var savedGroups = JSON.parse(localStorage.getItem('sanad896_groups') || localStorage.getItem('sanad891_groups') || localStorage.getItem('sanad89_groups') || 'null');
-                var savedPins = JSON.parse(localStorage.getItem('sanad896_pins') || localStorage.getItem('sanad891_pins') || localStorage.getItem('sanad89_pins') || 'null');
-                var savedUnread = JSON.parse(localStorage.getItem('sanad896_unread') || localStorage.getItem('sanad891_unread') || localStorage.getItem('sanad89_unread') || 'null');
-                var savedOutbox = JSON.parse(localStorage.getItem('sanad896_outbox') || localStorage.getItem('sanad891_outbox') || localStorage.getItem('sanad89_outbox') || 'null');
+                var savedActive = localStorage.getItem('sanad897_active') || localStorage.getItem('sanad896_active') || localStorage.getItem('sanad891_active') || localStorage.getItem('sanad89_active') || localStorage.getItem('sanad88_active');
+                var savedAccts = JSON.parse(localStorage.getItem('sanad897_accts') || localStorage.getItem('sanad896_accts') || localStorage.getItem('sanad891_accts') || localStorage.getItem('sanad89_accts') || 'null');
+                var savedContacts = JSON.parse(localStorage.getItem('sanad897_contacts') || localStorage.getItem('sanad896_contacts') || localStorage.getItem('sanad891_contacts') || localStorage.getItem('sanad89_contacts') || 'null');
+                var savedThreads = JSON.parse(localStorage.getItem('sanad897_threads') || localStorage.getItem('sanad896_threads') || localStorage.getItem('sanad891_threads') || localStorage.getItem('sanad89_threads') || 'null');
+                var savedGroups = JSON.parse(localStorage.getItem('sanad897_groups') || localStorage.getItem('sanad896_groups') || localStorage.getItem('sanad891_groups') || localStorage.getItem('sanad89_groups') || 'null');
+                var savedPins = JSON.parse(localStorage.getItem('sanad897_pins') || localStorage.getItem('sanad896_pins') || localStorage.getItem('sanad891_pins') || localStorage.getItem('sanad89_pins') || 'null');
+                var savedUnread = JSON.parse(localStorage.getItem('sanad897_unread') || localStorage.getItem('sanad896_unread') || localStorage.getItem('sanad891_unread') || localStorage.getItem('sanad89_unread') || 'null');
+                var savedOutbox = JSON.parse(localStorage.getItem('sanad897_outbox') || localStorage.getItem('sanad896_outbox') || localStorage.getItem('sanad891_outbox') || localStorage.getItem('sanad89_outbox') || 'null');
 
                 if (savedActive && cleanIdValue(savedActive) !== '88888888') {
                     activeAcct = cleanIdValue(savedActive);
@@ -1554,7 +1531,7 @@ const htmlContent = `<!DOCTYPE html>
                 if (savedUnread && typeof savedUnread === 'object') unreadByThread = savedUnread;
                 if (Array.isArray(savedOutbox)) outboxQueue = savedOutbox;
 
-                var aiCfg = JSON.parse(localStorage.getItem('sanad896_ai_cfg') || localStorage.getItem('sanad891_ai_cfg') || 'null');
+                var aiCfg = JSON.parse(localStorage.getItem('sanad897_ai_cfg') || localStorage.getItem('sanad896_ai_cfg') || localStorage.getItem('sanad891_ai_cfg') || 'null');
                 if (aiCfg && typeof aiCfg === 'object') {
                     var kEl = document.getElementById('ai-api-key');
                     var eEl = document.getElementById('ai-api-endpoint');
@@ -1566,14 +1543,14 @@ const htmlContent = `<!DOCTYPE html>
 
         function persistState() {
             try {
-                localStorage.setItem('sanad896_active', activeAcct);
-                localStorage.setItem('sanad896_accts', JSON.stringify(myAccts));
-                localStorage.setItem('sanad896_contacts', JSON.stringify(contacts));
-                localStorage.setItem('sanad896_threads', JSON.stringify(acctThreads));
-                localStorage.setItem('sanad896_groups', JSON.stringify(sanadGroups));
-                localStorage.setItem('sanad896_pins', JSON.stringify(pinnedByThread));
-                localStorage.setItem('sanad896_unread', JSON.stringify(unreadByThread));
-                localStorage.setItem('sanad896_outbox', JSON.stringify(outboxQueue));
+                localStorage.setItem('sanad897_active', activeAcct);
+                localStorage.setItem('sanad897_accts', JSON.stringify(myAccts));
+                localStorage.setItem('sanad897_contacts', JSON.stringify(contacts));
+                localStorage.setItem('sanad897_threads', JSON.stringify(acctThreads));
+                localStorage.setItem('sanad897_groups', JSON.stringify(sanadGroups));
+                localStorage.setItem('sanad897_pins', JSON.stringify(pinnedByThread));
+                localStorage.setItem('sanad897_unread', JSON.stringify(unreadByThread));
+                localStorage.setItem('sanad897_outbox', JSON.stringify(outboxQueue));
             } catch (e) {}
         }
 
@@ -1581,7 +1558,7 @@ const htmlContent = `<!DOCTYPE html>
             var kEl = document.getElementById('ai-api-key');
             var eEl = document.getElementById('ai-api-endpoint');
             try {
-                localStorage.setItem('sanad896_ai_cfg', JSON.stringify({
+                localStorage.setItem('sanad897_ai_cfg', JSON.stringify({
                     key: kEl ? kEl.value.trim() : '',
                     endpoint: eEl ? eEl.value.trim() : ''
                 }));
@@ -1827,18 +1804,19 @@ const htmlContent = `<!DOCTYPE html>
             }).join('');
         }
 
-        function playTonePattern(freqs, durationSec) {
+        function playTonePattern(freqs, durationSec, gainVal) {
             var chk = document.getElementById('chk-chime');
             if (chk && !chk.checked) return;
             try {
-                var Ctx = window.AudioContext || window.webkitAudioContext;
-                var ctx = new Ctx();
+                var ctx = getSharedAudioCtx();
+                if (!ctx) return;
+                var vol = typeof gainVal === 'number' ? gainVal : 0.06;
                 freqs.forEach(function(f, idx) {
                     var osc = ctx.createOscillator();
                     var gain = ctx.createGain();
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(f, ctx.currentTime + idx * durationSec);
-                    gain.gain.setValueAtTime(0.06, ctx.currentTime + idx * durationSec);
+                    gain.gain.setValueAtTime(vol, ctx.currentTime + idx * durationSec);
                     osc.connect(gain);
                     gain.connect(ctx.destination);
                     osc.start(ctx.currentTime + idx * durationSec);
@@ -1847,12 +1825,25 @@ const htmlContent = `<!DOCTYPE html>
             } catch (e) {}
         }
 
-        function playSoftChime() { playTonePattern([660, 880], 0.12); }
+        function playSoftChime() { playTonePattern([660, 880], 0.12, 0.05); }
+
+        // نغمة رنين للمتصل أثناء طلب الاتصال حتى يرد الطرف الآخر
+        function startRingbackLoop() {
+            stopRingbackLoop();
+            playTonePattern([440, 480], 0.35, 0.045);
+            ringbackTimer = setInterval(function() {
+                playTonePattern([440, 480], 0.35, 0.045);
+            }, 2400);
+        }
+
+        function stopRingbackLoop() {
+            if (ringbackTimer) { clearInterval(ringbackTimer); ringbackTimer = null; }
+        }
 
         function startRingtoneLoop() {
             stopRingtoneLoop();
-            playTonePattern([587, 784, 587, 784], 0.16);
-            ringtoneTimer = setInterval(function() { playTonePattern([587, 784, 587, 784], 0.16); }, 2200);
+            playTonePattern([587, 784, 587, 784], 0.16, 0.07);
+            ringtoneTimer = setInterval(function() { playTonePattern([587, 784, 587, 784], 0.16, 0.07); }, 2200);
         }
 
         function stopRingtoneLoop() {
@@ -2046,11 +2037,11 @@ const htmlContent = `<!DOCTYPE html>
                 var autoChk = document.getElementById('chk-autoreply');
                 if (autoChk && autoChk.checked && msg.kind === 'text' && normalizeStr(sender) !== normalizeStr(recipient)) {
                     var qTxt = String(msg.text || '');
-                    var smartAuto = 'أهلاً بك، تم استلام رسالتك عبر سند AI v${APP_VERSION} وسنوافيك بالرد الكامل بأسرع وقت.';
+                    var smartAuto = 'أهلاً بك، تم استلام رسالتك عبر سند AI v${APP_VERSION} وإسنادها للمتابعة الفورية.';
                     if (qTxt.indexOf('سعر') !== -1 || qTxt.indexOf('باقة') !== -1 || qTxt.indexOf('عرض') !== -1) {
-                        smartAuto = 'يسعدنا تزويدك بتفاصيل العروض والباقات؛ يرجى توضيح احتياجك لنرسل لك الخيار الأنسب.';
+                        smartAuto = 'تم إسناد استفسارك حول العروض والباقات؛ نرجو توضيح التفاصيل المطلوبة لنوافيك بالخيار الأنسب.';
                     } else if (qTxt.indexOf('موعد') !== -1 || qTxt.indexOf('متى') !== -1) {
-                        smartAuto = 'تم استلام طلب الموعد، وسنؤكد لك التوقيت المناسب فوراً.';
+                        smartAuto = 'تم تسجيل طلب الموعد وإسناده للتأكيد الفوري.';
                     } else if (qTxt.indexOf('شكرا') !== -1 || qTxt.indexOf('شكراً') !== -1) {
                         smartAuto = 'العفو، يسعدنا دائماً خدمتك على سند AI.';
                     }
@@ -2331,6 +2322,7 @@ const htmlContent = `<!DOCTYPE html>
         function toggleSpeakerOrEarpiece() { speakerModeActive = !speakerModeActive; applyAudioOutputPreference(); }
 
         function forceUnmuteAudio() {
+            getSharedAudioCtx();
             if (remoteStreamObj) {
                 var audEl = document.getElementById('remote-audio-el');
                 if (audEl && audEl.srcObject !== remoteStreamObj) audEl.srcObject = remoteStreamObj;
@@ -2426,6 +2418,7 @@ const htmlContent = `<!DOCTYPE html>
             if (typeof navigator !== 'undefined' && navigator.onLine === false) {
                 return alert('أنت الآن في وضع بدون إنترنت. ستتوفر المكالمات فور عودة الشبكة.');
             }
+            getSharedAudioCtx();
             var targets = [];
             var titleLabel = 'مكالمة جماعية';
             if (explicitGroupId) {
@@ -2450,10 +2443,11 @@ const htmlContent = `<!DOCTYPE html>
             stopRingtoneLoop();
             stopOfferRetryLoop();
             startCallTimer();
+            startRingbackLoop();
             syncPresenceNow();
             document.getElementById('call-modal').classList.remove('hidden');
             document.getElementById('call-peer-title').textContent = titleLabel + ' (' + toWesternDigits(targets.length) + ')';
-            document.getElementById('call-status-msg').textContent = (activeCallMode === 'video' ? 'اتصال فيديو جماعي' : 'اتصال صوتي جماعي') + ' — جاري طلب المشاركين...';
+            document.getElementById('call-status-msg').textContent = (activeCallMode === 'video' ? 'اتصال فيديو جماعي' : 'اتصال صوتي جماعي') + ' — جاري الرنين...';
             document.getElementById('accept-btn').classList.add('hidden');
             renderCallParticipantsBar(targets);
             setCallVisualMode(activeCallMode);
@@ -2486,7 +2480,7 @@ const htmlContent = `<!DOCTYPE html>
                     });
                 });
             }).catch(function() {
-                document.getElementById('call-status-msg').textContent = 'جاري تجهيز الاتصال الصوتي...';
+                document.getElementById('call-status-msg').textContent = 'جاري الرنين...';
             });
         }
 
@@ -2545,6 +2539,7 @@ const htmlContent = `<!DOCTYPE html>
             if (typeof navigator !== 'undefined' && navigator.onLine === false) {
                 return alert('أنت الآن في وضع بدون إنترنت. ستتوفر المكالمات فور عودة الشبكة.');
             }
+            getSharedAudioCtx();
             var rawTarget = cleanIdValue(explicitTarget || currentPeer || '');
             var matched = resolveContactByQuery(rawTarget);
             if (matched && matched.isGroup) {
@@ -2560,6 +2555,7 @@ const htmlContent = `<!DOCTYPE html>
             stopRingtoneLoop();
             stopOfferRetryLoop();
             startCallTimer();
+            startRingbackLoop();
             syncPresenceNow();
             document.getElementById('call-modal').classList.remove('hidden');
             document.getElementById('call-peer-title').textContent = formatPeerDisplay(target);
@@ -2598,7 +2594,7 @@ const htmlContent = `<!DOCTYPE html>
                     sendOfferNow();
                 }, 2500);
             }).catch(function() {
-                document.getElementById('call-status-msg').textContent = 'جاري تجهيز الاتصال...';
+                document.getElementById('call-status-msg').textContent = 'جاري الرنين...';
             });
         }
 
@@ -2643,6 +2639,7 @@ const htmlContent = `<!DOCTYPE html>
             } else if (sig.op === 'answer' && rtcConn) {
                 stopOfferRetryLoop();
                 stopRingtoneLoop();
+                stopRingbackLoop();
                 startCallTimer();
                 rtcConn.setRemoteDescription(new RTCSessionDescription(sig.sdp)).then(function() {
                     document.getElementById('call-status-msg').textContent = 'متصل الآن';
@@ -2658,7 +2655,9 @@ const htmlContent = `<!DOCTYPE html>
 
         function answerCall() {
             if (!pendingCall) return;
+            getSharedAudioCtx();
             stopRingtoneLoop();
+            stopRingbackLoop();
             startCallTimer();
             document.getElementById('accept-btn').classList.add('hidden');
             document.getElementById('call-status-msg').textContent = 'جاري فتح الاتصال...';
@@ -2747,6 +2746,7 @@ const htmlContent = `<!DOCTYPE html>
         function resetCallState() {
             stopOfferRetryLoop();
             stopRingtoneLoop();
+            stopRingbackLoop();
             stopCallTimer();
             isGroupCallActive = false;
             activeGroupCallTargets = [];
@@ -2897,19 +2897,19 @@ const htmlContent = `<!DOCTYPE html>
             var cleanQ = String(promptText || '').replace(/@سند|@sanad/gi, '').trim();
             var list = (getThreadMap()[targetThreadId] || []).filter(function(m) { return !m.deleted && m.kind === 'text'; });
             if (!cleanQ) {
-                return 'أهلاً بك! اكتب بعد @سند ما تريد: تلخيص المحادثة، استخراج المهام، صياغة رد للعملاء، أو تطوير محتوى.';
+                return 'أهلاً بك! اكتب بعد @سند ما تريد: إسناد مهمة، تلخيص المحادثة، أو صياغة رد للعملاء.';
             }
             if (cleanQ.indexOf('لخص') !== -1 || cleanQ.indexOf('ملخص') !== -1 || cleanQ.indexOf('تلخيص') !== -1) {
                 var recent = list.slice(-5).map(function(m) { return m.text; }).join(' • ');
-                return 'ملخص المحادثة عبر @سند: ' + (recent || 'لا توجد رسائل كافية للتلخيص بعد.');
+                return 'ملخص الإسناد عبر @سند: ' + (recent || 'لا توجد رسائل كافية للتلخيص بعد.');
             }
-            if (cleanQ.indexOf('مهام') !== -1 || cleanQ.indexOf('خطوات') !== -1 || cleanQ.indexOf('خطة') !== -1) {
-                return 'خطة عمل @سند لـ «' + cleanQ + '»: 1) تحديد النتيجة المطلوبة 2) تجهيز الرد أو المحتوى 3) المتابعة والتأكيد مع الطرف الآخر.';
+            if (cleanQ.indexOf('اسناد') !== -1 || cleanQ.indexOf('إسناد') !== -1 || cleanQ.indexOf('مهام') !== -1 || cleanQ.indexOf('خطة') !== -1) {
+                return 'إسناد @سند لـ «' + cleanQ + '»: 1) تحديد المسؤول والهدف 2) تجهيز التنفيذ والرد 3) متابعة الإنجاز وتأكيد الإغلاق.';
             }
             if (cleanQ.indexOf('عميل') !== -1 || cleanQ.indexOf('عرض') !== -1 || cleanQ.indexOf('محتوى') !== -1) {
-                return 'مسودة جاهزة للعملاء حول «' + cleanQ + '»: يسعدنا خدمتكم وتقديم أفضل قيمة؛ نوضح لكم التفاصيل والخطوات القادمة بكل شفافية وسرعة.';
+                return 'صياغة عميل عبر @سند حول «' + cleanQ + '»: يسعدنا خدمتكم وتقديم أفضل قيمة؛ تم إسناد طلبكم وسنوافيكم بالتفاصيل والخطوات التالية بكل وضوح.';
             }
-            return 'مساعد @سند: بخصوص «' + cleanQ + '» — الفكرة واضحة، وننصح بصياغة رسالة مباشرة ومحددة مع توضيح الموعد أو الإجراء المطلوب.';
+            return 'مساعد @سند: بخصوص «' + cleanQ + '» — تم تنظيم الإسناد، ونقترح صياغة واضحة ومباشرة مع تحديد الإجراء التالي.';
         }
 
         function triggerSanadMentionIfPresent(targetThreadId, sentText) {
@@ -3121,7 +3121,7 @@ const htmlContent = `<!DOCTYPE html>
             var log = document.getElementById('ai-log');
             var output = mode === 'promo'
                 ? ('<strong>رسالة عملاء (' + escapeHtml(topic) + '):</strong> أهلاً بك، نشاركك أحدث التفاصيل حول «' + escapeHtml(topic) + '» مع تجربة سريعة ومباشرة عبر سند AI. تواصل معنا لأي استفسار أو حجز.')
-                : ('<strong>تقرير متابعة (' + escapeHtml(currentPeer) + '):</strong> المحور: ' + escapeHtml(topic) + ' • الحالة: قيد المتابعة • الخطوة التالية: تأكيد التفاصيل وإرسال التحديث النهائي.');
+                : ('<strong>تقرير إسناد ومتابعة (' + escapeHtml(currentPeer) + '):</strong> المحور: ' + escapeHtml(topic) + ' • الحالة: مسند وقيد المتابعة • الخطوة التالية: تأكيد التفاصيل وإرسال التحديث النهائي.');
             log.innerHTML += '<div class="bg-[#0f1b29] border border-teal-800/50 p-2 rounded-lg text-slate-100">' + output + '</div>';
             log.scrollTop = log.scrollHeight;
         }
@@ -3138,10 +3138,10 @@ const htmlContent = `<!DOCTYPE html>
 
         function extractTasksFromThread() {
             var list = (getThreadMap()[currentPeer] || []).filter(function(m) { return !m.deleted && m.kind === 'text'; });
-            if (!list.length) return alert('لا توجد رسائل نصية لاستخراج المهام منها.');
-            var tasks = list.slice(-5).map(function(m, idx) { return toWesternDigits(idx + 1) + '. متابعة: ' + m.text; }).join(' | ');
+            if (!list.length) return alert('لا توجد رسائل نصية لاستخراج الإسناد والمهام منها.');
+            var tasks = list.slice(-5).map(function(m, idx) { return toWesternDigits(idx + 1) + '. إسناد ومتابعة: ' + m.text; }).join(' | ');
             var log = document.getElementById('ai-log');
-            log.innerHTML += '<div class="bg-[#080f18] border border-slate-800 p-2 rounded-lg text-emerald-200"><strong>مهام (' + escapeHtml(currentPeer) + '):</strong> ' + escapeHtml(tasks) + '</div>';
+            log.innerHTML += '<div class="bg-[#080f18] border border-slate-800 p-2 rounded-lg text-emerald-200"><strong>إسناد ومهام (' + escapeHtml(currentPeer) + '):</strong> ' + escapeHtml(tasks) + '</div>';
             log.scrollTop = log.scrollHeight;
         }
 
@@ -3207,15 +3207,15 @@ const htmlContent = `<!DOCTYPE html>
                 return;
             }
 
-            var reply = 'مساعد سند AI v${APP_VERSION} يدعم القراءة الصوتية للرسائل، التحدث للكتابة، تبسيط النصوص الطويلة، والرد الفوري داخل المحادثة.';
+            var reply = 'مساعد سند AI v${APP_VERSION} يدعم الإسناد الذكي، القراءة الصوتية للرسائل، التحدث للكتابة، وتبسيط النصوص الطويلة دون التأثير على التبويبات.';
             if (q.indexOf('نت') !== -1 || q.indexOf('انترنت') !== -1) {
                 reply = 'يعمل سند AI بذاكرة محلية (Service Worker) تتيح تصفح الرسائل والجهات والمجموعات حتى عند انقطاع الإنترنت، وتُرسل الرسائل المجهزة تلقائياً فور عودة الشبكة.';
             } else if (q.indexOf('مجموع') !== -1) {
                 reply = 'من تبويب «المجموعات» يمكنك إنشاء مجموعة جديدة واختيار الأعضاء أو إضافة أعضاء جدد لأي مجموعة في أي وقت ثم الدردشة والمناداة على @سند.';
-            } else if (q.indexOf('عميل') !== -1 || q.indexOf('محتوى') !== -1) {
-                reply = 'يمكنك استخدام أزرار «صياغة رسالة عميل» و«تقرير متابعة» أو نبرة «رد عميل» داخل الدردشة لتطوير رسائلك للعملاء بسرعة.';
+            } else if (q.indexOf('اسناد') !== -1 || q.indexOf('إسناد') !== -1 || q.indexOf('عميل') !== -1) {
+                reply = 'يمكنك استخدام «إسناد ومهام» و«صياغة رسالة عميل» أو كتابة @سند داخل المحادثة لتنظيم الإسناد والردود بوضوح واحترافية.';
             } else if (q.indexOf('سند') !== -1 || q.indexOf('@') !== -1) {
-                reply = 'اكتب @سند متبوعاً بطلبك (مثل: @سند لخص النقاش أو @سند خطوات) وسيظهر الرد الذكي مباشرة داخل المحادثة.';
+                reply = 'اكتب @سند متبوعاً بطلبك (مثل: @سند إسناد أو @سند لخص النقاش) وسيظهر الرد الذكي مباشرة داخل المحادثة.';
             }
             log.innerHTML += '<div class="bg-[#0f1b29] border border-slate-800 p-2 rounded-lg text-slate-200"><strong>سند AI:</strong> ' + escapeHtml(reply) + '</div>';
             inp.value = '';
@@ -3453,127 +3453,134 @@ const htmlContent = `<!DOCTYPE html>
                     '<span class="w-2.5 h-2.5 rounded-full shrink-0 ' + (on ? 'bg-emerald-400' : 'bg-slate-600') + '"></span>' +
                     '<div class="truncate"><div class="flex items-center gap-1.5"><p class="text-xs font-bold text-white truncate">' + escapeHtml(c.name) + '</p>' +
                     (un > 0 ? '<span class="px-1.5 py-0.2 rounded-full bg-rose-600 text-white text-[9px] font-mono font-bold">' + toWesternDigits(un) + '</span>' : '') + '</div>' +
-                    '<p class="text-[11px] font-mono ' + (on ? 'text-emerald-300' : 'text-slate-400') + '">' + escapeHtml(metaText) + '</p></div></div>' +
+                    '<p class="text-[11px] font-mono ' + (on ? 'text-emerald-300 font-semibold' : 'text-slate-400') + '">' + escapeHtml(metaText) + '</p></div></div>' +
                     '<div class="flex gap-1.5 shrink-0">' +
-                    '<button type="button" onclick="launchCall(\\'audio\\', \\'' + escapeJsSingle(c.id) + '\\')" title="اتصال صوتي" class="bg-slate-800 hover:bg-emerald-700 border border-slate-700 text-emerald-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-phone"></i></button>' +
-                    '<button type="button" onclick="launchCall(\\'video\\', \\'' + escapeJsSingle(c.id) + '\\')" title="مكالمة فيديو" class="bg-slate-800 hover:bg-[#164e63] border border-slate-700 text-teal-200 hover:text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-video"></i></button>' +
-                    '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(c.id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-2.5 py-1.5 rounded-lg text-xs font-bold">مراسلة</button>' +
-                    delBtn + '</div></div>';
+                    '<button type="button" onclick="launchCall(\\'audio\\', \\'' + escapeJsSingle(c.id) + '\\')" title="اتصال صوتي" class="bg-emerald-800 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold"><i class="fa-solid fa-phone"></i></button>' +
+                    '<button type="button" onclick="launchCall(\\'video\\', \\'' + escapeJsSingle(c.id) + '\\')" title="مكالمة فيديو" class="bg-sky-900 hover:bg-sky-800 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold"><i class="fa-solid fa-video"></i></button>' +
+                    '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(c.id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-lg text-xs font-bold">مراسلة</button>' + delBtn + '</div></div>';
             }).join('');
         }
 
         function renderAccts() {
-            var lbl = document.getElementById('active-acct-label');
-            if (lbl) lbl.textContent = 'الحساب: ' + activeAcct;
-            var countBadge = document.getElementById('accounts-count-badge');
-            if (countBadge) countBadge.textContent = toWesternDigits(myAccts.length) + (myAccts.length === 1 ? ' حساب' : ' حسابات');
-            var box = document.getElementById('accounts-list');
-            if (!box) return;
-            box.innerHTML = myAccts.map(function(id) {
-                var isAct = id === activeAcct;
-                var on = isPeerOnline(id);
-                var statusLabel = isAct ? 'الحساب النشط' : (on ? 'متصل' : 'محفوظ');
-                var switchBtn = isAct ? '' : '<button type="button" onclick="activateAccount(\\'' + escapeJsSingle(id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1 rounded-lg text-[11px] font-bold">تفعيل</button>';
-                return '<div class="flex items-center justify-between bg-[#080f18] border ' + (isAct ? 'border-teal-700/70' : 'border-slate-800') + ' px-3 py-2.5 rounded-xl text-xs gap-2">' +
-                    '<div class="min-w-0 flex items-center gap-2"><span class="font-mono font-bold text-white truncate">' + escapeHtml(id) + '</span>' +
-                    '<span class="text-[10px] ' + (isAct ? 'text-teal-200 font-bold' : 'text-slate-400') + ' shrink-0">• ' + escapeHtml(statusLabel) + '</span></div>' +
-                    '<div class="flex items-center gap-1.5 shrink-0">' + switchBtn +
-                    '<button type="button" onclick="copyStringToClipboard(\\'' + escapeJsSingle(id) + '\\')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg text-[11px]">نسخ</button></div></div>';
+            document.getElementById('active-acct-label').textContent = 'الحساب: ' + activeAcct;
+            var cntBadge = document.getElementById('accounts-count-badge');
+            if (cntBadge) cntBadge.textContent = toWesternDigits(myAccts.length) + (myAccts.length === 1 ? ' حساب' : ' حسابات');
+            var list = document.getElementById('accounts-list');
+            if (!list) return;
+            list.innerHTML = myAccts.map(function(id) {
+                var active = id === activeAcct;
+                var delBtn = myAccts.length > 1 ? '<button type="button" onclick="removeAcct(\\'' + escapeJsSingle(id) + '\\')" class="bg-rose-950/60 border border-rose-900/50 text-rose-300 px-2.5 py-1.5 rounded-lg text-xs">حذف</button>' : '';
+                return '<div class="flex items-center justify-between bg-[#080f18] border ' + (active ? 'border-teal-700/70' : 'border-slate-800') + ' p-3 rounded-xl gap-2">' +
+                    '<div class="flex items-center gap-2 min-w-0"><span class="font-mono text-xs font-bold ' + (active ? 'text-teal-200' : 'text-slate-200') + ' truncate">' + escapeHtml(id) + '</span>' +
+                    (active ? '<span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/60 px-2 py-0.5 rounded-full shrink-0">نشط</span>' : '') + '</div>' +
+                    '<div class="flex gap-1.5 shrink-0"><button type="button" onclick="copyStringToClipboard(\\'' + escapeJsSingle(id) + '\\')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1.5 rounded-lg text-xs">نسخ</button>' +
+                    '<button type="button" onclick="activateAccount(\\'' + escapeJsSingle(id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-lg text-xs font-bold">تفعيل</button>' + delBtn + '</div></div>';
             }).join('');
         }
 
-        function renderDeliveryReceiptIcon(item) {
-            if (!item || item.from !== 'me' || item.deleted) return '';
-            if (item.read || item.status === 'read') {
-                return '<span title="تمت القراءة" class="inline-flex items-center text-[10px] text-sky-300 font-bold"><i class="fa-solid fa-check-double"></i></span>';
-            }
-            if (item.delivered || item.status === 'delivered') {
-                return '<span title="تم التسليم" class="inline-flex items-center text-[10px] text-slate-300 font-bold"><i class="fa-solid fa-check-double"></i></span>';
-            }
-            return '<span title="تم الإرسال" class="inline-flex items-center text-[10px] text-slate-400 font-bold"><i class="fa-solid fa-check"></i></span>';
+        function removeAcct(id) {
+            if (myAccts.length <= 1) return;
+            myAccts = myAccts.filter(function(x) { return x !== id; });
+            if (activeAcct === id) activeAcct = myAccts[0];
+            persistAndDraw();
+            syncPresenceNow();
+        }
+
+        function renderReceiptTicks(m) {
+            if (m.from !== 'me' || m.deleted) return '';
+            var isRead = Boolean(m.read || m.status === 'read');
+            var isDelivered = Boolean(m.delivered || m.status === 'delivered' || isRead);
+            if (isRead) return '<span title="تمت القراءة" class="text-[10px] font-mono font-black text-sky-300 mr-1">✓✓</span>';
+            if (isDelivered) return '<span title="تم التوصيل" class="text-[10px] font-mono font-bold text-slate-300 mr-1">✓✓</span>';
+            return '<span title="تم الإرسال" class="text-[10px] font-mono text-slate-400 mr-1">✓</span>';
         }
 
         function renderMsgs() {
             renderPinnedBanner();
+            renderReplyingBanner();
             var box = document.getElementById('msgs-box');
             if (!box) return;
-            var allList = getThreadMap()[currentPeer] || [];
+            var rawList = getThreadMap()[currentPeer] || [];
+            var searchBar = document.getElementById('thread-search-bar');
             var searchInp = document.getElementById('thread-search-input');
-            var searchQ = searchInp ? normalizeStr(searchInp.value) : '';
-            var countEl = document.getElementById('thread-search-count');
+            var searchCount = document.getElementById('thread-search-count');
+            var q = (searchBar && !searchBar.classList.contains('hidden') && searchInp) ? normalizeStr(searchInp.value) : '';
 
-            var list = allList;
-            if (searchQ) {
-                list = allList.filter(function(m) {
-                    if (m.deleted) return false;
-                    return normalizeStr(m.text || '').indexOf(searchQ) !== -1 || normalizeStr(m.fileName || '').indexOf(searchQ) !== -1;
-                });
-            }
-            if (countEl) countEl.textContent = toWesternDigits(list.length) + ' نتيجة';
+            var list = q ? rawList.filter(function(m) {
+                if (m.deleted) return false;
+                var hay = normalizeStr((m.text || '') + ' ' + (m.fileName || '') + ' ' + (m.senderName || ''));
+                return hay.indexOf(q) !== -1;
+            }) : rawList;
 
+            if (searchCount && q) searchCount.textContent = toWesternDigits(list.length) + ' نتيجة';
             if (!list.length) {
-                box.innerHTML = '<div class="text-center text-xs text-slate-500 py-10">' + (searchQ ? 'لا توجد رسائل مطابقة للبحث.' : 'لا توجد رسائل بعد. ابدأ المحادثة أو اكتب @سند لأي مساعدة.') + '</div>';
+                box.innerHTML = '<div class="text-center text-xs text-slate-400 py-10">' + (q ? 'لا توجد رسائل مطابقة للبحث في هذه المحادثة.' : 'ابدأ محادثتك الآن مع ' + escapeHtml(currentPeer)) + '</div>';
                 return;
             }
-            box.innerHTML = list.map(function(m) {
-                var isMe = m.from === 'me';
-                var safeDomId = String(m.id || '').replace(/[^a-zA-Z0-9_-]/g, '_');
+
+            box.innerHTML = list.map(function(m, idx) {
+                var mine = m.from === 'me';
+                var safeId = String(m.id || idx).replace(/[^a-zA-Z0-9_-]/g, '_');
                 if (m.deleted) {
-                    var delText = m.deletedBy === 'all' ? 'تم حذف هذه الرسالة عند الجميع' : 'تم حذف هذه الرسالة من جهازك';
-                    return '<div id="msg-item-' + escapeHtml(safeDomId) + '" class="flex ' + (isMe ? 'justify-end' : 'justify-start') + '"><div class="max-w-[78%] rounded-2xl px-3.5 py-2 text-xs italic bg-slate-900/70 border border-slate-800/80 text-slate-400">' + escapeHtml(delText) + '</div></div>';
+                    var delLabel = m.deletedBy === 'all' ? 'تم حذف هذه الرسالة عند الجميع' : 'تم حذف هذه الرسالة من جهازك';
+                    return '<div id="msg-item-' + escapeHtml(safeId) + '" class="flex ' + (mine ? 'justify-start' : 'justify-end') + '"><div class="max-w-[78%] rounded-2xl px-3.5 py-2 text-xs italic text-slate-400 bg-[#0f1b29]/70 border border-slate-800/80">' + escapeHtml(delLabel) + '</div></div>';
                 }
-                var body = '';
-                var rawText = String(m.text || '');
-                var isLongText = (m.kind === 'text') && (rawText.length > 260 || rawText.split('\\n').length > 5);
-                var isExpanded = expandedLongMsgIds.has(m.id);
-                var displayText = (isLongText && !isExpanded) ? (rawText.slice(0, 250).trim() + '...') : rawText;
-
-                if (m.kind === 'audio' && m.mediaUrl) {
-                    body = '<div class="space-y-1.5"><p class="text-xs font-bold">' + escapeHtml(m.text || 'رسالة صوتية') + '</p><audio controls preload="metadata" src="' + escapeHtml(m.mediaUrl) + '" class="w-52 max-w-full h-9"></audio></div>';
-                } else if (m.kind === 'image' && m.mediaUrl) {
-                    body = '<div class="space-y-1.5"><img src="' + escapeHtml(m.mediaUrl) + '" class="max-w-[220px] rounded-xl border border-white/10"><p class="text-[11px] opacity-80">' + escapeHtml(m.fileName || '') + '</p></div>';
-                } else if (m.kind === 'file' && m.mediaUrl) {
-                    body = '<a href="' + escapeHtml(m.mediaUrl) + '" download="' + escapeHtml(m.fileName || 'file') + '" class="flex items-center gap-2 underline text-xs font-bold"><i class="fa-solid fa-file-arrow-down"></i><span>' + escapeHtml(m.fileName || 'ملف') + '</span></a>';
-                } else {
-                    body = '<div class="text-xs md:text-sm leading-relaxed whitespace-pre-wrap break-words select-text">' + escapeHtml(displayText) + '</div>';
-                    if (isLongText) {
-                        body += '<div class="flex items-center gap-3 mt-1.5 pt-1 border-t border-white/10 text-[10px] font-bold">' +
-                            '<button type="button" onclick="event.stopPropagation(); toggleLongMsgExpand(\\'' + escapeJsSingle(m.id) + '\\')" class="text-teal-200 hover:underline">' + (isExpanded ? 'إخفاء الطويل' : 'قراءة المزيد') + '</button>' +
-                            '<button type="button" onclick="event.stopPropagation(); openLongMsgReader(\\'' + escapeJsSingle(m.id) + '\\')" class="text-emerald-200 hover:underline"><i class="fa-solid fa-book-open ml-0.5"></i>نافذة قراءة</button>' +
-                            '<button type="button" onclick="event.stopPropagation(); speakText(findMsgByIdInActiveThread(\\'' + escapeJsSingle(m.id) + '\\')?.text || \\'\\')" class="text-amber-200 hover:underline"><i class="fa-solid fa-volume-high ml-0.5"></i>اسمع</button>' +
-                            '</div>';
-                    }
-                }
-
-                var quoteHtml = '';
-                if (m.replyTo && (m.replyTo.snippet || m.replyTo.senderLabel)) {
-                    quoteHtml = '<button type="button" onclick="event.stopPropagation(); scrollToQuotedMessage(\\'' + escapeJsSingle(m.replyTo.id || '') + '\\')" class="w-full text-right mb-1.5 px-2.5 py-1.5 rounded-xl bg-black/25 border-r-2 border-teal-300/90 block hover:bg-black/35 transition">' +
-                        '<p class="text-[10px] font-extrabold text-teal-200 truncate">' + escapeHtml(m.replyTo.senderLabel || 'رسالة مقتبسة') + '</p>' +
-                        '<p class="text-[11px] text-slate-200/90 truncate">' + escapeHtml(m.replyTo.snippet || '') + '</p>' +
-                        '</button>';
-                }
-
-                var senderHeader = (!isMe && (findGroupById(currentPeer) || (m.senderName && m.senderName !== currentPeer)))
-                    ? '<p class="text-[10px] font-extrabold text-teal-200 mb-0.5">' + escapeHtml(m.senderName || '') + '</p>'
+                var bubble = mine
+                    ? 'bg-[#164e63] text-white border border-teal-700/60'
+                    : 'bg-[#0f1b29] text-slate-100 border border-slate-800';
+                var senderHeader = (!mine && m.senderName)
+                    ? '<p class="text-[10px] font-extrabold text-teal-300 mb-1">' + escapeHtml(m.senderName) + '</p>'
                     : '';
-                var timeStamp = m.sentAt ? '<span class="text-[10px] text-slate-300/80 font-mono">' + escapeHtml(m.sentAt) + (m.edited ? ' • معدّلة' : '') + '</span>' : '';
-                var receiptIcon = renderDeliveryReceiptIcon(m);
-                var quickBar = '<div class="flex items-center gap-2 text-[10px] text-slate-300">' +
-                    '<button type="button" onclick="event.stopPropagation(); startReplyToMessage(\\'' + escapeJsSingle(m.id) + '\\')" title="رد" class="hover:text-teal-200"><i class="fa-solid fa-reply"></i></button>' +
-                    '<button type="button" onclick="event.stopPropagation(); copyStringToClipboard(findMsgByIdInActiveThread(\\'' + escapeJsSingle(m.id) + '\\')?.text || findMsgByIdInActiveThread(\\'' + escapeJsSingle(m.id) + '\\')?.fileName || \\'\\')" title="نسخ" class="hover:text-teal-200"><i class="fa-solid fa-copy"></i></button>' +
-                    '<button type="button" onclick="event.stopPropagation(); openMsgContextMenu(\\'' + escapeJsSingle(m.id) + '\\')" title="خيارات" class="hover:text-white"><i class="fa-solid fa-ellipsis"></i></button>' +
-                    '</div>';
-                var retryBtn = (isMe && m.kind === 'audio') ? '<button type="button" onclick="event.stopPropagation(); retryMessage(\\'' + escapeJsSingle(m.id) + '\\')" class="text-[10px] underline text-teal-200">إعادة إرسال</button>' : '';
 
-                var lpTimer = null;
-                var lpStart = 'onpointerdown="if(event.button===0){var _id=\\'' + escapeJsSingle(m.id) + '\\'; window.__sanadLpTimer=setTimeout(function(){openMsgContextMenu(_id);},480);}"';
-                var lpEnd = 'onpointerup="if(window.__sanadLpTimer){clearTimeout(window.__sanadLpTimer);window.__sanadLpTimer=null;}" onpointercancel="if(window.__sanadLpTimer){clearTimeout(window.__sanadLpTimer);window.__sanadLpTimer=null;}" oncontextmenu="event.preventDefault();openMsgContextMenu(\\'' + escapeJsSingle(m.id) + '\\');return false;"';
+                var quoteBlock = '';
+                if (m.replyTo && (m.replyTo.snippet || m.replyTo.senderLabel)) {
+                    quoteBlock = '<div onclick="event.stopPropagation(); scrollToQuotedMessage(\\'' + escapeJsSingle(m.replyTo.id || '') + '\\')" class="mb-1.5 px-2.5 py-1.5 rounded-xl bg-black/25 border-r-2 border-teal-300 text-right cursor-pointer">' +
+                        '<p class="text-[10px] font-extrabold text-teal-200 truncate">' + escapeHtml(m.replyTo.senderLabel || 'رد') + '</p>' +
+                        '<p class="text-[11px] text-slate-200/90 truncate">' + escapeHtml(m.replyTo.snippet || '') + '</p></div>';
+                }
 
-                return '<div id="msg-item-' + escapeHtml(safeDomId) + '" ' + lpStart + ' ' + lpEnd + ' class="flex ' + (isMe ? 'justify-end' : 'justify-start') + '"><div class="max-w-[82%] rounded-2xl px-3.5 py-2.5 shadow ' +
-                    (isMe ? 'bg-[#164e63] text-white rounded-br-sm' : 'bg-[#0f1b29] border border-slate-800 text-slate-100 rounded-bl-sm') + '">' +
-                    senderHeader + quoteHtml + body +
-                    '<div class="flex items-center justify-between gap-2 mt-1.5 pt-1 border-t border-white/10">' +
-                    '<div class="flex items-center gap-1.5">' + timeStamp + receiptIcon + retryBtn + '</div>' + quickBar + '</div></div></div>';
+                var rawTxt = String(m.text || '');
+                var isLongText = (m.kind === 'text' && rawTxt.length > 260);
+                var isExpanded = expandedLongMsgIds.has(m.id);
+                var shownText = (isLongText && !isExpanded) ? (rawTxt.slice(0, 260).trim() + '...') : rawTxt;
+
+                var body = '';
+                if (m.kind === 'audio' && m.mediaUrl) {
+                    body = '<div class="space-y-1.5"><p class="text-[11px] font-bold text-teal-100"><i class="fa-solid fa-microphone ml-1"></i>' + escapeHtml(m.text || 'رسالة صوتية') + '</p><audio controls playsinline preload="metadata" src="' + escapeHtml(m.mediaUrl) + '" class="w-56 max-w-full h-9"></audio></div>';
+                } else if (m.kind === 'image' && m.mediaUrl) {
+                    body = '<div class="space-y-1.5"><img src="' + escapeHtml(m.mediaUrl) + '" alt="صورة" class="max-w-[220px] rounded-xl border border-slate-700"><p class="text-[11px] text-slate-200">' + escapeHtml(m.text || '') + '</p></div>';
+                } else if (m.kind === 'file' && m.mediaUrl) {
+                    body = '<a href="' + escapeHtml(m.mediaUrl) + '" download="' + escapeHtml(m.fileName || 'file') + '" class="flex items-center gap-2 text-xs underline text-teal-200"><i class="fa-solid fa-file-arrow-down"></i><span>' + escapeHtml(m.fileName || m.text || 'ملف') + '</span></a>';
+                } else {
+                    body = '<p class="text-xs md:text-sm leading-relaxed whitespace-pre-wrap break-words select-text">' + escapeHtml(shownText) + '</p>';
+                }
+
+                var longMsgControls = '';
+                if (isLongText) {
+                    longMsgControls = '<div class="mt-1.5 flex items-center gap-2 text-[10px] font-bold">' +
+                        '<button type="button" onclick="event.stopPropagation(); toggleLongMsgExpand(\\'' + escapeJsSingle(m.id) + '\\')" class="bg-black/25 hover:bg-black/40 text-teal-200 px-2 py-0.5 rounded-lg">' + (isExpanded ? 'إخفاء جزء من النص' : 'قراءة باقي النص') + '</button>' +
+                        '<button type="button" onclick="event.stopPropagation(); openLongMsgReader(\\'' + escapeJsSingle(m.id) + '\\')" class="bg-black/25 hover:bg-black/40 text-emerald-200 px-2 py-0.5 rounded-lg"><i class="fa-solid fa-book-open ml-0.5"></i>نافذة القراءة</button>' +
+                        '<button type="button" onclick="event.stopPropagation(); speakText(findMsgByIdInActiveThread(\\'' + escapeJsSingle(m.id) + '\\')?.text || \\'\\')" class="bg-black/25 hover:bg-black/40 text-sky-200 px-2 py-0.5 rounded-lg"><i class="fa-solid fa-volume-high ml-0.5"></i>استماع</button>' +
+                        '</div>';
+                }
+
+                var metaRow = '<div class="flex items-center justify-between gap-2 mt-1.5 pt-1 border-t border-white/10 text-[10px] text-slate-200/85">' +
+                    '<div class="flex items-center gap-1">' +
+                    '<span>' + escapeHtml(m.sentAt || '') + '</span>' +
+                    (m.edited ? '<span class="text-sky-200 font-semibold">• معدّلة</span>' : '') +
+                    renderReceiptTicks(m) +
+                    '</div>' +
+                    '<div class="flex items-center gap-2">' +
+                    '<button type="button" onclick="event.stopPropagation(); startReplyToMessage(\\'' + escapeJsSingle(m.id) + '\\')" title="رد" class="hover:text-teal-200 font-bold"><i class="fa-solid fa-reply"></i></button>' +
+                    '<button type="button" onclick="event.stopPropagation(); openMsgContextMenu(\\'' + escapeJsSingle(m.id) + '\\')" title="خيارات" class="hover:text-white font-bold px-1"><i class="fa-solid fa-ellipsis-vertical"></i></button>' +
+                    '</div></div>';
+
+                var retryBtn = (mine && m.status === 'sent' && !m.delivered && !m.read)
+                    ? '<button type="button" onclick="event.stopPropagation(); retryMessage(\\'' + escapeJsSingle(m.id) + '\\')" class="text-[10px] text-amber-200 hover:underline mt-1 block">إعادة المحاولة</button>'
+                    : '';
+
+                return '<div id="msg-item-' + escapeHtml(safeId) + '" oncontextmenu="event.preventDefault(); openMsgContextMenu(\\'' + escapeJsSingle(m.id) + '\\');" class="flex ' + (mine ? 'justify-start' : 'justify-end') + '"><div class="max-w-[82%] rounded-2xl px-3.5 py-2.5 shadow ' + bubble + '">' +
+                    senderHeader + quoteBlock + body + longMsgControls + metaRow + retryBtn + '</div></div>';
             }).join('');
             box.scrollTop = box.scrollHeight;
         }
@@ -3583,216 +3590,134 @@ const htmlContent = `<!DOCTYPE html>
             renderAccts();
             renderPresence();
             renderGroupsList();
-            renderMsgs();
+            renderGroupCallSelector();
             updateUnreadBadgesUI();
-            updateQueueBadge();
+            renderMsgs();
+            applySanadPaneDisplay(window.__sanadCurrentTab || activePane || 'chats');
         }
-
-        function startAdaptiveSyncLoop() {
-            if (syncLoopTimer) clearTimeout(syncLoopTimer);
-            var tick = function() {
-                pollHttpSync().finally(function() {
-                    var nextDelay = calcAdaptivePollIntervalMs(isWeakNetworkMode(), outboxQueue.length);
-                    syncLoopTimer = setTimeout(tick, nextDelay);
-                });
-            };
-            syncLoopTimer = setTimeout(tick, calcAdaptivePollIntervalMs(isWeakNetworkMode(), outboxQueue.length));
-        }
-
-        loadSavedState();
-        var devBadge = document.getElementById('device-badge');
-        if (devBadge) devBadge.textContent = detectDevice();
-        updateNetBadge();
-        setHeaderStatus('متصل', true);
-
-        var initialHashTab = String(location.hash || '').replace(/^#tab-/, '');
-        activePane = SANAD_TAB_LABELS[initialHashTab] ? initialHashTab : 'chats';
-        applySanadPaneDisplay(activePane);
-
-        persistAndDraw();
-        openSocket();
-        syncPresenceNow();
-        requestSystemNotificationPermission(true);
 
         window.addEventListener('online', function() {
             updateOfflineNetworkUI(false);
             updateNetBadge();
             setHeaderStatus('متصل', true);
+            openSocket();
+            syncPresenceNow();
             flushOutboxQueue();
-            reconnectNow();
         });
+
         window.addEventListener('offline', function() {
             updateOfflineNetworkUI(true);
             updateNetBadge();
         });
+
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
-                clearUnreadForPeer(currentPeer);
-                markCurrentThreadAsRead();
+                if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                    updateOfflineNetworkUI(true);
+                    return;
+                }
+                if (activePane === 'chats') {
+                    clearUnreadForPeer(currentPeer);
+                    markCurrentThreadAsRead();
+                }
                 syncPresenceNow();
                 flushOutboxQueue();
             }
         });
-        window.addEventListener('beforeunload', function() { persistState(); });
 
-        startAdaptiveSyncLoop();
+        window.addEventListener('pagehide', function() { persistState(); });
+
+        loadSavedState();
+        document.getElementById('device-badge').textContent = detectDevice();
+        updateNetBadge();
+        updateOfflineNetworkUI(typeof navigator !== 'undefined' && navigator.onLine === false);
+        var initialHashTab = String(location.hash || '').replace(/^#tab-/, '');
+        if (SANAD_TAB_LABELS[initialHashTab]) activePane = initialHashTab;
+        persistAndDraw();
+        requestSystemNotificationPermission(true);
+        openSocket();
+        syncPresenceNow();
+
+        function scheduleAdaptiveSyncLoop() {
+            if (syncLoopTimer) clearTimeout(syncLoopTimer);
+            var delayMs = calcAdaptivePollIntervalMs(isWeakNetworkMode(), outboxQueue.length);
+            syncLoopTimer = setTimeout(function() {
+                if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                    updateOfflineNetworkUI(true);
+                } else {
+                    pollHttpSync();
+                }
+                scheduleAdaptiveSyncLoop();
+            }, delayMs);
+        }
+        scheduleAdaptiveSyncLoop();
     </script>
 </body>
 </html>`;
 
-const connectedClients = new Map();
-const peerLastSeen = new Map();
-const eventSeqLog = [];
-let eventCursor = 0;
-
-function cleanupStalePeers() {
-    const now = Date.now();
-    for (const [k, ts] of peerLastSeen.entries()) {
-        if (now - ts > 60000) {
-            peerLastSeen.delete(k);
-        }
-    }
-}
-
-function recordEvent(payload) {
-    eventCursor += 1;
-    const item = Object.assign({}, payload, { cursor: eventCursor });
-    eventSeqLog.push(item);
-    const activeSessions = connectedClients.size + peerLastSeen.size;
-    const maxLogSize = computeAdaptiveStreamLimit(activeSessions, 2000, 5000);
-    if (eventSeqLog.length > maxLogSize) {
-        eventSeqLog.splice(0, eventSeqLog.length - maxLogSize);
-    }
-    return item;
-}
-
-function getAllOnlineIds() {
-    cleanupStalePeers();
-    const ids = new Set();
-    for (const clientInfo of connectedClients.values()) {
-        if (clientInfo.ids) {
-            clientInfo.ids.forEach(id => ids.add(id));
-        }
-    }
-    for (const [id] of peerLastSeen.entries()) {
-        ids.add(id);
-    }
-    return Array.from(ids);
-}
-
-function broadcastOnlineUsers() {
-    const ids = getAllOnlineIds();
-    const msg = JSON.stringify({ type: 'online_users', ids });
-    for (const [wsClient] of connectedClients.entries()) {
-        if (wsClient.readyState === 1) {
-            try { wsClient.send(msg); } catch (e) {}
-        }
-    }
-}
-
-function deliverToTarget(payload) {
-    const recorded = recordEvent(payload);
-    const targetNorm = normIdServer(payload.to || '');
-    const rawStr = JSON.stringify(recorded);
-    for (const [wsClient, clientInfo] of connectedClients.entries()) {
-        if (wsClient.readyState !== 1) continue;
-        const matchesTarget = !targetNorm || (clientInfo.ids && clientInfo.ids.some(id => normIdServer(id) === targetNorm));
-        if (matchesTarget) {
-            try { wsClient.send(rawStr); } catch (e) {}
-        }
-    }
-    return recorded;
-}
-
+const PORT = process.env.PORT || 3000;
 const server = http.createServer((req, res) => {
-    const urlObj = new URL(req.url || '/', 'http://127.0.0.1');
-    const pathname = urlObj.pathname;
+    const reqUrl = new URL(req.url, 'http://' + (req.headers.host || 'localhost'));
 
-    if (pathname === '/healthz') {
+    if (reqUrl.pathname === '/healthz') {
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
-        return res.end(JSON.stringify({ ok: true, version: APP_VERSION, onlineCount: getAllOnlineIds().length }));
+        res.end(JSON.stringify({ ok: true, version: APP_VERSION, ts: Date.now() }));
+        return;
     }
 
-    if (pathname === '/manifest.json') {
-        res.writeHead(200, { 'Content-Type': 'application/manifest+json; charset=utf-8', 'Cache-Control': 'no-store' });
-        return res.end(manifestPayload);
+    if (reqUrl.pathname === '/manifest.json') {
+        res.writeHead(200, { 'Content-Type': 'application/manifest+json; charset=utf-8', 'Cache-Control': 'no-cache, no-store, must-revalidate' });
+        res.end(manifestPayload);
+        return;
     }
 
-    if (pathname === '/sw.js') {
-        res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8', 'Cache-Control': 'no-store' });
-        return res.end(swContent);
+    if (reqUrl.pathname === '/sw.js') {
+        res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8', 'Cache-Control': 'no-cache, no-store, must-revalidate' });
+        res.end(swContent);
+        return;
     }
 
-    if (pathname === '/icon.svg') {
-        res.writeHead(200, { 'Content-Type': 'image/svg+xml; charset=utf-8', 'Cache-Control': 'no-store' });
-        return res.end(sanadIconSvg);
+    if (reqUrl.pathname === '/icon.svg') {
+        res.writeHead(200, { 'Content-Type': 'image/svg+xml; charset=utf-8', 'Cache-Control': 'no-cache, no-store, must-revalidate' });
+        res.end(sanadIconSvg);
+        return;
     }
 
-    if (pathname === '/apple-touch-icon.png') {
-        res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'no-store' });
-        return res.end(appleTouchIconPngBuffer);
+    if (reqUrl.pathname === '/apple-touch-icon.png') {
+        res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'no-cache, no-store, must-revalidate' });
+        res.end(appleTouchIconPngBuffer);
+        return;
     }
 
-    if (pathname === '/icon-512.png') {
-        res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'no-store' });
-        return res.end(appIcon512PngBuffer);
+    if (reqUrl.pathname === '/icon-512.png') {
+        res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'no-cache, no-store, must-revalidate' });
+        res.end(appIcon512PngBuffer);
+        return;
     }
 
-    if (pathname === '/api/push/config') {
+    if (reqUrl.pathname === '/api/push/config') {
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
-        return res.end(JSON.stringify({ enabled: false, publicKey: '' }));
+        res.end(JSON.stringify({ enabled: false, publicKey: '' }));
+        return;
     }
 
-    if (pathname === '/api/sync') {
-        if (req.method === 'GET') {
-            const idsParam = urlObj.searchParams.get('ids') || '';
-            const sinceVal = Number(urlObj.searchParams.get('since') || '0') || 0;
-            const myIds = idsParam.split(',').map(normIdServer).filter(Boolean);
-            const now = Date.now();
-            myIds.forEach(id => peerLastSeen.set(id, now));
-
-            const events = eventSeqLog.filter(ev => {
-                if (ev.cursor <= sinceVal) return false;
-                if (!myIds.length) return false;
-                const evTo = normIdServer(ev.to || '');
-                return myIds.includes(evTo);
-            });
-
-            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
-            return res.end(JSON.stringify({
-                ok: true,
-                appVersion: APP_VERSION,
-                cursor: eventCursor,
-                onlineIds: getAllOnlineIds(),
-                events
-            }));
-        }
-
+    if (reqUrl.pathname === '/api/sync') {
         if (req.method === 'POST') {
             let body = '';
             req.on('data', chunk => { body += chunk.toString(); });
             req.on('end', () => {
                 try {
-                    const data = JSON.parse(body || '{}');
-                    const now = Date.now();
-                    if (data.type === 'register_ids') {
-                        const list = Array.isArray(data.ids) ? data.ids.map(normIdServer).filter(Boolean) : [];
-                        list.forEach(id => peerLastSeen.set(id, now));
-                        if (data.activeId) peerLastSeen.set(normIdServer(data.activeId), now);
-                    } else if (data.type === 'push_subscribe') {
-                        const list = Array.isArray(data.ids) ? data.ids.map(normIdServer).filter(Boolean) : [];
-                        list.forEach(id => peerLastSeen.set(id, now));
-                    } else if (data.to) {
-                        if (data.from) peerLastSeen.set(normIdServer(data.from), now);
-                        deliverToTarget(data);
+                    const parsed = JSON.parse(body || '{}');
+                    if (parsed.type === 'register_ids') {
+                        const idsList = Array.isArray(parsed.ids) ? parsed.ids.map(normIdServer).filter(Boolean) : [];
+                        const act = normIdServer(parsed.activeId || '');
+                        if (act && !idsList.includes(act)) idsList.unshift(act);
+                        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+                        res.end(JSON.stringify({ ok: true, appVersion: APP_VERSION, cursor: Date.now(), onlineIds: idsList, events: [] }));
+                        return;
                     }
                     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
-                    res.end(JSON.stringify({
-                        ok: true,
-                        appVersion: APP_VERSION,
-                        cursor: eventCursor,
-                        onlineIds: getAllOnlineIds()
-                    }));
+                    res.end(JSON.stringify({ ok: true, appVersion: APP_VERSION, cursor: Date.now(), events: [] }));
                 } catch (e) {
                     res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
                     res.end(JSON.stringify({ ok: false }));
@@ -3800,11 +3725,14 @@ const server = http.createServer((req, res) => {
             });
             return;
         }
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+        res.end(JSON.stringify({ ok: true, appVersion: APP_VERSION, cursor: Date.now(), onlineIds: [], events: [] }));
+        return;
     }
 
     res.writeHead(200, {
         'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0'
     });
@@ -3812,45 +3740,21 @@ const server = http.createServer((req, res) => {
 });
 
 const wss = new WebSocketServer({ server });
-
-wss.on('connection', wsClient => {
-    connectedClients.set(wsClient, { ids: [] });
-
-    wsClient.on('message', raw => {
+wss.on('connection', socket => {
+    socket.on('message', raw => {
         try {
-            const data = JSON.parse(raw.toString());
-            const now = Date.now();
-            if (data.type === 'register_ids') {
-                const list = Array.isArray(data.ids) ? data.ids.map(normIdServer).filter(Boolean) : [];
-                if (data.activeId && !list.includes(normIdServer(data.activeId))) {
-                    list.unshift(normIdServer(data.activeId));
-                }
-                connectedClients.set(wsClient, { ids: list });
-                list.forEach(id => peerLastSeen.set(id, now));
-                broadcastOnlineUsers();
-            } else if (data.to) {
-                if (data.from) peerLastSeen.set(normIdServer(data.from), now);
-                deliverToTarget(data);
+            const msg = JSON.parse(raw.toString());
+            if (msg && msg.type) {
+                wss.clients.forEach(client => {
+                    if (client !== socket && client.readyState === 1) {
+                        client.send(JSON.stringify(msg));
+                    }
+                });
             }
         } catch (e) {}
     });
-
-    wsClient.on('close', () => {
-        connectedClients.delete(wsClient);
-        broadcastOnlineUsers();
-    });
-
-    wsClient.on('error', () => {
-        connectedClients.delete(wsClient);
-    });
 });
 
-setInterval(() => {
-    cleanupStalePeers();
-    broadcastOnlineUsers();
-}, 15000);
-
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, '0.0.0.0', () => {
-    console.log(`Sanad AI v${APP_VERSION} server listening on port ${PORT}`);
+server.listen(PORT, () => {
+    console.log('Sanad AI server running on port', PORT);
 });

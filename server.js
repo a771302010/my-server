@@ -258,6 +258,20 @@ app.get('/', (req, res) => {
       border-radius: 999px;
       color: var(--accent);
     }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      padding: 10px 12px 0;
+      max-width: 1200px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      color: #06211a;
+      font-weight: 700;
+      border-color: transparent;
+    }
     .layout {
       display: grid;
       grid-template-columns: 320px 1fr;
@@ -355,6 +369,7 @@ app.get('/', (req, res) => {
       color: #a7f3d0;
       min-height: 18px;
     }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
@@ -366,9 +381,15 @@ app.get('/', (req, res) => {
     </div>
   </header>
 
-  <div class="layout">
-    <div>
-      <div class="card">
+  <div class="tabs" id="mainTabs">
+    <button class="tab-btn active" data-tab="chat">المحادثات</button>
+    <button class="tab-btn" data-tab="codes">الأكواد والحسابات</button>
+    <button class="tab-btn" data-tab="contacts">جهات الاتصال</button>
+  </div>
+
+  <div class="layout" id="mainLayout">
+    <div id="sideCol">
+      <div class="card" id="codesCard">
         <h3>أكوادك وحساباتك (توليد آلي + مسح)</h3>
         <div class="row">
           <button class="primary" id="btnGenCode" style="width:100%;">توليد كود جديد تلقائياً</button>
@@ -376,7 +397,7 @@ app.get('/', (req, res) => {
         <div id="acctsList"></div>
       </div>
 
-      <div class="card">
+      <div class="card" id="contactsCard">
         <h3>جهات الاتصال (إضافة + مسح)</h3>
         <div class="row">
           <input id="contactNameInput" placeholder="الاسم" />
@@ -389,8 +410,8 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    <div>
-      <div class="card">
+    <div id="chatCol">
+      <div class="card" id="chatCard">
         <h3>المحادثة مع: <span id="peerTitle">خدمة العملاء</span></h3>
         <div class="row">
           <input id="peerInput" placeholder="رقم أو كود الطرف الآخر" />
@@ -424,7 +445,7 @@ app.get('/', (req, res) => {
       return String(val ?? '')
         .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660))
         .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
-        .replace(/\\s+/g, '')
+        .replace(/\s+/g, '')
         .trim()
         .slice(0, 64);
     }
@@ -484,8 +505,8 @@ app.get('/', (req, res) => {
     let acctThreads = loadJson(KEYS.threads, {});
     let lastSeq = Number(loadJson(KEYS.lastSeq, 0) || 0);
     let currentPeerId = DEFAULT_PEER.id;
+    let activeTab = 'chat';
 
-    // ترتيب آلي ومضبوط لتوليد كود من 8 أرقام بدون تكرار أو أرقام محجوزة
     function make8DigitId(existingSet = new Set()) {
       const used = new Set([...existingSet].map(cleanIdValue));
       for (let i = 0; i < 200; i++) {
@@ -544,7 +565,6 @@ app.get('/', (req, res) => {
       return acctThreads[acctKey][peerKey];
     }
 
-    // توليد كود جديد تلقائياً وتفعيله بسلاسة
     function generateAndActivateCode() {
       const newCode = make8DigitId(myAccts);
       myAccts.push(newCode);
@@ -554,7 +574,6 @@ app.get('/', (req, res) => {
       showToast('تم توليد الكود ' + newCode + ' وتفعيله كحساب نشط.');
     }
 
-    // مسح كود من قائمة الأكواد مع حماية الحساب النشط وآخر كود
     function deleteAccountCode(code) {
       const target = cleanIdValue(code);
       if (myAccts.length <= 1) {
@@ -571,7 +590,6 @@ app.get('/', (req, res) => {
       showToast('تم مسح الكود ' + target + '.');
     }
 
-    // مسح جهة اتصال مع إزالة محادثتها في الحساب النشط
     function deleteContact(contactId) {
       const target = cleanIdValue(contactId);
       if (normalizeStr(target) === normalizeStr(DEFAULT_PEER.id)) {
@@ -663,6 +681,25 @@ app.get('/', (req, res) => {
       }
     }
 
+    function applyTabVisibility() {
+      document.querySelectorAll('.tab-btn').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.tab === activeTab);
+      });
+      const codesCard = document.getElementById('codesCard');
+      const contactsCard = document.getElementById('contactsCard');
+      const chatCard = document.getElementById('chatCard');
+
+      if (window.innerWidth <= 820) {
+        codesCard.classList.toggle('hidden', activeTab !== 'codes');
+        contactsCard.classList.toggle('hidden', activeTab !== 'contacts');
+        chatCard.classList.toggle('hidden', activeTab !== 'chat');
+      } else {
+        codesCard.classList.remove('hidden');
+        contactsCard.classList.remove('hidden');
+        chatCard.classList.remove('hidden');
+      }
+    }
+
     function renderAccts() {
       const wrap = document.getElementById('acctsList');
       document.getElementById('activeAcctBadge').textContent = 'الحساب: ' + activeAcct;
@@ -716,7 +753,8 @@ app.get('/', (req, res) => {
         left.onclick = () => {
           currentPeerId = c.id;
           document.getElementById('peerInput').value = c.id;
-          renderChat();
+          activeTab = 'chat';
+          renderAll();
         };
 
         const btnDel = document.createElement('button');
@@ -765,7 +803,16 @@ app.get('/', (req, res) => {
       renderAccts();
       renderContacts();
       renderChat();
+      applyTabVisibility();
     }
+
+    document.querySelectorAll('.tab-btn').forEach((btn) => {
+      btn.onclick = () => {
+        activeTab = btn.dataset.tab;
+        applyTabVisibility();
+      };
+    });
+    window.addEventListener('resize', applyTabVisibility);
 
     document.getElementById('btnGenCode').onclick = generateAndActivateCode;
     document.getElementById('btnAddContact').onclick = addOrUpdateContact;
@@ -835,5 +882,5 @@ app.get('/', (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(\`Sanad server v\${APP_VERSION} running on http://localhost:\${PORT}\`);
+  console.log(`Sanad server v${APP_VERSION} running on http://localhost:${PORT}`);
 });

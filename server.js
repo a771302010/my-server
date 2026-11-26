@@ -1,7 +1,7 @@
 const http = require('http');
 const { WebSocketServer } = require('ws');
 
-const APP_VERSION = '8.9.4';
+const APP_VERSION = '8.9.5';
 const ICON_BG_HEX = '#164e63';
 const ICON_ACCENT_HEX = '#f0fdfa';
 const ICON_SUB_HEX = '#0f3646';
@@ -17,6 +17,7 @@ function normIdServer(v) {
 }
 
 const PNG_180_BASE64 = "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";
+const PNG_512_BASE64 = PNG_180_BASE64;
 const appleTouchIconPngBuffer = Buffer.from(PNG_180_BASE64, 'base64');
 const appIcon512PngBuffer = Buffer.from(PNG_512_BASE64, 'base64');
 
@@ -58,7 +59,7 @@ const sanadIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 5
 </svg>`;
 
 const manifestPayload = JSON.stringify({
-  name: 'Sanad AI v8.9.4 - سند',
+  name: `Sanad AI v${APP_VERSION} - سند`,
   short_name: 'سند AI',
   description: 'تطبيق سند AI للتواصل الذكي والمحادثات والمكالمات الفردية والجماعية والعمل بدون إنترنت والمساعدة الصوتية والذكاء الاصطناعي',
   start_url: '/',
@@ -77,7 +78,7 @@ const manifestPayload = JSON.stringify({
 });
 
 const swContent = `const CACHE_NAME = 'sanad-ai-cache-v${APP_VERSION}';
-const APP_SHELL = ['/', '/manifest.json', '/icon.svg', '/apple-touch-icon.png'];
+const APP_SHELL = ['/', '/manifest.json', '/icon.svg', '/apple-touch-icon.png', '/icon-512.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -101,7 +102,7 @@ self.addEventListener('fetch', event => {
   const url = new URL(req.url);
   if (url.pathname.startsWith('/api/') || url.pathname === '/healthz') return;
 
-  if (req.mode === 'navigate' || url.pathname === '/' || url.pathname === '/manifest.json' || url.pathname === '/icon.svg' || url.pathname === '/apple-touch-icon.png') {
+  if (req.mode === 'navigate' || url.pathname === '/' || url.pathname === '/manifest.json' || url.pathname === '/icon.svg' || url.pathname === '/apple-touch-icon.png' || url.pathname === '/icon-512.png') {
     event.respondWith(
       fetch(req).then(res => {
         if (res && res.ok) {
@@ -186,7 +187,7 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="سند AI">
     <meta name="theme-color" content="#164e63">
-    <title>سند AI v8.9.4</title>
+    <title>سند AI v${APP_VERSION}</title>
     <link id="sanad-favicon" rel="icon" type="image/svg+xml" href="/icon.svg">
     <link id="sanad-apple-icon" rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
@@ -411,7 +412,7 @@ const htmlContent = `<!DOCTYPE html>
             <div class="min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
                     <h1 class="font-black text-base text-white leading-none">سند</h1>
-                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/60 px-2 py-0.5 rounded-full font-bold">AI v8.9.4</span>
+                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/60 px-2 py-0.5 rounded-full font-bold">AI v${APP_VERSION}</span>
                     <span id="current-tab-badge" class="text-[10px] bg-slate-800/90 text-slate-200 border border-slate-700/80 px-2 py-0.5 rounded-full font-bold">الدردشة</span>
                     <span id="device-badge" class="text-[10px] bg-slate-800/90 text-slate-300 border border-slate-700/60 px-2 py-0.5 rounded-full font-semibold">جهاز</span>
                     <span id="net-badge" class="text-[10px] bg-slate-800/90 text-sky-200 border border-sky-800/50 px-2 py-0.5 rounded-full font-bold">وضع مرن</span>
@@ -567,7 +568,7 @@ const htmlContent = `<!DOCTYPE html>
 
     <div id="call-modal" class="hidden fixed inset-0 bg-[#080f18]/95 z-50 flex flex-col items-center justify-between p-4">
         <div class="text-center mt-1">
-            <p class="text-xs text-teal-300 font-bold">سند AI v8.9.4 • اتصال واضح ومستقر (فردي وجماعي)</p>
+            <p class="text-xs text-teal-300 font-bold">سند AI v${APP_VERSION} • اتصال واضح ومستقر (فردي وجماعي)</p>
             <h2 id="call-peer-title" class="text-lg font-black text-white font-mono mt-0.5">...</h2>
             <p id="call-timer-el" class="text-xs font-mono font-bold text-slate-300 mt-0.5">00:00</p>
             <p id="call-status-msg" class="text-xs text-emerald-300 mt-0.5 font-semibold">جاري الاتصال...</p>
@@ -827,7 +828,7 @@ const htmlContent = `<!DOCTYPE html>
             <div class="bg-[#0f1b29] border border-slate-800 p-4 rounded-2xl space-y-2.5">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-black text-teal-200"><i class="fa-solid fa-brain ml-1"></i> مساعد سند AI وتطوير المحتوى</h2>
-                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/50 px-2 py-0.5 rounded-full font-bold">v8.9.4</span>
+                    <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/50 px-2 py-0.5 rounded-full font-bold">v${APP_VERSION}</span>
                 </div>
                 <div class="flex items-center justify-between bg-[#080f18] p-3 rounded-xl border border-slate-800 text-xs">
                     <span>وضع توفير البيانات للشبكات الضعيفة</span>
@@ -863,7 +864,7 @@ const htmlContent = `<!DOCTYPE html>
                     <button type="button" onclick="importBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-upload ml-1"></i>استعادة نسخة</button>
                 </div>
                 <div id="ai-log" class="bg-[#080f18] border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto text-xs space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">مرحباً بك في سند AI v8.9.4 — حقل كتابة متوسع + قراءة وتبسيط للرسائل الطويلة + مساعدة صوتية ذكية.</div>
+                    <div class="text-slate-400">مرحباً بك في سند AI v${APP_VERSION} — حقل كتابة متوسع + قراءة وتبسيط للرسائل الطويلة + مساعدة صوتية ذكية.</div>
                 </div>
                 <div class="flex gap-2">
                     <input type="text" id="ai-q" onkeydown="if(event.key==='Enter')askSanadAI()" placeholder="اسأل سند AI أو اطلب صياغة محتوى للعملاء..." class="flex-1 bg-[#080f18] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
@@ -1650,7 +1651,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!acctThreads[activeAcct]) acctThreads[activeAcct] = {};
             if (!acctThreads[activeAcct][DEFAULT_PEER]) {
                 acctThreads[activeAcct][DEFAULT_PEER] = [
-                    { id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'مرحباً بك في سند AI v8.9.4، كيف نقدر نخدمك اليوم؟', sentAt: formatTimeShort() }
+                    { id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'مرحباً بك في سند AI v${APP_VERSION}، كيف نقدر نخدمك اليوم؟', sentAt: formatTimeShort() }
                 ];
             }
             return acctThreads[activeAcct];
@@ -2003,7 +2004,7 @@ const htmlContent = `<!DOCTYPE html>
                 var autoChk = document.getElementById('chk-autoreply');
                 if (autoChk && autoChk.checked && msg.kind === 'text' && normalizeStr(sender) !== normalizeStr(recipient)) {
                     var qTxt = String(msg.text || '');
-                    var smartAuto = 'أهلاً بك، تم استلام رسالتك عبر سند AI v8.9.4 وسنوافيك بالرد الكامل بأسرع وقت.';
+                    var smartAuto = 'أهلاً بك، تم استلام رسالتك عبر سند AI v${APP_VERSION} وسنوافيك بالرد الكامل بأسرع وقت.';
                     if (qTxt.indexOf('سعر') !== -1 || qTxt.indexOf('باقة') !== -1 || qTxt.indexOf('عرض') !== -1) {
                         smartAuto = 'يسعدنا تزويدك بتفاصيل العروض والباقات؛ يرجى توضيح احتياجك لنرسل لك الخيار الأنسب.';
                     } else if (qTxt.indexOf('موعد') !== -1 || qTxt.indexOf('متى') !== -1) {
@@ -2210,17 +2211,6 @@ const htmlContent = `<!DOCTYPE html>
             }
             postHttpSync(enriched);
         }
-
-        /* =====================================================================
-           بروتوكول إزالة علامات الاتصال / إشعارات طلب صلاحيات الوسائط عند الاتصال
-           يضمن عدم ظهور تنبيه أو شارة أو لافتة إشعار للطرف الآخر عند طلب
-           الكاميرا أو الميكروفون أو بدء/إنهاء المكالمة (سواء بالصوت أو الفيديو).
-           ===================================================================== */
-        var SILENT_MEDIA_PROTOCOL = {
-            suppressPermissionAlerts: true,
-            suppressCallBadges: true,
-            suppressPeerCallMarkers: true
-        };
 
         function requestCleanMediaStream(mode, facing) {
             var wantsVideo = (mode === 'video');
@@ -3170,7 +3160,7 @@ const htmlContent = `<!DOCTYPE html>
                 return;
             }
 
-            var reply = 'مساعد سند AI v8.9.4 يدعم القراءة الصوتية للرسائل، التحدث للكتابة، تبسيط النصوص الطويلة، والرد الفوري داخل المحادثة.';
+            var reply = 'مساعد سند AI v${APP_VERSION} يدعم القراءة الصوتية للرسائل، التحدث للكتابة، تبسيط النصوص الطويلة، والرد الفوري داخل المحادثة.';
             if (q.indexOf('نت') !== -1 || q.indexOf('انترنت') !== -1) {
                 reply = 'يعمل سند AI بذاكرة محلية (Service Worker) تتيح تصفح الرسائل والجهات والمجموعات حتى عند انقطاع الإنترنت، وتُرسل الرسائل المجهزة تلقائياً فور عودة الشبكة.';
             } else if (q.indexOf('مجموع') !== -1) {
@@ -3455,357 +3445,310 @@ const htmlContent = `<!DOCTYPE html>
             }
             if (countEl) countEl.textContent = toWesternDigits(list.length) + (list.length === 1 ? ' نتيجة' : ' نتائج');
             if (!list.length) {
-                box.innerHTML = '<div class="text-center text-xs text-slate-500 py-8">' + (q ? 'لا توجد رسائل مطابقة للبحث في هذه المحادثة.' : 'ابدأ المراسلة أو أرسل صوتاً أو مرفقاً أو ابدأ مكالمة.') + '</div>';
+                box.innerHTML = '<div class="text-center text-xs text-slate-500 py-8">' + (q ? 'لا توجد رسائل مطابقة للبحث في هذه المحادثة.' : 'لا توجد رسائل بعد في هذه المحادثة.') + '</div>';
                 return;
             }
             box.innerHTML = list.map(function(m) {
+                var isMe = m.from === 'me';
+                var safeDomId = 'msg-item-' + String(m.id || '').replace(/[^a-zA-Z0-9_-]/g, '_');
                 if (m.deleted) {
-                    var delLabel = m.deletedBy === 'all' ? 'تم حذف الرسالة لدى الجميع' : 'تم حذف الرسالة من جهازك';
-                    return '<div class="text-center text-[11px] text-slate-500 italic">' + escapeHtml(delLabel) + '</div>';
+                    var delLabel = m.deletedBy === 'all' ? 'تم حذف هذه الرسالة عند الجميع' : 'تم حذف هذه الرسالة من جهازك';
+                    return '<div id="' + escapeHtml(safeDomId) + '" class="flex ' + (isMe ? 'justify-start' : 'justify-end') + '">' +
+                        '<div class="max-w-[78%] rounded-2xl px-3.5 py-2 text-xs italic bg-[#0f1b29]/60 text-slate-400 border border-slate-800/80">' + escapeHtml(delLabel) + '</div></div>';
                 }
-                var mine = m.from === 'me';
-                var senderTag = (!mine && m.senderName) ? '<p class="text-[10px] font-bold text-teal-200 mb-0.5">' + escapeHtml(m.senderName) + '</p>' : '';
-                var quoteHtml = '';
-                if (m.replyTo && (m.replyTo.snippet || m.replyTo.senderLabel)) {
-                    var qTargetId = escapeJsSingle(m.replyTo.id || '');
-                    quoteHtml = '<div onclick="event.stopPropagation(); scrollToQuotedMessage(\\'' + qTargetId + '\\');" class="' +
-                        (mine ? 'bg-teal-950/65 border-teal-200/70' : 'bg-[#080f18]/80 border-teal-400/70') +
-                        ' border-r-2 rounded-lg px-2.5 py-1 mb-1.5 cursor-pointer">' +
-                        '<p class="text-[10px] font-extrabold ' + (mine ? 'text-teal-100' : 'text-teal-300') + ' truncate">' + escapeHtml(m.replyTo.senderLabel || 'رد') + '</p>' +
-                        '<p class="text-[11px] ' + (mine ? 'text-teal-50/90' : 'text-slate-300') + ' truncate">' + escapeHtml(m.replyTo.snippet || '') + '</p>' +
-                        '</div>';
+                var bubbleClass = isMe
+                    ? 'bg-[#164e63] text-white border border-teal-700/60'
+                    : 'bg-[#0f1b29] text-slate-100 border border-slate-800';
+                var senderHeader = (!isMe && m.senderName && m.senderName !== currentPeer)
+                    ? '<p class="text-[10px] font-extrabold text-teal-300 mb-1">' + escapeHtml(m.senderName) + '</p>'
+                    : '';
+                var quoteBlock = '';
+                if (m.replyTo && m.replyTo.snippet) {
+                    quoteBlock = '<button type="button" onclick="scrollToQuotedMessage(\\'' + escapeJsSingle(m.replyTo.id) + '\\')" class="w-full text-right mb-1.5 px-2.5 py-1.5 rounded-xl bg-black/25 border-r-2 border-teal-300 text-[11px] block">' +
+                        '<span class="block text-[10px] font-extrabold text-teal-200 truncate">' + escapeHtml(m.replyTo.senderLabel || 'رد') + '</span>' +
+                        '<span class="block text-slate-200/90 truncate">' + escapeHtml(m.replyTo.snippet) + '</span>' +
+                        '</button>';
                 }
-                var body = '';
+                var content = '';
                 if (m.kind === 'audio' && m.mediaUrl) {
-                    body = '<p class="text-xs font-semibold mb-1">' + escapeHtml(m.text || 'رسالة صوتية') + '</p><audio controls playsinline preload="metadata" src="' + m.mediaUrl + '" class="w-56 max-w-full"></audio>';
+                    content = '<div class="space-y-1.5"><p class="text-[11px] font-bold">' + escapeHtml(m.text || 'رسالة صوتية') + '</p><audio controls preload="none" src="' + escapeHtml(m.mediaUrl) + '" class="w-56 max-w-full h-9"></audio></div>';
                 } else if (m.kind === 'image' && m.mediaUrl) {
-                    body = '<img src="' + m.mediaUrl + '" alt="صورة" class="max-h-56 rounded-xl mb-1 object-cover"><p class="text-xs">' + escapeHtml(m.text || '') + '</p>';
+                    content = '<div class="space-y-1.5"><img src="' + escapeHtml(m.mediaUrl) + '" class="max-h-56 rounded-xl border border-white/10"><p class="text-[11px] font-mono">' + escapeHtml(m.fileName || m.text || '') + '</p></div>';
                 } else if (m.kind === 'file' && m.mediaUrl) {
-                    body = '<a href="' + m.mediaUrl + '" download="' + escapeHtml(m.fileName || 'file') + '" class="inline-flex items-center gap-1.5 text-xs underline font-semibold"><i class="fa-solid fa-file-arrow-down"></i>' + escapeHtml(m.fileName || m.text || 'تحميل ملف') + '</a>';
+                    content = '<a href="' + escapeHtml(m.mediaUrl) + '" download="' + escapeHtml(m.fileName || 'file') + '" class="flex items-center gap-2 text-xs underline font-bold"><i class="fa-solid fa-file-arrow-down"></i><span>' + escapeHtml(m.fileName || m.text || 'ملف مرفق') + '</span></a>';
                 } else {
                     var fullTxt = String(m.text || '');
                     var isLong = fullTxt.length > 260;
                     var isExpanded = expandedLongMsgIds.has(m.id);
                     var shownTxt = (isLong && !isExpanded) ? (fullTxt.slice(0, 260).trim() + '...') : fullTxt;
-                    var longControls = isLong
-                        ? '<div class="mt-1.5 flex items-center gap-2 text-[10px] font-bold">' +
-                          '<button type="button" onclick="event.stopPropagation(); toggleLongMsgExpand(\\'' + escapeJsSingle(m.id) + '\\');" class="underline ' + (mine ? 'text-teal-100' : 'text-teal-300') + '">' + (isExpanded ? 'إخفاء الجزء الطويل' : 'قراءة المزيد') + '</button>' +
-                          '<button type="button" onclick="event.stopPropagation(); openLongMsgReader(\\'' + escapeJsSingle(m.id) + '\\');" class="underline ' + (mine ? 'text-teal-100' : 'text-teal-300') + '">نافذة القراءة والاستماع</button>' +
-                          '</div>'
-                        : '';
-                    body = '<p class="text-xs md:text-sm leading-relaxed whitespace-pre-wrap break-words">' + escapeHtml(shownTxt) + '</p>' + longControls;
+                    var longControls = '';
+                    if (isLong) {
+                        longControls = '<div class="mt-1.5 flex items-center gap-2 text-[10px] font-bold">' +
+                            '<button type="button" onclick="toggleLongMsgExpand(\\'' + escapeJsSingle(m.id) + '\\')" class="underline text-teal-200">' + (isExpanded ? 'عرض أقل' : 'قراءة المزيد') + '</button>' +
+                            '<button type="button" onclick="openLongMsgReader(\\'' + escapeJsSingle(m.id) + '\\')" class="underline text-emerald-200">نافذة قراءة كاملة</button>' +
+                            '</div>';
+                    }
+                    content = '<p class="text-xs md:text-sm leading-relaxed whitespace-pre-wrap break-words select-text">' + escapeHtml(shownTxt) + '</p>' + longControls;
                 }
-                var statusLine = mine
-                    ? buildDeliveryBadge(m)
-                    : '<span class="text-slate-400 font-mono">' + escapeHtml(m.sentAt || '') + (m.edited ? ' • معدّلة' : '') + '</span>';
-                var quickActions = '<div class="flex items-center gap-2 text-[10px] shrink-0">' +
-                    '<button type="button" onclick="event.stopPropagation(); startReplyToMessage(\\'' + escapeJsSingle(m.id) + '\\');" title="رد" class="hover:underline font-bold ' + (mine ? 'text-teal-100' : 'text-teal-300') + '"><i class="fa-solid fa-reply"></i></button>' +
-                    '<button type="button" onclick="event.stopPropagation(); speakText(\\'' + escapeJsSingle(m.text || m.fileName || '') + '\\');" title="استماع" class="hover:underline ' + (mine ? 'text-teal-100' : 'text-slate-300') + '"><i class="fa-solid fa-volume-high"></i></button>' +
-                    '<button type="button" onclick="event.stopPropagation(); openMsgContextMenu(\\'' + escapeJsSingle(m.id) + '\\');" title="خيارات" class="hover:underline ' + (mine ? 'text-teal-100' : 'text-slate-300') + '"><i class="fa-solid fa-ellipsis-vertical"></i></button>' +
+                var statusRow = isMe
+                    ? '<div class="flex items-center justify-between gap-2 text-[10px] text-teal-100/90 mt-1">' + buildDeliveryBadge(m) + '</div>'
+                    : (m.sentAt ? '<div class="text-[10px] text-slate-400 font-mono mt-1">' + escapeHtml(m.sentAt) + '</div>' : '');
+
+                var actionsRow = '<div class="flex items-center gap-2 mt-1.5 pt-1 border-t border-white/10 text-[10px] opacity-90 flex-wrap">' +
+                    '<button type="button" onclick="startReplyToMessage(\\'' + escapeJsSingle(m.id) + '\\')" class="hover:underline flex items-center gap-1 font-bold text-teal-200"><i class="fa-solid fa-reply"></i><span>رد</span></button>' +
+                    '<button type="button" onclick="openMsgContextMenu(\\'' + escapeJsSingle(m.id) + '\\')" class="hover:underline flex items-center gap-1 font-bold"><i class="fa-solid fa-ellipsis"></i><span>خيارات</span></button>' +
+                    (m.kind === 'text' && m.text ? '<button type="button" onclick="speakText(\\'' + escapeJsSingle(m.text) + '\\')" class="hover:underline flex items-center gap-1 text-emerald-200"><i class="fa-solid fa-volume-high"></i><span>استماع</span></button>' : '') +
                     '</div>';
-                var safeDomId = String(m.id).replace(/[^a-zA-Z0-9_-]/g, '_');
-                return '<div id="msg-item-' + escapeHtml(safeDomId) + '" oncontextmenu="event.preventDefault(); openMsgContextMenu(\\'' + escapeJsSingle(m.id) + '\\');" class="flex ' + (mine ? 'justify-start' : 'justify-end') + '">' +
-                    '<div class="max-w-[82%] rounded-2xl px-3.5 py-2.5 shadow ' +
-                    (mine ? 'bg-[#164e63] text-white border border-teal-700/40' : 'bg-[#0f1b29] text-slate-100 border border-slate-800') + '">' +
-                    senderTag + quoteHtml + body +
-                    '<div class="flex items-center justify-between gap-2 mt-1.5 text-[10px] text-slate-200/80">' +
-                    statusLine + quickActions + '</div></div></div>';
+
+                return '<div id="' + escapeHtml(safeDomId) + '" class="flex ' + (isMe ? 'justify-start' : 'justify-end') + '">' +
+                    '<div ondblclick="startReplyToMessage(\\'' + escapeJsSingle(m.id) + '\\')" class="max-w-[82%] rounded-2xl px-3.5 py-2.5 shadow ' + bubbleClass + '">' +
+                    senderHeader + quoteBlock + content + statusRow + actionsRow + '</div></div>';
             }).join('');
-            box.scrollTop = box.scrollHeight;
+            if (!q) box.scrollTop = box.scrollHeight;
         }
 
         function renderAccts() {
-            var lbl = document.getElementById('active-acct-label');
-            if (lbl) lbl.textContent = activeAcct;
-            var cntBadge = document.getElementById('accounts-count-badge');
-            if (cntBadge) cntBadge.textContent = toWesternDigits(myAccts.length) + (myAccts.length === 1 ? ' حساب' : ' حسابات');
-            var list = document.getElementById('accounts-list');
-            if (!list) return;
-            list.innerHTML = myAccts.map(function(id) {
-                var active = id === activeAcct;
+            document.getElementById('active-acct-label').textContent = 'الحساب: ' + activeAcct;
+            var badge = document.getElementById('accounts-count-badge');
+            if (badge) badge.textContent = toWesternDigits(myAccts.length) + (myAccts.length === 1 ? ' حساب' : ' حسابات');
+            var box = document.getElementById('accounts-list');
+            box.innerHTML = myAccts.map(function(id) {
+                var active = cleanIdValue(id) === cleanIdValue(activeAcct);
                 return '<div class="flex justify-between items-center bg-[#080f18] p-3 rounded-xl border ' + (active ? 'border-teal-600' : 'border-slate-800') + '">' +
-                    '<div class="flex items-center gap-2 min-w-0">' +
-                    '<span class="font-mono text-xs font-bold text-white truncate">' + escapeHtml(id) + '</span>' +
-                    (active ? '<span class="text-[10px] bg-teal-950 text-teal-200 border border-teal-800/60 px-2 py-0.5 rounded-full font-bold shrink-0">نشط</span>' : '') +
-                    '</div>' +
-                    '<div class="flex gap-1.5 shrink-0">' +
-                    '<button type="button" onclick="copyStringToClipboard(\\'' + escapeJsSingle(id) + '\\')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg text-[11px] font-bold">نسخ</button>' +
-                    '<button type="button" onclick="activateAccount(\\'' + escapeJsSingle(id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1 rounded-lg text-[11px] font-bold">' + (active ? 'مفعّل' : 'تبديل') + '</button>' +
+                    '<div class="flex items-center gap-2 flex-wrap"><span class="font-mono text-xs font-bold text-white">' + escapeHtml(id) + '</span>' +
+                    (active ? '<span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-700/50 px-2 py-0.5 rounded-full font-bold">نشط</span>' : '') +
+                    '</div><div class="flex gap-1.5">' +
+                    '<button type="button" onclick="copyStringToClipboard(\\'' + escapeJsSingle(id) + '\\')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded-lg text-[11px] font-bold">نسخ</button>' +
+                    '<button type="button" onclick="activateAccount(\\'' + escapeJsSingle(id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1 rounded-lg text-[11px] font-bold">تفعيل</button>' +
                     '</div></div>';
             }).join('');
         }
 
-        function persistAndDraw() { persistState(); renderAccts(); renderPresence(); renderGroupsList(); renderMsgs(); updateUnreadBadgesUI(); }
+        function persistAndDraw() {
+            persistState();
+            renderAccts();
+            renderPresence();
+            renderGroupsList();
+            renderMsgs();
+            updateUnreadBadgesUI();
+            updateQueueBadge();
+        }
 
-        loadSavedState();
-        document.getElementById('device-badge').textContent = detectDevice();
-        updateNetBadge();
-        persistAndDraw();
-        openSocket();
-        pollHttpSync();
-        setInterval(pollHttpSync, 1500);
-        setInterval(syncPresenceNow, 10000);
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden) {
-                setTimeout(function() {
-                    if (typeof navigator === 'undefined' || navigator.onLine !== false) {
-                        setHeaderStatus('متصل', true);
-                    }
-                    pollHttpSync();
-                    syncPresenceNow();
-                    if (activePane === 'chats') {
-                        clearUnreadForPeer(currentPeer);
-                        markCurrentThreadAsRead();
-                    }
-                }, 0);
+        var clientSessions = new Map();
+        var userSubscriptions = new Map();
+        var syncStream = [];
+        var syncCursorSeq = 0;
+
+        function recordSyncEvent(payload) {
+            syncCursorSeq += 1;
+            var item = Object.assign({}, payload, {
+                cursor: syncCursorSeq,
+                eventId: payload.eventId || ('srv-' + syncCursorSeq + '-' + Date.now()),
+                appVersion: APP_VERSION
+            });
+            syncStream.push(item);
+            if (syncStream.length > 2000) syncStream.splice(0, syncStream.length - 2000);
+            return item;
+        }
+
+        function getAllOnlineIds() {
+            var ids = new Set();
+            clientSessions.forEach(function(sess) {
+                if (sess.ids) sess.ids.forEach(function(id) { if (id) ids.add(id); });
+            });
+            return Array.from(ids);
+        }
+
+        function broadcastOnlineUsers() {
+            var onlineIds = getAllOnlineIds();
+            recordSyncEvent({ type: 'online_users', ids: onlineIds });
+            var pkt = JSON.stringify({ type: 'online_users', ids: onlineIds, appVersion: APP_VERSION });
+            clientSessions.forEach(function(sess) {
+                if (sess.ws && sess.ws.readyState === 1) {
+                    try { sess.ws.send(pkt); } catch (e) {}
+                }
+            });
+        }
+
+        function routeServerPayload(data, senderWs) {
+            if (!data || !data.type) return;
+            if (data.type === 'register_ids') {
+                var rawIds = Array.isArray(data.ids) ? data.ids : [data.activeId || data.id];
+                var cleanIds = rawIds.map(normIdServer).filter(Boolean);
+                var sess = senderWs ? clientSessions.get(senderWs) : null;
+                if (sess) sess.ids = new Set(cleanIds);
+                else if (cleanIds.length) clientSessions.set({ ws: null, ids: new Set(cleanIds) }, { ws: null, ids: new Set(cleanIds) });
+                broadcastOnlineUsers();
+                return;
             }
+            if (data.type === 'push_subscribe') {
+                var subIds = Array.isArray(data.ids) ? data.ids.map(normIdServer).filter(Boolean) : [];
+                if (data.subscription && data.subscription.endpoint) {
+                    subIds.forEach(function(uid) {
+                        if (!userSubscriptions.has(uid)) userSubscriptions.set(uid, new Map());
+                        userSubscriptions.get(uid).set(data.subscription.endpoint, data.subscription);
+                    });
+                }
+                return;
+            }
+            var targetId = normIdServer(data.to);
+            if (!targetId) return;
+            var outData = Object.assign({}, data, { to: targetId, from: normIdServer(data.from), appVersion: APP_VERSION });
+            recordSyncEvent(outData);
+            var pkt = JSON.stringify(outData);
+            clientSessions.forEach(function(sess) {
+                if (sess.ws && sess.ws !== senderWs && sess.ws.readyState === 1 && sess.ids && sess.ids.has(targetId)) {
+                    try { sess.ws.send(pkt); } catch (e) {}
+                }
+            });
+        }
+
+        function readJsonBody(req) {
+            return new Promise(function(resolve) {
+                var raw = '';
+                req.on('data', function(chunk) { raw += chunk; });
+                req.on('end', function() {
+                    try { resolve(JSON.parse(raw || '{}')); } catch (e) { resolve({}); }
+                });
+                req.on('error', function() { resolve({}); });
+            });
+        }
+
+        const server = http.createServer(async function(req, res) {
+            var reqUrl = new URL(req.url || '/', 'http://' + (req.headers.host || 'localhost'));
+            if (reqUrl.pathname === '/healthz') {
+                res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+                return res.end(JSON.stringify({ ok: true, version: APP_VERSION }));
+            }
+            if (reqUrl.pathname === '/api/push/config') {
+                res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+                return res.end(JSON.stringify({ enabled: false, publicKey: '' }));
+            }
+            if (reqUrl.pathname === '/api/sync') {
+                res.setHeader('Content-Type', 'application/json; charset=utf-8');
+                res.setHeader('Cache-Control', 'no-store');
+                if (req.method === 'POST') {
+                    var body = await readJsonBody(req);
+                    routeServerPayload(body, null);
+                    return res.end(JSON.stringify({ ok: true, cursor: syncCursorSeq, onlineIds: getAllOnlineIds(), appVersion: APP_VERSION }));
+                }
+                var idsParam = String(reqUrl.searchParams.get('ids') || '');
+                var sinceNum = Number(reqUrl.searchParams.get('since') || 0) || 0;
+                var watchSet = new Set(idsParam.split(',').map(normIdServer).filter(Boolean));
+                var matchedEvents = syncStream.filter(function(ev) {
+                    if (ev.cursor <= sinceNum) return false;
+                    if (ev.type === 'online_users') return true;
+                    return watchSet.has(normIdServer(ev.to));
+                });
+                return res.end(JSON.stringify({
+                    ok: true,
+                    cursor: syncCursorSeq,
+                    onlineIds: getAllOnlineIds(),
+                    events: matchedEvents,
+                    appVersion: APP_VERSION
+                }));
+            }
+            if (reqUrl.pathname === '/manifest.json') {
+                res.writeHead(200, { 'Content-Type': 'application/manifest+json; charset=utf-8' });
+                return res.end(manifestPayload);
+            }
+            if (reqUrl.pathname === '/sw.js') {
+                res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8', 'Cache-Control': 'no-cache' });
+                return res.end(swContent);
+            }
+            if (reqUrl.pathname === '/icon.svg') {
+                res.writeHead(200, { 'Content-Type': 'image/svg+xml; charset=utf-8' });
+                return res.end(sanadIconSvg);
+            }
+            if (reqUrl.pathname === '/apple-touch-icon.png') {
+                res.writeHead(200, { 'Content-Type': 'image/png' });
+                return res.end(appleTouchIconPngBuffer);
+            }
+            if (reqUrl.pathname === '/icon-512.png') {
+                res.writeHead(200, { 'Content-Type': 'image/png' });
+                return res.end(appIcon512PngBuffer);
+            }
+            res.writeHead(200, {
+                'Content-Type': 'text/html; charset=utf-8',
+                'Cache-Control': 'no-cache, no-store, must-revalidate'
+            });
+            return res.end(htmlContent);
         });
-        window.addEventListener('online', function() {
-            updateOfflineNetworkUI(false);
+
+        const wss = new WebSocketServer({ server: server });
+        wss.on('connection', function(clientWs) {
+            clientSessions.set(clientWs, { ws: clientWs, ids: new Set() });
+            try { clientWs.send(JSON.stringify({ type: 'online_users', ids: getAllOnlineIds(), appVersion: APP_VERSION })); } catch (e) {}
+
+            clientWs.on('message', function(raw) {
+                try {
+                    var parsed = JSON.parse(String(raw));
+                    routeServerPayload(parsed, clientWs);
+                } catch (e) {}
+            });
+
+            clientWs.on('close', function() {
+                clientSessions.delete(clientWs);
+                broadcastOnlineUsers();
+            });
+
+            clientWs.on('error', function() {
+                clientSessions.delete(clientWs);
+                broadcastOnlineUsers();
+            });
+        });
+
+        (function initClientBootstrap() {
+            if (typeof document === 'undefined') return;
+            loadSavedState();
+            var devBadge = document.getElementById('device-badge');
+            if (devBadge) devBadge.textContent = detectDevice();
             updateNetBadge();
-            setHeaderStatus('متصل', true);
-            flushOutboxQueue();
-            reconnectNow();
-        });
-        window.addEventListener('offline', function() {
-            updateOfflineNetworkUI(true);
-            updateNetBadge();
-        });
-        window.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() { requestSystemNotificationPermission(true); }, 1200);
-            var h = String(location.hash || '').replace(/^#tab-/, '');
-            if (SANAD_TAB_LABELS[h]) {
-                setPane(h);
+            var initialHashTab = String(location.hash || '').replace(/^#tab-/, '');
+            applySanadPaneDisplay(SANAD_TAB_LABELS[initialHashTab] ? initialHashTab : 'chats');
+            persistAndDraw();
+            markCurrentThreadAsRead();
+            if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                updateOfflineNetworkUI(true);
             } else {
-                applySanadPaneDisplay(window.__sanadCurrentTab || 'chats');
+                updateOfflineNetworkUI(false);
+                setHeaderStatus('متصل', true);
+                openSocket();
+                syncPresenceNow();
             }
+            setInterval(function() {
+                pollHttpSync();
+                if (!ws || ws.readyState !== 1) openSocket();
+            }, 3000);
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                        updateOfflineNetworkUI(true);
+                    } else {
+                        updateOfflineNetworkUI(false);
+                        setHeaderStatus('متصل', true);
+                        syncPresenceNow();
+                        flushOutboxQueue();
+                        if (activePane === 'chats') markCurrentThreadAsRead();
+                    }
+                }
+            });
+            window.addEventListener('online', function() {
+                updateOfflineNetworkUI(false);
+                setHeaderStatus('متصل', true);
+                flushOutboxQueue();
+                if (!ws || ws.readyState !== 1) openSocket();
+                syncPresenceNow();
+            });
+            window.addEventListener('offline', function() {
+                updateOfflineNetworkUI(true);
+            });
+        })();
+
+        const PORT = process.env.PORT || 3000;
+        server.listen(PORT, '0.0.0.0', function() {
+            console.log('Sanad AI v' + APP_VERSION + ' listening on port ' + PORT);
         });
     </script>
 </body>
 </html>`;
-
-const PORT = process.env.PORT || 3000;
-const server = http.createServer((req, res) => {
-    const cleanUrl = (req.url || '/').split('?')[0];
-
-    if (cleanUrl === '/healthz') {
-        res.writeHead(200, {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Cache-Control': 'no-store, no-cache, must-revalidate'
-        });
-        return res.end(JSON.stringify({ ok: true, app: 'Sanad AI', version: APP_VERSION }));
-    }
-
-    if (cleanUrl === '/manifest.json') {
-        res.writeHead(200, {
-            'Content-Type': 'application/manifest+json; charset=utf-8',
-            'Cache-Control': 'no-store, no-cache, must-revalidate'
-        });
-        return res.end(manifestPayload);
-    }
-
-    if (cleanUrl === '/sw.js') {
-        res.writeHead(200, {
-            'Content-Type': 'application/javascript; charset=utf-8',
-            'Cache-Control': 'no-store, no-cache, must-revalidate'
-        });
-        return res.end(swContent);
-    }
-
-    if (cleanUrl === '/icon.svg') {
-        res.writeHead(200, {
-            'Content-Type': 'image/svg+xml; charset=utf-8',
-            'Cache-Control': 'no-store, no-cache, must-revalidate'
-        });
-        return res.end(sanadIconSvg);
-    }
-
-    if (cleanUrl === '/apple-touch-icon.png' || cleanUrl === '/apple-touch-icon-precomposed.png') {
-        res.writeHead(200, {
-            'Content-Type': 'image/png',
-            'Cache-Control': 'no-store, no-cache, must-revalidate'
-        });
-        return res.end(appleTouchIconPngBuffer);
-    }
-
-    if (cleanUrl === '/icon-512.png') {
-        res.writeHead(200, {
-            'Content-Type': 'image/png',
-            'Cache-Control': 'no-store, no-cache, must-revalidate'
-        });
-        return res.end(appIcon512PngBuffer);
-    }
-
-    if (cleanUrl === '/api/push/config') {
-        res.writeHead(200, {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Cache-Control': 'no-store, no-cache, must-revalidate'
-        });
-        return res.end(JSON.stringify({ enabled: false, publicKey: '' }));
-    }
-
-    res.writeHead(200, {
-        'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-    });
-    res.end(htmlContent);
-});
-
-const wss = new WebSocketServer({ server });
-const clientsByAcct = new Map();
-const eventLog = [];
-let eventCursor = 0;
-
-function appendSyncEvent(payload) {
-    eventCursor += 1;
-    const item = Object.assign({}, payload, { cursor: eventCursor, ts: Date.now() });
-    eventLog.push(item);
-    if (eventLog.length > 2000) eventLog.splice(0, eventLog.length - 2000);
-    return item;
-}
-
-function getOnlineIds() {
-    const ids = new Set();
-    clientsByAcct.forEach((set, id) => {
-        if (set && set.size > 0 && id) ids.add(id);
-    });
-    return Array.from(ids);
-}
-
-function bindClientIds(wsClient, ids) {
-    if (!Array.isArray(ids)) return;
-    ids.map(normIdServer).filter(Boolean).forEach(id => {
-        if (!clientsByAcct.has(id)) clientsByAcct.set(id, new Set());
-        clientsByAcct.get(id).add(wsClient);
-        wsClient._sanadIds.add(id);
-    });
-}
-
-function broadcastOnlineList() {
-    const onlineIds = getOnlineIds();
-    const packet = JSON.stringify({ type: 'online_users', ids: onlineIds });
-    wss.clients.forEach(c => {
-        if (c.readyState === 1) {
-            try { c.send(packet); } catch (e) {}
-        }
-    });
-}
-
-function routePayloadToTargets(data) {
-    const targetId = normIdServer(data.to || '');
-    const senderId = normIdServer(data.from || '');
-    const stored = appendSyncEvent(Object.assign({}, data, { to: targetId, from: senderId }));
-    const raw = JSON.stringify(stored);
-
-    if (targetId && clientsByAcct.has(targetId)) {
-        clientsByAcct.get(targetId).forEach(c => {
-            if (c.readyState === 1) {
-                try { c.send(raw); } catch (e) {}
-            }
-        });
-    }
-    if (senderId && clientsByAcct.has(senderId) && senderId !== targetId) {
-        clientsByAcct.get(senderId).forEach(c => {
-            if (c.readyState === 1) {
-                try { c.send(raw); } catch (e) {}
-            }
-        });
-    }
-}
-
-server.on('request', (req, res) => {
-    const urlPath = (req.url || '').split('?')[0];
-    if (urlPath !== '/api/sync') return;
-
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-    if (req.method === 'POST') {
-        let body = '';
-        req.on('data', chunk => { body += chunk.toString(); });
-        req.on('end', () => {
-            try {
-                const parsed = JSON.parse(body || '{}');
-                if (parsed.type === 'register_ids') {
-                    const list = Array.isArray(parsed.ids) ? parsed.ids.map(normIdServer).filter(Boolean) : [];
-                    if (parsed.activeId) list.unshift(normIdServer(parsed.activeId));
-                    const unique = Array.from(new Set(list));
-                    unique.forEach(id => {
-                        if (!clientsByAcct.has(id)) clientsByAcct.set(id, new Set());
-                    });
-                } else if (parsed.type && parsed.to) {
-                    routePayloadToTargets(parsed);
-                }
-                res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-                res.end(JSON.stringify({
-                    ok: true,
-                    appVersion: APP_VERSION,
-                    cursor: eventCursor,
-                    onlineIds: getOnlineIds()
-                }));
-            } catch (e) {
-                res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
-                res.end(JSON.stringify({ ok: false }));
-            }
-        });
-        return;
-    }
-
-    if (req.method === 'GET') {
-        const fullUrl = new URL(req.url, 'http://localhost');
-        const since = Number(fullUrl.searchParams.get('since') || '0') || 0;
-        const idsParam = (fullUrl.searchParams.get('ids') || '')
-            .split(',')
-            .map(normIdServer)
-            .filter(Boolean);
-        const idSet = new Set(idsParam);
-
-        const matchedEvents = eventLog.filter(ev => {
-            if (ev.cursor <= since) return false;
-            if (!idSet.size) return true;
-            return idSet.has(normIdServer(ev.to || '')) || idSet.has(normIdServer(ev.from || ''));
-        });
-
-        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-        res.end(JSON.stringify({
-            ok: true,
-            appVersion: APP_VERSION,
-            cursor: eventCursor,
-            onlineIds: getOnlineIds(),
-            events: matchedEvents
-        }));
-    }
-});
-
-wss.on('connection', wsClient => {
-    wsClient._sanadIds = new Set();
-    wsClient.on('message', rawMsg => {
-        try {
-            const data = JSON.parse(rawMsg.toString());
-            if (!data || !data.type) return;
-            if (data.type === 'register_ids') {
-                const list = Array.isArray(data.ids) ? data.ids : [];
-                if (data.activeId) list.unshift(data.activeId);
-                bindClientIds(wsClient, list);
-                broadcastOnlineList();
-            } else if (data.to) {
-                if (data.from) bindClientIds(wsClient, [data.from]);
-                routePayloadToTargets(data);
-            }
-        } catch (e) {}
-    });
-    wsClient.on('close', () => {
-        wsClient._sanadIds.forEach(id => {
-            const set = clientsByAcct.get(id);
-            if (set) {
-                set.delete(wsClient);
-                if (set.size === 0) clientsByAcct.delete(id);
-            }
-        });
-        broadcastOnlineList();
-    });
-});
-
-server.listen(PORT, () => {
-    console.log(`Sanad AI Server v${APP_VERSION} running on port ${PORT}`);
-});

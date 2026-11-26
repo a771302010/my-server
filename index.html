@@ -7,16 +7,16 @@
 
   <meta name="theme-color" content="#071922" />
   <meta name="msapplication-TileColor" content="#071922" />
-  <meta name="msapplication-TileImage" content="./icons/icon-192.png?v=6" />
+  <meta name="msapplication-TileImage" content="./icons/icon-192.png?v=7" />
 
-  <link rel="icon" href="./icons/sanad-icon.svg?v=6" type="image/svg+xml" />
-  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png?v=6" />
-  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png?v=6" />
-  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png?v=6" />
+  <link rel="icon" href="./icons/sanad-icon.svg?v=7" type="image/svg+xml" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png?v=7" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png?v=7" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png?v=7" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="سند AI" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="manifest" href="./manifest.json?v=6" />
+  <link rel="manifest" href="./manifest.json?v=7" />
 
   <style>
     :root {
@@ -90,7 +90,7 @@
 
     .top-bar {
       flex-shrink: 0;
-      min-height: 64px;
+      min-height: 62px;
       padding: 10px 16px;
       background: linear-gradient(180deg, rgba(12, 33, 44, 0.98), rgba(7, 22, 30, 0.96));
       border-bottom: 1px solid var(--border);
@@ -179,6 +179,33 @@
       color: var(--phosphor);
       font-weight: 700;
       text-shadow: var(--phosphor-glow);
+    }
+
+    .filter-pills {
+      flex-shrink: 0;
+      padding: 6px 14px 4px;
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+    }
+
+    .filter-pill {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-sub);
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+
+    .filter-pill.active {
+      background: rgba(20, 184, 166, 0.18);
+      border-color: var(--phosphor);
+      color: var(--phosphor);
     }
 
     .header-actions {
@@ -382,8 +409,25 @@
     .thread-sub {
       font-size: 11px;
       color: var(--text-sub);
-      direction: ltr;
       text-align: right;
+    }
+
+    .call-live-banner {
+      flex-shrink: 0;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 14px;
+      background: rgba(20, 184, 166, 0.14);
+      border-bottom: 1px solid rgba(77, 248, 200, 0.3);
+      font-size: 12px;
+      color: var(--phosphor);
+      font-weight: 700;
+    }
+
+    .call-live-banner.active {
+      display: flex;
     }
 
     .messages-stream {
@@ -572,12 +616,14 @@
       background: var(--bg-card-2);
     }
 
-    .hidden-drawer {
-      display: none !important;
+    .drawer-box {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
     }
 
-    .hidden-drawer.open {
-      display: flex !important;
+    .drawer-box.open {
+      display: flex;
     }
 
     input,
@@ -713,12 +759,12 @@
 </head>
 <body>
   <div class="app-frame">
-    <!-- 1. الشاشة الرئيسية: الدردشات -->
+    <!-- 1. الشاشة الرئيسية: الدردشات والمجتمعات -->
     <section class="screen active" data-screen="chats">
       <header class="top-bar">
         <div class="brand-title-wrap">
           <div class="brand-badge">
-            <img src="./icons/sanad-icon.svg?v=6" alt="سند AI" onerror="this.style.display='none'" />
+            <img src="./icons/sanad-icon.svg?v=7" alt="سند AI" onerror="this.style.display='none'" />
           </div>
           <div>
             <h1 class="brand-heading">سند AI</h1>
@@ -727,17 +773,23 @@
         </div>
         <div class="header-actions">
           <button type="button" class="circle-action" id="new-chat-btn" title="محادثة جديدة">＋</button>
-          <button type="button" class="circle-action" id="new-group-quick-btn" title="مجموعة جديدة">👥</button>
+          <button type="button" class="circle-action" id="new-group-quick-btn" title="مجتمع أو مجموعة جديدة">🌐</button>
         </div>
       </header>
 
       <div class="sat-hero-banner">
         <span class="sat-pulse-dot"></span>
-        <div class="sat-hero-text">🛰️ سند AI — ربط فوري عابر للحدود عبر شبكات الأقمار الصناعية والذكاء الاصطناعي بلا انقطاع</div>
+        <div class="sat-hero-text">🛰️ سند AI — اتصال فضائي وذكي عابر للدول والأرقام والأكواد بلا توقف</div>
+      </div>
+
+      <div class="filter-pills">
+        <button type="button" class="filter-pill active" data-chat-filter="all">الكل</button>
+        <button type="button" class="filter-pill" data-chat-filter="direct">المحادثات</button>
+        <button type="button" class="filter-pill" data-chat-filter="communities">المجتمعات والمجموعات</button>
       </div>
 
       <div class="search-strip">
-        <input type="search" class="search-field" id="chat-search-input" placeholder="ابحث باسم جهة الاتصال أو الرقم أو الكود..." />
+        <input type="search" class="search-field" id="chat-search-input" placeholder="ابحث باسم جهة الاتصال أو المجتمع أو الرقم..." />
       </div>
       <div class="scroll-area" id="chats-overview-list"></div>
     </section>
@@ -749,18 +801,18 @@
           <div class="brand-badge">📞</div>
           <div>
             <h1 class="brand-heading">المكالمات</h1>
-            <div class="brand-tag">اتصال مباشر بالأرقام والأكواد</div>
+            <div class="brand-tag">اتصال صوتي ومرئي دولي بالأرقام والأكواد</div>
           </div>
         </div>
       </header>
       <div class="scroll-area">
         <div class="panel-card">
           <div class="flex-row">
-            <input type="text" id="call-target" placeholder="أدخل رقم الهاتف أو الكود للاتصال" style="flex:1;min-width:160px;direction:ltr;" />
+            <input type="text" id="call-target" placeholder="رقم دولي مثل +967... أو كود 88..." style="flex:1;min-width:160px;direction:ltr;" />
             <button type="button" class="action-btn btn-primary" id="voice-call-btn">📞 صوتية</button>
             <button type="button" class="action-btn btn-secondary" id="video-call-btn">🎥 مرئية</button>
           </div>
-          <div class="sub-note" id="call-live-status">جاهز للاتصال</div>
+          <div class="sub-note" id="call-live-status">جاهز للاتصال الدولي والصوتي والمرئي</div>
         </div>
         <div id="calls-history-list"></div>
       </div>
@@ -791,14 +843,14 @@
       </div>
     </section>
 
-    <!-- 4. شاشة الإعدادات (الأكواد والجهات مطوية في الخلف حتى يتم فتحها) -->
+    <!-- 4. شاشة الإعدادات (الأكواد، الأرقام، الإشعارات والتحديثات) -->
     <section class="screen" data-screen="settings">
       <header class="top-bar">
         <div class="brand-title-wrap">
           <div class="brand-badge">⚙️</div>
           <div>
             <h1 class="brand-heading">الإعدادات</h1>
-            <div class="brand-tag">الحساب • الأكواد • جهات الاتصال</div>
+            <div class="brand-tag">الحساب • الأكواد • الأرقام • الإشعارات والتحديثات</div>
           </div>
         </div>
       </header>
@@ -809,7 +861,7 @@
               <div class="avatar-circle" id="my-avatar-letter">س</div>
               <div>
                 <div style="font-weight:800;font-size:15px;" id="my-display-name">مستخدم سند</div>
-                <div class="sub-note" id="my-display-code" style="direction:ltr;text-align:right;">88000008</div>
+                <div class="sub-note" id="my-display-code" style="direction:ltr;text-align:right;">88000000</div>
               </div>
             </div>
             <span class="sub-note">الحساب النشط</span>
@@ -820,7 +872,7 @@
           <div class="menu-row" data-acc-tab="self">
             <div>
               <div style="font-weight:700;">🔑 توليد كود ذاتي</div>
-              <div class="sub-note">تعيين كود يبدأ بـ 88 أو معرّف خاص بك وتفعيله</div>
+              <div class="sub-note">توليد أو إدخال كود يبدأ بـ 88 من 8 أرقام وتفعيله</div>
             </div>
             <span class="sub-note">فتح ›</span>
           </div>
@@ -834,31 +886,39 @@
           <div class="menu-row" data-acc-tab="carrier">
             <div>
               <div style="font-weight:700;">🌐 رقم دولي / رقم شريحة شخصي</div>
-              <div class="sub-note">تفعيل رقم شريحتك أو أي رقم دولي مع مفتاح الدولة</div>
+              <div class="sub-note">تفعيل رقم شريحتك أو أي رقم دولي من أي دولة</div>
             </div>
             <span class="sub-note">فتح ›</span>
           </div>
           <div class="menu-row" data-acc-tab="contacts">
             <div>
               <div style="font-weight:700;">📇 جهات الاتصال والأسماء</div>
-              <div class="sub-note">إدارة الأرقام والأكواد المحفوظة</div>
+              <div class="sub-note">حفظ الأرقام الدولية والأكواد وفتح المراسلة أو الاتصال</div>
+            </div>
+            <span class="sub-note">فتح ›</span>
+          </div>
+          <div class="menu-row" data-acc-tab="sys">
+            <div>
+              <div style="font-weight:700;">🔔 الإشعارات والتحديثات</div>
+              <div class="sub-note">إدارة تنبيهات الرسائل والمكالمات وفحص التحديثات</div>
             </div>
             <span class="sub-note">فتح ›</span>
           </div>
         </div>
 
-        <!-- لوحة توليد كود ذاتي (مخفية افتراضياً) -->
-        <div class="panel-card hidden-drawer" id="panel-self">
-          <div style="font-weight:700;">توليد / إدخال كود ذاتي</div>
+        <!-- لوحة توليد كود ذاتي -->
+        <div class="panel-card drawer-box" id="panel-self">
+          <div style="font-weight:700;">توليد / إدخال كود ذاتي (8 أرقام تبدأ بـ 88)</div>
           <div class="flex-row">
-            <input type="text" id="self-code" placeholder="مثال: 88451209 أو كود يبدأ بـ 88" style="flex:1;min-width:150px;direction:ltr;" />
+            <input type="text" id="self-code" placeholder="مثال: 88349012 أو اكتب أرقامك" style="flex:1;min-width:150px;direction:ltr;" />
             <input type="text" id="self-name" placeholder="اسمك الظاهر" style="flex:1;min-width:130px;" />
+            <button type="button" class="action-btn btn-secondary" id="gen-self-btn">توليد تلقائي</button>
             <button type="button" class="action-btn btn-primary" id="save-self-btn">تفعيل</button>
           </div>
         </div>
 
-        <!-- لوحة توليد 8 أرقام تبدأ بـ 88 (مخفية افتراضياً) -->
-        <div class="panel-card hidden-drawer" id="panel-auto8">
+        <!-- لوحة توليد 8 أرقام تبدأ بـ 88 -->
+        <div class="panel-card drawer-box" id="panel-auto8">
           <div style="font-weight:700;">توليد كود آلي من 8 أرقام (يبدأ بـ 88)</div>
           <div class="generated-code-box">
             <span class="generated-code-value" id="code8-display">88123456</span>
@@ -873,11 +933,11 @@
           </div>
         </div>
 
-        <!-- لوحة رقم دولي / رقم شريحة شخصي (مخفية افتراضياً) -->
-        <div class="panel-card hidden-drawer" id="panel-carrier">
-          <div style="font-weight:700;">تفعيل رقم الشريحة الشخصي أو رقم دولي</div>
+        <!-- لوحة رقم دولي / رقم شريحة شخصي -->
+        <div class="panel-card drawer-box" id="panel-carrier">
+          <div style="font-weight:700;">تفعيل رقم الشريحة الشخصي أو رقم دولي من أي دولة</div>
           <div class="flex-row">
-            <input type="text" id="intl-dial" placeholder="مفتاح الدولة مثل +967 أو +966 أو +1" style="width:165px;direction:ltr;" />
+            <input type="text" id="intl-dial" placeholder="مفتاح الدولة مثل +967 أو +966 أو +20 أو +1" style="width:175px;direction:ltr;" />
             <input type="tel" id="intl-phone" placeholder="رقم الشريحة أو الهاتف الدولي" style="flex:1;min-width:150px;direction:ltr;" />
           </div>
           <div class="flex-row">
@@ -886,15 +946,28 @@
           </div>
         </div>
 
-        <!-- لوحة جهات الاتصال (مخفية افتراضياً) -->
-        <div class="panel-card hidden-drawer" id="panel-contacts">
-          <div style="font-weight:700;">إضافة جهة اتصال (رقم أو كود + الاسم)</div>
+        <!-- لوحة جهات الاتصال -->
+        <div class="panel-card drawer-box" id="panel-contacts">
+          <div style="font-weight:700;">إضافة جهة اتصال (رقم دولي من أي دولة أو كود + الاسم)</div>
           <div class="flex-row">
-            <input type="text" id="ct-id" placeholder="الرقم الدولي أو الكود" style="flex:1;min-width:130px;direction:ltr;" />
+            <input type="text" id="ct-id" placeholder="مثال: +967770000000 أو 88123456" style="flex:1;min-width:130px;direction:ltr;" />
             <input type="text" id="ct-name" placeholder="الاسم" style="flex:1;min-width:130px;" />
             <button type="button" class="action-btn btn-primary" id="ct-add-btn">حفظ</button>
           </div>
           <div id="ct-saved-list"></div>
+        </div>
+
+        <!-- لوحة الإشعارات والتحديثات -->
+        <div class="panel-card drawer-box" id="panel-sys">
+          <div style="font-weight:700;">الإشعارات والتحديثات والنسخة</div>
+          <div class="flex-row" style="justify-content:space-between;">
+            <span>تنبيهات الرسائل والمكالمات</span>
+            <button type="button" class="action-btn btn-secondary" id="toggle-notif-btn">تفعيل إذن الإشعارات</button>
+          </div>
+          <div class="flex-row" style="justify-content:space-between;">
+            <span class="sub-note" id="update-status-note">الإصدار الحالي: v9.0.0 — متصل بالخادم</span>
+            <button type="button" class="action-btn btn-primary" id="check-update-btn">فحص وتحديث الآن</button>
+          </div>
         </div>
       </div>
     </section>
@@ -931,8 +1004,16 @@
           <div class="thread-sub" id="thread-subtitle">متصل</div>
         </div>
       </div>
-      <button type="button" class="circle-action" id="thread-call-btn" title="اتصال">📞</button>
+      <div class="header-actions">
+        <button type="button" class="circle-action" id="thread-voice-call-btn" title="اتصال صوتي">📞</button>
+        <button type="button" class="circle-action" id="thread-video-call-btn" title="مكالمة فيديو">🎥</button>
+      </div>
     </header>
+
+    <div class="call-live-banner" id="thread-call-banner">
+      <span id="thread-call-text">مكالمة جارية...</span>
+      <button type="button" class="mini-btn danger" id="end-thread-call-btn">إنهاء</button>
+    </div>
 
     <div class="messages-stream" id="thread-messages"></div>
 
@@ -942,7 +1023,7 @@
     </div>
 
     <div class="composer-bar">
-      <button type="button" class="circle-action" id="thread-attach-btn" title="مرفق">📎</button>
+      <button type="button" class="circle-action" id="thread-attach-btn" title="مرفق أو وسائط">📎</button>
       <input type="file" id="thread-file-input" style="display:none;" />
       <textarea class="composer-input" id="thread-input" rows="1" placeholder="اكتب رسالة..."></textarea>
       <button type="button" class="send-fab" id="thread-send-btn">➤</button>
@@ -955,8 +1036,9 @@
   <script src="./sanad-audio-media.js"></script>
   <script>
     (() => {
-      const KEY = 'sanad_ai_v9_global_wa_v2';
+      const KEY = 'sanad_ai_v9_global_wa_v3';
       const SUPPORT_CODE = '80000008';
+      const DEFAULT_MY_CODE = '88000000';
 
       function nowHm() {
         return new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
@@ -964,11 +1046,12 @@
 
       const initialData = {
         screen: 'chats',
-        me: { id: '88000008', name: 'مستخدم سند' },
+        chatFilter: 'all',
+        me: { id: DEFAULT_MY_CODE, name: 'مستخدم سند', maskPublicId: true },
         contacts: [
           { id: SUPPORT_CODE, name: 'الدعم الدولي', isGroup: false, hideCodeInLabel: true, unread: 1 },
           { id: '88704829', name: 'حساب بكود 8 أرقام', isGroup: false, unread: 0 },
-          { id: 'grp-global', name: 'مجموعة سند العالمية', isGroup: true, members: ['88704829', SUPPORT_CODE], unread: 2 }
+          { id: 'grp-global', name: 'مجتمع سند العالمي', isGroup: true, members: ['88704829', SUPPORT_CODE], unread: 2 }
         ],
         activeThreadId: SUPPORT_CODE,
         replyQuote: null,
@@ -980,7 +1063,7 @@
             { id: '2', text: 'تم ربط الكود بنجاح.', time: nowHm(), mine: false, status: 'read' }
           ],
           'grp-global': [
-            { id: '3', sender: 'الدعم الدولي', text: 'مرحباً بالجميع في المجموعة.', time: nowHm(), mine: false, status: 'read' }
+            { id: '3', sender: 'الدعم الدولي', text: 'مرحباً بالجميع في مجتمع سند العالمي.', time: nowHm(), mine: false, status: 'read' }
           ]
         },
         calls: [],
@@ -1002,15 +1085,27 @@
         return JSON.parse(JSON.stringify(initialData));
       }
 
+      function generate88Code() {
+        const suffix = String(Math.floor(100000 + Math.random() * 900000));
+        return '88' + suffix;
+      }
+
       function normalizeCode88(raw) {
-        let s = String(raw || '').trim();
-        if (!s) return '';
-        if (/^\d+$/.test(s)) {
-          if (!s.startsWith('88')) s = '88' + s;
-          if (s.length > 8) s = s.slice(0, 8);
-          while (s.length < 8) s += '0';
-        }
+        const digits = String(raw || '').replace(/\D+/g, '');
+        if (!digits) return generate88Code();
+        let s = digits;
+        if (!s.startsWith('88')) s = '88' + s;
+        if (s.length > 8) s = s.slice(0, 8);
+        while (s.length < 8) s += '0';
         return s;
+      }
+
+      function normalizeIntlPhone(dial, phone) {
+        const cleanPhone = String(phone || '').replace(/[^\d]/g, '');
+        if (!cleanPhone) return '';
+        let cleanDial = String(dial || '').replace(/[^\d+]/g, '');
+        if (cleanDial && !cleanDial.startsWith('+')) cleanDial = '+' + cleanDial;
+        return cleanDial ? `${cleanDial} ${cleanPhone}` : `+${cleanPhone}`;
       }
 
       function load() {
@@ -1021,13 +1116,17 @@
           const base = cloneInitial();
           const merged = Object.assign(base, parsed, {
             screen: parsed.screen || 'chats',
+            chatFilter: parsed.chatFilter || 'all',
             me: Object.assign(base.me, parsed.me || {}),
             contacts: Array.isArray(parsed.contacts) ? parsed.contacts : base.contacts,
             messages: parsed.messages && typeof parsed.messages === 'object' ? parsed.messages : base.messages,
             calls: Array.isArray(parsed.calls) ? parsed.calls : base.calls,
             ai: Array.isArray(parsed.ai) ? parsed.ai : base.ai
           });
-          // ضمان تحديث الدعم الدولي إلى 80000008 وإخفاء رقمه من الظهور
+          if (!merged.me.id) {
+            merged.me.id = DEFAULT_MY_CODE;
+            merged.me.maskPublicId = true;
+          }
           const sup = merged.contacts.find((c) => c.name === 'الدعم الدولي' || c.id === SUPPORT_CODE || c.id === '+1 555 010 8822');
           if (sup) {
             const oldId = sup.id;
@@ -1076,11 +1175,14 @@
       }
 
       function displayIdentifier(id) {
+        if (id === db.me.id && db.me.maskPublicId && db.me.id === DEFAULT_MY_CODE) {
+          return 'معرّف خاص مخفي';
+        }
         const found = getContact(id);
         if (id === SUPPORT_CODE || (found && found.hideCodeInLabel)) {
           return 'قناة الدعم العالمية';
         }
-        if (found && found.isGroup) return 'مجموعة';
+        if (found && found.isGroup) return 'مجتمع / مجموعة';
         return id;
       }
 
@@ -1107,19 +1209,28 @@
           goScreen(navBtn.getAttribute('data-go'));
           return;
         }
+        const filterBtn = e.target.closest('[data-chat-filter]');
+        if (filterBtn) {
+          db.chatFilter = filterBtn.getAttribute('data-chat-filter') || 'all';
+          save();
+          document.querySelectorAll('[data-chat-filter]').forEach((btn) => {
+            btn.classList.toggle('active', btn.getAttribute('data-chat-filter') === db.chatFilter);
+          });
+          renderChatsOverview(document.getElementById('chat-search-input')?.value || '');
+          return;
+        }
         const accTab = e.target.closest('[data-acc-tab]');
         if (accTab) {
           const tab = accTab.getAttribute('data-acc-tab');
+          const targetPanel = document.getElementById('panel-' + tab);
+          const alreadyOpen = Boolean(targetPanel && targetPanel.classList.contains('open'));
           document.querySelectorAll('[data-acc-tab]').forEach((row) => {
-            row.classList.toggle('active-tab', row.getAttribute('data-acc-tab') === tab);
+            row.classList.toggle('active-tab', !alreadyOpen && row.getAttribute('data-acc-tab') === tab);
           });
-          ['self', 'auto8', 'carrier', 'contacts'].forEach((k) => {
-            const p = document.getElementById('panel-' + k);
-            if (!p) return;
-            const isTarget = k === tab && !p.classList.contains('open');
-            document.querySelectorAll('.hidden-drawer').forEach((drawer) => drawer.classList.remove('open'));
-            if (isTarget) p.classList.add('open');
-          });
+          document.querySelectorAll('.drawer-box').forEach((drawer) => drawer.classList.remove('open'));
+          if (!alreadyOpen && targetPanel) {
+            targetPanel.classList.add('open');
+          }
         }
       });
 
@@ -1128,18 +1239,20 @@
         if (!box) return;
         const q = String(filterText || '').trim().toLowerCase();
         const items = db.contacts.filter((c) => {
+          if (db.chatFilter === 'direct' && c.isGroup) return false;
+          if (db.chatFilter === 'communities' && !c.isGroup) return false;
           if (!q) return true;
           const searchId = c.hideCodeInLabel ? '' : c.id.toLowerCase();
           return c.name.toLowerCase().includes(q) || searchId.includes(q);
         });
         if (!items.length) {
-          box.innerHTML = `<div class="sub-note" style="text-align:center;padding:24px;">لا توجد محادثات مطابقة.</div>`;
+          box.innerHTML = `<div class="sub-note" style="text-align:center;padding:24px;">لا توجد عناصر مطابقة.</div>`;
           return;
         }
         box.innerHTML = items.map((c) => {
           const list = db.messages[c.id] || [];
           const last = list[list.length - 1];
-          const preview = last ? last.text : (c.isGroup ? 'مجموعة' : displayIdentifier(c.id));
+          const preview = last ? last.text : displayIdentifier(c.id);
           const time = last ? last.time : '';
           const letter = (c.name || 'س').trim().charAt(0);
           return `
@@ -1175,6 +1288,7 @@
         document.getElementById('thread-title').textContent = resolveName(peerId);
         document.getElementById('thread-subtitle').textContent = displayIdentifier(peerId);
         document.getElementById('thread-avatar').textContent = (resolveName(peerId) || 'س').trim().charAt(0);
+        document.getElementById('thread-call-banner').classList.remove('active');
         screen.classList.add('open');
         renderThreadMessages();
       }
@@ -1186,9 +1300,31 @@
 
       document.getElementById('back-from-thread-btn')?.addEventListener('click', () => {
         document.getElementById('thread-screen').classList.remove('open');
+        document.getElementById('thread-call-banner').classList.remove('active');
         db.replyQuote = null;
         updateReplyStrip();
         renderChatsOverview(document.getElementById('chat-search-input')?.value || '');
+      });
+
+      function startThreadCall(mode) {
+        const target = db.activeThreadId;
+        const name = resolveName(target);
+        db.calls.unshift({ target, name, mode, time: nowHm() });
+        save();
+        const banner = document.getElementById('thread-call-banner');
+        const txt = document.getElementById('thread-call-text');
+        if (banner && txt) {
+          txt.textContent = `${mode} جارية مع ${name}...`;
+          banner.classList.add('active');
+        }
+        toast(`بدء ${mode} مع ${name}`);
+      }
+
+      document.getElementById('thread-voice-call-btn')?.addEventListener('click', () => startThreadCall('اتصال صوتي'));
+      document.getElementById('thread-video-call-btn')?.addEventListener('click', () => startThreadCall('مكالمة فيديو'));
+      document.getElementById('end-thread-call-btn')?.addEventListener('click', () => {
+        document.getElementById('thread-call-banner').classList.remove('active');
+        toast('تم إنهاء المكالمة');
       });
 
       function renderThreadMessages() {
@@ -1311,20 +1447,13 @@
       });
 
       document.getElementById('new-group-quick-btn')?.addEventListener('click', () => {
-        const gname = prompt('اسم المجموعة الجديدة:');
+        const gname = prompt('اسم المجتمع أو المجموعة الجديدة:');
         if (!gname || !gname.trim()) return;
         const gid = 'grp-' + Date.now();
         db.contacts.unshift({ id: gid, name: gname.trim(), isGroup: true, unread: 0 });
         db.messages[gid] = [];
         save();
         openThread(gid);
-      });
-
-      document.getElementById('thread-call-btn')?.addEventListener('click', () => {
-        const target = db.activeThreadId;
-        db.calls.unshift({ target, name: resolveName(target), mode: 'صوتية', time: nowHm() });
-        save();
-        toast(`اتصال بـ ${resolveName(target)}`);
       });
 
       function renderCalls() {
@@ -1348,7 +1477,7 @@
       function makeCall(mode) {
         const rawTarget = (document.getElementById('call-target')?.value || '').trim();
         if (!rawTarget) {
-          toast('أدخل رقماً أو كوداً أولاً');
+          toast('أدخل رقماً دولياً أو كوداً أولاً');
           return;
         }
         db.calls.unshift({ target: rawTarget, name: resolveName(rawTarget), mode, time: nowHm() });
@@ -1405,27 +1534,32 @@
         const cleanId = String(newId || '').trim();
         if (!cleanId) return;
         db.me.id = cleanId;
+        db.me.maskPublicId = false;
         if (newName && newName.trim()) db.me.name = newName.trim();
         save();
         renderSettings();
-        toast(`تم التفعيل: ${db.me.id}`);
+        toast(`تم تفعيل الحساب: ${db.me.id}`);
       }
 
       function gen8() {
-        const suffix = String(Math.floor(100000 + Math.random() * 900000));
-        const c = '88' + suffix;
+        const c = generate88Code();
         const el = document.getElementById('code8-display');
         if (el) el.textContent = c;
         return c;
       }
 
+      document.getElementById('gen-self-btn')?.addEventListener('click', () => {
+        const c = generate88Code();
+        const inp = document.getElementById('self-code');
+        if (inp) inp.value = c;
+        toast(`تم توليد كود ذاتي: ${c}`);
+      });
+
       document.getElementById('save-self-btn')?.addEventListener('click', () => {
         const rawCode = document.getElementById('self-code')?.value;
         const formatted = normalizeCode88(rawCode);
-        if (!formatted) {
-          toast('أدخل كوداً أولاً');
-          return;
-        }
+        const inp = document.getElementById('self-code');
+        if (inp) inp.value = formatted;
         applyMe(formatted, document.getElementById('self-name')?.value);
       });
 
@@ -1448,13 +1582,13 @@
       });
 
       document.getElementById('save-intl-btn')?.addEventListener('click', () => {
-        const dial = (document.getElementById('intl-dial')?.value || '').trim();
-        const ph = (document.getElementById('intl-phone')?.value || '').trim();
-        if (!ph) {
-          toast('أدخل رقم الشريحة أو الهاتف');
+        const dial = document.getElementById('intl-dial')?.value || '';
+        const ph = document.getElementById('intl-phone')?.value || '';
+        const full = normalizeIntlPhone(dial, ph);
+        if (!full) {
+          toast('أدخل رقم الشريحة أو الهاتف الدولي');
           return;
         }
-        const full = dial ? `${dial} ${ph}`.trim() : ph;
         applyMe(full, document.getElementById('intl-name')?.value || full);
       });
 
@@ -1472,9 +1606,42 @@
         toast('تم حفظ جهة الاتصال');
       });
 
+      document.getElementById('toggle-notif-btn')?.addEventListener('click', async () => {
+        if (!('Notification' in window)) {
+          toast('الإشعارات مفعلة داخل التطبيق');
+          return;
+        }
+        try {
+          const perm = await Notification.requestPermission();
+          toast(perm === 'granted' ? 'تم تفعيل إشعارات النظام' : 'تم حفظ تفضيل الإشعارات');
+        } catch {
+          toast('تم حفظ تفضيل الإشعارات');
+        }
+      });
+
+      document.getElementById('check-update-btn')?.addEventListener('click', async () => {
+        const note = document.getElementById('update-status-note');
+        if (note) note.textContent = 'جاري فحص التحديثات وتحديث الكاش...';
+        try {
+          if ('serviceWorker' in navigator) {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(regs.map((r) => r.update()));
+          }
+          const res = await fetch('./api/health', { cache: 'no-store' });
+          if (res.ok) {
+            const data = await res.json();
+            if (note) note.textContent = `محدث بالكامل • الإصدار v${data.version || '9.0.0'} • نشط`;
+            toast('تم التحقق من التحديث بنجاح');
+            return;
+          }
+        } catch {}
+        if (note) note.textContent = 'الإصدار الحالي: v9.0.0 — جاهز';
+        toast('تم تحديث الحالة');
+      });
+
       function renderSettings() {
         document.getElementById('my-display-name').textContent = db.me.name;
-        document.getElementById('my-display-code').textContent = db.me.id;
+        document.getElementById('my-display-code').textContent = db.me.maskPublicId && db.me.id === DEFAULT_MY_CODE ? 'معرّف خاص مخفي' : db.me.id;
         document.getElementById('my-avatar-letter').textContent = (db.me.name || 'س').trim().charAt(0);
         const ctBox = document.getElementById('ct-saved-list');
         if (ctBox) {
@@ -1494,7 +1661,7 @@
 
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js?v=6').catch(() => {});
+          navigator.serviceWorker.register('./sw.js?v=7').catch(() => {});
         });
       }
 

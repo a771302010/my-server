@@ -3,7 +3,7 @@ const path = require('path');
 const http = require('http');
 const { URL } = require('url');
 const { config } = require('./config/env');
-const { wsHub } = require('./realtime/wsHub');
+const { wshHub } = require('./realtime/wsHub');
 const { handleApiRequest } = require('./realtime/syncApi');
 
 const STATIC_MIME = {
@@ -15,31 +15,41 @@ const STATIC_MIME = {
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.ico': 'image/x-icon',
-  '.webmanifest': 'application/manifest+json; charset=utf-8'
+  '.webmanifest': 'application/manifest+json; charset=utf-8',
 };
 
+function getStaticRootDir() {
+  if (config && config.publicDir && fs.existsSync(path.join(config.publicDir, 'index.html'))) {
+    return path.resolve(config.publicDir);
+  }
+  if (fs.existsSync(path.join(__dirname, 'public', 'index.html'))) {
+    return path.resolve(__dirname, 'public');
+  }
+  return path.resolve(__dirname);
+}
+
 function serveStaticFile(req, res, parsedUrl) {
+  const rootDir = getStaticRootDir();
   let reqPath = decodeURIComponent(parsedUrl.pathname || '/');
   if (reqPath === '/') reqPath = '/index.html';
 
-  const safeRel = path.normalize(reqPath).replace(/^(\.\.(\/|\\|$))+/, '');
-  const fullPath = path.join(config.publicDir, safeRel);
+  const safeRel = path.normalize(reqPath).replace(/^(\.\.[/\\])+/, '').replace(/^[/\\]+/, '');
+  let fullPath = path.resolve(rootDir, safeRel);
 
-  if (!fullPath.startsWith(config.publicDir) || !fs.existsSync(fullPath) || fs.statSync(fullPath).isDirectory()) {
-    const indexFallback = path.join(config.publicDir, 'index.html');
+  if (!fullPath.startsWith(rootDir) || !fs.existsSync(fullPath) || fs.statSync(fullPath).isDirectory()) {
+    const indexFallback = path.resolve(rootDir, 'index.html');
     if (fs.existsSync(indexFallback)) {
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-      fs.createReadStream(indexFallback).pipe(res);
+      fullPath = indexFallback;
+    } else {
+      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+      res.end('Not Found');
       return;
     }
-    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-    res.end('Not Found');
-    return;
   }
 
   const ext = path.extname(fullPath).toLowerCase();
   const headers = {
-    'Content-Type': STATIC_MIME[ext] || 'application/octet-stream'
+    'Content-Type': STATIC_MIME[ext] || 'application/octet-stream',
   };
   if (ext === '.js' || ext === '.html') {
     headers['Cache-Control'] = 'no-cache';
@@ -51,7 +61,7 @@ function serveStaticFile(req, res, parsedUrl) {
 const server = http.createServer(async (req, res) => {
   const parsedUrl = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
 
-  if (parsedUrl.pathname.startsWith('/api/') || parsedUrl.pathname === '/healthz') {
+  if (parsedUrl.pathname.startsWith('/api/')) {
     const handled = await handleApiRequest(req, res, parsedUrl);
     if (handled === false) {
       res.writeHead(404, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -63,7 +73,7 @@ const server = http.createServer(async (req, res) => {
   serveStaticFile(req, res, parsedUrl);
 });
 
-wsHub.attach(server);
+wshHub.attach(server);
 
 server.listen(config.port, '0.0.0.0', () => {
   console.log(`[Sanad AI v${config.version}] running on http://0.0.0.0:${config.port}`);

@@ -3,38 +3,38 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>سند AI -- الإصدار 10.0.0</title>
+  <title>سند AI -- اتصال ذكي وأقمار صناعية</title>
 
-  <meta name="theme-color" content="#06141b" />
-  <meta name="msapplication-TileColor" content="#06141b" />
-  <meta name="msapplication-TileImage" content="./icons/icon-192.png?v=10" />
+  <meta name="theme-color" content="#083847" />
+  <meta name="msapplication-TileColor" content="#083847" />
+  <meta name="msapplication-TileImage" content="./icons/icon-192.png?v=11" />
 
-  <link rel="icon" href="./icons/sanad-icon.svg?v=10" type="image/svg+xml" />
-  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png?v=10" />
-  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png?v=10" />
-  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png?v=10" />
-  <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=10" />
+  <link rel="icon" href="./icons/sanad-icon.svg?v=11" type="image/svg+xml" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png?v=11" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png?v=11" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png?v=11" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=11" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="سند AI" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="manifest" href="./manifest.json?v=10" />
+  <link rel="manifest" href="./manifest.json?v=11" />
 
   <style>
     :root {
-      --bg-app: #040d12;
-      --bg-shell: #06141b;
-      --bg-card: #0b202b;
-      --bg-card-2: #102a38;
-      --bg-input: #081821;
-      --border: rgba(56, 189, 248, 0.16);
-      --border-strong: rgba(137, 179, 107, 0.34);
-      --text: #f3f9fc;
-      --text-sub: #95b4c4;
-      --brand-teal: #0b3c4b;
-      --brand-accent: #14b8a6;
+      --bg-app: #041016;
+      --bg-shell: #061821;
+      --bg-card: #0a2633;
+      --bg-card-2: #0f3344;
+      --bg-input: #071d27;
+      --border: rgba(34, 211, 238, 0.22);
+      --border-strong: rgba(56, 189, 248, 0.45);
+      --text: #f2fbff;
+      --text-sub: #9cc4d6;
+      --petrol: #0c4a60;
+      --petrol-bright: #0ea5e9;
+      --cyan-glow: #38bdf8;
       --olive: #89b36b;
       --olive-soft: rgba(137, 179, 107, 0.18);
-      --olive-glow: 0 0 10px rgba(137, 179, 107, 0.36);
       --danger: #ef4444;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -53,8 +53,8 @@
       height: 100dvh;
       overflow: hidden;
       background:
-        radial-gradient(circle at 85% 8%, rgba(137, 179, 107, 0.09), transparent 36%),
-        radial-gradient(circle at 12% 92%, rgba(20, 184, 166, 0.11), transparent 40%),
+        radial-gradient(circle at 82% 8%, rgba(14, 165, 233, 0.18), transparent 40%),
+        radial-gradient(circle at 15% 92%, rgba(12, 74, 96, 0.25), transparent 45%),
         var(--bg-app);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Tahoma, Arial, sans-serif;
@@ -74,7 +74,7 @@
       padding-top: var(--safe-top);
       padding-bottom: var(--safe-bottom);
       position: relative;
-      box-shadow: 0 0 60px rgba(0, 0, 0, 0.72);
+      box-shadow: 0 0 60px rgba(0, 0, 0, 0.75);
     }
 
     .screen {
@@ -91,10 +91,10 @@
 
     .top-bar {
       flex-shrink: 0;
-      min-height: 62px;
+      min-height: 68px;
       padding: 10px 16px;
-      background: linear-gradient(180deg, rgba(11, 32, 43, 0.98), rgba(6, 20, 27, 0.96));
-      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, #0b4356 0%, #072330 100%);
+      border-bottom: 1px solid var(--border-strong);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -109,31 +109,54 @@
     }
 
     .brand-badge {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      background: #08232e;
-      border: 1px solid var(--border-strong);
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: linear-gradient(145deg, #0e5a73, #072c3a);
+      border: 1.5px solid rgba(56, 189, 248, 0.55);
       display: inline-flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
       flex-shrink: 0;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+      position: relative;
+      box-shadow: 0 4px 16px rgba(14, 165, 233, 0.25);
     }
 
     .brand-badge img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
+    }
+
+    .brand-badge .fallback-s {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 23px;
+      font-weight: 900;
+      color: #ffffff;
+      background: linear-gradient(145deg, #0e6582, #083849);
+    }
+
+    .brand-badge.missing-img img {
+      display: none;
+    }
+
+    .brand-badge.missing-img .fallback-s {
+      display: flex;
     }
 
     .brand-heading {
       margin: 0;
-      font-size: 18px;
-      font-weight: 800;
+      font-size: 19px;
+      font-weight: 900;
       letter-spacing: -0.2px;
-      color: var(--text);
+      color: #7dd3fc;
+      text-shadow: 0 0 14px rgba(56, 189, 248, 0.35);
       display: flex;
       align-items: center;
       gap: 7px;
@@ -143,17 +166,18 @@
       width: 9px;
       height: 9px;
       border-radius: 50%;
-      background: var(--olive);
-      box-shadow: var(--olive-glow);
+      background: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.85);
       display: inline-block;
       flex-shrink: 0;
     }
 
     .brand-tag {
-      font-size: 11.5px;
-      color: var(--olive);
-      font-weight: 700;
+      font-size: 11px;
+      color: #bae6fd;
+      font-weight: 600;
       margin-top: 2px;
+      line-height: 1.35;
     }
 
     .filter-pills {
@@ -178,9 +202,9 @@
     }
 
     .filter-pill.active {
-      background: var(--olive-soft);
-      border-color: var(--olive);
-      color: #d8ecc4;
+      background: rgba(14, 165, 233, 0.2);
+      border-color: var(--cyan-glow);
+      color: #e0f2fe;
     }
 
     .header-actions {
@@ -194,7 +218,7 @@
       height: 38px;
       border-radius: 50%;
       border: 1px solid var(--border);
-      background: var(--bg-card);
+      background: rgba(8, 34, 46, 0.85);
       color: var(--text);
       font-size: 16px;
       display: inline-flex;
@@ -206,7 +230,7 @@
 
     .circle-action:active {
       transform: scale(0.95);
-      border-color: var(--olive);
+      border-color: var(--cyan-glow);
       background: var(--bg-card-2);
     }
 
@@ -214,7 +238,7 @@
       flex-shrink: 0;
       padding: 8px 14px 10px;
       background: var(--bg-shell);
-      border-bottom: 1px solid rgba(56, 189, 248, 0.08);
+      border-bottom: 1px solid rgba(56, 189, 248, 0.12);
     }
 
     .search-field {
@@ -229,7 +253,7 @@
     }
 
     .search-field:focus {
-      border-color: var(--olive);
+      border-color: var(--cyan-glow);
     }
 
     .scroll-area {
@@ -248,8 +272,8 @@
       gap: 12px;
       padding: 11px 12px;
       border-radius: 16px;
-      background: rgba(11, 32, 43, 0.78);
-      border: 1px solid rgba(56, 189, 248, 0.11);
+      background: rgba(10, 38, 51, 0.82);
+      border: 1px solid rgba(56, 189, 248, 0.16);
       cursor: pointer;
       transition: background 0.15s ease, border-color 0.15s ease;
     }
@@ -264,9 +288,9 @@
       width: 48px;
       height: 48px;
       border-radius: 50%;
-      background: linear-gradient(145deg, var(--brand-teal), #072631);
-      border: 1px solid rgba(137, 179, 107, 0.42);
-      color: #e6fffa;
+      background: linear-gradient(145deg, #0c5872, #072936);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      color: #e0f2fe;
       font-weight: 800;
       font-size: 17px;
       display: flex;
@@ -323,8 +347,8 @@
       height: 21px;
       padding: 0 6px;
       border-radius: 999px;
-      background: var(--olive);
-      color: #0b190d;
+      background: #0ea5e9;
+      color: #03151e;
       font-size: 11px;
       font-weight: 800;
       display: inline-flex;
@@ -333,7 +357,6 @@
       flex-shrink: 0;
     }
 
-    /* صفحة المحادثة الفردية أو الجماعية الكاملة */
     .thread-overlay {
       position: fixed;
       inset: 0;
@@ -355,10 +378,10 @@
 
     .thread-top {
       flex-shrink: 0;
-      min-height: 60px;
+      min-height: 62px;
       padding: 8px 14px;
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, #0b4356, #072330);
+      border-bottom: 1px solid var(--border-strong);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -390,15 +413,14 @@
       text-align: right;
     }
 
-    /* شاشة الاتصال المرئي والصوتي الحية */
     .call-live-panel {
       flex-shrink: 0;
       display: none;
       flex-direction: column;
       gap: 8px;
       padding: 10px 14px;
-      background: linear-gradient(180deg, rgba(11, 44, 54, 0.96), rgba(7, 25, 34, 0.96));
-      border-bottom: 1px solid rgba(137, 179, 107, 0.34);
+      background: linear-gradient(180deg, rgba(11, 55, 71, 0.96), rgba(7, 26, 36, 0.96));
+      border-bottom: 1px solid var(--border-strong);
     }
 
     .call-live-panel.active {
@@ -413,7 +435,7 @@
       border-radius: 14px;
       overflow: hidden;
       background: #030a0e;
-      border: 1px solid rgba(137, 179, 107, 0.32);
+      border: 1px solid var(--border-strong);
     }
 
     .video-stage.active {
@@ -434,8 +456,8 @@
       height: 120px;
       border-radius: 10px;
       object-fit: cover;
-      border: 1.5px solid var(--olive);
-      background: #0b202b;
+      border: 1.5px solid var(--cyan-glow);
+      background: #0a2633;
     }
 
     .call-controls-row {
@@ -445,7 +467,7 @@
       flex-wrap: wrap;
       gap: 8px;
       font-size: 12.5px;
-      color: #d8ecc4;
+      color: #e0f2fe;
       font-weight: 700;
     }
 
@@ -458,11 +480,10 @@
       flex-direction: column;
       gap: 10px;
       background:
-        radial-gradient(circle at 50% 0%, rgba(137, 179, 107, 0.05), transparent 45%),
-        #051016;
+        radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.08), transparent 45%),
+        #051219;
     }
 
-    /* ترتيب الرسائل: رسائلي يمين ورسائل الطرف الآخر شمال بوضوح */
     .msg-row {
       display: flex;
       width: 100%;
@@ -482,18 +503,25 @@
       border-radius: 16px;
       background: var(--bg-card);
       border: 1px solid var(--border);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.28);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .msg-bubble.selected {
+      outline: 2px solid var(--cyan-glow);
+      background: #123b4f;
     }
 
     .msg-row.mine .msg-bubble {
-      background: linear-gradient(135deg, #0d3f4e, #0a313e);
-      border-color: rgba(137, 179, 107, 0.36);
+      background: linear-gradient(135deg, #0d4b61, #093546);
+      border-color: rgba(56, 189, 248, 0.42);
       border-top-right-radius: 4px;
     }
 
     .msg-row.theirs .msg-bubble {
-      background: #0f2532;
-      border-color: rgba(56, 189, 248, 0.2);
+      background: #0d2938;
+      border-color: rgba(56, 189, 248, 0.22);
       border-top-left-radius: 4px;
     }
 
@@ -501,13 +529,12 @@
       font-size: 11.5px;
       color: #cbe4ee;
       background: rgba(0, 0, 0, 0.25);
-      border-right: 3px solid var(--olive);
+      border-right: 3px solid var(--cyan-glow);
       padding: 5px 8px;
       border-radius: 7px;
       margin-bottom: 6px;
     }
 
-    /* خط رسمي مريح للعين لعرض الرسائل الطويلة والقصيرة */
     .msg-body {
       font-size: 15px;
       line-height: 1.7;
@@ -521,13 +548,29 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: rgba(0, 0, 0, 0.24);
-      border: 1px solid rgba(137, 179, 107, 0.3);
+      background: rgba(0, 0, 0, 0.26);
+      border: 1px solid rgba(56, 189, 248, 0.35);
       border-radius: 12px;
       padding: 6px 10px;
       margin-bottom: 5px;
       font-size: 12.5px;
-      color: #dff0ce;
+      color: #e0f2fe;
+    }
+
+    .msg-media-preview {
+      margin-bottom: 6px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      max-width: 280px;
+    }
+
+    .msg-media-preview img,
+    .msg-media-preview video {
+      display: block;
+      width: 100%;
+      max-height: 220px;
+      object-fit: cover;
     }
 
     .msg-foot {
@@ -541,30 +584,41 @@
     }
 
     .read-marks {
-      color: var(--olive);
+      color: var(--cyan-glow);
       font-weight: 800;
     }
 
-    .msg-actions {
+    .selection-bar {
+      flex-shrink: 0;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 14px;
+      background: #0d3647;
+      border-top: 1px solid var(--border-strong);
+      font-size: 12.5px;
+    }
+
+    .selection-bar.open {
       display: flex;
-      gap: 6px;
-      margin-top: 7px;
-      flex-wrap: wrap;
     }
 
     .mini-btn {
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.1);
       color: var(--text);
       border: none;
-      border-radius: 7px;
-      padding: 4px 9px;
-      font-size: 11.5px;
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 700;
       cursor: pointer;
       font-family: inherit;
     }
 
     .mini-btn.danger {
-      color: #fca5a5;
+      background: rgba(239, 68, 68, 0.22);
+      color: #fecaca;
     }
 
     .reply-bar {
@@ -579,7 +633,6 @@
       font-size: 12px;
     }
 
-    /* صندوق كتابة واسع مريح لمراجعة الرسائل الطويلة (200-500+ حرف) */
     .composer-wrap {
       flex-shrink: 0;
       background: var(--bg-card);
@@ -607,15 +660,15 @@
 
     .composer-input {
       flex: 1;
-      min-height: 54px;
-      max-height: 220px;
+      min-height: 76px;
+      max-height: 260px;
       overflow-y: auto;
       resize: none;
       background: var(--bg-input);
       color: var(--text);
       border: 1px solid var(--border);
       border-radius: 18px;
-      padding: 11px 14px;
+      padding: 12px 14px;
       font-size: 15px;
       line-height: 1.65;
       font-family: inherit;
@@ -623,16 +676,16 @@
     }
 
     .composer-input:focus {
-      border-color: var(--olive);
+      border-color: var(--cyan-glow);
     }
 
     .send-fab {
-      width: 44px;
-      height: 44px;
+      width: 46px;
+      height: 46px;
       border-radius: 50%;
       border: none;
-      background: linear-gradient(135deg, #14b8a6, #0d9488);
-      color: #041d22;
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      color: #ffffff;
       font-size: 17px;
       font-weight: 800;
       cursor: pointer;
@@ -643,12 +696,11 @@
     }
 
     .mic-btn.recording {
-      background: rgba(239, 68, 68, 0.22);
+      background: rgba(239, 68, 68, 0.25);
       border-color: #ef4444;
       color: #fecaca;
     }
 
-    /* الإعدادات والقوائم القابلة للطي بسهم حتى لا يكون الكلام مرصوفاً */
     .panel-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -672,7 +724,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      border-bottom: 1px solid rgba(56, 189, 248, 0.09);
+      border-bottom: 1px solid rgba(56, 189, 248, 0.12);
       cursor: pointer;
       transition: background 0.15s ease;
     }
@@ -692,9 +744,9 @@
       gap: 6px;
       padding: 5px 12px;
       border-radius: 999px;
-      background: var(--olive-soft);
-      border: 1px solid rgba(137, 179, 107, 0.36);
-      color: #d8ecc4;
+      background: rgba(14, 165, 233, 0.18);
+      border: 1px solid rgba(56, 189, 248, 0.42);
+      color: #e0f2fe;
       font-size: 12px;
       font-weight: 700;
       flex-shrink: 0;
@@ -725,7 +777,7 @@
 
     input:focus,
     select:focus {
-      border-color: var(--olive);
+      border-color: var(--cyan-glow);
     }
 
     .action-btn {
@@ -743,8 +795,8 @@
     }
 
     .btn-primary {
-      background: var(--brand-accent);
-      color: #041d22;
+      background: #0ea5e9;
+      color: #03151e;
     }
 
     .btn-secondary {
@@ -766,8 +818,8 @@
     }
 
     .generated-code-box {
-      background: #051117;
-      border: 1px dashed rgba(137, 179, 107, 0.52);
+      background: #05131a;
+      border: 1px dashed rgba(56, 189, 248, 0.55);
       border-radius: 12px;
       padding: 10px 13px;
       display: flex;
@@ -780,15 +832,15 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
       font-size: 18px;
       font-weight: 800;
-      color: #d8ecc4;
+      color: #7dd3fc;
       letter-spacing: 2px;
       direction: ltr;
     }
 
     .bottom-dock {
       flex-shrink: 0;
-      background: rgba(11, 32, 43, 0.98);
-      border-top: 1px solid var(--border);
+      background: #07222e;
+      border-top: 1px solid var(--border-strong);
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       padding: 6px 4px;
@@ -810,7 +862,7 @@
     }
 
     .dock-btn.active {
-      color: var(--olive);
+      color: #7dd3fc;
     }
 
     .dock-icon {
@@ -823,9 +875,9 @@
       bottom: calc(70px + var(--safe-bottom));
       left: 50%;
       transform: translateX(-50%);
-      background: var(--brand-teal);
+      background: #0b4a60;
       color: #fff;
-      border: 1px solid var(--olive);
+      border: 1px solid var(--cyan-glow);
       padding: 8px 16px;
       border-radius: 999px;
       font-size: 12px;
@@ -870,19 +922,20 @@
 </head>
 <body>
   <div class="app-frame">
-    <!-- 1. الشاشة الرئيسية: الدردشات والمجتمعات -->
+    <!-- 1. الشاشة الرئيسية -->
     <section class="screen active" data-screen="chats">
       <header class="top-bar">
         <div class="brand-title-wrap">
-          <div class="brand-badge">
-            <img src="./icons/sanad-icon.svg?v=10" alt="سند AI" onerror="this.src='./icons/icon-192.png?v=10'" />
+          <div class="brand-badge" id="main-brand-badge">
+            <img src="./icons/sanad-icon.svg?v=11" alt="سند AI" onerror="this.onerror=null;this.src='./icons/icon-192.png?v=11';this.onerror=function(){this.closest('.brand-badge').classList.add('missing-img');};" />
+            <span class="fallback-s">س</span>
           </div>
           <div>
             <h1 class="brand-heading">
               <span>سند AI</span>
-              <span class="online-lamp" title="متصل ونشط"></span>
+              <span class="online-lamp" title="متصل عبر الذكاء الاصطناعي والأقمار الصناعية"></span>
             </h1>
-            <div class="brand-tag">متصل • Sanad AI Communication Platform</div>
+            <div class="brand-tag">سند • الذكاء الاصطناعي والأقمار الصناعية واتصال بلا حدود</div>
           </div>
         </div>
         <div class="header-actions">
@@ -910,25 +963,26 @@
       <header class="top-bar">
         <div class="brand-title-wrap">
           <div class="brand-badge">
-            <img src="./icons/sanad-icon.svg?v=10" alt="سند AI" onerror="this.src='./icons/icon-192.png?v=10'" />
+            <img src="./icons/sanad-icon.svg?v=11" alt="سند AI" onerror="this.onerror=null;this.src='./icons/icon-192.png?v=11';this.onerror=function(){this.closest('.brand-badge').classList.add('missing-img');};" />
+            <span class="fallback-s">س</span>
           </div>
           <div>
             <h1 class="brand-heading">
               <span>المكالمات</span>
               <span class="online-lamp" title="جاهز للاتصال"></span>
             </h1>
-            <div class="brand-tag">اتصال صوتي ومرئي مباشر</div>
+            <div class="brand-tag">اتصال صوتي ومرئي مباشر عبر الشبكة والأقمار الصناعية</div>
           </div>
         </div>
       </header>
       <div class="scroll-area">
         <div class="panel-card">
+          <div class="sub-note" id="call-live-status">الكود النشط متصل تلقائياً -- اضغط للاتصال أو أدخل كوداً جديداً فقط عند الحاجة</div>
           <div class="flex-row">
-            <input type="text" id="call-target" placeholder="أدخل الرقم أو الكود..." style="flex:1;min-width:160px;direction:ltr;" />
+            <input type="text" id="call-target" placeholder="كود أو رقم إضافي (اختياري)" style="flex:1;min-width:160px;direction:ltr;" />
             <button type="button" class="action-btn btn-primary" id="voice-call-btn">🔊 صوتية</button>
             <button type="button" class="action-btn btn-secondary" id="video-call-btn">📹 فيديو</button>
           </div>
-          <div class="sub-note" id="call-live-status">جاهز للاتصال</div>
         </div>
         <div id="calls-history-list"></div>
       </div>
@@ -939,14 +993,15 @@
       <header class="top-bar">
         <div class="brand-title-wrap">
           <div class="brand-badge">
-            <img src="./icons/sanad-icon.svg?v=10" alt="مساعد سند AI" onerror="this.src='./icons/icon-192.png?v=10'" />
+            <img src="./icons/sanad-icon.svg?v=11" alt="مساعد سند AI" onerror="this.onerror=null;this.src='./icons/icon-192.png?v=11';this.onerror=function(){this.closest('.brand-badge').classList.add('missing-img');};" />
+            <span class="fallback-s">س</span>
           </div>
           <div>
             <h1 class="brand-heading">
               <span>مساعد سند AI</span>
               <span class="online-lamp" title="نشط"></span>
             </h1>
-            <div class="brand-tag">ترجمة فورية • تلخيص صوتي • صياغة احترافية</div>
+            <div class="brand-tag">ذكاء اصطناعي • ترجمة فورية • تلخيص • صياغة احترافية</div>
           </div>
         </div>
       </header>
@@ -960,7 +1015,7 @@
         </div>
       </div>
       <div class="composer-bar" style="padding:9px 12px;background:var(--bg-card);border-top:1px solid var(--border);">
-        <textarea class="composer-input" id="ai-input" rows="2" placeholder="اكتب رسالتك أو النص لمساعد سند AI..."></textarea>
+        <textarea class="composer-input" id="ai-input" rows="3" placeholder="اكتب رسالتك أو النص لمساعد سند AI..."></textarea>
         <button type="button" class="send-fab" id="ai-send-btn">➤</button>
       </div>
     </section>
@@ -970,14 +1025,15 @@
       <header class="top-bar">
         <div class="brand-title-wrap">
           <div class="brand-badge">
-            <img src="./icons/sanad-icon.svg?v=10" alt="سند AI" onerror="this.src='./icons/icon-192.png?v=10'" />
+            <img src="./icons/sanad-icon.svg?v=11" alt="سند AI" onerror="this.onerror=null;this.src='./icons/icon-192.png?v=11';this.onerror=function(){this.closest('.brand-badge').classList.add('missing-img');};" />
+            <span class="fallback-s">س</span>
           </div>
           <div>
             <h1 class="brand-heading">
               <span>الإعدادات</span>
               <span class="online-lamp" title="نشط"></span>
             </h1>
-            <div class="brand-tag">الهوية • القنينة • الإشعارات والتحديثات</div>
+            <div class="brand-tag">سند • الذكاء الاصطناعي والأقمار الصناعية واتصال بلا حدود</div>
           </div>
         </div>
       </header>
@@ -1071,7 +1127,7 @@
             <button type="button" class="action-btn btn-secondary" id="toggle-notif-btn">تفعيل الإشعارات</button>
           </div>
           <div class="flex-row" style="justify-content:space-between;">
-            <span class="sub-note" id="update-status-note">الإصدار v10.0.0 • البيانات محمية</span>
+            <span class="sub-note" id="update-status-note">الإصدار v11.0.0 • البيانات محمية</span>
             <button type="button" class="action-btn btn-primary" id="check-update-btn">تحديث آمن</button>
           </div>
         </div>
@@ -1098,6 +1154,7 @@
     </nav>
   </div>
 
+  <!-- صفحة المحادثة -->
   <div class="thread-overlay" id="thread-screen">
     <header class="thread-top">
       <div class="thread-peer">
@@ -1108,12 +1165,12 @@
             <span id="thread-title">محادثة</span>
             <span class="online-lamp" title="متصل"></span>
           </div>
-          <div class="thread-sub" id="thread-subtitle">متصل</div>
+          <div class="thread-sub" id="thread-subtitle">متصل تلقائياً بالكود</div>
         </div>
       </div>
       <div class="header-actions">
-        <button type="button" class="circle-action" id="thread-voice-call-btn" title="اتصال صوتي">🔊</button>
-        <button type="button" class="circle-action" id="thread-video-call-btn" title="مكالمة فيديو">📹</button>
+        <button type="button" class="circle-action" id="thread-voice-call-btn" title="اتصال صوتي مباشر">🔊</button>
+        <button type="button" class="circle-action" id="thread-video-call-btn" title="مكالمة فيديو مباشرة">📹</button>
       </div>
     </header>
 
@@ -1135,6 +1192,17 @@
 
     <div class="messages-stream" id="thread-messages"></div>
 
+    <!-- شريط الإجراءات يظهر فقط عند تحديد رسالة بالضغط المطوّل أو النقر -->
+    <div class="selection-bar" id="msg-selection-bar">
+      <span id="selected-msg-label">تم تحديد رسالة</span>
+      <div class="flex-row">
+        <button type="button" class="mini-btn" id="sel-reply-btn">رد</button>
+        <button type="button" class="mini-btn danger" id="sel-del-me-btn">حذف من عندي</button>
+        <button type="button" class="mini-btn danger" id="sel-del-both-btn">حذف من عندي وعنده</button>
+        <button type="button" class="mini-btn" id="sel-cancel-btn">إلغاء</button>
+      </div>
+    </div>
+
     <div class="reply-bar" id="thread-reply-strip">
       <span id="thread-reply-label">رد على رسالة</span>
       <button type="button" class="mini-btn" id="thread-cancel-reply">إلغاء</button>
@@ -1142,14 +1210,14 @@
 
     <div class="composer-wrap">
       <div class="composer-meta-bar">
-        <span id="char-counter-label">0 حرف</span>
-        <button type="button" class="mini-btn" id="expand-composer-btn">توسيع الكتابة ⤢</button>
+        <span id="char-counter-label">0 حرف • اضغط على الرسالة لتحديدها</span>
+        <button type="button" class="mini-btn" id="expand-composer-btn">توسيع الخانة ⤢</button>
       </div>
       <div class="composer-bar">
         <button type="button" class="circle-action mic-btn" id="thread-voice-record-btn" title="تسجيل صوتي">🎙️</button>
-        <button type="button" class="circle-action" id="thread-attach-btn" title="مرفق">📎</button>
-        <input type="file" id="thread-file-input" style="display:none;" />
-        <textarea class="composer-input" id="thread-input" rows="2" placeholder="اكتب رسالتك هنا وراجعها براحتك..."></textarea>
+        <button type="button" class="circle-action" id="thread-attach-btn" title="إرسال صور أو فيديو أو ملفات">📎</button>
+        <input type="file" id="thread-file-input" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar" multiple style="display:none;" />
+        <textarea class="composer-input" id="thread-input" rows="3" placeholder="اكتب رسالتك هنا بحرية، راجعها، أو أرفق صوراً وفيديوهات وملفات..."></textarea>
         <button type="button" class="send-fab" id="thread-send-btn">➤</button>
       </div>
     </div>
@@ -1195,10 +1263,10 @@
         replyQuote: null,
         messages: {
           [SUPPORT_CODE]: [
-            { id: '1', text: 'أهلاً بك في الدعم الدولي لمنصة سند AI. تواصل معنا في أي وقت.', time: nowHm(), mine: false, status: 'read' }
+            { id: '1', text: 'أهلاً بك في سند AI -- اتصال ذكي عبر الذكاء الاصطناعي والأقمار الصناعية واتصال بلا حدود.', time: nowHm(), mine: false, status: 'read' }
           ],
           '88704829': [
-            { id: '2', text: 'تم ربط الحساب بنجاح.', time: nowHm(), mine: false, status: 'read' }
+            { id: '2', text: 'تم ربط الكود بنجاح.', time: nowHm(), mine: false, status: 'read' }
           ],
           'grp-global': [
             { id: '3', sender: 'الدعم الدولي', text: 'مرحباً بالجميع في مجتمع سند العالمي.', time: nowHm(), mine: false, status: 'read' }
@@ -1259,6 +1327,7 @@
       }
 
       const db = loadPersistentState();
+      let selectedMsgId = null;
 
       function save() {
         try {
@@ -1291,8 +1360,8 @@
           if ('Notification' in window && Notification.permission === 'granted') {
             new Notification(title, {
               body,
-              icon: './icons/icon-192.png?v=10',
-              badge: './icons/icon-192.png?v=10',
+              icon: './icons/icon-192.png?v=11',
+              badge: './icons/icon-192.png?v=11',
               tag: 'sanad-ai-alert'
             });
           }
@@ -1513,6 +1582,8 @@
 
       function openThread(peerId) {
         db.activeThreadId = peerId;
+        selectedMsgId = null;
+        updateSelectionBar();
         const c = getContact(peerId);
         if (c) c.unread = 0;
         if (!db.messages[peerId]) db.messages[peerId] = [];
@@ -1520,7 +1591,7 @@
         renderChatsOverview(document.getElementById('chat-search-input')?.value || '');
         const screen = document.getElementById('thread-screen');
         document.getElementById('thread-title').textContent = resolveName(peerId);
-        document.getElementById('thread-subtitle').textContent = displayIdentifier(peerId);
+        document.getElementById('thread-subtitle').textContent = `${displayIdentifier(peerId)} • مرتبط بالكود`;
         document.getElementById('thread-avatar').textContent = (resolveName(peerId) || 'س').trim().charAt(0);
         stopLiveCallMedia();
         screen.classList.add('open');
@@ -1534,6 +1605,8 @@
 
       document.getElementById('back-from-thread-btn')?.addEventListener('click', () => {
         stopLiveCallMedia();
+        selectedMsgId = null;
+        updateSelectionBar();
         document.getElementById('thread-screen').classList.remove('open');
         db.replyQuote = null;
         updateReplyStrip();
@@ -1561,8 +1634,8 @@
         document.getElementById('thread-call-panel')?.classList.remove('active');
       }
 
-      async function startThreadCall(isVideo) {
-        const target = db.activeThreadId;
+      async function startThreadCall(isVideo, explicitTarget) {
+        const target = (explicitTarget || db.activeThreadId || SUPPORT_CODE).trim();
         const name = resolveName(target);
         const modeLabel = isVideo ? 'مكالمة فيديو' : 'اتصال صوتي';
         speakerOn = true;
@@ -1699,7 +1772,7 @@
               voiceRecBtn.textContent = '🎙️';
               const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
               const audioUrl = URL.createObjectURL(blob);
-              sendThreadMsg(`🎤 رسالة صوتية (${sec} ث)`, { isVoice: true, audioUrl, durationSec: sec });
+              sendThreadMsg(`🎤 تسجيل صوتي (${sec} ث)`, { isVoice: true, audioUrl, durationSec: sec });
             };
             mediaRecorder.start();
             voiceRecBtn.classList.add('recording');
@@ -1708,8 +1781,29 @@
             return;
           }
         } catch {}
-        sendThreadMsg('🎤 رسالة صوتية (3 ث)', { isVoice: true, durationSec: 3 });
+        sendThreadMsg('🎤 تسجيل صوتي (3 ث)', { isVoice: true, durationSec: 3 });
       });
+
+      function updateSelectionBar() {
+        const bar = document.getElementById('msg-selection-bar');
+        const lbl = document.getElementById('selected-msg-label');
+        const bothBtn = document.getElementById('sel-del-both-btn');
+        if (!bar || !lbl) return;
+        if (!selectedMsgId) {
+          bar.classList.remove('open');
+          return;
+        }
+        const msgs = db.messages[db.activeThreadId] || [];
+        const msg = msgs.find((m) => m.id === selectedMsgId);
+        if (!msg) {
+          selectedMsgId = null;
+          bar.classList.remove('open');
+          return;
+        }
+        lbl.textContent = `محددة: "${msg.text.slice(0, 28)}"`;
+        if (bothBtn) bothBtn.style.display = msg.mine ? 'inline-block' : 'none';
+        bar.classList.add('open');
+      }
 
       function renderThreadMessages() {
         const box = document.getElementById('thread-messages');
@@ -1717,23 +1811,26 @@
         const msgs = db.messages[db.activeThreadId] || [];
         box.innerHTML = msgs.map((m) => {
           const tick = m.mine ? `<span class="read-marks">✓✓</span>` : '';
+          const isSel = m.id === selectedMsgId;
           const voicePlayer = m.isVoice
             ? `<div class="voice-chip"><span>🎙️ تسجيل صوتي (${esc(m.durationSec || 2)} ث)</span>${m.audioUrl ? `<audio controls src="${esc(m.audioUrl)}" style="height:26px;max-width:165px;"></audio>` : ''}</div>`
             : '';
+          let mediaHtml = '';
+          if (m.mediaUrl && m.mediaType === 'image') {
+            mediaHtml = `<div class="msg-media-preview"><img src="${esc(m.mediaUrl)}" alt="${esc(m.fileName || 'صورة')}" /></div>`;
+          } else if (m.mediaUrl && m.mediaType === 'video') {
+            mediaHtml = `<div class="msg-media-preview"><video controls src="${esc(m.mediaUrl)}"></video></div>`;
+          }
           return `
             <div class="msg-row ${m.mine ? 'mine' : 'theirs'}">
-              <div class="msg-bubble">
+              <div class="msg-bubble ${isSel ? 'selected' : ''}" data-select-msg="${esc(m.id)}">
                 ${m.quote ? `<div class="quote-preview">${esc(m.quote)}</div>` : ''}
+                ${mediaHtml}
                 ${voicePlayer}
                 <div class="msg-body">${esc(m.text)}</div>
                 <div class="msg-foot">
                   <span>${esc(m.time)}</span>
                   ${tick}
-                </div>
-                <div class="msg-actions">
-                  <button type="button" class="mini-btn" data-q="${esc(m.text)}">رد</button>
-                  <button type="button" class="mini-btn danger" data-rm-me="${esc(m.id)}">مسح من عندي</button>
-                  ${m.mine ? `<button type="button" class="mini-btn danger" data-rm-both="${esc(m.id)}">مسح من عندي وعنده</button>` : ''}
                 </div>
               </div>
             </div>
@@ -1743,6 +1840,64 @@
           box.scrollTop = box.scrollHeight;
         });
       }
+
+      document.getElementById('thread-messages')?.addEventListener('click', (e) => {
+        if (e.target.closest('audio, video')) return;
+        const bubble = e.target.closest('[data-select-msg]');
+        if (!bubble) {
+          selectedMsgId = null;
+          updateSelectionBar();
+          renderThreadMessages();
+          return;
+        }
+        const mid = bubble.getAttribute('data-select-msg');
+        selectedMsgId = selectedMsgId === mid ? null : mid;
+        updateSelectionBar();
+        renderThreadMessages();
+      });
+
+      document.getElementById('sel-reply-btn')?.addEventListener('click', () => {
+        if (!selectedMsgId) return;
+        const msg = (db.messages[db.activeThreadId] || []).find((x) => x.id === selectedMsgId);
+        if (msg) {
+          db.replyQuote = msg.text;
+          updateReplyStrip();
+        }
+        selectedMsgId = null;
+        updateSelectionBar();
+        renderThreadMessages();
+        threadInput?.focus();
+      });
+
+      document.getElementById('sel-del-me-btn')?.addEventListener('click', () => {
+        if (!selectedMsgId) return;
+        db.messages[db.activeThreadId] = (db.messages[db.activeThreadId] || []).filter((x) => x.id !== selectedMsgId);
+        selectedMsgId = null;
+        updateSelectionBar();
+        save();
+        renderThreadMessages();
+        toast('تم الحذف من عندك');
+      });
+
+      document.getElementById('sel-del-both-btn')?.addEventListener('click', () => {
+        if (!selectedMsgId) return;
+        const mid = selectedMsgId;
+        db.messages[db.activeThreadId] = (db.messages[db.activeThreadId] || []).filter((x) => x.id !== mid);
+        if (window.sanadSync && typeof window.sanadSync.deleteMessageForBoth === 'function') {
+          window.sanadSync.deleteMessageForBoth(db.activeThreadId, mid);
+        }
+        selectedMsgId = null;
+        updateSelectionBar();
+        save();
+        renderThreadMessages();
+        toast('تم الحذف من عندك وعنده');
+      });
+
+      document.getElementById('sel-cancel-btn')?.addEventListener('click', () => {
+        selectedMsgId = null;
+        updateSelectionBar();
+        renderThreadMessages();
+      });
 
       function updateReplyStrip() {
         const strip = document.getElementById('thread-reply-strip');
@@ -1763,10 +1918,10 @@
       function updateComposerLayout() {
         if (!threadInput) return;
         const len = threadInput.value.length;
-        if (charCounterLabel) charCounterLabel.textContent = `${len} حرف`;
+        if (charCounterLabel) charCounterLabel.textContent = `${len} حرف • اضغط على الرسالة لتحديدها`;
         threadInput.style.height = 'auto';
-        const maxH = composerExpanded ? 320 : 210;
-        const minH = composerExpanded ? 150 : 54;
+        const maxH = composerExpanded ? 340 : 230;
+        const minH = composerExpanded ? 170 : 76;
         threadInput.style.height = Math.max(minH, Math.min(threadInput.scrollHeight, maxH)) + 'px';
       }
 
@@ -1774,19 +1929,19 @@
 
       document.getElementById('expand-composer-btn')?.addEventListener('click', (e) => {
         composerExpanded = !composerExpanded;
-        e.target.textContent = composerExpanded ? 'تصغير ⤡' : 'توسيع الكتابة ⤢';
+        e.target.textContent = composerExpanded ? 'تصغير الخانة ⤡' : 'توسيع الخانة ⤢';
         updateComposerLayout();
         threadInput?.focus();
       });
 
       function sendThreadMsg(textOverride, extra = {}) {
         const text = String(textOverride !== undefined ? textOverride : (threadInput?.value || '')).trim();
-        if (!text) return;
+        if (!text && !extra.mediaUrl) return;
         const id = db.activeThreadId;
         if (!db.messages[id]) db.messages[id] = [];
         db.messages[id].push({
-          id: 'm-' + Date.now(),
-          text,
+          id: 'm-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+          text: text || (extra.fileName ? `📎 ${extra.fileName}` : 'مرفق'),
           quote: db.replyQuote || null,
           time: nowHm(),
           mine: true,
@@ -1798,13 +1953,13 @@
           threadInput.value = '';
           composerExpanded = false;
           const expBtn = document.getElementById('expand-composer-btn');
-          if (expBtn) expBtn.textContent = 'توسيع الكتابة ⤢';
+          if (expBtn) expBtn.textContent = 'توسيع الخانة ⤢';
           updateComposerLayout();
         }
         updateReplyStrip();
         save();
         renderThreadMessages();
-        triggerSystemNotification(`سند AI • ${resolveName(id)}`, text);
+        triggerSystemNotification(`سند AI • ${resolveName(id)}`, text || extra.fileName || 'مرفق جديد');
       }
 
       document.getElementById('thread-send-btn')?.addEventListener('click', () => sendThreadMsg());
@@ -1813,43 +1968,24 @@
         updateReplyStrip();
       });
 
-      document.getElementById('thread-messages')?.addEventListener('click', (e) => {
-        const qBtn = e.target.closest('[data-q]');
-        if (qBtn) {
-          db.replyQuote = qBtn.getAttribute('data-q');
-          updateReplyStrip();
-          threadInput?.focus();
-          return;
-        }
-        const rmMeBtn = e.target.closest('[data-rm-me]');
-        if (rmMeBtn) {
-          const mid = rmMeBtn.getAttribute('data-rm-me');
-          db.messages[db.activeThreadId] = (db.messages[db.activeThreadId] || []).filter((x) => x.id !== mid);
-          save();
-          renderThreadMessages();
-          toast('تم المسح من عندك');
-          return;
-        }
-        const rmBothBtn = e.target.closest('[data-rm-both]');
-        if (rmBothBtn) {
-          const mid = rmBothBtn.getAttribute('data-rm-both');
-          db.messages[db.activeThreadId] = (db.messages[db.activeThreadId] || []).filter((x) => x.id !== mid);
-          if (window.sanadSync && typeof window.sanadSync.deleteMessageForBoth === 'function') {
-            window.sanadSync.deleteMessageForBoth(db.activeThreadId, mid);
-          }
-          save();
-          renderThreadMessages();
-          toast('تم المسح من عندك وعند الطرف الآخر');
-        }
-      });
-
       document.getElementById('thread-attach-btn')?.addEventListener('click', () => {
         document.getElementById('thread-file-input')?.click();
       });
 
       document.getElementById('thread-file-input')?.addEventListener('change', (e) => {
-        const f = e.target.files && e.target.files[0];
-        if (f) sendThreadMsg(`📎 مرفق: ${f.name}`);
+        const files = Array.from(e.target.files || []);
+        files.forEach((f) => {
+          const isImg = f.type && f.type.startsWith('image/');
+          const isVid = f.type && f.type.startsWith('video/');
+          const url = URL.createObjectURL(f);
+          if (isImg) {
+            sendThreadMsg(`🖼️ صورة: ${f.name}`, { mediaUrl: url, mediaType: 'image', fileName: f.name });
+          } else if (isVid) {
+            sendThreadMsg(`🎬 فيديو: ${f.name}`, { mediaUrl: url, mediaType: 'video', fileName: f.name });
+          } else {
+            sendThreadMsg(`📎 ملف: ${f.name}`, { fileName: f.name });
+          }
+        });
         e.target.value = '';
       });
 
@@ -1907,15 +2043,13 @@
 
       function makeCall(isVideo) {
         const rawTarget = (document.getElementById('call-target')?.value || '').trim();
-        if (!rawTarget) {
-          toast('أدخل الرقم أو الكود أولاً');
-          return;
+        const fallbackPeer = db.activeThreadId || (db.contacts[0] && db.contacts[0].id) || SUPPORT_CODE;
+        const target = rawTarget || fallbackPeer;
+        if (!db.contacts.some((c) => c.id === target)) {
+          db.messages[target] = db.messages[target] || [];
         }
-        if (!db.contacts.some((c) => c.id === rawTarget)) {
-          db.messages[rawTarget] = db.messages[rawTarget] || [];
-        }
-        openThread(rawTarget);
-        startThreadCall(isVideo);
+        openThread(target);
+        startThreadCall(isVideo, target);
       }
 
       document.getElementById('voice-call-btn')?.addEventListener('click', () => makeCall(false));
@@ -2066,12 +2200,12 @@
           const res = await fetch('./api/health', { cache: 'no-store' });
           if (res.ok) {
             const data = await res.json();
-            if (note) note.textContent = `محدث • الإصدار v${data.version || '10.0.0'} • كل بياناتك محفوظة`;
+            if (note) note.textContent = `محدث • الإصدار v${data.version || '11.0.0'} • كل بياناتك محفوظة`;
             toast('تم التحديث بأمان دون مسح أي بيانات');
             return;
           }
         } catch {}
-        if (note) note.textContent = 'الإصدار v10.0.0 • البيانات محمية';
+        if (note) note.textContent = 'الإصدار v11.0.0 • البيانات محمية';
         toast('تم التحقق بأمان');
       });
 
@@ -2082,7 +2216,7 @@
         const ctBox = document.getElementById('ct-saved-list');
         if (ctBox) {
           ctBox.innerHTML = db.contacts.filter((c) => !c.isGroup).map((c) => `
-            <div class="flex-row" style="justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(56,189,248,0.1);">
+            <div class="flex-row" style="justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(56,189,248,0.12);">
               <div><strong>${esc(c.name)}</strong> <span class="sub-note" style="display:inline-block;">${esc(displayIdentifier(c.id))}</span></div>
               <button type="button" class="mini-btn" data-open-thread="${esc(c.id)}">فتح</button>
             </div>
@@ -2097,7 +2231,7 @@
 
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js?v=10').catch(() => {});
+          navigator.serviceWorker.register('./sw.js?v=11').catch(() => {});
         });
       }
 

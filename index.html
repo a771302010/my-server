@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>سند AI -- الإصدار 9.0.0</title>
+  <title>سند AI — الإصدار 9.0.0</title>
 
   <meta name="theme-color" content="#071922" />
   <meta name="msapplication-TileColor" content="#071922" />
@@ -26,12 +26,14 @@
       --bg-card-2: #112c3b;
       --bg-input: #091922;
       --border: rgba(56, 189, 248, 0.16);
-      --border-strong: rgba(20, 184, 166, 0.34);
+      --border-strong: rgba(20, 184, 166, 0.36);
       --text: #f1f8fb;
       --text-sub: #94b3c2;
       --brand-teal: #0b3b49;
       --brand-accent: #14b8a6;
       --brand-cyan: #38bdf8;
+      --phosphor: #4df8c8;
+      --phosphor-glow: 0 0 12px rgba(77, 248, 200, 0.55), 0 0 24px rgba(56, 189, 248, 0.25);
       --brand-glow: rgba(20, 184, 166, 0.22);
       --danger: #ef4444;
       --safe-top: env(safe-area-inset-top, 0px);
@@ -51,8 +53,8 @@
       height: 100dvh;
       overflow: hidden;
       background:
-        radial-gradient(circle at 85% 8%, rgba(20, 184, 166, 0.14), transparent 36%),
-        radial-gradient(circle at 12% 92%, rgba(56, 189, 248, 0.12), transparent 40%),
+        radial-gradient(circle at 85% 8%, rgba(20, 184, 166, 0.15), transparent 36%),
+        radial-gradient(circle at 12% 92%, rgba(56, 189, 248, 0.13), transparent 40%),
         var(--bg-app);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Arial, sans-serif;
@@ -71,7 +73,7 @@
       padding-top: var(--safe-top);
       padding-bottom: var(--safe-bottom);
       position: relative;
-      box-shadow: 0 0 60px rgba(0, 0, 0, 0.65);
+      box-shadow: 0 0 60px rgba(0, 0, 0, 0.72);
     }
 
     .screen {
@@ -88,9 +90,9 @@
 
     .top-bar {
       flex-shrink: 0;
-      min-height: 62px;
+      min-height: 64px;
       padding: 10px 16px;
-      background: linear-gradient(180deg, rgba(12, 33, 44, 0.96), rgba(7, 22, 30, 0.96));
+      background: linear-gradient(180deg, rgba(12, 33, 44, 0.98), rgba(7, 22, 30, 0.96));
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
@@ -106,9 +108,9 @@
     }
 
     .brand-badge {
-      width: 38px;
-      height: 38px;
-      border-radius: 12px;
+      width: 40px;
+      height: 40px;
+      border-radius: 13px;
       background: linear-gradient(135deg, var(--brand-teal), #06212b);
       border: 1px solid var(--border-strong);
       display: inline-flex;
@@ -116,7 +118,7 @@
       justify-content: center;
       overflow: hidden;
       flex-shrink: 0;
-      box-shadow: 0 4px 16px var(--brand-glow);
+      box-shadow: 0 4px 18px var(--brand-glow);
     }
 
     .brand-badge img {
@@ -134,9 +136,49 @@
     }
 
     .brand-tag {
-      font-size: 11px;
-      color: #5eead4;
-      font-weight: 600;
+      font-size: 11.5px;
+      color: var(--phosphor);
+      font-weight: 700;
+      text-shadow: var(--phosphor-glow);
+      margin-top: 2px;
+    }
+
+    .sat-hero-banner {
+      flex-shrink: 0;
+      margin: 10px 14px 4px;
+      padding: 10px 14px;
+      border-radius: 15px;
+      background:
+        linear-gradient(115deg, rgba(11, 59, 73, 0.72), rgba(7, 25, 34, 0.92)),
+        radial-gradient(circle at 15% 50%, rgba(77, 248, 200, 0.14), transparent 55%);
+      border: 1px solid rgba(77, 248, 200, 0.28);
+      box-shadow: inset 0 0 18px rgba(20, 184, 166, 0.08);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sat-pulse-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--phosphor);
+      box-shadow: var(--phosphor-glow);
+      flex-shrink: 0;
+      animation: satPulse 2.4s infinite ease-in-out;
+    }
+
+    @keyframes satPulse {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.28); opacity: 1; }
+    }
+
+    .sat-hero-text {
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--phosphor);
+      font-weight: 700;
+      text-shadow: var(--phosphor-glow);
     }
 
     .header-actions {
@@ -168,7 +210,7 @@
 
     .search-strip {
       flex-shrink: 0;
-      padding: 10px 14px;
+      padding: 8px 14px 10px;
       background: var(--bg-shell);
       border-bottom: 1px solid rgba(56, 189, 248, 0.08);
     }
@@ -192,7 +234,7 @@
       flex: 1;
       min-height: 0;
       overflow-y: auto;
-      padding: 12px 14px 18px;
+      padding: 10px 14px 20px;
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -204,8 +246,8 @@
       gap: 12px;
       padding: 11px 12px;
       border-radius: 16px;
-      background: rgba(12, 33, 44, 0.72);
-      border: 1px solid rgba(56, 189, 248, 0.1);
+      background: rgba(12, 33, 44, 0.74);
+      border: 1px solid rgba(56, 189, 248, 0.11);
       cursor: pointer;
       transition: background 0.15s ease, border-color 0.15s ease;
     }
@@ -289,7 +331,7 @@
       flex-shrink: 0;
     }
 
-    /* شاشة المحادثة الكاملة */
+    /* صفحة المحادثة الفردية أو الجماعية الكاملة */
     .thread-overlay {
       position: fixed;
       inset: 0;
@@ -594,7 +636,7 @@
 
     .generated-code-box {
       background: #051117;
-      border: 1px dashed rgba(20, 184, 166, 0.55);
+      border: 1px dashed rgba(77, 248, 200, 0.55);
       border-radius: 12px;
       padding: 10px 13px;
       display: flex;
@@ -607,7 +649,8 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
       font-size: 18px;
       font-weight: 800;
-      color: #5eead4;
+      color: var(--phosphor);
+      text-shadow: var(--phosphor-glow);
       letter-spacing: 2px;
       direction: ltr;
     }
@@ -637,7 +680,7 @@
     }
 
     .dock-btn.active {
-      color: #5eead4;
+      color: var(--phosphor);
     }
 
     .dock-icon {
@@ -679,7 +722,7 @@
           </div>
           <div>
             <h1 class="brand-heading">سند AI</h1>
-            <div class="brand-tag">منصة التواصل الذكية • v9.0.0</div>
+            <div class="brand-tag">منصة الاتصالات والأقمار الذكية • v9.0.0</div>
           </div>
         </div>
         <div class="header-actions">
@@ -687,6 +730,12 @@
           <button type="button" class="circle-action" id="new-group-quick-btn" title="مجموعة جديدة">👥</button>
         </div>
       </header>
+
+      <div class="sat-hero-banner">
+        <span class="sat-pulse-dot"></span>
+        <div class="sat-hero-text">🛰️ سند AI — ربط فوري عابر للحدود عبر شبكات الأقمار الصناعية والذكاء الاصطناعي بلا انقطاع</div>
+      </div>
+
       <div class="search-strip">
         <input type="search" class="search-field" id="chat-search-input" placeholder="ابحث باسم جهة الاتصال أو الرقم أو الكود..." />
       </div>
@@ -707,7 +756,7 @@
       <div class="scroll-area">
         <div class="panel-card">
           <div class="flex-row">
-            <input type="text" id="call-target" placeholder="أدخل رقم الهاتف أو الكود للاتصال" style="flex:1;min-width:160px;" />
+            <input type="text" id="call-target" placeholder="أدخل رقم الهاتف أو الكود للاتصال" style="flex:1;min-width:160px;direction:ltr;" />
             <button type="button" class="action-btn btn-primary" id="voice-call-btn">📞 صوتية</button>
             <button type="button" class="action-btn btn-secondary" id="video-call-btn">🎥 مرئية</button>
           </div>
@@ -760,7 +809,7 @@
               <div class="avatar-circle" id="my-avatar-letter">س</div>
               <div>
                 <div style="font-weight:800;font-size:15px;" id="my-display-name">مستخدم سند</div>
-                <div class="sub-note" id="my-display-code" style="direction:ltr;text-align:right;">+1 555 010 9900</div>
+                <div class="sub-note" id="my-display-code" style="direction:ltr;text-align:right;">88000008</div>
               </div>
             </div>
             <span class="sub-note">الحساب النشط</span>
@@ -771,21 +820,21 @@
           <div class="menu-row" data-acc-tab="self">
             <div>
               <div style="font-weight:700;">🔑 توليد كود ذاتي</div>
-              <div class="sub-note">تعيين كود أو معرّف خاص بك وتفعيله</div>
+              <div class="sub-note">تعيين كود يبدأ بـ 88 أو معرّف خاص بك وتفعيله</div>
             </div>
             <span class="sub-note">فتح ›</span>
           </div>
           <div class="menu-row" data-acc-tab="auto8">
             <div>
               <div style="font-weight:700;">🎲 توليد كود آلي (8 أرقام)</div>
-              <div class="sub-note">إنشاء كود فوري من 8 أرقام مع نسخ واعتماد</div>
+              <div class="sub-note">إنشاء كود فوري من 8 أرقام يبدأ بـ 88 مع نسخ واعتماد</div>
             </div>
             <span class="sub-note">فتح ›</span>
           </div>
           <div class="menu-row" data-acc-tab="carrier">
             <div>
-              <div style="font-weight:700;">🌐 رقم دولي / شركة اتصالات</div>
-              <div class="sub-note">تفعيل رقم دولي مع مفتاح الدولة</div>
+              <div style="font-weight:700;">🌐 رقم دولي / رقم شريحة شخصي</div>
+              <div class="sub-note">تفعيل رقم شريحتك أو أي رقم دولي مع مفتاح الدولة</div>
             </div>
             <span class="sub-note">فتح ›</span>
           </div>
@@ -802,17 +851,17 @@
         <div class="panel-card hidden-drawer" id="panel-self">
           <div style="font-weight:700;">توليد / إدخال كود ذاتي</div>
           <div class="flex-row">
-            <input type="text" id="self-code" placeholder="كودك الخاص مثل SANAD-PRO أو 99441122" style="flex:1;min-width:150px;" />
+            <input type="text" id="self-code" placeholder="مثال: 88451209 أو كود يبدأ بـ 88" style="flex:1;min-width:150px;direction:ltr;" />
             <input type="text" id="self-name" placeholder="اسمك الظاهر" style="flex:1;min-width:130px;" />
             <button type="button" class="action-btn btn-primary" id="save-self-btn">تفعيل</button>
           </div>
         </div>
 
-        <!-- لوحة توليد 8 أرقام (مخفية افتراضياً) -->
+        <!-- لوحة توليد 8 أرقام تبدأ بـ 88 (مخفية افتراضياً) -->
         <div class="panel-card hidden-drawer" id="panel-auto8">
-          <div style="font-weight:700;">توليد كود آلي من 8 أرقام</div>
+          <div style="font-weight:700;">توليد كود آلي من 8 أرقام (يبدأ بـ 88)</div>
           <div class="generated-code-box">
-            <span class="generated-code-value" id="code8-display">12345678</span>
+            <span class="generated-code-value" id="code8-display">88123456</span>
             <div class="flex-row">
               <button type="button" class="action-btn btn-secondary" id="gen8-btn">توليد</button>
               <button type="button" class="action-btn btn-secondary" id="copy8-btn">نسخ</button>
@@ -820,16 +869,16 @@
           </div>
           <div class="flex-row">
             <input type="text" id="auto8-name" placeholder="اسم الحساب (اختياري)" style="flex:1;min-width:140px;" />
-            <button type="button" class="action-btn btn-primary" id="use8-btn">اعتماد الكود</button>
+            <button type="button" class="action-btn btn-primary" id="use8-btn">اعتماد وتفعيل</button>
           </div>
         </div>
 
-        <!-- لوحة رقم دولي (مخفية افتراضياً) -->
+        <!-- لوحة رقم دولي / رقم شريحة شخصي (مخفية افتراضياً) -->
         <div class="panel-card hidden-drawer" id="panel-carrier">
-          <div style="font-weight:700;">رقم أي شركة اتصالات (عالمي)</div>
+          <div style="font-weight:700;">تفعيل رقم الشريحة الشخصي أو رقم دولي</div>
           <div class="flex-row">
-            <input type="text" id="intl-dial" placeholder="مفتاح الدولة مثل +1 أو +971 أو +966" style="width:155px;direction:ltr;" />
-            <input type="tel" id="intl-phone" placeholder="رقم الهاتف لأي شركة اتصال" style="flex:1;min-width:150px;direction:ltr;" />
+            <input type="text" id="intl-dial" placeholder="مفتاح الدولة مثل +967 أو +966 أو +1" style="width:165px;direction:ltr;" />
+            <input type="tel" id="intl-phone" placeholder="رقم الشريحة أو الهاتف الدولي" style="flex:1;min-width:150px;direction:ltr;" />
           </div>
           <div class="flex-row">
             <input type="text" id="intl-name" placeholder="الاسم (اختياري)" style="flex:1;min-width:140px;" />
@@ -906,23 +955,28 @@
   <script src="./sanad-audio-media.js"></script>
   <script>
     (() => {
-      const KEY = 'sanad_ai_v9_global_wa_v1';
+      const KEY = 'sanad_ai_v9_global_wa_v2';
+      const SUPPORT_CODE = '80000008';
+
+      function nowHm() {
+        return new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+      }
 
       const initialData = {
         screen: 'chats',
-        me: { id: '+1 555 010 9900', name: 'مستخدم سند' },
+        me: { id: '88000008', name: 'مستخدم سند' },
         contacts: [
-          { id: '+1 555 010 8822', name: 'الدعم الدولي', isGroup: false, unread: 1 },
-          { id: '70482915', name: 'حساب بكود 8 أرقام', isGroup: false, unread: 0 },
-          { id: 'grp-global', name: 'مجموعة سند العالمية', isGroup: true, members: ['+1 555 010 9900', '+1 555 010 8822'], unread: 2 }
+          { id: SUPPORT_CODE, name: 'الدعم الدولي', isGroup: false, hideCodeInLabel: true, unread: 1 },
+          { id: '88704829', name: 'حساب بكود 8 أرقام', isGroup: false, unread: 0 },
+          { id: 'grp-global', name: 'مجموعة سند العالمية', isGroup: true, members: ['88704829', SUPPORT_CODE], unread: 2 }
         ],
-        activeThreadId: '+1 555 010 8822',
+        activeThreadId: SUPPORT_CODE,
         replyQuote: null,
         messages: {
-          '+1 555 010 8822': [
-            { id: '1', text: 'أهلاً بك في سند AI. يمكنك المراسلة عبر أي رقم دولي أو كود مخصص أو كود من 8 أرقام.', time: nowHm(), mine: false, status: 'read' }
+          [SUPPORT_CODE]: [
+            { id: '1', text: 'أهلاً بك في الدعم الدولي لمنصة سند AI. تواصل معنا في أي وقت عبر القناة المباشرة.', time: nowHm(), mine: false, status: 'read' }
           ],
-          '70482915': [
+          '88704829': [
             { id: '2', text: 'تم ربط الكود بنجاح.', time: nowHm(), mine: false, status: 'read' }
           ],
           'grp-global': [
@@ -934,10 +988,6 @@
           { id: 'a1', text: 'مرحباً بك في مساعد سند AI. اكتب أي نص لتلخيصه أو صياغة رد أو تصنيفه.', time: nowHm(), mine: false }
         ]
       };
-
-      function nowHm() {
-        return new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-      }
 
       function toast(msg) {
         const el = document.getElementById('toast');
@@ -952,13 +1002,24 @@
         return JSON.parse(JSON.stringify(initialData));
       }
 
+      function normalizeCode88(raw) {
+        let s = String(raw || '').trim();
+        if (!s) return '';
+        if (/^\d+$/.test(s)) {
+          if (!s.startsWith('88')) s = '88' + s;
+          if (s.length > 8) s = s.slice(0, 8);
+          while (s.length < 8) s += '0';
+        }
+        return s;
+      }
+
       function load() {
         try {
           const raw = localStorage.getItem(KEY);
           if (!raw) return cloneInitial();
           const parsed = JSON.parse(raw);
           const base = cloneInitial();
-          return Object.assign(base, parsed, {
+          const merged = Object.assign(base, parsed, {
             screen: parsed.screen || 'chats',
             me: Object.assign(base.me, parsed.me || {}),
             contacts: Array.isArray(parsed.contacts) ? parsed.contacts : base.contacts,
@@ -966,6 +1027,22 @@
             calls: Array.isArray(parsed.calls) ? parsed.calls : base.calls,
             ai: Array.isArray(parsed.ai) ? parsed.ai : base.ai
           });
+          // ضمان تحديث الدعم الدولي إلى 80000008 وإخفاء رقمه من الظهور
+          const sup = merged.contacts.find((c) => c.name === 'الدعم الدولي' || c.id === SUPPORT_CODE || c.id === '+1 555 010 8822');
+          if (sup) {
+            const oldId = sup.id;
+            sup.id = SUPPORT_CODE;
+            sup.name = 'الدعم الدولي';
+            sup.hideCodeInLabel = true;
+            if (oldId !== SUPPORT_CODE && merged.messages[oldId]) {
+              merged.messages[SUPPORT_CODE] = merged.messages[oldId];
+              delete merged.messages[oldId];
+            }
+          }
+          if (!merged.messages[SUPPORT_CODE]) {
+            merged.messages[SUPPORT_CODE] = cloneInitial().messages[SUPPORT_CODE];
+          }
+          return merged;
         } catch {
           return cloneInitial();
         }
@@ -988,10 +1065,23 @@
           .replace(/'/g, '&#39;');
       }
 
+      function getContact(id) {
+        return db.contacts.find((c) => c.id === id) || null;
+      }
+
       function resolveName(id) {
         if (id === db.me.id) return db.me.name;
-        const found = db.contacts.find((c) => c.id === id);
+        const found = getContact(id);
         return found ? found.name : id;
+      }
+
+      function displayIdentifier(id) {
+        const found = getContact(id);
+        if (id === SUPPORT_CODE || (found && found.hideCodeInLabel)) {
+          return 'قناة الدعم العالمية';
+        }
+        if (found && found.isGroup) return 'مجموعة';
+        return id;
       }
 
       function goScreen(name) {
@@ -1037,9 +1127,11 @@
         const box = document.getElementById('chats-overview-list');
         if (!box) return;
         const q = String(filterText || '').trim().toLowerCase();
-        const items = db.contacts.filter((c) =>
-          !q || c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q)
-        );
+        const items = db.contacts.filter((c) => {
+          if (!q) return true;
+          const searchId = c.hideCodeInLabel ? '' : c.id.toLowerCase();
+          return c.name.toLowerCase().includes(q) || searchId.includes(q);
+        });
         if (!items.length) {
           box.innerHTML = `<div class="sub-note" style="text-align:center;padding:24px;">لا توجد محادثات مطابقة.</div>`;
           return;
@@ -1047,9 +1139,9 @@
         box.innerHTML = items.map((c) => {
           const list = db.messages[c.id] || [];
           const last = list[list.length - 1];
-          const preview = last ? last.text : (c.isGroup ? 'مجموعة' : c.id);
+          const preview = last ? last.text : (c.isGroup ? 'مجموعة' : displayIdentifier(c.id));
           const time = last ? last.time : '';
-          const letter = (c.name || c.id || 'س').trim().charAt(0);
+          const letter = (c.name || 'س').trim().charAt(0);
           return `
             <div class="chat-card" data-open-thread="${esc(c.id)}">
               <div class="avatar-circle">${esc(letter)}</div>
@@ -1074,14 +1166,14 @@
 
       function openThread(peerId) {
         db.activeThreadId = peerId;
-        const c = db.contacts.find((x) => x.id === peerId);
+        const c = getContact(peerId);
         if (c) c.unread = 0;
         if (!db.messages[peerId]) db.messages[peerId] = [];
         save();
         renderChatsOverview(document.getElementById('chat-search-input')?.value || '');
         const screen = document.getElementById('thread-screen');
         document.getElementById('thread-title').textContent = resolveName(peerId);
-        document.getElementById('thread-subtitle').textContent = c && c.isGroup ? 'مجموعة' : peerId;
+        document.getElementById('thread-subtitle').textContent = displayIdentifier(peerId);
         document.getElementById('thread-avatar').textContent = (resolveName(peerId) || 'س').trim().charAt(0);
         screen.classList.add('open');
         renderThreadMessages();
@@ -1205,7 +1297,7 @@
       });
 
       document.getElementById('new-chat-btn')?.addEventListener('click', () => {
-        const val = prompt('أدخل الرقم الدولي أو الكود (ويمكن كتابة الاسم بعد فاصلة مثل: +971501234567, أحمد)');
+        const val = prompt('أدخل الرقم الدولي أو الكود (ويمكن كتابة الاسم بعد فاصلة مثل: +967770000000, أحمد)');
         if (!val) return;
         const parts = val.split(',');
         const cid = String(parts[0] || '').trim();
@@ -1248,7 +1340,7 @@
               <strong>${esc(c.name)}</strong>
               <span class="sub-note">${esc(c.time)}</span>
             </div>
-            <div class="sub-note">${esc(c.mode)} • ${esc(c.target)}</div>
+            <div class="sub-note">${esc(c.mode)} • ${esc(displayIdentifier(c.target))}</div>
           </div>
         `).join('');
       }
@@ -1320,19 +1412,26 @@
       }
 
       function gen8() {
-        const c = String(Math.floor(10000000 + Math.random() * 90000000));
+        const suffix = String(Math.floor(100000 + Math.random() * 900000));
+        const c = '88' + suffix;
         const el = document.getElementById('code8-display');
         if (el) el.textContent = c;
         return c;
       }
 
       document.getElementById('save-self-btn')?.addEventListener('click', () => {
-        applyMe(document.getElementById('self-code')?.value, document.getElementById('self-name')?.value);
+        const rawCode = document.getElementById('self-code')?.value;
+        const formatted = normalizeCode88(rawCode);
+        if (!formatted) {
+          toast('أدخل كوداً أولاً');
+          return;
+        }
+        applyMe(formatted, document.getElementById('self-name')?.value);
       });
 
       document.getElementById('gen8-btn')?.addEventListener('click', () => {
         gen8();
-        toast('تم توليد كود من 8 أرقام');
+        toast('تم توليد كود يبدأ بـ 88 من 8 أرقام');
       });
 
       document.getElementById('copy8-btn')?.addEventListener('click', async () => {
@@ -1351,7 +1450,10 @@
       document.getElementById('save-intl-btn')?.addEventListener('click', () => {
         const dial = (document.getElementById('intl-dial')?.value || '').trim();
         const ph = (document.getElementById('intl-phone')?.value || '').trim();
-        if (!ph) return;
+        if (!ph) {
+          toast('أدخل رقم الشريحة أو الهاتف');
+          return;
+        }
         const full = dial ? `${dial} ${ph}`.trim() : ph;
         applyMe(full, document.getElementById('intl-name')?.value || full);
       });
@@ -1378,7 +1480,7 @@
         if (ctBox) {
           ctBox.innerHTML = db.contacts.filter((c) => !c.isGroup).map((c) => `
             <div class="flex-row" style="justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(56,189,248,0.1);">
-              <div><strong>${esc(c.name)}</strong> <span class="sub-note" style="direction:ltr;display:inline-block;">${esc(c.id)}</span></div>
+              <div><strong>${esc(c.name)}</strong> <span class="sub-note" style="display:inline-block;">${esc(displayIdentifier(c.id))}</span></div>
               <button type="button" class="mini-btn" data-open-thread="${esc(c.id)}">فتح</button>
             </div>
           `).join('');

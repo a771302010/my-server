@@ -1,4 +1,3 @@
-
 const http = require('http');
 const { WebSocketServer } = require('ws');
 
@@ -19,6 +18,7 @@ function normIdServer(v) {
 }
 
 const presenceMap = new Map();
+const blockListByUser = new Map(); // normId -> Set(blockedNormId)
 const syncEvents = [];
 let eventCursor = 0;
 
@@ -52,9 +52,32 @@ function broadcastOnlineUsersWs() {
     });
 }
 
+function setUserBlockSetServer(ownerId, blockedList) {
+    const ownerNorm = normIdServer(ownerId);
+    if (!ownerNorm) return;
+    const nextSet = new Set(
+        (Array.isArray(blockedList) ? blockedList : [])
+            .map(normIdServer)
+            .filter(Boolean)
+    );
+    blockListByUser.set(ownerNorm, nextSet);
+}
+
+function isBlockedServer(senderId, recipientId) {
+    const sNorm = normIdServer(senderId);
+    const rNorm = normIdServer(recipientId);
+    if (!sNorm || !rNorm) return false;
+    const rBlocked = blockListByUser.get(rNorm);
+    if (rBlocked && rBlocked.has(sNorm)) return true;
+    const sBlocked = blockListByUser.get(sNorm);
+    if (sBlocked && sBlocked.has(rNorm)) return true;
+    return false;
+}
+
 function deliverToPeerWs(targetId, payload) {
     const normTarget = normIdServer(targetId);
     if (!normTarget) return;
+    if (payload && payload.from && isBlockedServer(payload.from, normTarget)) return;
     const sockets = presenceMap.get(normTarget);
     if (!sockets || sockets.size === 0) return;
     const encoded = JSON.stringify(payload);
@@ -89,7 +112,22 @@ function processIncomingPacket(payload, senderWs) {
             });
             senderWs._sanadIds = cleanSet;
         }
+        if (Array.isArray(payload.blockedIds)) {
+            cleanSet.forEach(id => setUserBlockSetServer(id, payload.blockedIds));
+        }
         broadcastOnlineUsersWs();
+        return;
+    }
+
+    if (payload.type === 'sync_blocklist') {
+        const ownerIds = Array.isArray(payload.ownerIds) && payload.ownerIds.length
+            ? payload.ownerIds
+            : [payload.from];
+        ownerIds.forEach(oid => setUserBlockSetServer(oid, payload.blockedIds));
+        return;
+    }
+
+    if (payload.from && payload.to && isBlockedServer(payload.from, payload.to)) {
         return;
     }
 
@@ -226,16 +264,28 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="theme-color" content="#164e63">
     <title>سند AI v${APP_VERSION}</title>
     <link id="sanad-favicon" rel="icon" type="image/svg+xml" href="/icon.svg">
+    <link rel="apple-touch-icon" href="/icon.svg">
     <link rel="manifest" href="/manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cairo:wght@600;700;800&display=swap');
+        :root {
+            --sanad-chat-font: 15px;
+        }
         body {
             font-family: 'IBM Plex Sans Arabic', 'Cairo', sans-serif;
             background: radial-gradient(circle at top, #102436 0%, #09111b 55%, #070d14 100%);
             color: #eef5fa;
-            line-height: 1.55;
+            line-height: 1.65;
+        }
+        .sanad-msg-text {
+            font-size: var(--sanad-chat-font);
+            line-height: 1.7;
+        }
+        .sanad-composer-font {
+            font-size: var(--sanad-chat-font);
+            line-height: 1.65;
         }
         button, a { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
@@ -330,8 +380,8 @@ const htmlContent = `<!DOCTYPE html>
                 }
                 if (btn) {
                     btn.className = isTarget
-                        ? 'relative flex flex-col items-center gap-0.5 text-teal-300 font-bold text-[10px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer'
-                        : 'relative flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[10px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer';
+                        ? 'relative flex flex-col items-center gap-0.5 text-teal-300 font-bold text-[11px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer'
+                        : 'relative flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[11px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer';
                 }
             }
             var tabBadge = document.getElementById('current-tab-badge');
@@ -363,11 +413,11 @@ const htmlContent = `<!DOCTYPE html>
 
     <header class="bg-[#0d1926]/95 border-b border-slate-800/80 px-3.5 py-2 flex justify-between items-center z-20 shrink-0">
         <div class="flex items-center gap-2.5 min-w-0">
-            <div class="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-[#1e6078] via-[#164e63] to-[#0f3646] border border-teal-300/30 flex flex-col items-center justify-center shrink-0 shadow">
+            <button type="button" onclick="openIdentityQrModal()" title="كود التعريف ورمز QR والاختصار" class="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-[#1e6078] via-[#164e63] to-[#0f3646] border border-teal-300/30 flex flex-col items-center justify-center shrink-0 shadow">
                 <span class="text-teal-50 font-bold text-base leading-none">س</span>
                 <span class="text-[8px] font-semibold text-teal-200 leading-tight mt-0.5">سند</span>
                 <span id="header-unread-dot" class="hidden absolute -top-1.5 -left-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-600 text-white text-[10px] font-mono font-bold flex items-center justify-center shadow">0</span>
-            </div>
+            </button>
             <div class="min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
                     <h1 class="font-bold text-base text-white leading-none">سند</h1>
@@ -384,12 +434,15 @@ const htmlContent = `<!DOCTYPE html>
                     </button>
                     <span id="queue-badge" class="hidden text-[10px] bg-amber-950/80 text-amber-200 border border-amber-800/50 px-1.5 rounded font-mono">0 معلّق</span>
                     <span class="text-slate-600">•</span>
-                    <span id="active-acct-label" class="font-mono font-semibold text-slate-200"></span>
+                    <button type="button" onclick="openIdentityQrModal()" class="font-mono font-semibold text-teal-200 hover:underline truncate max-w-[140px]" id="active-acct-label"></button>
                 </div>
             </div>
         </div>
 
         <div class="flex items-center gap-1.5 shrink-0">
+            <button type="button" onclick="openIdentityQrModal()" title="كود التعريف ورمز QR والاختصار" class="px-2.5 h-9 rounded-xl bg-teal-950/80 hover:bg-teal-800 border border-teal-700/60 text-teal-200 hover:text-white flex items-center gap-1 text-[11px] font-semibold transition">
+                <i class="fa-solid fa-qrcode text-xs"></i><span>كودي</span>
+            </button>
             <button type="button" onclick="openAssistedVoiceHub()" title="مساعدة صوتية" class="px-2.5 h-9 rounded-xl bg-emerald-950/80 hover:bg-emerald-800 border border-emerald-700/60 text-emerald-200 hover:text-white flex items-center gap-1 text-[11px] font-semibold transition">
                 <i class="fa-solid fa-ear-listen text-xs"></i><span>صوتي</span>
             </button>
@@ -407,8 +460,8 @@ const htmlContent = `<!DOCTYPE html>
         <button type="button" onclick="reconnectNow()" class="bg-amber-800/80 px-2 py-0.5 rounded text-[10px] font-semibold shrink-0">فحص الشبكة</button>
     </div>
 
-    <div id="copy-toast-banner" class="hidden fixed top-14 left-1/2 -translate-x-1/2 bg-teal-900/95 border border-teal-500/50 text-teal-50 px-4 py-1.5 rounded-full shadow-xl z-50 text-[11px] font-semibold">
-        تم النسخ إلى الحافظة
+    <div id="copy-toast-banner" class="hidden fixed top-14 left-1/2 -translate-x-1/2 bg-teal-900/95 border border-teal-500/50 text-teal-50 px-4 py-1.5 rounded-full shadow-xl z-50 text-xs font-semibold">
+        تم التنفيذ بنجاح
     </div>
 
     <div id="live-toast" onclick="jumpToToastChat()" class="hidden fixed top-16 left-3 right-3 max-w-md mx-auto bg-[#0d1926]/95 border border-teal-800/70 text-slate-100 px-3.5 py-2.5 rounded-2xl shadow-2xl z-40 flex items-center justify-between gap-2 cursor-pointer text-xs">
@@ -417,6 +470,64 @@ const htmlContent = `<!DOCTYPE html>
             <p id="toast-body" class="text-slate-200 truncate">...</p>
         </div>
         <span class="bg-teal-950 text-teal-200 border border-teal-800/60 px-2 py-1 rounded-lg text-[10px] font-semibold shrink-0">فتح</span>
+    </div>
+
+    <!-- نافذة كود التعريف ورمز QR والكاميرا واختصار الشاشة -->
+    <div id="identity-qr-modal" onclick="if(event.target===this)closeIdentityQrModal()" class="hidden fixed inset-0 bg-[#070d14]/88 z-50 flex items-center justify-center p-3.5 overflow-y-auto">
+        <div class="bg-[#0d1926] border border-teal-700/60 rounded-3xl w-full max-w-md p-4 space-y-3.5 shadow-2xl my-auto">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div>
+                    <h3 class="text-sm font-bold text-teal-200"><i class="fa-solid fa-qrcode ml-1"></i> كود التعريف، الكاميرا، واختصار الشاشة</h3>
+                    <p class="text-[11px] text-slate-400">اعرض كودك ورمز QR، امسح بالكاميرا، أو ثبّت اختصار التطبيق.</p>
+                </div>
+                <button type="button" onclick="closeIdentityQrModal()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="bg-[#08101a] border border-slate-800 rounded-2xl p-3 flex flex-col items-center gap-2.5">
+                <div class="text-center">
+                    <div class="text-[11px] text-slate-400">معرّفك النشط الحالي</div>
+                    <div id="qr-modal-acct-id" class="font-mono text-base font-bold text-teal-200 mt-0.5"></div>
+                </div>
+                <canvas id="sanad-qr-canvas" width="180" height="180" class="rounded-2xl bg-white p-2 shadow"></canvas>
+                <div class="flex flex-wrap justify-center gap-1.5 text-xs">
+                    <button type="button" onclick="copyStringToClipboard(activeAcct, 'تم نسخ كود التعريف')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-xl font-semibold"><i class="fa-solid fa-copy ml-1"></i>نسخ الكود</button>
+                    <button type="button" onclick="shareInviteLink()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 px-3 py-1.5 rounded-xl font-semibold"><i class="fa-solid fa-share-nodes ml-1"></i>نسخ الرابط</button>
+                    <button type="button" onclick="openShortcutGuideModal()" class="bg-emerald-900/80 hover:bg-emerald-800 border border-emerald-700/60 text-emerald-200 px-3 py-1.5 rounded-xl font-semibold"><i class="fa-solid fa-mobile-screen-button ml-1"></i>اختصار الشاشة</button>
+                </div>
+            </div>
+
+            <div class="bg-[#08101a] border border-slate-800 rounded-2xl p-3 space-y-2 text-xs">
+                <div class="flex items-center justify-between">
+                    <span class="font-semibold text-teal-200"><i class="fa-solid fa-camera ml-1"></i> المسح بالكاميرا أو ربط كود طرف آخر</span>
+                    <button type="button" onclick="toggleQrCameraScanner()" id="qr-cam-toggle-btn" class="bg-teal-800 hover:bg-teal-700 text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold">تشغيل الكاميرا</button>
+                </div>
+                <video id="qr-scanner-video" playsinline muted class="hidden w-full h-44 object-cover rounded-xl border border-teal-800/60 bg-black"></video>
+                <div id="qr-scan-status" class="text-[11px] text-slate-400">يمكنك مسح رمز QR بالكاميرا أو لصق/كتابة الكود أو الرابط أدناه:</div>
+                <div class="flex gap-1.5">
+                    <input type="text" id="qr-manual-code-input" oninput="normalizeDigitsInInput(this)" placeholder="أدخل الكود أو الرابط أو الاسم..." class="flex-1 bg-[#0d1926] border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono">
+                    <button type="button" onclick="connectFromQrOrCodeInput()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-xl text-xs font-semibold">فتح</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة إرشاد اختصار الشاشة -->
+    <div id="shortcut-guide-modal" onclick="if(event.target===this)closeShortcutGuideModal()" class="hidden fixed inset-0 bg-[#070d14]/88 z-50 flex items-center justify-center p-4">
+        <div class="bg-[#0d1926] border border-teal-700/60 rounded-3xl w-full max-w-md p-4 space-y-3 shadow-2xl text-xs">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 class="text-sm font-bold text-teal-200"><i class="fa-solid fa-mobile-screen-button ml-1"></i> إضافة اختصار التطبيق على الشاشة</h3>
+                <button type="button" onclick="closeShortcutGuideModal()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="bg-[#08101a] border border-slate-800 rounded-2xl p-3 space-y-2 leading-relaxed text-slate-200">
+                <p><strong class="text-teal-300">على الآيفون (Safari):</strong> اضغط زر المشاركة (مربع بسهم للأعلى) ثم اختر <strong>«إضافة إلى الشاشة الرئيسية»</strong>.</p>
+                <p><strong class="text-emerald-300">على أندرويد (Chrome):</strong> اضغط القائمة (⋮) ثم اختر <strong>«إضافة إلى الشاشة الرئيسية»</strong> أو <strong>«تثبيت التطبيق»</strong>.</p>
+                <p class="text-[11px] text-slate-400">بعد الإضافة سيظهر لك أيقونة «سند AI» على الشاشة الرئيسية كأي تطبيق مستقل.</p>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="copyStringToClipboard(location.origin, 'تم نسخ رابط التطبيق')" class="bg-slate-800 hover:bg-slate-700 text-teal-200 px-3 py-2 rounded-xl font-semibold">نسخ الرابط</button>
+                <button type="button" onclick="closeShortcutGuideModal()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl font-semibold">فهمت</button>
+            </div>
+        </div>
     </div>
 
     <!-- النوافذ المنبثقة -->
@@ -466,7 +577,7 @@ const htmlContent = `<!DOCTYPE html>
                     <button type="button" onclick="closeLongMsgReader()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             </div>
-            <div id="long-msg-reader-body" class="p-4 overflow-y-auto text-sm leading-relaxed text-slate-100 whitespace-pre-wrap custom-scrollbar"></div>
+            <div id="long-msg-reader-body" class="p-4 overflow-y-auto sanad-msg-text text-slate-100 whitespace-pre-wrap custom-scrollbar"></div>
         </div>
     </div>
 
@@ -476,7 +587,7 @@ const htmlContent = `<!DOCTYPE html>
                 <span class="text-xs font-bold text-teal-200"><i class="fa-solid fa-expand ml-1"></i> مراجعة وتحرير الرسالة قبل الإرسال</span>
                 <button type="button" onclick="closeComposerExpand()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <textarea id="expanded-composer-textarea" rows="7" oninput="syncFromExpandedComposer()" placeholder="اكتب رسالتك وراجعها بوضوح هنا..." class="w-full bg-[#08101a] border border-slate-700 rounded-2xl p-3 text-sm leading-relaxed text-white focus:outline-none focus:border-teal-500 custom-scrollbar"></textarea>
+            <textarea id="expanded-composer-textarea" rows="7" oninput="syncFromExpandedComposer()" placeholder="اكتب رسالتك وراجعها بوضوح هنا..." class="w-full bg-[#08101a] border border-slate-700 rounded-2xl p-3 sanad-composer-font text-white focus:outline-none focus:border-teal-500 custom-scrollbar"></textarea>
             <div class="flex flex-wrap gap-1.5 text-[11px]">
                 <button type="button" onclick="aiTransformExpanded('simplify')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-200 px-2.5 py-1 rounded-xl font-semibold">تبسيط</button>
                 <button type="button" onclick="aiTransformExpanded('formal')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sky-200 px-2.5 py-1 rounded-xl font-semibold">رسمي</button>
@@ -513,6 +624,9 @@ const htmlContent = `<!DOCTYPE html>
             </button>
             <button type="button" id="ctx-speak-btn" onclick="ctxSpeakAction()" class="w-full text-right px-3 py-2.5 rounded-xl hover:bg-slate-800 text-xs font-semibold text-slate-100 flex items-center gap-2.5">
                 <i class="fa-solid fa-volume-high text-teal-200 w-4"></i><span>استماع صوتي</span>
+            </button>
+            <button type="button" id="ctx-block-btn" onclick="ctxBlockPeerAction()" class="w-full text-right px-3 py-2.5 rounded-xl hover:bg-rose-950/60 text-xs font-semibold text-amber-300 flex items-center gap-2.5">
+                <i class="fa-solid fa-ban text-amber-400 w-4"></i><span>حظر المرسل</span>
             </button>
             <button type="button" id="ctx-delete-btn" onclick="ctxDeleteAction()" class="w-full text-right px-3 py-2.5 rounded-xl hover:bg-rose-950/60 text-xs font-semibold text-rose-300 flex items-center gap-2.5">
                 <i class="fa-solid fa-trash text-rose-400 w-4"></i><span>حذف الرسالة</span>
@@ -574,7 +688,7 @@ const htmlContent = `<!DOCTYPE html>
         <section id="pane-chats" class="sanad-pane sanad-pane-active flex-1 flex-col h-full overflow-hidden">
             <div id="chat-top-utility" class="p-2 bg-[#0d1926]/90 border-b border-slate-800/80 space-y-1.5 shrink-0 transition-all">
                 <div class="flex gap-2">
-                    <input type="text" id="peer-input" oninput="normalizeDigitsInInput(this); onTopPeerSearchInput();" onkeydown="if(event.key==='Enter'){event.preventDefault();openPeerByInput();}" placeholder="اكتب الاسم أو الكود أو الرقم ليظهر تلقائياً..." class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-1.5 text-xs md:text-sm text-white placeholder-slate-400 focus:outline-none focus:border-teal-600">
+                    <input type="text" id="peer-input" oninput="normalizeDigitsInInput(this); onTopPeerSearchInput();" onkeydown="if(event.key==='Enter'){event.preventDefault();openPeerByInput();}" placeholder="اكتب الاسم أو الكود أو الرقم ليظهر تلقائياً..." class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-1.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-teal-600">
                     <button type="button" onclick="openPeerByInput()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold transition">فتح</button>
                     <button type="button" onclick="saveCurrentPeer()" title="حفظ في الجهات" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1.5 rounded-xl text-xs font-semibold">
                         <i class="fa-solid fa-user-plus"></i>
@@ -589,14 +703,16 @@ const htmlContent = `<!DOCTYPE html>
                     <span id="peer-title" class="font-semibold text-slate-100 font-mono truncate">خدمة العملاء</span>
                     <span id="peer-status" class="text-[11px] font-semibold text-slate-400 shrink-0 whitespace-nowrap">غير متصل</span>
                 </div>
-                <div class="flex items-center gap-2 shrink-0 text-[11px]">
+                <div class="flex items-center gap-1.5 shrink-0 text-[11px]">
+                    <button type="button" onclick="changeChatFontSize(-1)" title="تصغير خط الدردشة" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-1.5 py-0.5 rounded font-bold">أ-</button>
+                    <button type="button" onclick="changeChatFontSize(1)" title="تكبير خط الدردشة" class="bg-slate-800 hover:bg-slate-700 text-teal-200 px-1.5 py-0.5 rounded font-bold">أ+</button>
                     <button type="button" onclick="toggleChatUtilityBar()" class="text-teal-200 hover:text-white px-1"><i class="fa-solid fa-sliders"></i></button>
                     <button type="button" onclick="readLastIncomingMessageAloud()" class="text-emerald-300 hover:text-emerald-200 font-medium whitespace-nowrap"><i class="fa-solid fa-volume-high ml-0.5"></i>اسمع</button>
                     <button type="button" onclick="toggleThreadSearchBar()" class="text-slate-300 hover:text-white px-1"><i class="fa-solid fa-magnifying-glass"></i></button>
                     <button type="button" onclick="launchCall('audio')" class="text-emerald-300 hover:text-emerald-200 px-1"><i class="fa-solid fa-phone"></i></button>
                     <button type="button" onclick="launchCall('video')" class="text-teal-200 hover:text-white px-1"><i class="fa-solid fa-video"></i></button>
+                    <button type="button" id="chat-block-btn" onclick="toggleBlockCurrentPeer()" class="text-amber-300 hover:text-amber-200 font-medium whitespace-nowrap">حظر</button>
                     <button type="button" onclick="summarizeCurrentThread()" class="text-slate-200 hover:text-white font-medium whitespace-nowrap">تلخيص</button>
-                    <button type="button" onclick="shareInviteLink()" class="text-slate-200 hover:text-white font-medium whitespace-nowrap">دعوة</button>
                     <button type="button" onclick="clearThreadMsgs()" class="text-rose-300 hover:text-rose-200 font-medium whitespace-nowrap">مسح</button>
                 </div>
             </div>
@@ -643,16 +759,14 @@ const htmlContent = `<!DOCTYPE html>
                 <button type="button" onclick="cancelEditMessage()" class="text-sky-200 hover:text-white text-[10px] font-semibold shrink-0">إلغاء التعديل</button>
             </div>
 
-            <div id="smart-replies-bar" class="hidden px-3 py-1.5 bg-[#0b1521] border-t border-slate-800/70 flex items-center gap-1.5 overflow-x-auto text-[11px] shrink-0"></div>
-
-            <div id="composer-ai-strip" class="px-3 py-1 bg-[#0b1521]/85 border-t border-slate-800/70 flex items-center gap-1.5 text-[10px] shrink-0 overflow-x-auto">
+            <div id="composer-ai-strip" class="px-3 py-1 bg-[#0b1521]/85 border-t border-slate-800/70 flex items-center gap-1.5 text-[11px] shrink-0 overflow-x-auto">
                 <span class="text-slate-300 font-semibold shrink-0">الذكاء والصياغة:</span>
                 <button type="button" onclick="polishDraft('friendly')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-slate-200 px-2 py-0.5 rounded shrink-0">ودي</button>
                 <button type="button" onclick="polishDraft('formal')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-slate-200 px-2 py-0.5 rounded shrink-0">رسمي</button>
                 <button type="button" onclick="polishDraft('short')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-slate-200 px-2 py-0.5 rounded shrink-0">مختصر</button>
                 <button type="button" onclick="polishDraft('client')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-teal-200 px-2 py-0.5 rounded shrink-0 font-semibold">رد عميل</button>
                 <button type="button" onclick="aiTransformCurrentDraft('simplify')" class="bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-800/60 text-emerald-200 px-2 py-0.5 rounded font-semibold shrink-0">تبسيط</button>
-                <button type="button" onclick="openAssistedVoiceHub()" class="bg-sky-950/80 hover:bg-sky-900 border border-sky-800/60 text-sky-200 px-2 py-0.5 rounded font-semibold shrink-0"><i class="fa-solid fa-ear-listen ml-0.5"></i>مساعدة صوتية</button>
+                <button type="button" onclick="openIdentityQrModal()" class="bg-teal-950/80 hover:bg-teal-900 border border-teal-800/60 text-teal-200 px-2 py-0.5 rounded font-semibold shrink-0"><i class="fa-solid fa-qrcode ml-0.5"></i>QR وكاميرا</button>
                 <button type="button" onclick="pasteIntoComposer()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-emerald-200 px-2 py-0.5 rounded font-semibold shrink-0"><i class="fa-solid fa-paste ml-1"></i>لصق</button>
                 <button type="button" onclick="insertSanadMention()" class="bg-teal-950/80 hover:bg-teal-900 border border-teal-800/60 text-teal-200 px-2 py-0.5 rounded font-semibold shrink-0">@سند</button>
             </div>
@@ -662,7 +776,7 @@ const htmlContent = `<!DOCTYPE html>
                 <button type="button" onclick="document.getElementById('attach-file').click()" class="text-slate-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition shrink-0"><i class="fa-solid fa-paperclip text-base"></i></button>
                 <button type="button" id="dictate-btn" onclick="toggleSpeechDictation()" class="text-emerald-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition shrink-0"><i class="fa-solid fa-language text-base"></i></button>
                 <button type="button" onclick="openComposerExpand()" class="text-teal-200 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition shrink-0"><i class="fa-solid fa-expand text-base"></i></button>
-                <textarea id="msg-box-input" rows="1" oninput="autoResizeComposer(this)" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendTextMsg();}" placeholder="اكتب رسالتك أو راجعها أو استخدم @سند..." class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs md:text-sm leading-relaxed text-white placeholder-slate-400 focus:outline-none focus:border-teal-600 resize-none max-h-32 overflow-y-auto custom-scrollbar"></textarea>
+                <textarea id="msg-box-input" rows="1" oninput="autoResizeComposer(this)" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendTextMsg();}" placeholder="اكتب رسالتك بوضوح أو استخدم @سند..." class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 sanad-composer-font text-white placeholder-slate-400 focus:outline-none focus:border-teal-600 resize-none max-h-32 overflow-y-auto custom-scrollbar"></textarea>
                 <span id="rec-timer" class="hidden text-[11px] font-mono font-semibold text-teal-300 px-1 py-2 shrink-0">00:00</span>
                 <button type="button" id="voice-btn" onclick="toggleVoiceCapture()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white p-2.5 rounded-xl transition shrink-0"><i class="fa-solid fa-microphone text-base"></i></button>
                 <button type="button" onclick="sendTextMsg()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition shadow shrink-0"><i class="fa-solid fa-paper-plane"></i></button>
@@ -694,7 +808,8 @@ const htmlContent = `<!DOCTYPE html>
                 <div class="flex flex-wrap gap-2">
                     <button type="button" onclick="make8DigitId()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl text-xs font-semibold">+ توليد معرّف (8 أرقام)</button>
                     <button type="button" onclick="addCustomNumberAccount()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 px-4 py-2 rounded-xl text-xs font-semibold">+ إضافة رقم/معرّف</button>
-                    <button type="button" onclick="verifyPhoneAccount()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 px-4 py-2 rounded-xl text-xs font-semibold">+ تفعيل رقم جوال</button>
+                    <button type="button" onclick="openIdentityQrModal()" class="bg-teal-900/80 hover:bg-teal-800 border border-teal-700/60 text-teal-200 px-4 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-qrcode ml-1"></i>QR والكاميرا</button>
+                    <button type="button" onclick="openShortcutGuideModal()" class="bg-emerald-900/80 hover:bg-emerald-800 border border-emerald-700/60 text-emerald-200 px-4 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-mobile-screen-button ml-1"></i>اختصار الشاشة</button>
                 </div>
                 <div id="last-generated-banner" class="hidden bg-[#08101a] border border-teal-800/60 rounded-xl p-2.5 flex items-center justify-between text-xs">
                     <span id="last-generated-text" class="font-mono font-semibold text-teal-200"></span>
@@ -706,9 +821,12 @@ const htmlContent = `<!DOCTYPE html>
 
         <section id="pane-contacts" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-[#0d1926] border border-slate-800 p-3.5 rounded-2xl space-y-2.5">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-sm font-bold text-teal-200">جهات الاتصال</h2>
-                    <button type="button" onclick="scanNumbersForSanad()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-1 rounded-lg text-[11px] font-semibold transition"><i class="fa-solid fa-user-check ml-1"></i>فحص أرقام</button>
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                    <h2 class="text-sm font-bold text-teal-200">جهات الاتصال والمحظورون</h2>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <button type="button" onclick="cleanUnwantedSavedNamesAI()" class="bg-rose-950/80 hover:bg-rose-900 border border-rose-800/60 text-rose-200 px-3 py-1 rounded-lg text-[11px] font-semibold transition"><i class="fa-solid fa-broom ml-1"></i>تنظيف الأسماء غير المرغوبة</button>
+                        <button type="button" onclick="scanNumbersForSanad()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-1 rounded-lg text-[11px] font-semibold transition"><i class="fa-solid fa-user-check ml-1"></i>فحص أرقام</button>
+                    </div>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-2">
                     <input type="text" id="c-name" onkeydown="if(event.key==='Enter')addNewContact()" placeholder="الاسم" class="bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
@@ -724,6 +842,14 @@ const htmlContent = `<!DOCTYPE html>
                 <span id="contacts-summary-badge" class="text-[10px] font-mono text-slate-400 shrink-0">0 جهة</span>
             </div>
             <div id="contacts-list" class="space-y-2"></div>
+
+            <div class="bg-[#0d1926] border border-rose-900/50 p-3.5 rounded-2xl space-y-2">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-bold text-rose-300"><i class="fa-solid fa-ban ml-1"></i> قائمة المحظورين</h3>
+                    <span id="blocked-count-badge" class="text-[10px] font-mono text-rose-200 bg-rose-950/80 border border-rose-800/60 px-2 py-0.5 rounded-full">0 محظور</span>
+                </div>
+                <div id="blocked-list" class="space-y-1.5"></div>
+            </div>
         </section>
 
         <section id="pane-calls" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
@@ -767,6 +893,7 @@ const htmlContent = `<!DOCTYPE html>
                     <div class="flex flex-wrap gap-1.5 text-[11px]">
                         <button type="button" onclick="scratchpadTransform('simplify')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-200 px-2.5 py-1 rounded-lg font-semibold">تبسيط</button>
                         <button type="button" onclick="scratchpadTransform('formal')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sky-200 px-2.5 py-1 rounded-lg font-semibold">رسمي</button>
+                        <button type="button" onclick="scratchpadTransform('polish')" class="bg-teal-950/80 hover:bg-teal-900 border border-teal-800/60 text-teal-200 px-2.5 py-1 rounded-lg font-semibold">لمسة ذكية</button>
                         <button type="button" onclick="speakText(document.getElementById('ai-scratchpad-ta').value)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 px-2.5 py-1 rounded-lg font-semibold"><i class="fa-solid fa-volume-high ml-1"></i>قراءة</button>
                         <button type="button" onclick="sendScratchpadToChat()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1 rounded-lg font-semibold">نقل إلى الدردشة</button>
                     </div>
@@ -799,24 +926,24 @@ const htmlContent = `<!DOCTYPE html>
     </main>
 
     <nav class="bg-[#0d1926]/95 border-t border-slate-800 px-0.5 py-2 flex justify-around items-center z-20 shrink-0">
-        <a href="#tab-chats" onclick="setPane('chats'); return false;" id="btn-chats" class="relative flex flex-col items-center gap-0.5 text-teal-300 font-bold text-[10px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer">
+        <a href="#tab-chats" onclick="setPane('chats'); return false;" id="btn-chats" class="relative flex flex-col items-center gap-0.5 text-teal-300 font-bold text-[11px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer">
             <span id="nav-chats-badge" class="hidden absolute -top-0.5 -left-1.5 min-w-[16px] h-[16px] px-1 rounded-full bg-rose-600 text-white text-[9px] font-mono font-bold flex items-center justify-center">0</span>
             <i class="fa-solid fa-comments text-sm"></i><span>الدردشة</span>
         </a>
-        <a href="#tab-groups" onclick="setPane('groups'); return false;" id="btn-groups" class="relative flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[10px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer">
+        <a href="#tab-groups" onclick="setPane('groups'); return false;" id="btn-groups" class="relative flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[11px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer">
             <span id="nav-groups-badge" class="hidden absolute -top-0.5 -left-1.5 min-w-[16px] h-[16px] px-1 rounded-full bg-rose-600 text-white text-[9px] font-mono font-bold flex items-center justify-center">0</span>
             <i class="fa-solid fa-users text-sm"></i><span>المجموعات</span>
         </a>
-        <a href="#tab-accounts" onclick="setPane('accounts'); return false;" id="btn-accounts" class="relative flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[10px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer">
+        <a href="#tab-accounts" onclick="setPane('accounts'); return false;" id="btn-accounts" class="relative flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[11px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer">
             <i class="fa-solid fa-id-card text-sm"></i><span>الحسابات</span>
         </a>
-        <a href="#tab-contacts" onclick="setPane('contacts'); return false;" id="btn-contacts" class="relative flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[10px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer">
+        <a href="#tab-contacts" onclick="setPane('contacts'); return false;" id="btn-contacts" class="relative flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[11px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer">
             <i class="fa-solid fa-address-book text-sm"></i><span>الجهات</span>
         </a>
-        <a href="#tab-calls" onclick="setPane('calls'); return false;" id="btn-calls" class="relative flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[10px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer">
+        <a href="#tab-calls" onclick="setPane('calls'); return false;" id="btn-calls" class="relative flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[11px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer">
             <i class="fa-solid fa-phone-volume text-sm"></i><span>المكالمات</span>
         </a>
-        <a href="#tab-ai" onclick="setPane('ai'); return false;" id="btn-ai" class="relative flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[10px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer">
+        <a href="#tab-ai" onclick="setPane('ai'); return false;" id="btn-ai" class="relative flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[11px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer">
             <i class="fa-solid fa-brain text-sm"></i><span>الذكاء</span>
         </a>
     </nav>
@@ -826,6 +953,8 @@ const htmlContent = `<!DOCTYPE html>
         var activeAcct = 'مستخدم-سند';
         var myAccts = ['مستخدم-سند'];
         var contacts = [{ name: DEFAULT_PEER, id: DEFAULT_PEER }];
+        var blockedIdsSet = new Set();
+        var chatFontSizePx = 15;
         var sanadGroups = [];
         var selectedGroupMembers = new Set();
         var selectedGroupCallPeers = new Set();
@@ -849,7 +978,6 @@ const htmlContent = `<!DOCTYPE html>
         var toastPeerId = null;
         var toastTimer = null;
         var copyToastTimer = null;
-        var ringtoneTimer = null;
         var callDurationTimer = null;
         var callSeconds = 0;
         var speakerModeActive = true;
@@ -869,6 +997,8 @@ const htmlContent = `<!DOCTYPE html>
         var lastScrollTopMsgs = 0;
         var speechRecognitionObj = null;
         var isDictatingSpeech = false;
+        var qrStream = null;
+        var qrScanTimer = null;
 
         // حالة WebRTC والمكالمات
         var pc = null;
@@ -910,6 +1040,15 @@ const htmlContent = `<!DOCTYPE html>
             if (/iPhone|iPod/i.test(ua)) return 'آيفون';
             if (/Android/i.test(ua)) return 'أندرويد';
             return 'كمبيوتر';
+        }
+        function applyChatFontSize() {
+            document.documentElement.style.setProperty('--sanad-chat-font', chatFontSizePx + 'px');
+            try { localStorage.setItem('sanad892_font_px', String(chatFontSizePx)); } catch (e) {}
+        }
+        function changeChatFontSize(delta) {
+            chatFontSizePx = Math.max(13, Math.min(22, chatFontSizePx + delta));
+            applyChatFontSize();
+            copyStringToClipboard('', 'حجم خط الدردشة: ' + toWesternDigits(chatFontSizePx) + 'px');
         }
         function isWeakNetworkMode() {
             var chk = document.getElementById('chk-weaknet');
@@ -959,17 +1098,17 @@ const htmlContent = `<!DOCTYPE html>
             try { persistState(); } catch (e) {}
             location.replace(location.origin + location.pathname + '?v=' + encodeURIComponent(serverVer) + (location.hash || ''));
         }
-        function copyStringToClipboard(text) {
+        function copyStringToClipboard(text, customLabel) {
             var str = String(text || '');
-            if (!str) return;
-            if (navigator.clipboard && navigator.clipboard.writeText) {
+            if (str && navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(str).catch(function() {});
             }
             var t = document.getElementById('copy-toast-banner');
             if (t) {
+                t.textContent = customLabel || 'تم النسخ إلى الحافظة';
                 t.classList.remove('hidden');
                 clearTimeout(copyToastTimer);
-                copyToastTimer = setTimeout(function() { t.classList.add('hidden'); }, 1800);
+                copyToastTimer = setTimeout(function() { t.classList.add('hidden'); }, 2000);
             }
         }
         function playChimeSound() {
@@ -990,6 +1129,230 @@ const htmlContent = `<!DOCTYPE html>
                 osc.start();
                 osc.stop(ctx.currentTime + 0.26);
             } catch (e) {}
+        }
+
+        // رمز QR والكاميرا واختصار الشاشة
+        function drawSanadQrCode(payloadText) {
+            var canvas = document.getElementById('sanad-qr-canvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            if (!ctx) return;
+            var size = 21;
+            var cell = Math.floor((canvas.width - 16) / size);
+            var offset = Math.floor((canvas.width - cell * size) / 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            var str = String(payloadText || activeAcct || 'SANAD');
+            var hash = 2166136261;
+            for (var i = 0; i < str.length; i++) {
+                hash ^= str.charCodeAt(i);
+                hash = Math.imul(hash, 16777619);
+            }
+
+            function isFinder(r, c) {
+                return (r < 7 && c < 7) || (r < 7 && c >= size - 7) || (r >= size - 7 && c < 7);
+            }
+            function drawFinderBox(sr, sc) {
+                ctx.fillStyle = '#0f3646';
+                ctx.fillRect(offset + sc * cell, offset + sr * cell, 7 * cell, 7 * cell);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(offset + (sc + 1) * cell, offset + (sr + 1) * cell, 5 * cell, 5 * cell);
+                ctx.fillStyle = '#164e63';
+                ctx.fillRect(offset + (sc + 2) * cell, offset + (sr + 2) * cell, 3 * cell, 3 * cell);
+            }
+
+            for (var r = 0; r < size; r++) {
+                for (var c = 0; c < size; c++) {
+                    if (isFinder(r, c)) continue;
+                    var bit = ((hash >>> ((r * 7 + c * 3 + i) % 24)) ^ (r * 13 + c * 17 + str.charCodeAt(c % str.length))) & 1;
+                    if (bit) {
+                        ctx.fillStyle = '#0f3646';
+                        ctx.fillRect(offset + c * cell, offset + r * cell, cell, cell);
+                    }
+                }
+            }
+            drawFinderBox(0, 0);
+            drawFinderBox(0, size - 7);
+            drawFinderBox(size - 7, 0);
+        }
+
+        function openIdentityQrModal() {
+            var m = document.getElementById('identity-qr-modal');
+            var idEl = document.getElementById('qr-modal-acct-id');
+            if (idEl) idEl.textContent = activeAcct;
+            drawSanadQrCode(location.origin + '/?peer=' + encodeURIComponent(activeAcct));
+            if (m) m.classList.remove('hidden');
+        }
+        function closeIdentityQrModal() {
+            stopQrCameraScanner();
+            var m = document.getElementById('identity-qr-modal');
+            if (m) m.classList.add('hidden');
+        }
+        function openShortcutGuideModal() {
+            var m = document.getElementById('shortcut-guide-modal');
+            if (m) m.classList.remove('hidden');
+        }
+        function closeShortcutGuideModal() {
+            var m = document.getElementById('shortcut-guide-modal');
+            if (m) m.classList.add('hidden');
+        }
+        function extractPeerFromScannedValue(raw) {
+            var s = String(raw || '').trim();
+            if (!s) return '';
+            try {
+                if (/^https?:\/\//i.test(s)) {
+                    var u = new URL(s);
+                    var p = u.searchParams.get('peer');
+                    if (p) return cleanIdValue(p);
+                }
+            } catch (e) {}
+            return cleanIdValue(s);
+        }
+        function connectFromQrOrCodeInput() {
+            var inp = document.getElementById('qr-manual-code-input');
+            var peer = extractPeerFromScannedValue(inp ? inp.value : '');
+            if (!peer) return alert('أدخل الكود أو الرابط أولاً.');
+            closeIdentityQrModal();
+            choosePeer(peer);
+        }
+        function stopQrCameraScanner() {
+            clearInterval(qrScanTimer);
+            qrScanTimer = null;
+            if (qrStream) {
+                qrStream.getTracks().forEach(function(t) { try { t.stop(); } catch (e) {} });
+                qrStream = null;
+            }
+            var vid = document.getElementById('qr-scanner-video');
+            var btn = document.getElementById('qr-cam-toggle-btn');
+            if (vid) { vid.srcObject = null; vid.classList.add('hidden'); }
+            if (btn) btn.textContent = 'تشغيل الكاميرا';
+        }
+        function toggleQrCameraScanner() {
+            if (qrStream) {
+                stopQrCameraScanner();
+                return;
+            }
+            var statusEl = document.getElementById('qr-scan-status');
+            var vid = document.getElementById('qr-scanner-video');
+            var btn = document.getElementById('qr-cam-toggle-btn');
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                if (statusEl) statusEl.textContent = 'الكاميرا غير متاحة في هذا المتصفح، يمكنك لصق الكود أو الرابط يدوياً.';
+                return;
+            }
+            navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'environment' },
+                audio: false
+            }).then(function(stream) {
+                qrStream = stream;
+                if (vid) {
+                    vid.srcObject = stream;
+                    vid.classList.remove('hidden');
+                    vid.play().catch(function() {});
+                }
+                if (btn) btn.textContent = 'إيقاف الكاميرا';
+                if (statusEl) statusEl.textContent = 'وجّه الكاميرا نحو رمز QR...';
+
+                if ('BarcodeDetector' in window) {
+                    try {
+                        var detector = new BarcodeDetector({ formats: ['qr_code'] });
+                        qrScanTimer = setInterval(function() {
+                            if (!vid || vid.readyState < 2) return;
+                            detector.detect(vid).then(function(barcodes) {
+                                if (barcodes && barcodes.length && barcodes[0].rawValue) {
+                                    var peer = extractPeerFromScannedValue(barcodes[0].rawValue);
+                                    if (peer) {
+                                        stopQrCameraScanner();
+                                        closeIdentityQrModal();
+                                        choosePeer(peer);
+                                    }
+                                }
+                            }).catch(function() {});
+                        }, 450);
+                    } catch (e) {
+                        if (statusEl) statusEl.textContent = 'الكاميرا مفتوحة؛ يمكنك أيضاً إدخال الكود أو الرابط مباشرة.';
+                    }
+                } else if (statusEl) {
+                    statusEl.textContent = 'الكاميرا مفتوحة؛ إذا لم يُقرأ الرمز تلقائياً يمكنك كتابة الكود أو لصق الرابط.';
+                }
+            }).catch(function() {
+                if (statusEl) statusEl.textContent = 'تعذر الوصول للكاميرا؛ تأكد من السماح بالصلاحية أو أدخل الكود يدوياً.';
+            });
+        }
+
+        // الحظر (محلي + مزامنة مع السيرفر)
+        function isPeerBlocked(peerId) {
+            var n = normalizeStr(peerId);
+            if (!n || n === normalizeStr(DEFAULT_PEER)) return false;
+            return blockedIdsSet.has(n);
+        }
+
+        function syncBlocklistToServer() {
+            var list = Array.from(blockedIdsSet);
+            var pkt = {
+                type: 'sync_blocklist',
+                from: activeAcct,
+                ownerIds: getAllWatchedIds(),
+                blockedIds: list
+            };
+            if (ws && ws.readyState === 1) {
+                try { ws.send(JSON.stringify(pkt)); } catch (e) {}
+            }
+            fetch('/api/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(pkt)
+            }).catch(function() {});
+        }
+
+        function setBlockStatusForPeer(peerId, shouldBlock) {
+            var clean = cleanIdValue(peerId);
+            var n = normalizeStr(clean);
+            if (!n || n === normalizeStr(DEFAULT_PEER)) return;
+            if (shouldBlock) blockedIdsSet.add(n);
+            else blockedIdsSet.delete(n);
+            persistAndDraw();
+            syncBlocklistToServer();
+            copyStringToClipboard('', shouldBlock ? ('تم حظر ' + clean) : ('تم فك الحظر عن ' + clean));
+        }
+
+        function toggleBlockCurrentPeer() {
+            if (!currentPeer || currentPeer === DEFAULT_PEER || findGroupById(currentPeer)) {
+                return alert('يمكن حظر جهة أو معرّف فردي فقط.');
+            }
+            var currentlyBlocked = isPeerBlocked(currentPeer);
+            var msg = currentlyBlocked
+                ? ('هل تريد فك الحظر عن "' + currentPeer + '"؟')
+                : ('هل تريد حظر "' + currentPeer + '" ومنع رسائله ومكالماته؟');
+            if (!confirm(msg)) return;
+            setBlockStatusForPeer(currentPeer, !currentlyBlocked);
+        }
+
+        function ctxBlockPeerAction() {
+            closeMsgContextMenu();
+            if (!currentPeer || currentPeer === DEFAULT_PEER || findGroupById(currentPeer)) return;
+            if (!confirm('هل تريد حظر "' + currentPeer + '"؟')) return;
+            setBlockStatusForPeer(currentPeer, true);
+        }
+
+        function renderBlockedList() {
+            var box = document.getElementById('blocked-list');
+            var badge = document.getElementById('blocked-count-badge');
+            var arr = Array.from(blockedIdsSet);
+            if (badge) badge.textContent = toWesternDigits(arr.length) + ' محظور';
+            if (!box) return;
+            if (!arr.length) {
+                box.innerHTML = '<div class="text-[11px] text-slate-500">لا يوجد أشخاص محظورون حالياً.</div>';
+                return;
+            }
+            box.innerHTML = arr.map(function(bId) {
+                var c = contacts.find(function(x) { return normalizeStr(x.id) === bId; });
+                var label = c ? (c.name + ' • ' + c.id) : bId;
+                return '<div class="flex items-center justify-between bg-[#08101a] border border-rose-900/40 px-3 py-2 rounded-xl text-xs gap-2">' +
+                    '<span class="font-mono text-rose-200 truncate">' + escapeHtml(label) + '</span>' +
+                    '<button type="button" onclick="setBlockStatusForPeer(\\'' + escapeJsSingle(bId) + '\\', false)" class="bg-slate-800 hover:bg-slate-700 text-teal-200 px-2.5 py-1 rounded-lg text-[11px] font-semibold shrink-0">فك الحظر</button>' +
+                    '</div>';
+            }).join('');
         }
 
         // القراءة الصوتية والإملاء
@@ -1072,6 +1435,14 @@ const htmlContent = `<!DOCTYPE html>
         function smartTransformText(rawText, mode) {
             var t = String(rawText || '').trim();
             if (!t) return '';
+            if (mode === 'polish') {
+                var cleanLines = t
+                    .replace(/\\s+/g, ' ')
+                    .replace(/([،؛:.!?؟])\\s*/g, '$1 ')
+                    .trim();
+                if (!/[.!?؟]$/.test(cleanLines)) cleanLines += '.';
+                return '✨ ' + cleanLines;
+            }
             if (mode === 'formal') {
                 return 'السلام عليكم ورحمة الله وبركاته، ' + t.replace(/^(يا\s*اخي|يا\s*أخي|هلا|مرحبا)\s*/i, '') + ' -- مع خالص التقدير.';
             }
@@ -1132,6 +1503,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!ta || !ta.value.trim()) return;
             ta.value = smartTransformText(ta.value.trim(), mode);
             saveScratchpadDraft();
+            appendAiLog('تم تطبيق (' + mode + ') على المسودة.', 'ai');
         }
 
         function saveScratchpadDraft() {
@@ -1227,14 +1599,18 @@ const htmlContent = `<!DOCTYPE html>
             inp.value = '';
             appendAiLog(q, 'me');
             var reply = '';
-            if (/كود|رقم|معرّف|معرف/i.test(q)) {
-                reply = 'يمكنك توليد معرّف فوري من تبويب (الحسابات ← + توليد معرّف 8 أرقام) أو إضافة أي رقم دولي ومشاركته مع الطرف الآخر.';
-            } else if (/مكالم|فيديو|صوت/i.test(q)) {
-                reply = 'لإجراء مكالمة حية بين جهازين، تأكد من السماح للمتصفح بالوصول إلى الميكروفون أو الكاميرا وأن الطرف الآخر متصل بالشبكة.';
+            if (/حظر|مزعج/i.test(q)) {
+                reply = 'يمكنك حظر أي مزعج من زر (حظر) في شريط الدردشة أو من قائمة الجهات، وسيُمنع تسليم رسائله ومكالماته محلياً وعبر السيرفر، ويمكنك فك الحظر من قائمة المحظورين.';
+            } else if (/خط|صغير|كبير/i.test(q)) {
+                reply = 'يمكنك تكبير أو تصغير خط الدردشة مباشرة عبر أزرار (أ+ / أ-) في شريط المحادثة ويتم حفظ المقاس تلقائياً.';
+            } else if (/اختصار|شاشة|كاميرا|qr/i.test(q)) {
+                reply = 'اضغط زر (كودي) في الأعلى لعرض رمز QR والمسح بالكاميرا، أو زر (اختصار الشاشة) لإضافة أيقونة سند AI إلى شاشة جوالك.';
+            } else if (/كود|رقم|معرّف|معرف/i.test(q)) {
+                reply = 'يمكنك توليد معرّف فوري من تبويب (الحسابات ← + توليد معرّف 8 أرقام) أو حذف أي حساب إضافي بعد حفظه.';
             } else if (/لخص|تلخيص/i.test(q)) {
                 reply = smartTransformText(q, 'summarize');
             } else {
-                reply = 'تم فهم طلبك: ' + q + ' -- يمكنك استخدام أزرار (تبسيط، رسمي، رد عميل) في شريط الصياغة لتجهيز ردك فوراً.';
+                reply = smartTransformText(q, 'polish') + ' -- يمكنك استخدام أزرار (تبسيط، رسمي، رد عميل) في شريط الصياغة لتجهيز ردك فوراً.';
             }
             appendAiLog(reply, 'ai');
         }
@@ -1243,8 +1619,7 @@ const htmlContent = `<!DOCTYPE html>
             var list = (getThreadMap()[currentPeer] || []).filter(function(m) { return m && !m.deleted && m.text; });
             if (!list.length) return alert('لا توجد رسائل نصية لتلخيصها.');
             var text = list.slice(-6).map(function(m) { return m.text; }).join(' . ');
-            var sum = smartTransformText(text, 'summarize');
-            alert(sum);
+            alert(smartTransformText(text, 'summarize'));
         }
 
         // التخزين والحالة
@@ -1253,6 +1628,8 @@ const htmlContent = `<!DOCTYPE html>
                 var savedActive = localStorage.getItem('sanad892_active');
                 var savedAccts = JSON.parse(localStorage.getItem('sanad892_accts') || 'null');
                 var savedContacts = JSON.parse(localStorage.getItem('sanad892_contacts') || 'null');
+                var savedBlocked = JSON.parse(localStorage.getItem('sanad892_blocked') || 'null');
+                var savedFont = Number(localStorage.getItem('sanad892_font_px') || '15');
                 var savedThreads = JSON.parse(localStorage.getItem('sanad892_threads') || 'null');
                 var savedGroups = JSON.parse(localStorage.getItem('sanad892_groups') || 'null');
                 var savedPins = JSON.parse(localStorage.getItem('sanad892_pins') || 'null');
@@ -1263,6 +1640,10 @@ const htmlContent = `<!DOCTYPE html>
                 var savedScratch = localStorage.getItem('sanad892_scratchpad') || '';
                 if (scratchEl && savedScratch) scratchEl.value = savedScratch;
 
+                if (savedFont >= 13 && savedFont <= 22) chatFontSizePx = savedFont;
+                if (Array.isArray(savedBlocked)) {
+                    blockedIdsSet = new Set(savedBlocked.map(normalizeStr).filter(Boolean));
+                }
                 if (savedActive) activeAcct = cleanIdValue(savedActive);
                 if (Array.isArray(savedAccts) && savedAccts.length) myAccts = savedAccts.map(cleanIdValue).filter(Boolean);
                 if (myAccts.indexOf(activeAcct) === -1) myAccts.unshift(activeAcct);
@@ -1275,6 +1656,7 @@ const htmlContent = `<!DOCTYPE html>
                 if (Array.isArray(savedOutbox)) outboxQueue = savedOutbox;
                 if (savedCursor > 0) lastSyncCursor = savedCursor;
             } catch (e) {}
+            applyChatFontSize();
         }
 
         function persistState() {
@@ -1282,6 +1664,7 @@ const htmlContent = `<!DOCTYPE html>
                 localStorage.setItem('sanad892_active', activeAcct);
                 localStorage.setItem('sanad892_accts', JSON.stringify(myAccts));
                 localStorage.setItem('sanad892_contacts', JSON.stringify(contacts));
+                localStorage.setItem('sanad892_blocked', JSON.stringify(Array.from(blockedIdsSet)));
                 localStorage.setItem('sanad892_threads', JSON.stringify(acctThreads));
                 localStorage.setItem('sanad892_groups', JSON.stringify(sanadGroups));
                 localStorage.setItem('sanad892_pins', JSON.stringify(pinnedByThread));
@@ -1300,6 +1683,7 @@ const htmlContent = `<!DOCTYPE html>
             renderPinnedBanner();
             renderMsgs();
             renderPresence();
+            renderBlockedList();
             renderAccts();
             renderGroupsList();
             renderGroupCallPickers();
@@ -1312,6 +1696,7 @@ const htmlContent = `<!DOCTYPE html>
                 activeAcct: activeAcct,
                 myAccts: myAccts,
                 contacts: contacts,
+                blockedIds: Array.from(blockedIdsSet),
                 sanadGroups: sanadGroups,
                 acctThreads: acctThreads
             };
@@ -1332,17 +1717,19 @@ const htmlContent = `<!DOCTYPE html>
                 if (Array.isArray(parsed.myAccts) && parsed.myAccts.length) myAccts = parsed.myAccts.map(cleanIdValue).filter(Boolean);
                 if (parsed.activeAcct) activeAcct = cleanIdValue(parsed.activeAcct);
                 if (Array.isArray(parsed.contacts) && parsed.contacts.length) contacts = parsed.contacts;
+                if (Array.isArray(parsed.blockedIds)) blockedIdsSet = new Set(parsed.blockedIds.map(normalizeStr).filter(Boolean));
                 if (Array.isArray(parsed.sanadGroups)) sanadGroups = parsed.sanadGroups;
                 if (parsed.acctThreads && typeof parsed.acctThreads === 'object') acctThreads = parsed.acctThreads;
                 persistAndDraw();
                 syncPresenceNow();
+                syncBlocklistToServer();
                 alert('تمت استعادة النسخة الاحتياطية بنجاح.');
             } catch (e) {
                 alert('صيغة النسخة غير صحيحة.');
             }
         }
 
-        // المجموعات والجهات والحسابات
+        // المجموعات والجهات والحسابات + حذف ما بعد الخزن والتنظيف الذكي
         function findGroupById(id) {
             return sanadGroups.find(function(g) { return normalizeStr(g.id) === normalizeStr(id); }) || null;
         }
@@ -1369,6 +1756,122 @@ const htmlContent = `<!DOCTYPE html>
             var found = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(cleanId); });
             if (!found) return cleanId;
             return found.id === DEFAULT_PEER ? found.name : (found.name + ' • ' + found.id);
+        }
+
+        function isUnwantedContactAI(contactObj) {
+            if (!contactObj || contactObj.id === DEFAULT_PEER) return false;
+            var cleanName = String(contactObj.name || '').trim();
+            var cleanId = cleanIdValue(contactObj.id);
+            if (!cleanId) return true;
+            if (!cleanName) return true;
+            if (/^(رقم|معرّف|معرف|مدعو)\s+/i.test(cleanName)) return true;
+            if (/^[\s._\-؟?]+$/.test(cleanName)) return true;
+            return false;
+        }
+
+        function cleanUnwantedSavedNamesAI() {
+            var seenIds = new Set();
+            var removedCount = 0;
+            var cleanedList = [];
+
+            contacts.forEach(function(c) {
+                if (!c || !c.id) { removedCount += 1; return; }
+                var normId = normalizeStr(c.id);
+                if (c.id === DEFAULT_PEER) {
+                    if (!seenIds.has(normId)) {
+                        seenIds.add(normId);
+                        cleanedList.push(c);
+                    }
+                    return;
+                }
+                if (seenIds.has(normId) || isUnwantedContactAI(c)) {
+                    removedCount += 1;
+                    return;
+                }
+                seenIds.add(normId);
+                cleanedList.push({
+                    id: cleanIdValue(c.id),
+                    name: String(c.name || '').trim().replace(/\\s+/g, ' ')
+                });
+            });
+
+            if (removedCount === 0) {
+                copyStringToClipboard('', 'لا توجد أسماء غير مرغوبة أو مكررة');
+                return;
+            }
+
+            if (!confirm('اكتشف الذكاء الاصطناعي ' + toWesternDigits(removedCount) + ' اسماً أو إدخالاً غير مرغوب أو مكرراً بعد الحفظ. هل تريد مسحها الآن؟')) {
+                return;
+            }
+
+            contacts = cleanedList;
+            if (normalizeStr(currentPeer) !== normalizeStr(DEFAULT_PEER) &&
+                !findGroupById(currentPeer) &&
+                !contacts.some(function(x) { return normalizeStr(x.id) === normalizeStr(currentPeer); })) {
+                currentPeer = DEFAULT_PEER;
+            }
+            persistAndDraw();
+            copyStringToClipboard('', 'تم مسح ' + toWesternDigits(removedCount) + ' من الأسماء غير المرغوبة');
+        }
+
+        function deleteSavedContact(contactId) {
+            var targetId = cleanIdValue(contactId);
+            if (!targetId || targetId === DEFAULT_PEER) return;
+            var found = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(targetId); });
+            var label = found ? (found.name + ' (' + found.id + ')') : targetId;
+            if (!confirm('هل تريد حذف جهة الاتصال "' + label + '" بعد حفظها؟')) return;
+
+            contacts = contacts.filter(function(c) { return normalizeStr(c.id) !== normalizeStr(targetId); });
+            selectedGroupMembers.delete(targetId);
+            selectedGroupCallPeers.delete(targetId);
+            delete pinnedByThread[normalizeStr(targetId)];
+            delete unreadByThread[normalizeStr(targetId)];
+            if (acctThreads[activeAcct]) {
+                delete acctThreads[activeAcct][targetId];
+            }
+            if (normalizeStr(currentPeer) === normalizeStr(targetId)) {
+                currentPeer = DEFAULT_PEER;
+            }
+            persistAndDraw();
+            copyStringToClipboard('', 'تم حذف جهة الاتصال');
+        }
+
+        function deleteSavedAccount(acctId) {
+            var target = cleanIdValue(acctId);
+            if (!target) return;
+            if (myAccts.length <= 1) {
+                return alert('يجب الإبقاء على حساب واحد على الأقل.');
+            }
+            if (!confirm('هل تريد حذف الحساب/المعرّف "' + target + '"؟')) return;
+
+            myAccts = myAccts.filter(function(a) { return normalizeStr(a) !== normalizeStr(target); });
+            delete acctThreads[target];
+            if (normalizeStr(activeAcct) === normalizeStr(target)) {
+                activeAcct = myAccts[0];
+                currentPeer = DEFAULT_PEER;
+            }
+            persistAndDraw();
+            syncPresenceNow();
+            copyStringToClipboard('', 'تم حذف الحساب');
+        }
+
+        function deleteSavedGroup(groupId) {
+            var target = cleanIdValue(groupId);
+            var grp = findGroupById(target);
+            if (!grp) return;
+            if (!confirm('هل تريد حذف المجموعة "' + grp.name + '"؟')) return;
+
+            sanadGroups = sanadGroups.filter(function(g) { return normalizeStr(g.id) !== normalizeStr(target); });
+            if (acctThreads[activeAcct]) {
+                delete acctThreads[activeAcct][grp.id];
+            }
+            delete pinnedByThread[normalizeStr(grp.id)];
+            delete unreadByThread[normalizeStr(grp.id)];
+            if (normalizeStr(currentPeer) === normalizeStr(grp.id)) {
+                currentPeer = DEFAULT_PEER;
+            }
+            persistAndDraw();
+            copyStringToClipboard('', 'تم حذف المجموعة');
         }
 
         function choosePeer(id) {
@@ -1499,7 +2002,10 @@ const htmlContent = `<!DOCTYPE html>
                 return '<div class="flex items-center justify-between bg-[#0d1926] border border-slate-800 p-3 rounded-xl text-xs gap-2">' +
                     '<div class="min-w-0"><p class="font-bold text-white truncate">👥 ' + escapeHtml(g.name) + '</p>' +
                     '<p class="text-[11px] text-slate-400 font-mono truncate">' + toWesternDigits((g.members || []).length) + ' أعضاء</p></div>' +
-                    '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(g.id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-lg font-semibold shrink-0">فتح</button></div>';
+                    '<div class="flex gap-1.5 shrink-0">' +
+                    '<button type="button" onclick="deleteSavedGroup(\\'' + escapeJsSingle(g.id) + '\\')" class="bg-rose-950/80 hover:bg-rose-900 border border-rose-800/60 text-rose-200 px-2.5 py-1.5 rounded-lg font-semibold">حذف</button>' +
+                    '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(g.id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-lg font-semibold">فتح</button>' +
+                    '</div></div>';
             }).join('');
         }
 
@@ -1516,7 +2022,7 @@ const htmlContent = `<!DOCTYPE html>
             box.innerHTML = items.slice(0, 12).map(function(it) {
                 var active = normalizeStr(it.id) === normalizeStr(currentPeer);
                 var unread = Number(unreadByThread[normalizeStr(it.id)] || 0);
-                return '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(it.id) + '\\')" class="px-2.5 py-1 rounded-full border text-[11px] font-semibold whitespace-nowrap shrink-0 flex items-center gap-1 ' +
+                return '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(it.id) + '\\')" class="px-2.5 py-1 rounded-full border text-xs font-semibold whitespace-nowrap shrink-0 flex items-center gap-1 ' +
                     (active ? 'bg-[#164e63] border-teal-500 text-white' : 'bg-[#08101a] border-slate-800 text-slate-300 hover:border-slate-700') + '">' +
                     escapeHtml(it.label) + (unread > 0 ? '<span class="bg-rose-600 text-white text-[9px] font-mono px-1.5 rounded-full">' + toWesternDigits(unread) + '</span>' : '') + '</button>';
             }).join('');
@@ -1526,13 +2032,29 @@ const htmlContent = `<!DOCTYPE html>
             var titleEl = document.getElementById('peer-title');
             var statusEl = document.getElementById('peer-status');
             var dotEl = document.getElementById('peer-dot');
+            var blockBtn = document.getElementById('chat-block-btn');
             if (titleEl) titleEl.textContent = formatPeerDisplay(currentPeer);
+
             var grp = findGroupById(currentPeer);
             if (grp) {
                 if (statusEl) statusEl.textContent = toWesternDigits((grp.members || []).length) + ' أعضاء';
                 if (dotEl) dotEl.className = 'w-2.5 h-2.5 rounded-full bg-teal-400 shrink-0';
+                if (blockBtn) blockBtn.classList.add('hidden');
                 return;
             }
+
+            if (blockBtn) {
+                var isDef = (currentPeer === DEFAULT_PEER);
+                blockBtn.classList.toggle('hidden', isDef);
+                blockBtn.textContent = isPeerBlocked(currentPeer) ? 'فك الحظر' : 'حظر';
+            }
+
+            if (isPeerBlocked(currentPeer)) {
+                if (statusEl) statusEl.textContent = 'محظور';
+                if (dotEl) dotEl.className = 'w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0';
+                return;
+            }
+
             var online = isPeerOnline(currentPeer) || currentPeer === DEFAULT_PEER;
             if (statusEl) statusEl.textContent = online ? 'متصل الآن' : 'غير متصل';
             if (dotEl) dotEl.className = online ? 'w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0' : 'w-2.5 h-2.5 rounded-full bg-slate-600 shrink-0';
@@ -1696,7 +2218,7 @@ const htmlContent = `<!DOCTYPE html>
 
                 var quoteHtml = '';
                 if (m.replyTo && m.replyTo.snippet) {
-                    quoteHtml = '<div onclick="scrollToQuotedMessage(\\'' + escapeJsSingle(m.replyTo.id) + '\\')" class="mb-1.5 px-2.5 py-1 rounded-lg bg-black/25 border-r-2 border-teal-300 text-[11px] cursor-pointer">' +
+                    quoteHtml = '<div onclick="scrollToQuotedMessage(\\'' + escapeJsSingle(m.replyTo.id) + '\\')" class="mb-1.5 px-2.5 py-1 rounded-lg bg-black/25 border-r-2 border-teal-300 text-xs cursor-pointer">' +
                         '<div class="font-bold text-teal-200">' + escapeHtml(m.replyTo.senderLabel || 'رسالة') + '</div>' +
                         '<div class="text-slate-200 truncate">' + escapeHtml(m.replyTo.snippet) + '</div></div>';
                 }
@@ -1712,7 +2234,7 @@ const htmlContent = `<!DOCTYPE html>
 
                 var longBtnsHtml = '';
                 if (isLong) {
-                    longBtnsHtml = '<div class="flex items-center gap-2 mt-1.5 pt-1 border-t border-white/10 text-[10px]">' +
+                    longBtnsHtml = '<div class="flex items-center gap-2 mt-1.5 pt-1 border-t border-white/10 text-[11px]">' +
                         '<button type="button" onclick="toggleLongMsgExpand(\\'' + escapeJsSingle(m.id) + '\\')" class="text-teal-200 font-semibold">' + (isExpanded ? 'إظهار أقل' : 'قراءة المزيد') + '</button>' +
                         '<button type="button" onclick="openLongMsgReader(\\'' + escapeJsSingle(m.id) + '\\')" class="text-emerald-200 font-semibold">نافذة القراءة</button>' +
                         '</div>';
@@ -1721,16 +2243,16 @@ const htmlContent = `<!DOCTYPE html>
                 var tickHtml = '';
                 if (isMe) {
                     tickHtml = m.read
-                        ? '<span class="text-sky-300 font-mono text-[10px]">✓✓</span>'
-                        : '<span class="text-slate-300 font-mono text-[10px]">✓</span>';
+                        ? '<span class="text-sky-300 font-mono text-[11px]">✓✓</span>'
+                        : '<span class="text-slate-300 font-mono text-[11px]">✓</span>';
                 }
 
                 return '<div id="msg-item-' + escapeHtml(safeDomId) + '" oncontextmenu="event.preventDefault(); openMsgContextMenu(\\'' + escapeJsSingle(m.id) + '\\');" class="flex ' + (isMe ? 'justify-start' : 'justify-end') + '">' +
-                    '<div class="max-w-[82%] rounded-2xl px-3.5 py-2 text-xs shadow ' +
+                    '<div class="max-w-[84%] rounded-2xl px-3.5 py-2.5 shadow ' +
                     (isMe ? 'bg-[#164e63] text-white rounded-br-sm' : 'bg-[#0d1926] border border-slate-800 text-slate-100 rounded-bl-sm') + '">' +
-                    (!isMe && m.senderName ? '<div class="text-[10px] font-bold text-teal-300 mb-0.5">' + escapeHtml(m.senderName) + '</div>' : '') +
+                    (!isMe && m.senderName ? '<div class="text-[11px] font-bold text-teal-300 mb-0.5">' + escapeHtml(m.senderName) + '</div>' : '') +
                     quoteHtml +
-                    (m.kind === 'text' ? '<div class="whitespace-pre-wrap break-words leading-relaxed">' + escapeHtml(shownText) + '</div>' : '') +
+                    (m.kind === 'text' ? '<div class="sanad-msg-text whitespace-pre-wrap break-words">' + escapeHtml(shownText) + '</div>' : '') +
                     mediaHtml +
                     longBtnsHtml +
                     '<div class="flex items-center justify-between gap-2 mt-1 text-[10px] text-slate-300/80">' +
@@ -1768,6 +2290,10 @@ const htmlContent = `<!DOCTYPE html>
             if (!inp) return;
             var txt = inp.value.trim();
             if (!txt) return;
+
+            if (isPeerBlocked(currentPeer)) {
+                return alert('هذا الطرف محظور؛ فك الحظر عنه أولاً لإرسال الرسائل.');
+            }
 
             if (editingMsgId) {
                 var list = getThreadMap()[currentPeer] || [];
@@ -1834,6 +2360,10 @@ const htmlContent = `<!DOCTYPE html>
         function onFilePicked(ev) {
             var file = ev && ev.target && ev.target.files && ev.target.files[0];
             if (!file) return;
+            if (isPeerBlocked(currentPeer)) {
+                ev.target.value = '';
+                return alert('هذا الطرف محظور.');
+            }
             if (file.size > 1_200_000) {
                 alert('حجم الملف كبير للشبكة المباشرة؛ يُفضّل ملفاً أقل من 1.2 ميجابايت.');
                 ev.target.value = '';
@@ -1929,6 +2459,7 @@ const htmlContent = `<!DOCTYPE html>
         }
         function sendRecordedVoiceDraft() {
             if (!recordedVoiceDraft || !recordedVoiceDraft.dataUrl) return;
+            if (isPeerBlocked(currentPeer)) return alert('هذا الطرف محظور.');
             var msgObj = {
                 id: 'aud-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
                 from: 'me',
@@ -2077,7 +2608,7 @@ const htmlContent = `<!DOCTYPE html>
                 }
             });
             if (changed) persistState();
-            if (currentPeer !== DEFAULT_PEER && !findGroupById(currentPeer)) {
+            if (currentPeer !== DEFAULT_PEER && !findGroupById(currentPeer) && !isPeerBlocked(currentPeer)) {
                 sendPacketWithFallback({
                     type: 'read_receipt',
                     eventId: 'read-' + Date.now(),
@@ -2101,6 +2632,7 @@ const htmlContent = `<!DOCTYPE html>
             }
             persistAndDraw();
             syncPresenceNow();
+            syncBlocklistToServer();
         }
         function addCustomNumberAccount() {
             var val = prompt('أدخل رقم الجوال أو المعرّف الخاص:');
@@ -2110,8 +2642,8 @@ const htmlContent = `<!DOCTYPE html>
             activeAcct = clean;
             persistAndDraw();
             syncPresenceNow();
+            syncBlocklistToServer();
         }
-        function verifyPhoneAccount() { addCustomNumberAccount(); }
         function switchActiveAccount(id) {
             var clean = cleanIdValue(id);
             if (!clean) return;
@@ -2119,6 +2651,7 @@ const htmlContent = `<!DOCTYPE html>
             if (myAccts.indexOf(clean) === -1) myAccts.unshift(clean);
             persistAndDraw();
             syncPresenceNow();
+            syncBlocklistToServer();
         }
         function renderAccts() {
             var badge = document.getElementById('accounts-count-badge');
@@ -2127,11 +2660,13 @@ const htmlContent = `<!DOCTYPE html>
             if (!box) return;
             box.innerHTML = myAccts.map(function(acc) {
                 var isCur = normalizeStr(acc) === normalizeStr(activeAcct);
-                return '<div class="flex items-center justify-between bg-[#08101a] border ' + (isCur ? 'border-teal-600' : 'border-slate-800') + ' p-2.5 rounded-xl text-xs">' +
-                    '<span class="font-mono font-semibold text-white">' + escapeHtml(acc) + (isCur ? ' <span class="text-[10px] text-teal-300">(نشط)</span>' : '') + '</span>' +
-                    '<div class="flex gap-1.5">' +
+                var canDelete = myAccts.length > 1;
+                return '<div class="flex items-center justify-between bg-[#08101a] border ' + (isCur ? 'border-teal-600' : 'border-slate-800') + ' p-2.5 rounded-xl text-xs gap-2">' +
+                    '<span class="font-mono font-semibold text-white truncate">' + escapeHtml(acc) + (isCur ? ' <span class="text-[10px] text-teal-300">(نشط)</span>' : '') + '</span>' +
+                    '<div class="flex gap-1.5 shrink-0">' +
                     '<button type="button" onclick="copyStringToClipboard(\\'' + escapeJsSingle(acc) + '\\')" class="bg-slate-800 px-2.5 py-1 rounded-lg text-[11px] text-slate-200">نسخ</button>' +
                     (!isCur ? '<button type="button" onclick="switchActiveAccount(\\'' + escapeJsSingle(acc) + '\\')" class="bg-[#164e63] px-2.5 py-1 rounded-lg text-[11px] text-white font-semibold">تفعيل</button>' : '') +
+                    (canDelete ? '<button type="button" onclick="deleteSavedAccount(\\'' + escapeJsSingle(acc) + '\\')" class="bg-rose-950/80 hover:bg-rose-900 border border-rose-800/60 px-2.5 py-1 rounded-lg text-[11px] text-rose-200 font-semibold">حذف</button>' : '') +
                     '</div></div>';
             }).join('');
         }
@@ -2148,15 +2683,19 @@ const htmlContent = `<!DOCTYPE html>
             if (badge) badge.textContent = toWesternDigits(filtered.length) + ' جهة';
             if (!box) return;
             box.innerHTML = filtered.map(function(c) {
-                var online = isPeerOnline(c.id) || c.id === DEFAULT_PEER;
+                var blocked = isPeerBlocked(c.id);
+                var online = !blocked && (isPeerOnline(c.id) || c.id === DEFAULT_PEER);
+                var isDefault = c.id === DEFAULT_PEER;
                 return '<div class="flex items-center justify-between bg-[#0d1926] border border-slate-800 p-3 rounded-xl text-xs gap-2">' +
                     '<div class="min-w-0">' +
-                    '<p class="font-bold text-white truncate">' + escapeHtml(c.name) + ' <span class="text-[10px] font-normal ' + (online ? 'text-emerald-400' : 'text-slate-500') + '">• ' + (online ? 'متصل' : 'غير متصل') + '</span></p>' +
+                    '<p class="font-bold text-white truncate">' + escapeHtml(c.name) + ' <span class="text-[10px] font-normal ' + (blocked ? 'text-rose-400' : (online ? 'text-emerald-400' : 'text-slate-500')) + '">• ' + (blocked ? 'محظور' : (online ? 'متصل' : 'غير متصل')) + '</span></p>' +
                     '<p class="font-mono text-[11px] text-slate-400 truncate">' + escapeHtml(c.id) + '</p>' +
                     '</div>' +
                     '<div class="flex gap-1.5 shrink-0">' +
                     '<button type="button" onclick="launchCall(\\'audio\\', \\'' + escapeJsSingle(c.id) + '\\')" class="bg-emerald-800 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded-lg"><i class="fa-solid fa-phone"></i></button>' +
                     '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(c.id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-lg font-semibold">دردشة</button>' +
+                    (!isDefault ? '<button type="button" onclick="setBlockStatusForPeer(\\'' + escapeJsSingle(c.id) + '\\', ' + (!blocked) + ')" class="bg-amber-950/80 hover:bg-amber-900 border border-amber-800/60 text-amber-200 px-2.5 py-1.5 rounded-lg font-semibold">' + (blocked ? 'فك' : 'حظر') + '</button>' : '') +
+                    (!isDefault ? '<button type="button" onclick="deleteSavedContact(\\'' + escapeJsSingle(c.id) + '\\')" title="حذف جهة الاتصال" class="bg-rose-950/80 hover:bg-rose-900 border border-rose-800/60 text-rose-200 px-2.5 py-1.5 rounded-lg font-semibold">حذف</button>' : '') +
                     '</div></div>';
             }).join('');
         }
@@ -2207,7 +2746,7 @@ const htmlContent = `<!DOCTYPE html>
         }
         function selectAllGroupCallPeers() {
             contacts.forEach(function(c) {
-                if (c.id && c.id !== DEFAULT_PEER && normalizeStr(c.id) !== normalizeStr(activeAcct)) {
+                if (c.id && c.id !== DEFAULT_PEER && normalizeStr(c.id) !== normalizeStr(activeAcct) && !isPeerBlocked(c.id)) {
                     selectedGroupCallPeers.add(c.id);
                 }
             });
@@ -2228,7 +2767,7 @@ const htmlContent = `<!DOCTYPE html>
                     '<button type="button" onclick="clearGroupCallPeers()" class="px-2.5 py-1 rounded-lg bg-slate-800 text-[11px] text-slate-300 font-semibold">إلغاء التحديد</button>';
             }
             if (picker) {
-                picker.innerHTML = contacts.filter(function(c) { return c.id !== DEFAULT_PEER; }).map(function(c) {
+                picker.innerHTML = contacts.filter(function(c) { return c.id !== DEFAULT_PEER && !isPeerBlocked(c.id); }).map(function(c) {
                     var picked = selectedGroupCallPeers.has(c.id);
                     return '<button type="button" onclick="toggleGroupCallPeer(\\'' + escapeJsSingle(c.id) + '\\')" class="px-2.5 py-1 rounded-full text-[11px] font-semibold border ' +
                         (picked ? 'bg-emerald-800 border-emerald-400 text-white' : 'bg-[#08101a] border-slate-800 text-slate-300') + '">' +
@@ -2237,8 +2776,8 @@ const htmlContent = `<!DOCTYPE html>
             }
         }
         function launchGroupCall(mode) {
-            var targets = Array.from(selectedGroupCallPeers);
-            if (!targets.length) return alert('اختر مشاركاً واحداً على الأقل للمكالمة الجماعية.');
+            var targets = Array.from(selectedGroupCallPeers).filter(function(t) { return !isPeerBlocked(t); });
+            if (!targets.length) return alert('اختر مشاركاً واحداً غير محظور للمكالمة الجماعية.');
             isGroupCallActive = true;
             activeGroupCallTargets = targets.slice();
             launchCall(mode, targets[0], true);
@@ -2384,6 +2923,9 @@ const htmlContent = `<!DOCTYPE html>
             if (!peer || peer === DEFAULT_PEER) {
                 return alert('اختر أو اكتب معرّف أو رقم الطرف الآخر أولاً.');
             }
+            if (!isGroupFlag && isPeerBlocked(peer)) {
+                return alert('هذا الطرف محظور ولا يمكن الاتصال به.');
+            }
             activeCallPeerId = peer;
             activeCallMode = mode === 'video' ? 'video' : 'audio';
             micMuted = false;
@@ -2436,6 +2978,7 @@ const htmlContent = `<!DOCTYPE html>
         function handleIncomingCallSignal(pkt) {
             var fromId = cleanIdValue(pkt.from);
             if (!fromId || normalizeStr(fromId) === normalizeStr(activeAcct)) return;
+            if (isPeerBlocked(fromId)) return;
 
             if (pkt.signalType === 'offer') {
                 pendingOfferData = pkt;
@@ -2560,7 +3103,12 @@ const htmlContent = `<!DOCTYPE html>
 
         function syncPresenceNow() {
             var ids = getAllWatchedIds();
-            var pkt = { type: 'register_ids', activeId: activeAcct, ids: ids };
+            var pkt = {
+                type: 'register_ids',
+                activeId: activeAcct,
+                ids: ids,
+                blockedIds: Array.from(blockedIdsSet)
+            };
             if (ws && ws.readyState === 1) {
                 try { ws.send(JSON.stringify(pkt)); } catch (e) {}
             }
@@ -2634,6 +3182,10 @@ const htmlContent = `<!DOCTYPE html>
                     var arr = Array.from(seenEventIds).slice(-1000);
                     seenEventIds = new Set(arr);
                 }
+            }
+
+            if (ev.from && isPeerBlocked(ev.from)) {
+                return;
             }
 
             if (ev.type === 'chat_message' && ev.msg) {
@@ -2746,6 +3298,7 @@ const htmlContent = `<!DOCTYPE html>
                 serverReachable = true;
                 setHeaderStatus('متصل مباشر', true);
                 syncPresenceNow();
+                syncBlocklistToServer();
                 flushOutboxQueue();
             };
 
@@ -2855,6 +3408,7 @@ const htmlContent = `<!DOCTYPE html>
             onCallDialInput();
             openSocket();
             syncPresenceNow();
+            syncBlocklistToServer();
             pollHttpSync();
             setInterval(pollHttpSync, 2500);
         });
@@ -2926,6 +3480,7 @@ const server = http.createServer((req, res) => {
         const matchedEvents = syncEvents.filter(ev => {
             if (ev.cursor <= since) return false;
             if (!watchedIds.size) return true;
+            if (ev.to && isBlockedServer(ev.from, ev.to)) return false;
             return watchedIds.has(normIdServer(ev.to)) || watchedIds.has(normIdServer(ev.from));
         });
 
@@ -2971,4 +3526,5 @@ wss.on('connection', wsClient => {
 });
 
 server.listen(PORT, () => {
-    console.log(`Sanad AI v${APP_VERSION} 
+    console.log(`Sanad AI v${APP_VERSION} running on http://localhost:${PORT}`);
+});

@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { WebSocketServer } = require('ws');
 
-const APP_VERSION = '12.6.3';
+const APP_VERSION = '12.6.4';
 const PORT = process.env.PORT || 3000;
 const ICON_BG_HEX = '#164e63';
 const ICON_ACCENT_HEX = '#f0fdfa';
@@ -286,11 +286,11 @@ async function generateAiAssistantReply(promptText) {
     if (/نسخة احتياطية|تصدير|استيراد|تحصيلات/i.test(q)) {
         return 'يمكنك تصدير نسخة احتياطية كاملة واستعراض سجل النسخ مرتباً من الأحدث للأقدم مع أعداد التحصيلات (الجهات، الرسائل، الحسابات، المجموعات، والمحظورين) داخل تبويب الذكاء.';
     }
-    if (/راديو|اذاعة|fm|محلية|اعلانات|قران|اخبار|اغاني/i.test(q)) {
-        return 'راديو سند FM يوفر قنوات متنوعة يختار منها كل مستمع بحرية: القرآن الكريم من القاهرة والسعودية، أخبار عربية عالمية (BBC عربي، مونت كارلو الدولية، سكاي نيوز عربية)، أغاني عربية متنوعة، وإذاعة سند المحلية.';
+    if (/راديو|اذاعة|fm|محلية|اعلانات|قران|اخبار|اغاني|سوى|اطفال/i.test(q)) {
+        return 'راديو سند FM يوفر قنوات متنوعة يختار منها كل مستمع بحرية: القرآن الكريم من القاهرة والسعودية، أخبار عربية عالمية (BBC عربي، مونت كارلو الدولية، سكاي نيوز عربية)، راديو سوى وأغاني عربية، قنوات أطفال تعليمية وثقافية، وإذاعة سند المحلية.';
     }
-    if (/طقس|رياح|مد|جزر|بحر/i.test(q)) {
-        return 'لوحة الطقس والرياح والمد والجزر في سند تعرض قراءة ذكية ومباشرة للمدينة أو الساحل الذي تختاره حسب رغبتك.';
+    if (/باب المندب|المخاء|طقس|رياح|مد|جزر|بحر/i.test(q)) {
+        return 'لوحة الطقس والرياح والمد والجزر في سند تشمل مضيق باب المندب والمخاء وعدن والحديدة وسواحل ومدن عربية وعالمية مختارة.';
     }
     return `بخصوص سؤالك («${q.slice(0, 120)}»): مساعد سند الذكي متاح للرد الفوري على أسئلتك ومساعدتك في الترجمة والنسخ الاحتياطية والراديو الذكي. (ولربط نموذج Gemini السحابي الكامل، أضف متغير البيئة GEMINI_API_KEY في إعدادات Render).`;
 }
@@ -861,7 +861,7 @@ const htmlContent = `<!DOCTYPE html>
                     <h2 class="text-sm font-bold text-amber-300"><i class="fa-solid fa-radio ml-1"></i> راديو سند FM العالمي</h2>
                     <span id="radio-state-badge" class="text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700 px-2.5 py-0.5 rounded-full">متوقف</span>
                 </div>
-                <p class="text-[11px] text-slate-400">اختر أي قناة يناسب ذوقك أو اهتمامك الآن، وشغّلها أو أوقفها في أي وقت دون أي تأثير تلقائي.</p>
+                <p class="text-[11px] text-slate-400">اختر القناة التي تناسبك الآن وشغّلها أو أوقفها في أي وقت، مع احتياطي صوتي ذكي يضمن استمرار البث دون توقف.</p>
                 <div class="flex gap-2 flex-wrap">
                     <select id="radio-station-select" onchange="onRadioStationChanged()" class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
                         <optgroup label="إذاعة سند">
@@ -877,10 +877,14 @@ const htmlContent = `<!DOCTYPE html>
                             <option value="mcd_arabic|مونت كارلو الدولية|https://www.mc-doualiya.com/live">مونت كارلو الدولية</option>
                             <option value="sky_arabic|سكاي نيوز عربية|https://www.skynewsarabia.com/radio-%D8%B1%D8%A7%D8%AF%D9%8A%D9%88-%D8%B3%D9%83%D8%A7%D9%8A-%D9%86%D9%8A%D9%88%D8%B2-%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9">سكاي نيوز عربية</option>
                         </optgroup>
-                        <optgroup label="أغاني عربية متنوعة وعالمية الذائقة">
+                        <optgroup label="أغاني عربية (راديو سوى وقنوات منوعة)">
+                            <option value="radio_sawa|راديو سوى -- أغاني عربية|https://mytuner-radio.com/radio/radio-sawa-rdyw-sw-kuwait-412489/">راديو سوى -- أغاني عربية</option>
                             <option value="arabic_pop_world|أغاني عربية عصرية ومحبوبة|https://streams.fluxfm.de/Chillhop/mp3-128/streams.fluxfm.de/">أغاني عربية عصرية ومحبوبة</option>
                             <option value="arabic_stars|نجوم الأغنية العربية|https://www.nogoumfm.net/live-radio-stream/">نجوم الأغنية العربية</option>
-                            <option value="arabic_oriental|ألحان وأغاني شرقية وعربية|https://www.arabesquefm.com/">ألحان وأغاني شرقية وعربية</option>
+                        </optgroup>
+                        <optgroup label="أطفال -- تعليمية وثقافية">
+                            <option value="kids_fm|راديو الأطفال كيدز إف إم (تعليمي وثقافي)|https://thekidsfm.com/index-ar.html">راديو الأطفال كيدز إف إم (تعليمي وثقافي)</option>
+                            <option value="sanad_kids|إذاعة سند للأطفال -- قصص ومعرفة|LOCAL_KIDS">إذاعة سند للأطفال -- قصص ومعرفة</option>
                         </optgroup>
                     </select>
                     <button type="button" id="radio-toggle-btn" onclick="toggleSanadRadioFm()" class="bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl font-semibold"><i class="fa-solid fa-play ml-1"></i>تشغيل الراديو</button>
@@ -890,19 +894,31 @@ const htmlContent = `<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- لوحة الطقس والرياح والمد والجزر حسب اختيار المستخدم -->
+            <!-- لوحة الطقس والرياح والمد والجزر مرتبة عالمياً وعربياً -->
             <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
                 <div class="flex items-center justify-between gap-2">
                     <h2 class="text-sm font-bold text-sky-300"><i class="fa-solid fa-wind ml-1"></i> الطقس والرياح والمد والجزر</h2>
-                    <span id="marine-city-badge" class="text-[10px] font-mono bg-sky-950 text-sky-200 border border-sky-800 px-2.5 py-0.5 rounded-full">عدن • خليج عدن</span>
+                    <span id="marine-city-badge" class="text-[10px] font-mono bg-sky-950 text-sky-200 border border-sky-800 px-2.5 py-0.5 rounded-full">مضيق باب المندب</span>
                 </div>
                 <div class="flex gap-2">
                     <select id="marine-spot-select" onchange="refreshWeatherAndMarine()" class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
-                        <option value="12.7855,45.0187|عدن • خليج عدن">عدن • خليج عدن</option>
-                        <option value="21.4858,39.1925|جدة • البحر الأحمر">جدة • البحر الأحمر</option>
-                        <option value="25.2048,55.2708|دبي • الخليج العربي">دبي • الخليج العربي</option>
-                        <option value="31.2001,29.9187|الإسكندرية • المتوسط">الإسكندرية • المتوسط</option>
-                        <option value="33.8938,35.5018|بيروت • شرق المتوسط">بيروت • شرق المتوسط</option>
+                        <optgroup label="باب المندب والمخاء واليمن">
+                            <option value="12.5833,43.3333|مضيق باب المندب">مضيق باب المندب</option>
+                            <option value="13.3178,43.2431|المخاء • البحر الأحمر">المخاء • البحر الأحمر</option>
+                            <option value="12.7855,45.0187|عدن • خليج عدن">عدن • خليج عدن</option>
+                            <option value="14.7978,42.9545|الحديدة • البحر الأحمر">الحديدة • البحر الأحمر</option>
+                        </optgroup>
+                        <optgroup label="سواحل ومدن عربية">
+                            <option value="21.4858,39.1925|جدة • البحر الأحمر">جدة • البحر الأحمر</option>
+                            <option value="25.2048,55.2708|دبي • الخليج العربي">دبي • الخليج العربي</option>
+                            <option value="31.2001,29.9187|الإسكندرية • المتوسط">الإسكندرية • المتوسط</option>
+                            <option value="33.8938,35.5018|بيروت • شرق المتوسط">بيروت • شرق المتوسط</option>
+                        </optgroup>
+                        <optgroup label="مراكز عالمية مختارة">
+                            <option value="51.5072,-0.1276|لندن • الأطلسي والتايمز">لندن • الأطلسي والتايمز</option>
+                            <option value="40.7128,-74.0060|نيويورك • الساحل الأطلسي">نيويورك • الساحل الأطلسي</option>
+                            <option value="35.6762,139.6503|طوكيو • خليج طوكيو">طوكيو • خليج طوكيو</option>
+                        </optgroup>
                     </select>
                     <button type="button" onclick="refreshWeatherAndMarine()" class="bg-sky-800 hover:bg-sky-700 text-white px-3.5 py-2 rounded-xl font-semibold">تحديث</button>
                 </div>
@@ -975,6 +991,7 @@ const htmlContent = `<!DOCTYPE html>
         var activeReplyTarget = null;
         var radioPlaying = false;
         var localRadioCycleTimer = null;
+        var radioFallbackTimer = null;
 
         var currentPeer = DEFAULT_PEER;
         var activePane = 'chats';
@@ -1021,6 +1038,12 @@ const htmlContent = `<!DOCTYPE html>
             { tag: 'إعلان • سند', line: 'مساحة إعلانية: احجز كودك الحصري 88 وتواصل عبر الرسائل والصوت والذكاء الاصطناعي من مكان واحد داخل سند.' },
             { tag: 'برنامج • حكاية وذائقة', line: 'فقرة حكاية وذائقة: في صباح الجمعة نمنح أنفسنا دقيقة للتأمل واختيار الكلمة الطيبة التي تبقى أثرها.' },
             { tag: 'إعلان • خدمات محلية', line: 'مساحة إعلانية: للتعريف بخدماتك أو مشاريعك عبر إذاعة سند، رتّب رسالتك بوضوح لتصل مباشرة للمستمع المهتم.' }
+        ];
+
+        var KIDS_CHANNEL_SCHEDULE = [
+            { tag: 'حكاية صغيرة', line: 'أهلاً بأصدقائنا الصغار في فقرة حكاية ومعرفة: النملة الذكية والغيمة الطيبة التي سقت الحقل الصغير.' },
+            { tag: 'سؤال وثقافة', line: 'معلومة سريعة: لماذا نسمع صدى الصوت في الأماكن الواسعة؟ لأن الصوت يرتد عن الأسطح ويعود إلينا.' },
+            { tag: 'لغة وأدب', line: 'كلمة اليوم: «الفضول» هو الرغبة الجميلة في طرح الأسئلة وتعلم أشياء جديدة كل يوم.' }
         ];
 
         function cleanIdValue(val) {
@@ -1076,10 +1099,10 @@ const htmlContent = `<!DOCTYPE html>
             var box = document.getElementById('marine-summary-box');
             if (!sel || !box) return;
             var parts = sel.value.split('|');
-            var coords = (parts[0] || '12.7855,45.0187').split(',');
+            var coords = (parts[0] || '12.5833,43.3333').split(',');
             var lat = coords[0];
             var lon = coords[1];
-            var spotLabel = parts[1] || 'عدن • خليج عدن';
+            var spotLabel = parts[1] || 'مضيق باب المندب';
             if (badge) badge.textContent = spotLabel;
             box.innerHTML = '<div>جاري تحديث قراءة الطقس والرياح وحركة المد والموج...</div>';
 
@@ -1174,17 +1197,20 @@ const htmlContent = `<!DOCTYPE html>
         function stopLocalSanadFeed() {
             clearInterval(localRadioCycleTimer);
             localRadioCycleTimer = null;
+            clearTimeout(radioFallbackTimer);
+            radioFallbackTimer = null;
             try {
                 if ('speechSynthesis' in window) window.speechSynthesis.cancel();
             } catch (e) {}
         }
 
-        function startLocalSanadFeed(stationName) {
+        function startStructuredFeed(stationName, scheduleArr) {
             stopLocalSanadFeed();
+            var list = Array.isArray(scheduleArr) && scheduleArr.length ? scheduleArr : LOCAL_SANAD_SCHEDULE;
             var idx = 0;
             var runSegment = function() {
                 if (!radioPlaying) return;
-                var slot = LOCAL_SANAD_SCHEDULE[idx % LOCAL_SANAD_SCHEDULE.length];
+                var slot = list[idx % list.length];
                 idx += 1;
                 var hostBox = document.getElementById('radio-ai-host-box');
                 if (hostBox) hostBox.textContent = stationName + ' • [' + slot.tag + ']: ' + slot.line;
@@ -1202,7 +1228,7 @@ const htmlContent = `<!DOCTYPE html>
             localRadioCycleTimer = setInterval(runSegment, 22000);
         }
 
-        function updateRadioAiCommentary(stationName, isPlaying, stationId) {
+        function updateRadioAiCommentary(stationName, isPlaying, stationId, usedFallback) {
             var hostBox = document.getElementById('radio-ai-host-box');
             if (!hostBox) return;
             if (!isPlaying) {
@@ -1210,18 +1236,19 @@ const htmlContent = `<!DOCTYPE html>
                 hostBox.textContent = 'مقدم سند AI: الراديو في وضع الإيقاف ولن يستهلك أي بيانات حتى تضغط «تشغيل الراديو».';
                 return;
             }
-            if (stationId === 'local_sanad' && !SANAD_LOCAL_RADIO_URL) {
-                return;
-            }
+            if (usedFallback) return;
+            if (stationId === 'local_sanad' && !SANAD_LOCAL_RADIO_URL) return;
+            if (stationId === 'sanad_kids') return;
+
             hostBox.textContent = 'مقدم سند AI: جاري تشغيل «' + stationName + '»...';
             fetch('/api/ai/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: 'اكتب مقدمة إذاعية قصيرة ومناسبة لصباح الجمعة في سطر واحد فقط للقناة: ' + stationName })
+                body: JSON.stringify({ prompt: 'اكتب مقدمة إذاعية قصيرة في سطر واحد فقط للقناة: ' + stationName })
             })
             .then(function(r) { return r.json(); })
             .then(function(data) {
-                if (radioPlaying && hostBox && data && data.reply && !(stationId === 'local_sanad' && !SANAD_LOCAL_RADIO_URL)) {
+                if (radioPlaying && hostBox && data && data.reply && !(stationId === 'local_sanad' && !SANAD_LOCAL_RADIO_URL) && stationId !== 'sanad_kids') {
                     hostBox.textContent = 'مقدم سند AI (' + stationName + '): ' + data.reply;
                 }
             })
@@ -1249,17 +1276,48 @@ const htmlContent = `<!DOCTYPE html>
 
         function applyRadioAudioSource(info) {
             var aud = document.getElementById('radio-audio-el');
+            stopLocalSanadFeed();
+            if (!info) return;
+
+            if (info.id === 'sanad_kids' || info.url === 'LOCAL_KIDS') {
+                if (aud) { try { aud.pause(); aud.src = ''; } catch (e) {} }
+                startStructuredFeed(info.name, KIDS_CHANNEL_SCHEDULE);
+                return;
+            }
+
             if (info.url && info.url !== 'LOCAL_SANAD') {
-                stopLocalSanadFeed();
+                var fallbackEngaged = false;
+                var triggerFallback = function() {
+                    if (!radioPlaying || fallbackEngaged) return;
+                    fallbackEngaged = true;
+                    if (aud) { try { aud.pause(); aud.src = ''; } catch (e) {} }
+                    startStructuredFeed(info.name + ' (بث بديل مستمر)', LOCAL_SANAD_SCHEDULE);
+                    updateRadioAiCommentary(info.name, true, info.id, true);
+                };
+
                 if (aud) {
+                    aud.onerror = triggerFallback;
+                    aud.onstalled = function() {
+                        clearTimeout(radioFallbackTimer);
+                        radioFallbackTimer = setTimeout(triggerFallback, 4500);
+                    };
+                    aud.onplaying = function() {
+                        clearTimeout(radioFallbackTimer);
+                    };
                     aud.src = info.url;
-                    aud.play().catch(function() {});
+                    var p = aud.play();
+                    if (p && typeof p.catch === 'function') {
+                        p.catch(triggerFallback);
+                    }
+                    radioFallbackTimer = setTimeout(function() {
+                        if (radioPlaying && aud.paused) triggerFallback();
+                    }, 5000);
+                } else {
+                    triggerFallback();
                 }
             } else {
-                if (aud) {
-                    try { aud.pause(); aud.src = ''; } catch (e) {}
-                }
-                startLocalSanadFeed(info.name);
+                if (aud) { try { aud.pause(); aud.src = ''; } catch (e) {} }
+                startStructuredFeed(info.name, LOCAL_SANAD_SCHEDULE);
             }
         }
 
@@ -1270,24 +1328,27 @@ const htmlContent = `<!DOCTYPE html>
                 radioPlaying = false;
                 stopLocalSanadFeed();
                 if (aud) {
+                    aud.onerror = null;
+                    aud.onstalled = null;
+                    aud.onplaying = null;
                     try { aud.pause(); aud.src = ''; } catch (e) {}
                 }
                 syncRadioUi();
-                updateRadioAiCommentary(info.name, false, info.id);
+                updateRadioAiCommentary(info.name, false, info.id, false);
                 copyStringToClipboard('', 'تم إيقاف راديو سند FM');
                 return;
             }
             radioPlaying = true;
             syncRadioUi();
             applyRadioAudioSource(info);
-            updateRadioAiCommentary(info.name, true, info.id);
+            updateRadioAiCommentary(info.name, true, info.id, false);
         }
 
         function onRadioStationChanged() {
             var info = getSelectedRadioInfo();
             if (!radioPlaying) return;
             applyRadioAudioSource(info);
-            updateRadioAiCommentary(info.name, true, info.id);
+            updateRadioAiCommentary(info.name, true, info.id, false);
         }
 
         function computeBackupCounts(snapshotObj) {
@@ -1853,15 +1914,15 @@ const htmlContent = `<!DOCTYPE html>
                 var rawVault = localStorage.getItem('sanad_persistent_vault_v1');
                 var vault = rawVault ? JSON.parse(rawVault) : null;
 
-                var sActive = (vault && vault.activeAcct) || localStorage.getItem('sanad1263_active') || localStorage.getItem('sanad1262_active') || localStorage.getItem('sanad1261_active');
-                var sAccts = (vault && vault.myAccts) || JSON.parse(localStorage.getItem('sanad1263_accts') || localStorage.getItem('sanad1262_accts') || 'null');
-                var sVerified = (vault && vault.verifiedPhones) || JSON.parse(localStorage.getItem('sanad1263_verified') || localStorage.getItem('sanad1262_verified') || 'null');
-                var sContacts = (vault && vault.contacts) || JSON.parse(localStorage.getItem('sanad1263_contacts') || localStorage.getItem('sanad1262_contacts') || 'null');
-                var sBlocked = (vault && vault.blocked) || JSON.parse(localStorage.getItem('sanad1263_blocked') || localStorage.getItem('sanad1262_blocked') || 'null');
-                var sThreads = (vault && vault.threads) || JSON.parse(localStorage.getItem('sanad1263_threads') || localStorage.getItem('sanad1262_threads') || 'null');
-                var sGroups = (vault && vault.groups) || JSON.parse(localStorage.getItem('sanad1263_groups') || localStorage.getItem('sanad1262_groups') || 'null');
-                var sBackups = (vault && vault.backupHistory) || JSON.parse(localStorage.getItem('sanad1263_backups') || localStorage.getItem('sanad1262_backups') || 'null');
-                var sCursor = Number((vault && vault.cursor) || localStorage.getItem('sanad1263_cursor') || localStorage.getItem('sanad1262_cursor') || '0');
+                var sActive = (vault && vault.activeAcct) || localStorage.getItem('sanad1264_active') || localStorage.getItem('sanad1263_active') || localStorage.getItem('sanad1262_active');
+                var sAccts = (vault && vault.myAccts) || JSON.parse(localStorage.getItem('sanad1264_accts') || localStorage.getItem('sanad1263_accts') || 'null');
+                var sVerified = (vault && vault.verifiedPhones) || JSON.parse(localStorage.getItem('sanad1264_verified') || localStorage.getItem('sanad1263_verified') || 'null');
+                var sContacts = (vault && vault.contacts) || JSON.parse(localStorage.getItem('sanad1264_contacts') || localStorage.getItem('sanad1263_contacts') || 'null');
+                var sBlocked = (vault && vault.blocked) || JSON.parse(localStorage.getItem('sanad1264_blocked') || localStorage.getItem('sanad1263_blocked') || 'null');
+                var sThreads = (vault && vault.threads) || JSON.parse(localStorage.getItem('sanad1264_threads') || localStorage.getItem('sanad1263_threads') || 'null');
+                var sGroups = (vault && vault.groups) || JSON.parse(localStorage.getItem('sanad1264_groups') || localStorage.getItem('sanad1263_groups') || 'null');
+                var sBackups = (vault && vault.backupHistory) || JSON.parse(localStorage.getItem('sanad1264_backups') || localStorage.getItem('sanad1263_backups') || 'null');
+                var sCursor = Number((vault && vault.cursor) || localStorage.getItem('sanad1264_cursor') || localStorage.getItem('sanad1263_cursor') || '0');
 
                 if (sActive) activeAcct = cleanIdValue(sActive);
                 if (Array.isArray(sAccts) && sAccts.length) myAccts = sAccts.map(cleanIdValue).filter(Boolean);
@@ -1880,15 +1941,15 @@ const htmlContent = `<!DOCTYPE html>
         function persistState() {
             try {
                 var blockedArr = Array.from(blockedIdsSet);
-                localStorage.setItem('sanad1263_active', activeAcct);
-                localStorage.setItem('sanad1263_accts', JSON.stringify(myAccts));
-                localStorage.setItem('sanad1263_verified', JSON.stringify(verifiedPhonesMap));
-                localStorage.setItem('sanad1263_contacts', JSON.stringify(contacts));
-                localStorage.setItem('sanad1263_blocked', JSON.stringify(blockedArr));
-                localStorage.setItem('sanad1263_threads', JSON.stringify(acctThreads));
-                localStorage.setItem('sanad1263_groups', JSON.stringify(sanadGroups));
-                localStorage.setItem('sanad1263_backups', JSON.stringify(backupRecordsHistory));
-                localStorage.setItem('sanad1263_cursor', String(lastSyncCursor));
+                localStorage.setItem('sanad1264_active', activeAcct);
+                localStorage.setItem('sanad1264_accts', JSON.stringify(myAccts));
+                localStorage.setItem('sanad1264_verified', JSON.stringify(verifiedPhonesMap));
+                localStorage.setItem('sanad1264_contacts', JSON.stringify(contacts));
+                localStorage.setItem('sanad1264_blocked', JSON.stringify(blockedArr));
+                localStorage.setItem('sanad1264_threads', JSON.stringify(acctThreads));
+                localStorage.setItem('sanad1264_groups', JSON.stringify(sanadGroups));
+                localStorage.setItem('sanad1264_backups', JSON.stringify(backupRecordsHistory));
+                localStorage.setItem('sanad1264_cursor', String(lastSyncCursor));
 
                 localStorage.setItem('sanad_persistent_vault_v1', JSON.stringify({
                     activeAcct: activeAcct,

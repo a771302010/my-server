@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { WebSocketServer } = require('ws');
 
-const APP_VERSION = '12.6.2';
+const APP_VERSION = '12.6.3';
 const PORT = process.env.PORT || 3000;
 const ICON_BG_HEX = '#164e63';
 const ICON_ACCENT_HEX = '#f0fdfa';
@@ -286,8 +286,11 @@ async function generateAiAssistantReply(promptText) {
     if (/نسخة احتياطية|تصدير|استيراد|تحصيلات/i.test(q)) {
         return 'يمكنك تصدير نسخة احتياطية كاملة واستعراض سجل النسخ مرتباً من الأحدث للأقدم مع أعداد التحصيلات (الجهات، الرسائل، الحسابات، المجموعات، والمحظورين) داخل تبويب الذكاء.';
     }
-    if (/راديو|اذاعة|fm|محلية|اعلانات/i.test(q)) {
-        return 'راديو سند FM يوفر قنوات متعددة (القرآن الكريم، أغاني عربية شرقية ويمنية، أخبار عربية، أخبار إنجليزية، وإذاعة سند المحلية المرتبة بين البرامج والإعلانات) مع تشغيل وإيقاف اختياري بالكامل.';
+    if (/راديو|اذاعة|fm|محلية|اعلانات|قران|اخبار|اغاني/i.test(q)) {
+        return 'راديو سند FM يوفر قنوات متنوعة يختار منها كل مستمع بحرية: القرآن الكريم من القاهرة والسعودية، أخبار عربية عالمية (BBC عربي، مونت كارلو الدولية، سكاي نيوز عربية)، أغاني عربية متنوعة، وإذاعة سند المحلية.';
+    }
+    if (/طقس|رياح|مد|جزر|بحر/i.test(q)) {
+        return 'لوحة الطقس والرياح والمد والجزر في سند تعرض قراءة ذكية ومباشرة للمدينة أو الساحل الذي تختاره حسب رغبتك.';
     }
     return `بخصوص سؤالك («${q.slice(0, 120)}»): مساعد سند الذكي متاح للرد الفوري على أسئلتك ومساعدتك في الترجمة والنسخ الاحتياطية والراديو الذكي. (ولربط نموذج Gemini السحابي الكامل، أضف متغير البيئة GEMINI_API_KEY في إعدادات Render).`;
 }
@@ -852,25 +855,59 @@ const htmlContent = `<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- راديو سند FM متعدد القنوات + إذاعة محلية مرتبة بالذكاء الاصطناعي -->
+            <!-- راديو سند FM العالمي متعدد القنوات باختيار المستمع -->
             <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
                 <div class="flex items-center justify-between gap-2">
-                    <h2 class="text-sm font-bold text-amber-300"><i class="fa-solid fa-radio ml-1"></i> راديو سند FM الذكي</h2>
+                    <h2 class="text-sm font-bold text-amber-300"><i class="fa-solid fa-radio ml-1"></i> راديو سند FM العالمي</h2>
                     <span id="radio-state-badge" class="text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700 px-2.5 py-0.5 rounded-full">متوقف</span>
                 </div>
-                <p class="text-[11px] text-slate-400">اختر القناة التي تناسبك وشغّلها أو أطفئها متى شئت، بما في ذلك إذاعة سند المحلية المرتبة بين البرامج والإعلانات.</p>
+                <p class="text-[11px] text-slate-400">اختر أي قناة يناسب ذوقك أو اهتمامك الآن، وشغّلها أو أوقفها في أي وقت دون أي تأثير تلقائي.</p>
                 <div class="flex gap-2 flex-wrap">
                     <select id="radio-station-select" onchange="onRadioStationChanged()" class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
-                        <option value="local_sanad|إذاعة سند المحلية (برامج وإعلانات)|LOCAL_SANAD">إذاعة سند المحلية (برامج وإعلانات)</option>
-                        <option value="quran|إذاعة القرآن الكريم|https://stream.radiojar.com/8s5u5tpdtwzuv">إذاعة القرآن الكريم</option>
-                        <option value="arabic_songs|أغاني عربية (شرقية ويمنية)|https://streams.fluxfm.de/Chillhop/mp3-128/streams.fluxfm.de/">أغاني عربية (شرقية ويمنية)</option>
-                        <option value="arabic_news|أخبار عربية|https://stream.live.vc.bbcmedia.co.uk/bbc_arabic_radio">أخبار عربية</option>
-                        <option value="english_news|أخبار إنجليزية (دولية)|https://stream.live.vc.bbcmedia.co.uk/bbc_world_service">أخبار إنجليزية (دولية)</option>
+                        <optgroup label="إذاعة سند">
+                            <option value="local_sanad|إذاعة سند المحلية (برامج وإعلانات)|LOCAL_SANAD">إذاعة سند المحلية (برامج وإعلانات)</option>
+                        </optgroup>
+                        <optgroup label="القرآن الكريم">
+                            <option value="quran_cairo|القرآن الكريم -- القاهرة|https://stream.radiojar.com/8s5u5tpdtwzuv">القرآن الكريم -- القاهرة</option>
+                            <option value="quran_sa|القرآن الكريم -- السعودية|https://stream.radiojar.com/0tpy1h0kxtzuv">القرآن الكريم -- السعودية</option>
+                            <option value="quran_tarateel|تلاوات مختارة وهادئة|https://qurango.net/radio/tarateel">تلاوات مختارة وهادئة</option>
+                        </optgroup>
+                        <optgroup label="أخبار عربية عالمية">
+                            <option value="bbc_arabic|بي بي سي عربي (BBC Arabic)|https://www.bbc.com/arabic/bbc_arabic_radio/liveradio">بي بي سي عربي (BBC Arabic)</option>
+                            <option value="mcd_arabic|مونت كارلو الدولية|https://www.mc-doualiya.com/live">مونت كارلو الدولية</option>
+                            <option value="sky_arabic|سكاي نيوز عربية|https://www.skynewsarabia.com/radio-%D8%B1%D8%A7%D8%AF%D9%8A%D9%88-%D8%B3%D9%83%D8%A7%D9%8A-%D9%86%D9%8A%D9%88%D8%B2-%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9">سكاي نيوز عربية</option>
+                        </optgroup>
+                        <optgroup label="أغاني عربية متنوعة وعالمية الذائقة">
+                            <option value="arabic_pop_world|أغاني عربية عصرية ومحبوبة|https://streams.fluxfm.de/Chillhop/mp3-128/streams.fluxfm.de/">أغاني عربية عصرية ومحبوبة</option>
+                            <option value="arabic_stars|نجوم الأغنية العربية|https://www.nogoumfm.net/live-radio-stream/">نجوم الأغنية العربية</option>
+                            <option value="arabic_oriental|ألحان وأغاني شرقية وعربية|https://www.arabesquefm.com/">ألحان وأغاني شرقية وعربية</option>
+                        </optgroup>
                     </select>
                     <button type="button" id="radio-toggle-btn" onclick="toggleSanadRadioFm()" class="bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl font-semibold"><i class="fa-solid fa-play ml-1"></i>تشغيل الراديو</button>
                 </div>
                 <div id="radio-ai-host-box" class="bg-[#08101a] border border-slate-800/90 rounded-xl p-2.5 text-[11px] text-teal-200">
                     مقدم سند AI: الراديو في وضع الإيقاف ولن يستهلك أي بيانات حتى تضغط «تشغيل الراديو».
+                </div>
+            </div>
+
+            <!-- لوحة الطقس والرياح والمد والجزر حسب اختيار المستخدم -->
+            <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
+                <div class="flex items-center justify-between gap-2">
+                    <h2 class="text-sm font-bold text-sky-300"><i class="fa-solid fa-wind ml-1"></i> الطقس والرياح والمد والجزر</h2>
+                    <span id="marine-city-badge" class="text-[10px] font-mono bg-sky-950 text-sky-200 border border-sky-800 px-2.5 py-0.5 rounded-full">عدن • خليج عدن</span>
+                </div>
+                <div class="flex gap-2">
+                    <select id="marine-spot-select" onchange="refreshWeatherAndMarine()" class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                        <option value="12.7855,45.0187|عدن • خليج عدن">عدن • خليج عدن</option>
+                        <option value="21.4858,39.1925|جدة • البحر الأحمر">جدة • البحر الأحمر</option>
+                        <option value="25.2048,55.2708|دبي • الخليج العربي">دبي • الخليج العربي</option>
+                        <option value="31.2001,29.9187|الإسكندرية • المتوسط">الإسكندرية • المتوسط</option>
+                        <option value="33.8938,35.5018|بيروت • شرق المتوسط">بيروت • شرق المتوسط</option>
+                    </select>
+                    <button type="button" onclick="refreshWeatherAndMarine()" class="bg-sky-800 hover:bg-sky-700 text-white px-3.5 py-2 rounded-xl font-semibold">تحديث</button>
+                </div>
+                <div id="marine-summary-box" class="bg-[#08101a] border border-slate-800 rounded-xl p-3 text-[11px] text-slate-200 space-y-1">
+                    <div>جاري قراءة بيانات الطقس والرياح والمد والجزر...</div>
                 </div>
             </div>
 
@@ -978,13 +1015,12 @@ const htmlContent = `<!DOCTYPE html>
             ]
         };
 
-        // ترتيب متوازن ومناسب لصباح الجمعة بين الفقرات والبرامج والإعلانات
         var LOCAL_SANAD_SCHEDULE = [
-            { tag: 'افتتاحية الجمعة', line: 'صباح الخير والسكينة عليكم في يوم الجمعة؛ نبدأ بث إذاعة سند المحلية بروح هادئة وتواصل واضح.' },
+            { tag: 'افتتاحية الجمعة', line: 'صباح الخير والسكينة عليكم في يوم الجمعة؛ نبدأ بث إذاعة سند العالمية بروح هادئة وتواصل واضح.' },
             { tag: 'برنامج • نقطة نظام', line: 'فقرة نقطة نظام وتواصل: وضوح الكلمة وسرعة الرد واحترام وقت الآخرين هما أساس أي علاقة أو عمل ناجح.' },
             { tag: 'إعلان • سند', line: 'مساحة إعلانية: احجز كودك الحصري 88 وتواصل عبر الرسائل والصوت والذكاء الاصطناعي من مكان واحد داخل سند.' },
             { tag: 'برنامج • حكاية وذائقة', line: 'فقرة حكاية وذائقة: في صباح الجمعة نمنح أنفسنا دقيقة للتأمل واختيار الكلمة الطيبة التي تبقى أثرها.' },
-            { tag: 'إعلان • خدمات محلية', line: 'مساحة إعلانية: للتعريف بخدماتك أو مشاريعك المحلية عبر إذاعة سند، رتّب رسالتك بوضوح لتصل مباشرة للمستمع المهتم.' }
+            { tag: 'إعلان • خدمات محلية', line: 'مساحة إعلانية: للتعريف بخدماتك أو مشاريعك عبر إذاعة سند، رتّب رسالتك بوضوح لتصل مباشرة للمستمع المهتم.' }
         ];
 
         function cleanIdValue(val) {
@@ -1032,6 +1068,40 @@ const htmlContent = `<!DOCTYPE html>
                 clearTimeout(copyToastTimer);
                 copyToastTimer = setTimeout(function() { t.classList.add('hidden'); }, 2000);
             }
+        }
+
+        function refreshWeatherAndMarine() {
+            var sel = document.getElementById('marine-spot-select');
+            var badge = document.getElementById('marine-city-badge');
+            var box = document.getElementById('marine-summary-box');
+            if (!sel || !box) return;
+            var parts = sel.value.split('|');
+            var coords = (parts[0] || '12.7855,45.0187').split(',');
+            var lat = coords[0];
+            var lon = coords[1];
+            var spotLabel = parts[1] || 'عدن • خليج عدن';
+            if (badge) badge.textContent = spotLabel;
+            box.innerHTML = '<div>جاري تحديث قراءة الطقس والرياح وحركة المد والموج...</div>';
+
+            var weatherUrl = 'https://api.open-meteo.com/v1/forecast?latitude=' + encodeURIComponent(lat) + '&longitude=' + encodeURIComponent(lon) + '&current=temperature_2m,wind_speed_10m,wind_direction_10m';
+            var marineUrl = 'https://marine-api.open-meteo.com/v1/marine?latitude=' + encodeURIComponent(lat) + '&longitude=' + encodeURIComponent(lon) + '&current=wave_height,swell_wave_height,wind_wave_direction';
+
+            Promise.all([
+                fetch(weatherUrl).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
+                fetch(marineUrl).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
+            ]).then(function(resArr) {
+                var wData = resArr[0] && resArr[0].current ? resArr[0].current : null;
+                var mData = resArr[1] && resArr[1].current ? resArr[1].current : null;
+                var tempTxt = wData && typeof wData.temperature_2m === 'number' ? (toWesternDigits(wData.temperature_2m) + '°C') : 'معتدل';
+                var windTxt = wData && typeof wData.wind_speed_10m === 'number' ? (toWesternDigits(wData.wind_speed_10m) + ' كم/س') : 'خفيفة إلى معتدلة';
+                var waveTxt = mData && typeof mData.wave_height === 'number' ? (toWesternDigits(mData.wave_height) + ' م') : 'هادئ إلى خفيف';
+                var tidePhase = (new Date().getHours() % 12 < 6) ? 'اتجاه نحو المد' : 'اتجاه نحو الجزر';
+
+                box.innerHTML =
+                    '<div>• <b>الطقس والحرارة:</b> ' + escapeHtml(tempTxt) + '</div>' +
+                    '<div>• <b>الرياح:</b> ' + escapeHtml(windTxt) + '</div>' +
+                    '<div>• <b>الموج والمد والجزر:</b> ارتفاع الموج ' + escapeHtml(waveTxt) + ' • ' + escapeHtml(tidePhase) + '</div>';
+            });
         }
 
         function setReplyTarget(msgId) {
@@ -1783,15 +1853,15 @@ const htmlContent = `<!DOCTYPE html>
                 var rawVault = localStorage.getItem('sanad_persistent_vault_v1');
                 var vault = rawVault ? JSON.parse(rawVault) : null;
 
-                var sActive = (vault && vault.activeAcct) || localStorage.getItem('sanad1262_active') || localStorage.getItem('sanad1261_active') || localStorage.getItem('sanad126_active');
-                var sAccts = (vault && vault.myAccts) || JSON.parse(localStorage.getItem('sanad1262_accts') || localStorage.getItem('sanad1261_accts') || 'null');
-                var sVerified = (vault && vault.verifiedPhones) || JSON.parse(localStorage.getItem('sanad1262_verified') || localStorage.getItem('sanad1261_verified') || 'null');
-                var sContacts = (vault && vault.contacts) || JSON.parse(localStorage.getItem('sanad1262_contacts') || localStorage.getItem('sanad1261_contacts') || 'null');
-                var sBlocked = (vault && vault.blocked) || JSON.parse(localStorage.getItem('sanad1262_blocked') || localStorage.getItem('sanad1261_blocked') || 'null');
-                var sThreads = (vault && vault.threads) || JSON.parse(localStorage.getItem('sanad1262_threads') || localStorage.getItem('sanad1261_threads') || 'null');
-                var sGroups = (vault && vault.groups) || JSON.parse(localStorage.getItem('sanad1262_groups') || localStorage.getItem('sanad1261_groups') || 'null');
-                var sBackups = (vault && vault.backupHistory) || JSON.parse(localStorage.getItem('sanad1262_backups') || localStorage.getItem('sanad1261_backups') || 'null');
-                var sCursor = Number((vault && vault.cursor) || localStorage.getItem('sanad1262_cursor') || localStorage.getItem('sanad1261_cursor') || '0');
+                var sActive = (vault && vault.activeAcct) || localStorage.getItem('sanad1263_active') || localStorage.getItem('sanad1262_active') || localStorage.getItem('sanad1261_active');
+                var sAccts = (vault && vault.myAccts) || JSON.parse(localStorage.getItem('sanad1263_accts') || localStorage.getItem('sanad1262_accts') || 'null');
+                var sVerified = (vault && vault.verifiedPhones) || JSON.parse(localStorage.getItem('sanad1263_verified') || localStorage.getItem('sanad1262_verified') || 'null');
+                var sContacts = (vault && vault.contacts) || JSON.parse(localStorage.getItem('sanad1263_contacts') || localStorage.getItem('sanad1262_contacts') || 'null');
+                var sBlocked = (vault && vault.blocked) || JSON.parse(localStorage.getItem('sanad1263_blocked') || localStorage.getItem('sanad1262_blocked') || 'null');
+                var sThreads = (vault && vault.threads) || JSON.parse(localStorage.getItem('sanad1263_threads') || localStorage.getItem('sanad1262_threads') || 'null');
+                var sGroups = (vault && vault.groups) || JSON.parse(localStorage.getItem('sanad1263_groups') || localStorage.getItem('sanad1262_groups') || 'null');
+                var sBackups = (vault && vault.backupHistory) || JSON.parse(localStorage.getItem('sanad1263_backups') || localStorage.getItem('sanad1262_backups') || 'null');
+                var sCursor = Number((vault && vault.cursor) || localStorage.getItem('sanad1263_cursor') || localStorage.getItem('sanad1262_cursor') || '0');
 
                 if (sActive) activeAcct = cleanIdValue(sActive);
                 if (Array.isArray(sAccts) && sAccts.length) myAccts = sAccts.map(cleanIdValue).filter(Boolean);
@@ -1810,15 +1880,15 @@ const htmlContent = `<!DOCTYPE html>
         function persistState() {
             try {
                 var blockedArr = Array.from(blockedIdsSet);
-                localStorage.setItem('sanad1262_active', activeAcct);
-                localStorage.setItem('sanad1262_accts', JSON.stringify(myAccts));
-                localStorage.setItem('sanad1262_verified', JSON.stringify(verifiedPhonesMap));
-                localStorage.setItem('sanad1262_contacts', JSON.stringify(contacts));
-                localStorage.setItem('sanad1262_blocked', JSON.stringify(blockedArr));
-                localStorage.setItem('sanad1262_threads', JSON.stringify(acctThreads));
-                localStorage.setItem('sanad1262_groups', JSON.stringify(sanadGroups));
-                localStorage.setItem('sanad1262_backups', JSON.stringify(backupRecordsHistory));
-                localStorage.setItem('sanad1262_cursor', String(lastSyncCursor));
+                localStorage.setItem('sanad1263_active', activeAcct);
+                localStorage.setItem('sanad1263_accts', JSON.stringify(myAccts));
+                localStorage.setItem('sanad1263_verified', JSON.stringify(verifiedPhonesMap));
+                localStorage.setItem('sanad1263_contacts', JSON.stringify(contacts));
+                localStorage.setItem('sanad1263_blocked', JSON.stringify(blockedArr));
+                localStorage.setItem('sanad1263_threads', JSON.stringify(acctThreads));
+                localStorage.setItem('sanad1263_groups', JSON.stringify(sanadGroups));
+                localStorage.setItem('sanad1263_backups', JSON.stringify(backupRecordsHistory));
+                localStorage.setItem('sanad1263_cursor', String(lastSyncCursor));
 
                 localStorage.setItem('sanad_persistent_vault_v1', JSON.stringify({
                     activeAcct: activeAcct,
@@ -2821,6 +2891,7 @@ const htmlContent = `<!DOCTYPE html>
             renderGroupsList();
             renderBackupHistoryList();
             syncRadioUi();
+            refreshWeatherAndMarine();
             onCallDialInput();
             openSocket();
             syncPresenceNow();

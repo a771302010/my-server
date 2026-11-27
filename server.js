@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { WebSocketServer } = require('ws');
 
-const APP_VERSION = '12.5.0';
+const APP_VERSION = '12.6.0';
 const PORT = process.env.PORT || 3000;
 const ICON_BG_HEX = '#164e63';
 const ICON_ACCENT_HEX = '#f0fdfa';
@@ -245,45 +245,94 @@ function processIncomingPacket(payload, senderWs) {
     }
 }
 
+async function callGeminiText(systemPrompt, userPrompt) {
+    const geminiKey = process.env.GEMINI_API_KEY;
+    if (!geminiKey || typeof fetch !== 'function') return '';
+    try {
+        const resp = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(geminiKey)}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    contents: [{ role: 'user', parts: [{ text: userPrompt }] }]
+                })
+            }
+        );
+        if (resp && resp.ok) {
+            const data = await resp.json();
+            const cand = data && data.candidates && data.candidates[0];
+            const parts = cand && cand.content && cand.content.parts;
+            return Array.isArray(parts) ? parts.map(p => p.text || '').join('\n').trim() : '';
+        }
+    } catch (e) {}
+    return '';
+}
+
 async function generateAiAssistantReply(promptText) {
     const q = String(promptText || '').trim();
-    const geminiKey = process.env.GEMINI_API_KEY;
-    if (geminiKey && typeof fetch === 'function') {
-        try {
-            const resp = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(geminiKey)}`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        systemInstruction: {
-                            parts: [{ text: 'أنت مساعد سند الذكي داخل تطبيق سند (بالذكاء الاصطناعي والأقمار الصناعية -- اتصالك عبر القارات بلا حدود). أجب بالعربية بوضوح ودقة وإيجاز عملي.' }]
-                        },
-                        contents: [{ role: 'user', parts: [{ text: q }] }]
-                    })
-                }
-            );
-            if (resp && resp.ok) {
-                const data = await resp.json();
-                const cand = data && data.candidates && data.candidates[0];
-                const parts = cand && cand.content && cand.content.parts;
-                const txt = Array.isArray(parts) ? parts.map(p => p.text || '').join('\n').trim() : '';
-                if (txt) return txt;
-            }
-        } catch (e) {}
-    }
+    const aiOut = await callGeminiText(
+        'أنت مساعد سند الذكي داخل تطبيق سند (بالذكاء الاصطناعي والأقمار الصناعية -- اتصالك عبر القارات بلا حدود). أجب بالعربية بوضوح ودقة وإيجاز عملي.',
+        q
+    );
+    if (aiOut) return aiOut;
 
     if (!q) return 'أهلاً بك في مساعد سند الذكي. اكتب سؤالك وسأجيبك فوراً.';
     if (/تحديث|اصدار|نسخة/i.test(q)) {
         return `النسخة الحالية هي v${APP_VERSION}. يتم فحص التحديثات تلقائياً مع ظهور شريط تنبيه أعلى الشاشة عند توفر إصدار جديد، ويمكنك التحديث في أي وقت من تبويب الذكاء.`;
     }
-    if (/نسخة احتياطية|تصدير|استيراد/i.test(q)) {
-        return 'يمكنك تصدير نسخة احتياطية كاملة لأرقامك وأسمائك ومحادثاتك كملف JSON أو استيرادها في أي وقت من قسم «النسخة الاحتياطية» داخل تبويب الذكاء.';
+    if (/نسخة احتياطية|تصدير|استيراد|تحصيلات/i.test(q)) {
+        return 'يمكنك تصدير نسخة احتياطية كاملة واستعراض سجل النسخ مرتباً من الأحدث للأقدم مع أعداد التحصيلات (الجهات، الحسابات، المحادثات، المجموعات، والمحظورين) داخل تبويب الذكاء.';
     }
-    if (/حذف|نسخ|قراءة|صوت/i.test(q)) {
-        return 'على كل رسالة في الدردشة تتوفر أزرار القراءة الصوتية للرسالة، ونسخ النص، والحذف النهائي (حذف نهائي لي فقط أو حذف نهائي للجميع).';
+    if (/راديو|اذاعة|fm/i.test(q)) {
+        return 'راديو سند FM اختياري بالكامل: يمكنك تشغيله أو إيقافه متى شئت مع تعليق ذكي من مساعد سند AI.';
     }
-    return `بخصوص سؤالك («${q.slice(0, 120)}»): مساعد سند الذكي متاح للرد الفوري على أسئلتك ومساعدتك في إدارة حساباتك وجهاتك ومحادثاتك. (ولربط نموذج Gemini السحابي الكامل، أضف متغير البيئة GEMINI_API_KEY في إعدادات Render).`;
+    return `بخصوص سؤالك («${q.slice(0, 120)}»): مساعد سند الذكي متاح للرد الفوري على أسئلتك ومساعدتك في الترجمة والنسخ الاحتياطية والراديو الذكي. (ولربط نموذج Gemini السحابي الكامل، أضف متغير البيئة GEMINI_API_KEY في إعدادات Render).`;
+}
+
+async function translateTextSmart(text, targetLang) {
+    const src = String(text || '').trim();
+    if (!src) return '';
+    const target = targetLang === 'en' ? 'الإنجليزية' : 'العربية';
+    const aiOut = await callGeminiText(
+        `أنت مترجم فوري دقيق داخل تطبيق سند. ترجم النص التالي إلى ${target} فقط دون مقدمات أو شروحات إضافية.`,
+        src
+    );
+    if (aiOut) return aiOut;
+
+    if (typeof fetch === 'function') {
+        try {
+            const pair = targetLang === 'en' ? 'ar|en' : 'en|ar';
+            const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(src.slice(0, 480))}&langpair=${encodeURIComponent(pair)}`;
+            const r = await fetch(url);
+            if (r && r.ok) {
+                const j = await r.json();
+                const tr = j && j.responseData && j.responseData.translatedText;
+                if (tr && !/MYMEMORY WARNING/i.test(tr)) return String(tr).trim();
+            }
+        } catch (e) {}
+    }
+
+    const dict = {
+        'hello': 'مرحباً',
+        'hi': 'أهلاً',
+        'good morning': 'صباح الخير',
+        'good evening': 'مساء الخير',
+        'thank you': 'شكراً لك',
+        'thanks': 'شكراً',
+        'how are you': 'كيف حالك؟',
+        'ok': 'حسناً',
+        'okay': 'تمام',
+        'yes': 'نعم',
+        'no': 'لا',
+        'welcome': 'أهلاً وسهلاً',
+        'call me': 'اتصل بي',
+        'see you soon': 'أراك قريباً'
+    };
+    const lower = src.toLowerCase();
+    if (dict[lower]) return dict[lower];
+    return `[ترجمة فورية]: ${src}`;
 }
 
 const sanadIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
@@ -483,11 +532,15 @@ const htmlContent = `<!DOCTYPE html>
             if (target === 'contacts' && typeof renderPresence === 'function') { renderPresence(); renderBlockedList(); }
             if (target === 'groups' && typeof renderGroupsList === 'function') renderGroupsList();
             if (target === 'calls' && typeof onCallDialInput === 'function') onCallDialInput();
-            if (target === 'ai' && typeof refreshUpdateStatusInAi === 'function') refreshUpdateStatusInAi();
+            if (target === 'ai') {
+                if (typeof refreshUpdateStatusInAi === 'function') refreshUpdateStatusInAi();
+                if (typeof renderBackupHistoryList === 'function') renderBackupHistoryList();
+            }
         }
     </script>
 
     <audio id="remote-audio-el" autoplay playsinline class="hidden"></audio>
+    <audio id="radio-audio-el" preload="none" class="hidden"></audio>
 
     <!-- شريط تنبيه التحديث التلقائي الظاهر أعلى الشاشة -->
     <div id="auto-update-banner" class="hidden bg-gradient-to-r from-teal-900 via-[#164e63] to-teal-900 border-b border-teal-400/50 text-white px-3.5 py-2 flex items-center justify-between gap-2 text-xs z-30 shrink-0">
@@ -653,6 +706,15 @@ const htmlContent = `<!DOCTYPE html>
 
             <div id="msgs-box" class="flex-1 overflow-y-auto p-3.5 space-y-3 custom-scrollbar"></div>
 
+            <!-- شريط الرد المقتبس على رسالة محددة -->
+            <div id="reply-preview-bar" class="hidden px-3.5 py-2 bg-[#0e2233] border-t border-teal-700/60 flex items-center justify-between gap-2 text-xs shrink-0">
+                <div class="min-w-0 border-r-2 border-teal-400 pr-2">
+                    <div id="reply-preview-author" class="font-bold text-teal-200 truncate">رد على رسالة</div>
+                    <div id="reply-preview-text" class="text-slate-300 truncate">...</div>
+                </div>
+                <button type="button" onclick="clearReplyTarget()" class="text-slate-400 hover:text-white px-1.5"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
             <!-- شريط التسجيل الصوتي النشط -->
             <div id="voice-rec-bar" class="hidden px-3.5 py-2 bg-[#102838] border-t border-teal-700/60 flex items-center justify-between gap-2 text-xs shrink-0">
                 <div class="flex items-center gap-2 text-teal-200 font-semibold">
@@ -775,7 +837,7 @@ const htmlContent = `<!DOCTYPE html>
             </div>
         </section>
 
-        <!-- تبويب الذكاء: الهوية + التحديث التلقائي واليدوي + النسخة الاحتياطية + المساعد الذكي -->
+        <!-- تبويب الذكاء: الهوية + التحديث + النسخ الاحتياطية وسجلها + راديو FM بالذكاء الاصطناعي + المساعد الذكي -->
         <section id="pane-ai" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-gradient-to-br from-[#133144] to-[#0d1926] border border-teal-700/60 p-4 rounded-2xl space-y-1.5">
                 <div class="flex items-center justify-between">
@@ -798,18 +860,39 @@ const htmlContent = `<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- تصدير واستيراد نسخة احتياطية -->
+            <!-- راديو FM عبر الإنترنت (اختياري تشغيل/إيقاف + مدعوم بالذكاء الاصطناعي) -->
             <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-sm font-bold text-emerald-300"><i class="fa-solid fa-database ml-1"></i> النسخة الاحتياطية</h2>
-                    <span class="text-[10px] font-mono text-slate-300 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded-full">JSON</span>
+                <div class="flex items-center justify-between gap-2">
+                    <h2 class="text-sm font-bold text-amber-300"><i class="fa-solid fa-radio ml-1"></i> راديو سند FM الذكي</h2>
+                    <span id="radio-state-badge" class="text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700 px-2.5 py-0.5 rounded-full">متوقف</span>
                 </div>
-                <p class="text-[11px] text-slate-400">احفظ نسخة احتياطية كاملة لأرقامك وأسمائك ومحادثاتك، أو استعدها في أي وقت دون فقدان أي بيانات.</p>
+                <p class="text-[11px] text-slate-400">بث إذاعي اختياري عبر الإنترنت: شغّله متى شئت وأطفئه متى شئت، مع تقديم ذكي من مساعد سند AI.</p>
+                <div class="flex gap-2 flex-wrap">
+                    <select id="radio-station-select" onchange="onRadioStationChanged()" class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                        <option value="quran|إذاعة القرآن الكريم (بث مباشر)|https://stream.radiojar.com/8s5u5tpdtwzuv">إذاعة القرآن الكريم (بث مباشر)</option>
+                        <option value="lofi|راديو هادئ وموسيقى تركيز|https://streams.fluxfm.de/Chillhop/mp3-128/streams.fluxfm.de/">راديو هادئ وموسيقى تركيز</option>
+                        <option value="news|راديو أخبار وحوارات عالمية|https://stream.live.vc.bbcmedia.co.uk/bbc_world_service">راديو أخبار وحوارات عالمية</option>
+                    </select>
+                    <button type="button" id="radio-toggle-btn" onclick="toggleSanadRadioFm()" class="bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl font-semibold"><i class="fa-solid fa-play ml-1"></i>تشغيل الراديو</button>
+                </div>
+                <div id="radio-ai-host-box" class="bg-[#08101a] border border-slate-800/90 rounded-xl p-2.5 text-[11px] text-teal-200">
+                    مقدم سند AI: الراديو في وضع الإيقاف ولن يستهلك أي بيانات حتى تضغط «تشغيل الراديو».
+                </div>
+            </div>
+
+            <!-- تصدير واستيراد نسخة احتياطية + ترتيب السجل وأعداد التحصيلات -->
+            <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-3 text-xs">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-bold text-emerald-300"><i class="fa-solid fa-database ml-1"></i> النسخة الاحتياطية وسجل التحصيلات</h2>
+                    <span id="backup-history-badge" class="text-[10px] font-mono text-slate-300 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded-full">0 نسخة</span>
+                </div>
+                <p class="text-[11px] text-slate-400">احفظ نسخة احتياطية كاملة واستعرض السجل مرتباً من الأحدث للأقدم مع عدد التحصيلات في كل نسخة.</p>
                 <div class="flex gap-2 flex-wrap">
                     <button type="button" onclick="exportFullBackupJson()" class="bg-emerald-700 hover:bg-emerald-600 text-white px-3.5 py-2 rounded-xl font-semibold"><i class="fa-solid fa-file-export ml-1"></i>تصدير نسخة احتياطية</button>
                     <input type="file" id="import-backup-file" accept=".json,application/json" class="hidden" onchange="importFullBackupJson(event)">
                     <button type="button" onclick="document.getElementById('import-backup-file').click()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 px-3.5 py-2 rounded-xl font-semibold"><i class="fa-solid fa-file-import ml-1"></i>استيراد نسخة احتياطية</button>
                 </div>
+                <div id="backup-history-list" class="space-y-2 pt-1"></div>
             </div>
 
             <!-- مساعد سند الذكي -->
@@ -857,6 +940,11 @@ const htmlContent = `<!DOCTYPE html>
         var blockedIdsSet = new Set();
         var sanadGroups = [];
         var unreadByThread = {};
+        var backupRecordsHistory = [];
+        var translationsByMsgId = {};
+        var activeReplyTarget = null;
+        var radioPlaying = false;
+
         var currentPeer = DEFAULT_PEER;
         var activePane = 'chats';
         var onlinePeers = new Set();
@@ -945,6 +1033,297 @@ const htmlContent = `<!DOCTYPE html>
             }
         }
 
+        // الرد المباشر على رسالة محددة (Reply)
+        function setReplyTarget(msgId) {
+            var list = getThreadMap()[currentPeer] || [];
+            var m = list.find(function(item) { return item && item.id === msgId; });
+            if (!m) return;
+            var author = m.from === 'me' ? 'أنت' : (resolveContactName(m.senderName || currentPeer) || currentPeer);
+            var snippet = m.text ? String(m.text).slice(0, 90) : (m.kind === 'audio' ? 'رسالة صوتية' : (m.fileName || 'مرفق'));
+            activeReplyTarget = {
+                id: m.id,
+                author: author,
+                snippet: snippet
+            };
+            var bar = document.getElementById('reply-preview-bar');
+            var aEl = document.getElementById('reply-preview-author');
+            var tEl = document.getElementById('reply-preview-text');
+            if (aEl) aEl.textContent = 'رد على ' + author;
+            if (tEl) tEl.textContent = snippet;
+            if (bar) bar.classList.remove('hidden');
+            var inp = document.getElementById('msg-box-input');
+            if (inp) inp.focus();
+        }
+
+        function clearReplyTarget() {
+            activeReplyTarget = null;
+            var bar = document.getElementById('reply-preview-bar');
+            if (bar) bar.classList.add('hidden');
+        }
+
+        // مترجم داخل المحادثة (إنجليزي <-> عربي)
+        function translateChatMessage(msgId) {
+            var list = getThreadMap()[currentPeer] || [];
+            var m = list.find(function(item) { return item && item.id === msgId && item.text; });
+            if (!m || !m.text) return;
+            var isArabic = /[\\u0600-\\u06FF]/.test(m.text);
+            var targetLang = isArabic ? 'en' : 'ar';
+            translationsByMsgId[msgId] = 'جاري الترجمة...';
+            renderMsgs();
+
+            fetch('/api/ai/translate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: m.text, targetLang: targetLang })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                translationsByMsgId[msgId] = (data && data.translated) ? data.translated : m.text;
+                renderMsgs();
+            })
+            .catch(function() {
+                translationsByMsgId[msgId] = m.text;
+                renderMsgs();
+            });
+        }
+
+        // راديو FM عبر الإنترنت (تشغيل/إيقاف اختياري + تقديم بالذكاء الاصطناعي)
+        function getSelectedRadioInfo() {
+            var sel = document.getElementById('radio-station-select');
+            var raw = sel ? sel.value : 'quran|إذاعة القرآن الكريم (بث مباشر)|https://stream.radiojar.com/8s5u5tpdtwzuv';
+            var parts = raw.split('|');
+            return {
+                id: parts[0] || 'quran',
+                name: parts[1] || 'راديو سند FM',
+                url: parts[2] || ''
+            };
+        }
+
+        function updateRadioAiCommentary(stationName, isPlaying) {
+            var hostBox = document.getElementById('radio-ai-host-box');
+            if (!hostBox) return;
+            if (!isPlaying) {
+                hostBox.textContent = 'مقدم سند AI: الراديو في وضع الإيقاف ولن يستهلك أي بيانات حتى تضغط «تشغيل الراديو».';
+                return;
+            }
+            hostBox.textContent = 'مقدم سند AI: جاري إعداد البث المباشر لـ «' + stationName + '»...';
+            fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: 'اكتب مقدمة إذاعية قصيرة ومريحة في سطر واحد فقط لبدء الاستماع إلى: ' + stationName })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (radioPlaying && hostBox && data && data.reply) {
+                    hostBox.textContent = 'مقدم سند AI (' + stationName + '): ' + data.reply;
+                }
+            })
+            .catch(function() {});
+        }
+
+        function syncRadioUi() {
+            var badge = document.getElementById('radio-state-badge');
+            var btn = document.getElementById('radio-toggle-btn');
+            if (badge) {
+                badge.textContent = radioPlaying ? 'يعمل الآن' : 'متوقف';
+                badge.className = radioPlaying
+                    ? 'text-[10px] font-mono bg-emerald-950 text-emerald-300 border border-emerald-700 px-2.5 py-0.5 rounded-full'
+                    : 'text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700 px-2.5 py-0.5 rounded-full';
+            }
+            if (btn) {
+                btn.innerHTML = radioPlaying
+                    ? '<i class="fa-solid fa-stop ml-1"></i>إيقاف الراديو'
+                    : '<i class="fa-solid fa-play ml-1"></i>تشغيل الراديو';
+                btn.className = radioPlaying
+                    ? 'bg-rose-700 hover:bg-rose-600 text-white px-4 py-2 rounded-xl font-semibold'
+                    : 'bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl font-semibold';
+            }
+        }
+
+        function toggleSanadRadioFm() {
+            var aud = document.getElementById('radio-audio-el');
+            var info = getSelectedRadioInfo();
+            if (radioPlaying) {
+                radioPlaying = false;
+                if (aud) {
+                    try { aud.pause(); aud.src = ''; } catch (e) {}
+                }
+                syncRadioUi();
+                updateRadioAiCommentary(info.name, false);
+                copyStringToClipboard('', 'تم إيقاف راديو سند FM');
+                return;
+            }
+            radioPlaying = true;
+            syncRadioUi();
+            updateRadioAiCommentary(info.name, true);
+            if (aud && info.url) {
+                aud.src = info.url;
+                aud.play().catch(function() {
+                    copyStringToClipboard('', 'تعذر تشغيل البث المباشر حالياً في هذا المتصفح');
+                });
+            }
+        }
+
+        function onRadioStationChanged() {
+            var info = getSelectedRadioInfo();
+            if (!radioPlaying) return;
+            var aud = document.getElementById('radio-audio-el');
+            if (aud && info.url) {
+                aud.src = info.url;
+                aud.play().catch(function() {});
+            }
+            updateRadioAiCommentary(info.name, true);
+        }
+
+        // حساب التحصيلات وترتيب سجل النسخ الاحتياطية
+        function computeBackupCounts(snapshotObj) {
+            var snap = snapshotObj || {};
+            var cList = Array.isArray(snap.contacts) ? snap.contacts.filter(function(c) { return c && c.id !== DEFAULT_PEER; }) : [];
+            var aList = Array.isArray(snap.myAccts) ? snap.myAccts : [];
+            var gList = Array.isArray(snap.sanadGroups) ? snap.sanadGroups : [];
+            var bList = Array.isArray(snap.blockedIds) ? snap.blockedIds : [];
+            var msgTotal = 0;
+            var threadsObj = snap.acctThreads || {};
+            Object.keys(threadsObj).forEach(function(acctKey) {
+                var tMap = threadsObj[acctKey] || {};
+                Object.keys(tMap).forEach(function(peerKey) {
+                    var arr = Array.isArray(tMap[peerKey]) ? tMap[peerKey] : [];
+                    msgTotal += arr.filter(function(m) { return m && !m.deleted && String(m.id || '').indexOf('init-') !== 0; }).length;
+                });
+            });
+            return {
+                contacts: cList.length,
+                accounts: aList.length,
+                messages: msgTotal,
+                groups: gList.length,
+                blocked: bList.length
+            };
+        }
+
+        function buildCurrentBackupPayload() {
+            persistState();
+            var payload = {
+                app: 'Sanad AI',
+                version: CLIENT_APP_VERSION,
+                exportedAt: new Date().toISOString(),
+                activeAcct: activeAcct,
+                myAccts: myAccts.slice(),
+                verifiedPhones: Object.assign({}, verifiedPhonesMap),
+                contacts: contacts.slice(),
+                blockedIds: Array.from(blockedIdsSet),
+                sanadGroups: sanadGroups.slice(),
+                acctThreads: JSON.parse(JSON.stringify(acctThreads || {}))
+            };
+            payload.counts = computeBackupCounts(payload);
+            return payload;
+        }
+
+        function recordBackupInHistory(sourceLabel, payloadObj) {
+            var counts = payloadObj.counts || computeBackupCounts(payloadObj);
+            var rec = {
+                id: 'bk-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+                createdAt: new Date().toLocaleString('ar'),
+                ts: Date.now(),
+                source: sourceLabel || 'نسخة يدوية',
+                counts: counts,
+                snapshot: payloadObj
+            };
+            backupRecordsHistory.unshift(rec);
+            if (backupRecordsHistory.length > 15) backupRecordsHistory = backupRecordsHistory.slice(0, 15);
+            persistState();
+            renderBackupHistoryList();
+        }
+
+        function renderBackupHistoryList() {
+            var box = document.getElementById('backup-history-list');
+            var badge = document.getElementById('backup-history-badge');
+            var sorted = backupRecordsHistory.slice().sort(function(a, b) { return (b.ts || 0) - (a.ts || 0); });
+            if (badge) badge.textContent = toWesternDigits(sorted.length) + (sorted.length === 1 ? ' نسخة' : ' نسخ');
+            if (!box) return;
+            if (!sorted.length) {
+                box.innerHTML = '<div class="text-[11px] text-slate-500">لا توجد نسخ مسجلة في السجل بعد. اضغط «تصدير نسخة احتياطية» لتسجيل نسخة وحساب التحصيلات.</div>';
+                return;
+            }
+            box.innerHTML = sorted.map(function(item, idx) {
+                var c = item.counts || {};
+                var orderNum = toWesternDigits(idx + 1);
+                return '<div class="bg-[#08101a] border border-slate-800 rounded-xl p-2.5 space-y-1.5">' +
+                    '<div class="flex items-center justify-between gap-2">' +
+                    '<span class="font-bold text-teal-200">#' + orderNum + ' • ' + escapeHtml(item.source) + '</span>' +
+                    '<span class="text-[10px] font-mono text-slate-400">' + escapeHtml(item.createdAt) + '</span>' +
+                    '</div>' +
+                    '<div class="text-[11px] text-slate-200 flex flex-wrap gap-2">' +
+                    '<span>الجهات: <b class="text-emerald-300">' + toWesternDigits(c.contacts || 0) + '</b></span>' +
+                    '<span>• الرسائل: <b class="text-emerald-300">' + toWesternDigits(c.messages || 0) + '</b></span>' +
+                    '<span>• الحسابات: <b class="text-emerald-300">' + toWesternDigits(c.accounts || 0) + '</b></span>' +
+                    '<span>• المجموعات: <b class="text-emerald-300">' + toWesternDigits(c.groups || 0) + '</b></span>' +
+                    '<span>• المحظورون: <b class="text-rose-300">' + toWesternDigits(c.blocked || 0) + '</b></span>' +
+                    '</div>' +
+                    '<div class="flex justify-end">' +
+                    '<button type="button" onclick="restoreBackupByRecordId(\\'' + escapeJsSingle(item.id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold">استعادة هذه النسخة</button>' +
+                    '</div></div>';
+            }).join('');
+        }
+
+        function applyBackupSnapshot(data) {
+            if (!data || typeof data !== 'object') return;
+            if (Array.isArray(data.myAccts) && data.myAccts.length) {
+                myAccts = Array.from(new Set(myAccts.concat(data.myAccts.map(cleanIdValue).filter(Boolean))));
+            }
+            if (data.activeAcct) activeAcct = cleanIdValue(data.activeAcct) || activeAcct;
+            if (data.verifiedPhones && typeof data.verifiedPhones === 'object') {
+                verifiedPhonesMap = Object.assign({}, verifiedPhonesMap, data.verifiedPhones);
+            }
+            if (Array.isArray(data.contacts)) {
+                data.contacts.forEach(function(c) {
+                    if (!c || !c.id) return;
+                    var idx = contacts.findIndex(function(x) { return normalizeStr(x.id) === normalizeStr(c.id); });
+                    if (idx !== -1) contacts[idx] = { name: c.name || c.id, id: cleanIdValue(c.id) };
+                    else contacts.push({ name: c.name || c.id, id: cleanIdValue(c.id) });
+                });
+            }
+            if (Array.isArray(data.blockedIds)) {
+                data.blockedIds.forEach(function(b) { if (normalizeStr(b)) blockedIdsSet.add(normalizeStr(b)); });
+            }
+            if (Array.isArray(data.sanadGroups)) {
+                data.sanadGroups.forEach(function(g) {
+                    if (g && g.id && !sanadGroups.some(function(x) { return x.id === g.id; })) sanadGroups.push(g);
+                });
+            }
+            if (data.acctThreads && typeof data.acctThreads === 'object') {
+                Object.keys(data.acctThreads).forEach(function(ownerKey) {
+                    if (!acctThreads[ownerKey]) acctThreads[ownerKey] = {};
+                    Object.keys(data.acctThreads[ownerKey] || {}).forEach(function(peerKey) {
+                        var incomingList = data.acctThreads[ownerKey][peerKey] || [];
+                        var existingList = acctThreads[ownerKey][peerKey] || [];
+                        var existingIds = new Set(existingList.map(function(m) { return m && m.id; }));
+                        incomingList.forEach(function(m) {
+                            if (m && m.id && !existingIds.has(m.id)) existingList.push(m);
+                        });
+                        acctThreads[ownerKey][peerKey] = existingList;
+                    });
+                });
+            }
+            persistState();
+            renderActiveHeaderAcct();
+            renderAccts();
+            renderPresence();
+            renderBlockedList();
+            renderGroupsList();
+            renderQuickChips();
+            renderPeerHeader();
+            renderMsgs();
+            renderBackupHistoryList();
+            syncPresenceNow();
+        }
+
+        function restoreBackupByRecordId(recId) {
+            var found = backupRecordsHistory.find(function(r) { return r && r.id === recId; });
+            if (!found || !found.snapshot) return;
+            applyBackupSnapshot(found.snapshot);
+            copyStringToClipboard('', 'تمت استعادة النسخة الاحتياطية من السجل');
+        }
+
         // قراءة النص صوتياً بالذكاء الاصطناعي لمن لا يستطيع القراءة أو يفضل الاستماع
         function speakMessageText(msgId) {
             var list = getThreadMap()[currentPeer] || [];
@@ -957,7 +1336,7 @@ const htmlContent = `<!DOCTYPE html>
             try {
                 window.speechSynthesis.cancel();
                 var utter = new SpeechSynthesisUtterance(textToSpeak);
-                utter.lang = 'ar';
+                utter.lang = /[\\u0600-\\u06FF]/.test(textToSpeak) ? 'ar' : 'en-US';
                 utter.rate = 1.0;
                 window.speechSynthesis.speak(utter);
                 copyStringToClipboard('', 'جاري قراءة الرسالة صوتياً...');
@@ -1013,19 +1392,8 @@ const htmlContent = `<!DOCTYPE html>
 
         // تصدير واستيراد نسخة احتياطية كاملة (JSON)
         function exportFullBackupJson() {
-            persistState();
-            var payload = {
-                app: 'Sanad AI',
-                version: CLIENT_APP_VERSION,
-                exportedAt: new Date().toISOString(),
-                activeAcct: activeAcct,
-                myAccts: myAccts,
-                verifiedPhones: verifiedPhonesMap,
-                contacts: contacts,
-                blockedIds: Array.from(blockedIdsSet),
-                sanadGroups: sanadGroups,
-                acctThreads: acctThreads
-            };
+            var payload = buildCurrentBackupPayload();
+            recordBackupInHistory('تصدير JSON', payload);
             var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
@@ -1035,7 +1403,7 @@ const htmlContent = `<!DOCTYPE html>
             a.click();
             document.body.removeChild(a);
             setTimeout(function() { URL.revokeObjectURL(url); }, 1200);
-            copyStringToClipboard('', 'تم تصدير النسخة الاحتياطية بنجاح');
+            copyStringToClipboard('', 'تم تصدير النسخة الاحتياطية وتسجيلها في السجل');
         }
 
         function importFullBackupJson(ev) {
@@ -1045,53 +1413,9 @@ const htmlContent = `<!DOCTYPE html>
             reader.onload = function() {
                 try {
                     var data = JSON.parse(String(reader.result || '{}'));
-                    if (Array.isArray(data.myAccts) && data.myAccts.length) {
-                        myAccts = Array.from(new Set(myAccts.concat(data.myAccts.map(cleanIdValue).filter(Boolean))));
-                    }
-                    if (data.activeAcct) activeAcct = cleanIdValue(data.activeAcct) || activeAcct;
-                    if (data.verifiedPhones && typeof data.verifiedPhones === 'object') {
-                        verifiedPhonesMap = Object.assign({}, verifiedPhonesMap, data.verifiedPhones);
-                    }
-                    if (Array.isArray(data.contacts)) {
-                        data.contacts.forEach(function(c) {
-                            if (!c || !c.id) return;
-                            var idx = contacts.findIndex(function(x) { return normalizeStr(x.id) === normalizeStr(c.id); });
-                            if (idx !== -1) contacts[idx] = { name: c.name || c.id, id: cleanIdValue(c.id) };
-                            else contacts.push({ name: c.name || c.id, id: cleanIdValue(c.id) });
-                        });
-                    }
-                    if (Array.isArray(data.blockedIds)) {
-                        data.blockedIds.forEach(function(b) { if (normalizeStr(b)) blockedIdsSet.add(normalizeStr(b)); });
-                    }
-                    if (Array.isArray(data.sanadGroups)) {
-                        data.sanadGroups.forEach(function(g) {
-                            if (g && g.id && !sanadGroups.some(function(x) { return x.id === g.id; })) sanadGroups.push(g);
-                        });
-                    }
-                    if (data.acctThreads && typeof data.acctThreads === 'object') {
-                        Object.keys(data.acctThreads).forEach(function(ownerKey) {
-                            if (!acctThreads[ownerKey]) acctThreads[ownerKey] = {};
-                            Object.keys(data.acctThreads[ownerKey] || {}).forEach(function(peerKey) {
-                                var incomingList = data.acctThreads[ownerKey][peerKey] || [];
-                                var existingList = acctThreads[ownerKey][peerKey] || [];
-                                var existingIds = new Set(existingList.map(function(m) { return m && m.id; }));
-                                incomingList.forEach(function(m) {
-                                    if (m && m.id && !existingIds.has(m.id)) existingList.push(m);
-                                });
-                                acctThreads[ownerKey][peerKey] = existingList;
-                            });
-                        });
-                    }
-                    persistState();
-                    renderActiveHeaderAcct();
-                    renderAccts();
-                    renderPresence();
-                    renderBlockedList();
-                    renderGroupsList();
-                    renderQuickChips();
-                    renderPeerHeader();
-                    renderMsgs();
-                    syncPresenceNow();
+                    data.counts = computeBackupCounts(data);
+                    recordBackupInHistory('استيراد ملف', data);
+                    applyBackupSnapshot(data);
                     copyStringToClipboard('', 'تم استيراد النسخة الاحتياطية بنجاح');
                 } catch (err) {
                     copyStringToClipboard('', 'ملف النسخة الاحتياطية غير صالح');
@@ -1418,14 +1742,15 @@ const htmlContent = `<!DOCTYPE html>
                 var rawVault = localStorage.getItem('sanad_persistent_vault_v1');
                 var vault = rawVault ? JSON.parse(rawVault) : null;
 
-                var sActive = (vault && vault.activeAcct) || localStorage.getItem('sanad125_active') || localStorage.getItem('sanad124_active') || localStorage.getItem('sanad123_active');
-                var sAccts = (vault && vault.myAccts) || JSON.parse(localStorage.getItem('sanad125_accts') || localStorage.getItem('sanad124_accts') || localStorage.getItem('sanad123_accts') || 'null');
-                var sVerified = (vault && vault.verifiedPhones) || JSON.parse(localStorage.getItem('sanad125_verified') || localStorage.getItem('sanad124_verified') || 'null');
-                var sContacts = (vault && vault.contacts) || JSON.parse(localStorage.getItem('sanad125_contacts') || localStorage.getItem('sanad124_contacts') || localStorage.getItem('sanad123_contacts') || 'null');
-                var sBlocked = (vault && vault.blocked) || JSON.parse(localStorage.getItem('sanad125_blocked') || localStorage.getItem('sanad124_blocked') || localStorage.getItem('sanad123_blocked') || 'null');
-                var sThreads = (vault && vault.threads) || JSON.parse(localStorage.getItem('sanad125_threads') || localStorage.getItem('sanad124_threads') || localStorage.getItem('sanad123_threads') || 'null');
-                var sGroups = (vault && vault.groups) || JSON.parse(localStorage.getItem('sanad125_groups') || localStorage.getItem('sanad124_groups') || localStorage.getItem('sanad123_groups') || 'null');
-                var sCursor = Number((vault && vault.cursor) || localStorage.getItem('sanad125_cursor') || localStorage.getItem('sanad124_cursor') || '0');
+                var sActive = (vault && vault.activeAcct) || localStorage.getItem('sanad126_active') || localStorage.getItem('sanad125_active') || localStorage.getItem('sanad124_active');
+                var sAccts = (vault && vault.myAccts) || JSON.parse(localStorage.getItem('sanad126_accts') || localStorage.getItem('sanad125_accts') || 'null');
+                var sVerified = (vault && vault.verifiedPhones) || JSON.parse(localStorage.getItem('sanad126_verified') || localStorage.getItem('sanad125_verified') || 'null');
+                var sContacts = (vault && vault.contacts) || JSON.parse(localStorage.getItem('sanad126_contacts') || localStorage.getItem('sanad125_contacts') || 'null');
+                var sBlocked = (vault && vault.blocked) || JSON.parse(localStorage.getItem('sanad126_blocked') || localStorage.getItem('sanad125_blocked') || 'null');
+                var sThreads = (vault && vault.threads) || JSON.parse(localStorage.getItem('sanad126_threads') || localStorage.getItem('sanad125_threads') || 'null');
+                var sGroups = (vault && vault.groups) || JSON.parse(localStorage.getItem('sanad126_groups') || localStorage.getItem('sanad125_groups') || 'null');
+                var sBackups = (vault && vault.backupHistory) || JSON.parse(localStorage.getItem('sanad126_backups') || localStorage.getItem('sanad125_backups') || 'null');
+                var sCursor = Number((vault && vault.cursor) || localStorage.getItem('sanad126_cursor') || localStorage.getItem('sanad125_cursor') || '0');
 
                 if (sActive) activeAcct = cleanIdValue(sActive);
                 if (Array.isArray(sAccts) && sAccts.length) myAccts = sAccts.map(cleanIdValue).filter(Boolean);
@@ -1436,6 +1761,7 @@ const htmlContent = `<!DOCTYPE html>
                 if (Array.isArray(sBlocked)) blockedIdsSet = new Set(sBlocked.map(normalizeStr).filter(Boolean));
                 if (sThreads && typeof sThreads === 'object') acctThreads = sThreads;
                 if (Array.isArray(sGroups)) sanadGroups = sGroups;
+                if (Array.isArray(sBackups)) backupRecordsHistory = sBackups;
                 if (sCursor > 0) lastSyncCursor = sCursor;
             } catch (e) {}
         }
@@ -1443,14 +1769,15 @@ const htmlContent = `<!DOCTYPE html>
         function persistState() {
             try {
                 var blockedArr = Array.from(blockedIdsSet);
-                localStorage.setItem('sanad125_active', activeAcct);
-                localStorage.setItem('sanad125_accts', JSON.stringify(myAccts));
-                localStorage.setItem('sanad125_verified', JSON.stringify(verifiedPhonesMap));
-                localStorage.setItem('sanad125_contacts', JSON.stringify(contacts));
-                localStorage.setItem('sanad125_blocked', JSON.stringify(blockedArr));
-                localStorage.setItem('sanad125_threads', JSON.stringify(acctThreads));
-                localStorage.setItem('sanad125_groups', JSON.stringify(sanadGroups));
-                localStorage.setItem('sanad125_cursor', String(lastSyncCursor));
+                localStorage.setItem('sanad126_active', activeAcct);
+                localStorage.setItem('sanad126_accts', JSON.stringify(myAccts));
+                localStorage.setItem('sanad126_verified', JSON.stringify(verifiedPhonesMap));
+                localStorage.setItem('sanad126_contacts', JSON.stringify(contacts));
+                localStorage.setItem('sanad126_blocked', JSON.stringify(blockedArr));
+                localStorage.setItem('sanad126_threads', JSON.stringify(acctThreads));
+                localStorage.setItem('sanad126_groups', JSON.stringify(sanadGroups));
+                localStorage.setItem('sanad126_backups', JSON.stringify(backupRecordsHistory));
+                localStorage.setItem('sanad126_cursor', String(lastSyncCursor));
 
                 localStorage.setItem('sanad_persistent_vault_v1', JSON.stringify({
                     activeAcct: activeAcct,
@@ -1460,6 +1787,7 @@ const htmlContent = `<!DOCTYPE html>
                     blocked: blockedArr,
                     threads: acctThreads,
                     groups: sanadGroups,
+                    backupHistory: backupRecordsHistory,
                     cursor: lastSyncCursor
                 }));
             } catch (e) {}
@@ -1649,6 +1977,7 @@ const htmlContent = `<!DOCTYPE html>
             var clean = cleanIdValue(id);
             if (!clean) return;
             currentPeer = clean;
+            clearReplyTarget();
             delete unreadByThread[normalizeStr(clean)];
             updateUnreadBadgesUI();
             var callInp = document.getElementById('call-input');
@@ -1776,7 +2105,7 @@ const htmlContent = `<!DOCTYPE html>
             if (toastPeerId) choosePeer(toastPeerId);
         }
 
-        // عرض الرسائل مع أزرار القراءة الصوتية بالذكاء الاصطناعي والنسخ والحذف النهائي
+        // عرض الرسائل مع الرد المقتبس والترجمة والقراءة الصوتية والنسخ والحذف النهائي
         function renderMsgs() {
             var box = document.getElementById('msgs-box');
             if (!box) return;
@@ -1794,7 +2123,24 @@ const htmlContent = `<!DOCTYPE html>
                 var receiptHtml = isMe ? renderReceiptTick(m.receipt || 'sent') : '';
                 var safeId = escapeJsSingle(m.id);
 
-                var actionsHtml = '<div class="flex items-center gap-2 text-[10px] text-slate-300/85 mt-1.5 pt-1 border-t border-white/10">' +
+                var replyQuoteHtml = '';
+                if (m.replyTo && (m.replyTo.snippet || m.replyTo.author)) {
+                    replyQuoteHtml = '<div class="bg-black/25 border-r-2 border-teal-300 rounded-lg px-2.5 py-1 mb-1.5 text-[11px] text-slate-200/95">' +
+                        '<div class="font-bold text-teal-200 truncate">' + escapeHtml(m.replyTo.author || 'رسالة') + '</div>' +
+                        '<div class="truncate text-slate-300">' + escapeHtml(m.replyTo.snippet || '') + '</div>' +
+                        '</div>';
+                }
+
+                var translatedHtml = '';
+                if (translationsByMsgId[m.id]) {
+                    translatedHtml = '<div class="mt-1.5 bg-[#07111b]/80 border border-teal-700/40 rounded-lg px-2.5 py-1.5 text-xs text-emerald-200">' +
+                        escapeHtml(translationsByMsgId[m.id]) +
+                        '</div>';
+                }
+
+                var actionsHtml = '<div class="flex items-center gap-2.5 text-[10px] text-slate-300/85 mt-1.5 pt-1 border-t border-white/10 flex-wrap">' +
+                    '<button type="button" onclick="setReplyTarget(\\'' + safeId + '\\')" class="hover:text-teal-200 flex items-center gap-0.5" title="رد على الرسالة"><i class="fa-solid fa-reply"></i><span>رد</span></button>' +
+                    (m.text ? '<button type="button" onclick="translateChatMessage(\\'' + safeId + '\\')" class="hover:text-emerald-200 flex items-center gap-0.5" title="ترجمة داخل المحادثة"><i class="fa-solid fa-language"></i><span>ترجمة</span></button>' : '') +
                     (m.text ? '<button type="button" onclick="speakMessageText(\\'' + safeId + '\\')" class="hover:text-teal-200 flex items-center gap-0.5" title="قراءة صوتية بالذكاء الاصطناعي"><i class="fa-solid fa-volume-high"></i><span>قراءة</span></button>' : '') +
                     (m.text ? '<button type="button" onclick="copyStringToClipboard(decodeURIComponent(\\'' + encodeURIComponent(m.text) + '\\'), \\'تم نسخ الرسالة\\')" class="hover:text-teal-200 flex items-center gap-0.5" title="نسخ"><i class="fa-regular fa-copy"></i><span>نسخ</span></button>' : '') +
                     '<button type="button" onclick="openDeleteMsgModal(\\'' + safeId + '\\')" class="hover:text-rose-300 flex items-center gap-0.5 mr-auto" title="حذف نهائي"><i class="fa-solid fa-trash-can"></i><span>حذف نهائي</span></button>' +
@@ -1803,8 +2149,10 @@ const htmlContent = `<!DOCTYPE html>
                 return '<div class="flex ' + (isMe ? 'justify-start' : 'justify-end') + '">' +
                     '<div class="max-w-[85%] rounded-2xl px-3.5 py-2.5 shadow ' +
                     (isMe ? 'bg-[#164e63] text-white rounded-br-sm' : 'bg-[#0d1926] border border-slate-800 text-slate-100 rounded-bl-sm') + '">' +
+                    replyQuoteHtml +
                     (m.text ? '<div class="sanad-msg-text whitespace-pre-wrap break-words">' + escapeHtml(m.text) + '</div>' : '') +
                     media +
+                    translatedHtml +
                     actionsHtml +
                     '<div class="text-[10px] text-slate-300/80 mt-1 text-left flex items-center justify-end gap-1">' +
                     '<span>' + escapeHtml(m.sentAt || '') + '</span>' + receiptHtml +
@@ -1884,6 +2232,8 @@ const htmlContent = `<!DOCTYPE html>
 
         function sendAudioMsgData(dataUrl) {
             if (!dataUrl) return;
+            var replySnapshot = activeReplyTarget ? Object.assign({}, activeReplyTarget) : null;
+            clearReplyTarget();
             var msgObj = {
                 id: 'aud-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
                 from: 'me',
@@ -1891,6 +2241,7 @@ const htmlContent = `<!DOCTYPE html>
                 kind: 'audio',
                 text: '',
                 mediaUrl: dataUrl,
+                replyTo: replySnapshot,
                 sentAt: formatTimeShort(),
                 receipt: (currentPeer === DEFAULT_PEER || isPeerOnline(currentPeer)) ? 'delivered' : 'sent'
             };
@@ -1935,12 +2286,16 @@ const htmlContent = `<!DOCTYPE html>
             if (!txt) return;
             if (isPeerBlocked(currentPeer)) return copyStringToClipboard('', 'هذا الطرف محظور');
 
+            var replySnapshot = activeReplyTarget ? Object.assign({}, activeReplyTarget) : null;
+            clearReplyTarget();
+
             var msgObj = {
                 id: 'm-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
                 from: 'me',
                 senderName: activeAcct,
                 kind: 'text',
                 text: txt,
+                replyTo: replySnapshot,
                 sentAt: formatTimeShort(),
                 receipt: (currentPeer === DEFAULT_PEER || isPeerOnline(currentPeer)) ? 'delivered' : 'sent'
             };
@@ -2022,7 +2377,6 @@ const htmlContent = `<!DOCTYPE html>
             ev.target.value = '';
         }
 
-        // مساعد الذكاء الاصطناعي الحقيقي عبر /api/ai/chat
         function askSanadAI() {
             var inp = document.getElementById('ai-q');
             var log = document.getElementById('ai-log');
@@ -2321,6 +2675,7 @@ const htmlContent = `<!DOCTYPE html>
                         text: ev.msg.text || '',
                         fileName: ev.msg.fileName || '',
                         mediaUrl: ev.msg.mediaUrl || '',
+                        replyTo: ev.msg.replyTo || null,
                         sentAt: ev.msg.sentAt || formatTimeShort(),
                         receipt: 'read'
                     });
@@ -2425,6 +2780,8 @@ const htmlContent = `<!DOCTYPE html>
             renderPresence();
             renderBlockedList();
             renderGroupsList();
+            renderBackupHistoryList();
+            syncRadioUi();
             onCallDialInput();
             openSocket();
             syncPresenceNow();
@@ -2488,6 +2845,23 @@ const server = http.createServer((req, res) => {
             } catch (e) {
                 res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
                 res.end(JSON.stringify({ ok: false, reply: 'تعذر معالجة السؤال حالياً.' }));
+            }
+        });
+        return;
+    }
+
+    if (pathname === '/api/ai/translate' && req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString('utf8'); });
+        req.on('end', async () => {
+            try {
+                const parsed = JSON.parse(body || '{}');
+                const translated = await translateTextSmart(parsed.text || '', parsed.targetLang || 'ar');
+                res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+                res.end(JSON.stringify({ ok: true, translated }));
+            } catch (e) {
+                res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+                res.end(JSON.stringify({ ok: false, translated: '' }));
             }
         });
         return;

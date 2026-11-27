@@ -1,9 +1,10 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const zlib = require('zlib');
 const { WebSocketServer } = require('ws');
 
-const APP_VERSION = '12.6.4';
+const APP_VERSION = '12.6.5';
 const PORT = process.env.PORT || 3000;
 const ICON_BG_HEX = '#164e63';
 const ICON_ACCENT_HEX = '#f0fdfa';
@@ -274,7 +275,7 @@ async function callGeminiText(systemPrompt, userPrompt) {
 async function generateAiAssistantReply(promptText) {
     const q = String(promptText || '').trim();
     const aiOut = await callGeminiText(
-        'أنت مساعد سند الذكي داخل تطبيق سند (بالذكاء الاصطناعي والأقمار الصناعية -- اتصالك عبر القارات بلا حدود). أجب بالعربية بوضوح ودقة وإيجاز عملي.',
+        'أنت مساعد سند الذكي داخل تطبيق سند (منصة اتصال وذكاء اصطناعي وأخبار وثقافة ومعرفة). أجب بالعربية بوضوح ودقة وإيجاز عملي.',
         q
     );
     if (aiOut) return aiOut;
@@ -339,23 +340,200 @@ async function translateTextSmart(text, targetLang) {
     return `[ترجمة فورية]: ${src}`;
 }
 
+/* توليد ملف PNG حقيقي بدقة عالية بهوية أيقونة سند (الدرع + الشبكة + الموجات + النجمة) */
+const crcTable = (() => {
+    const t = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+        let c = n;
+        for (let k = 0; k < 8; k++) {
+            c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+        }
+        t[n] = c >>> 0;
+    }
+    return t;
+})();
+
+function crc32Buf(buf) {
+    let c = 0xffffffff;
+    for (let i = 0; i < buf.length; i++) {
+        c = crcTable[(c ^ buf[i]) & 0xff] ^ (c >>> 8);
+    }
+    return (c ^ 0xffffffff) >>> 0;
+}
+
+function pngChunk(typeStr, dataBuf) {
+    const lenBuf = Buffer.alloc(4);
+    lenBuf.writeUInt32BE(dataBuf.length, 0);
+    const typeBuf = Buffer.from(typeStr, 'ascii');
+    const crcBuf = Buffer.alloc(4);
+    crcBuf.writeUInt32BE(crc32Buf(Buffer.concat([typeBuf, dataBuf])), 0);
+    return Buffer.concat([lenBuf, typeBuf, dataBuf, crcBuf]);
+}
+
+function buildSanadEmblemPng(size) {
+    const w = size;
+    const h = size;
+    const raw = Buffer.alloc((w * 4 + 1) * h);
+    const cx = w * 0.5;
+    const cy = h * 0.54;
+    const rScale = w / 512;
+
+    for (let y = 0; y < h; y++) {
+        const rowStart = y * (w * 4 + 1);
+        raw[rowStart] = 0; // filter type 0
+        const ny = y / h;
+
+        for (let x = 0; x < w; x++) {
+            const nx = x / w;
+            // خلفية متدرجة زرقاء عميقة
+            const gradT = Math.min(1, Math.max(0, nx * 0.45 + ny * 0.75));
+            let r = Math.round(17 + gradT * 7);
+            let g = Math.round(78 - gradT * 34);
+            let b = Math.round(98 - gradT * 36);
+            let a = 255;
+
+            const dx = (x - cx) / rScale;
+            const dy = (y - cy) / rScale;
+            const dist = Math.hypot(dx, dy);
+
+            // خطوط شبكة خفيفة في الخلفية
+            const gridWave = Math.abs(Math.sin((x + y * 0.6) * 0.045 * (512 / w)));
+            if (gridWave < 0.04) {
+                r = Math.min(255, r + 24);
+                g = Math.min(255, g + 42);
+                b = Math.min(255, b + 48);
+            }
+
+            // هالة مضيئة حول المركز
+            const glow = Math.max(0, 1 - dist / 155);
+            if (glow > 0) {
+                r = Math.min(255, Math.round(r + glow * 45));
+                g = Math.min(255, Math.round(g + glow * 95));
+                b = Math.min(255, Math.round(b + glow * 105));
+            }
+
+            // شكل الدرع المركزي
+            const shieldW = 138;
+            const shieldTop = -88;
+            const shieldBottom = 135;
+            const inShieldY = dy >= shieldTop && dy <= shieldBottom;
+            let maxHalfW = shieldW;
+            if (dy > 15) {
+                const tBottom = Math.min(1, (dy - 15) / (shieldBottom - 15));
+                maxHalfW = shieldW * (1 - Math.pow(tBottom, 1.15));
+            }
+            const inShield = inShieldY && Math.abs(dx) <= maxHalfW;
+
+            if (inShield) {
+                // حدود الدرع المضيئة
+                const edgeDist = Math.min(
+                    maxHalfW - Math.abs(dx),
+                    dy - shieldTop,
+                    shieldBottom - dy
+                );
+                if (edgeDist < 11) {
+                    r = 224; g = 247; b = 250;
+                } else {
+                    r = 12; g = 46; b = 64;
+                }
+
+                // حلقات دائرية داخل الدرع
+                const ringDiff1 = Math.abs(dist - 58);
+                const ringDiff2 = Math.abs(dist - 92);
+                if (ringDiff1 < 2.2 || ringDiff2 < 2.2) {
+                    r = 153; g = 235; b = 245;
+                }
+
+                // محاور متقاطعة داخل الدرع
+                if (Math.abs(Math.abs(dx) - Math.abs(dy)) < 2.0 && dist < 115) {
+                    r = 125; g = 211; b = 252;
+                }
+            }
+
+            // نجمة رباعية لامعة في قلب الدرع
+            const starVal = Math.pow(Math.max(0, 1 - Math.abs(dx) / 34), 1.6) + Math.pow(Math.max(0, 1 - Math.abs(dy) / 34), 1.6);
+            const crossBeam = (Math.abs(dx) < 4.5 && Math.abs(dy) < 42) || (Math.abs(dy) < 4.5 && Math.abs(dx) < 42);
+            if (crossBeam || starVal > 1.38) {
+                r = 248; g = 252; b = 255;
+            }
+
+            // قوس موجات الاتصال أعلى الدرع
+            const waveDy = dy + 112;
+            const waveDist = Math.hypot(dx, waveDy);
+            if (waveDy <= 4 && Math.abs(dx) < 75) {
+                if (Math.abs(waveDist - 24) < 3.5 || Math.abs(waveDist - 40) < 3.5 || Math.abs(waveDist - 56) < 3.5) {
+                    r = 235; g = 250; b = 255;
+                }
+            }
+
+            const idx = rowStart + 1 + x * 4;
+            raw[idx] = r;
+            raw[idx + 1] = g;
+            raw[idx + 2] = b;
+            raw[idx + 3] = a;
+        }
+    }
+
+    const ihdr = Buffer.alloc(13);
+    ihdr.writeUInt32BE(w, 0);
+    ihdr.writeUInt32BE(h, 4);
+    ihdr[8] = 8;  // bit depth
+    ihdr[9] = 6;  // RGBA
+    ihdr[10] = 0; // compression
+    ihdr[11] = 0; // filter
+    ihdr[12] = 0; // interlace
+
+    const idat = zlib.deflateSync(raw, { level: 6 });
+    return Buffer.concat([
+        Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+        pngChunk('IHDR', ihdr),
+        pngChunk('IDAT', idat),
+        pngChunk('IEND', Buffer.alloc(0))
+    ]);
+}
+
+const sanadPng192 = buildSanadEmblemPng(192);
+const sanadPng512 = buildSanadEmblemPng(512);
+
 const sanadIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
     <linearGradient id="sanadBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1e6078"/>
+      <stop offset="0%" stop-color="#155e75"/>
       <stop offset="55%" stop-color="${ICON_BG_HEX}"/>
       <stop offset="100%" stop-color="${ICON_SUB_HEX}"/>
     </linearGradient>
+    <radialGradient id="sanadCoreGlow" cx="50%" cy="54%" r="42%">
+      <stop offset="0%" stop-color="#67e8f9" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#0f3646" stop-opacity="0"/>
+    </radialGradient>
   </defs>
   <rect width="512" height="512" fill="url(#sanadBgGrad)"/>
-  <text x="256" y="224" text-anchor="middle" fill="${ICON_ACCENT_HEX}" font-family="'IBM Plex Sans Arabic', 'Cairo', 'Tahoma', sans-serif" font-size="168" font-weight="700">س</text>
-  <text x="256" y="420" text-anchor="middle" fill="${ICON_ACCENT_HEX}" font-family="'IBM Plex Sans Arabic', 'Cairo', 'Tahoma', sans-serif" font-size="88" font-weight="700">سند</text>
+  <rect width="512" height="512" fill="url(#sanadCoreGlow)"/>
+  <g stroke="#67e8f9" stroke-opacity="0.22" stroke-width="1.5" fill="none">
+    <line x1="0" y1="90" x2="512" y2="210"/>
+    <line x1="0" y1="340" x2="512" y2="120"/>
+    <line x1="90" y1="0" x2="410" y2="512"/>
+    <circle cx="88" cy="110" r="4" fill="#a5f3fc"/>
+    <circle cx="425" cy="145" r="4" fill="#a5f3fc"/>
+    <circle cx="115" cy="395" r="4" fill="#a5f3fc"/>
+    <circle cx="405" cy="380" r="4" fill="#a5f3fc"/>
+  </g>
+  <g transform="translate(256, 268)">
+    <path d="M 0 -138 C 16 -152 44 -152 60 -138 M -24 -116 C 0 -142 36 -142 60 -116 M -42 -94 C -10 -128 46 -128 78 -94" stroke="#e0f2fe" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <path d="M -128 -78 L 128 -78 L 128 24 C 128 96 68 142 0 166 C -68 142 -128 96 -128 24 Z" fill="#0c2f42" stroke="#bae6fd" stroke-width="10" stroke-linejoin="round"/>
+    <path d="M -106 -58 L 106 -58 L 106 18 C 106 78 56 118 0 140 C -56 118 -106 78 -106 18 Z" fill="none" stroke="#67e8f9" stroke-width="3.5" stroke-opacity="0.7"/>
+    <circle cx="0" cy="16" r="56" fill="none" stroke="#a5f3fc" stroke-width="2.5" stroke-dasharray="8 6"/>
+    <line x1="-88" y1="-44" x2="88" y2="76" stroke="#7dd3fc" stroke-width="2.5" stroke-opacity="0.75"/>
+    <line x1="88" y1="-44" x2="-88" y2="76" stroke="#7dd3fc" stroke-width="2.5" stroke-opacity="0.75"/>
+    <path d="M 0 -24 L 8 -8 L 24 0 L 8 8 L 0 24 L -8 8 L -24 0 L -8 -8 Z" fill="#ffffff"/>
+  </g>
+  <text x="256" y="476" text-anchor="middle" fill="${ICON_ACCENT_HEX}" font-family="'IBM Plex Sans Arabic', 'Cairo', 'Tahoma', sans-serif" font-size="42" font-weight="700">سند • Sanad</text>
 </svg>`;
 
 const manifestPayload = JSON.stringify({
-  name: `Sanad AI v${APP_VERSION} - سند بالذكاء الاصطناعي والأقمار الصناعية`,
-  short_name: 'سند AI',
-  description: 'سند بالذكاء الاصطناعي والأقمار الصناعية -- اتصالك عبر القارات بلا حدود',
+  name: `Sanad v${APP_VERSION} - منصة سند للاتصال والذكاء والمعرفة`,
+  short_name: 'سند',
+  description: 'منصة سند للاتصال والذكاء الاصطناعي والأخبار والثقافة والمعرفة',
   start_url: '/',
   scope: '/',
   display: 'standalone',
@@ -365,12 +543,16 @@ const manifestPayload = JSON.stringify({
   dir: 'rtl',
   lang: 'ar',
   icons: [
-    { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }
+    { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+    { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+    { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+    { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+    { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }
   ]
 });
 
 const swContent = `const CACHE_NAME = 'sanad-ai-cache-v${APP_VERSION}';
-const APP_SHELL = ['/', '/manifest.json', '/icon.svg'];
+const APP_SHELL = ['/', '/manifest.json', '/icon.svg', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -394,7 +576,15 @@ self.addEventListener('fetch', event => {
   const url = new URL(req.url);
   if (url.pathname.startsWith('/api/') || url.pathname === '/healthz') return;
 
-  if (req.mode === 'navigate' || url.pathname === '/' || url.pathname === '/manifest.json' || url.pathname === '/icon.svg') {
+  if (
+    req.mode === 'navigate' ||
+    url.pathname === '/' ||
+    url.pathname === '/manifest.json' ||
+    url.pathname === '/icon.svg' ||
+    url.pathname === '/icon-192.png' ||
+    url.pathname === '/icon-512.png' ||
+    url.pathname === '/apple-touch-icon.png'
+  ) {
     event.respondWith(
       fetch(req).then(res => {
         if (res && res.ok) {
@@ -417,11 +607,14 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="سند AI">
+    <meta name="apple-mobile-web-app-title" content="سند">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#164e63">
-    <title>سند AI v${APP_VERSION} -- بالذكاء الاصطناعي والأقمار الصناعية</title>
-    <link id="sanad-favicon" rel="icon" type="image/svg+xml" href="/icon.svg">
-    <link rel="apple-touch-icon" href="/icon.svg">
+    <title>سند v${APP_VERSION} -- منصة الاتصال والذكاء والمعرفة</title>
+    <link id="sanad-favicon" rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="apple-touch-icon" href="/icon-192.png">
     <link rel="manifest" href="/manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -554,20 +747,19 @@ const htmlContent = `<!DOCTYPE html>
 
     <header class="bg-[#0d1926]/95 border-b border-slate-800/80 px-3.5 py-2 flex justify-between items-center z-20 shrink-0">
         <div class="flex items-center gap-2.5 min-w-0">
-            <button type="button" onclick="openIdentityQrModal()" title="كود التعريف" class="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-[#1e6078] via-[#164e63] to-[#0f3646] border border-teal-300/30 flex flex-col items-center justify-center shrink-0 shadow">
-                <span class="text-teal-50 font-bold text-base leading-none">س</span>
-                <span class="text-[8px] font-semibold text-teal-200 leading-tight mt-0.5">سند</span>
+            <button type="button" onclick="openIdentityQrModal()" title="هوية سند وكود التعريف" class="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-[#155e75] via-[#164e63] to-[#0f3646] border border-cyan-300/35 flex items-center justify-center shrink-0 shadow overflow-hidden">
+                <img src="/icon-192.png" alt="سند" class="w-full h-full object-cover">
                 <span id="header-unread-dot" class="hidden absolute -top-1.5 -left-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-600 text-white text-[10px] font-mono font-bold flex items-center justify-center shadow">0</span>
             </button>
             <div class="min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
                     <h1 class="font-bold text-base text-white leading-none">سند</h1>
-                    <span class="text-[10px] bg-teal-950/90 text-teal-200 border border-teal-700/60 px-2 py-0.5 rounded-full font-semibold">AI • أقمار صناعية v${APP_VERSION}</span>
+                    <span class="text-[10px] bg-teal-950/90 text-teal-200 border border-teal-700/60 px-2 py-0.5 rounded-full font-semibold">اتصال • ذكاء • معرفة v${APP_VERSION}</span>
                     <span id="current-tab-badge" class="text-[10px] bg-slate-800/90 text-slate-200 border border-slate-700/80 px-2 py-0.5 rounded-full font-semibold">الدردشة</span>
                 </div>
                 <div class="flex items-center gap-1.5 text-[11px] mt-0.5 flex-wrap">
                     <span id="ws-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)]"></span>
-                    <span id="ws-label" class="text-emerald-300 font-medium">اتصالك عبر القارات بلا حدود</span>
+                    <span id="ws-label" class="text-emerald-300 font-medium">منصة سند متصلة ونشطة</span>
                     <button type="button" onclick="reconnectNow()" title="تحديث الربط" class="text-slate-300 hover:text-white px-1">
                         <i class="fa-solid fa-rotate-right text-[10px]"></i>
                     </button>
@@ -626,10 +818,11 @@ const htmlContent = `<!DOCTYPE html>
     <div id="identity-qr-modal" onclick="if(event.target===this)closeIdentityQrModal()" class="hidden fixed inset-0 bg-[#070d14]/88 z-50 flex items-center justify-center p-3.5 overflow-y-auto">
         <div class="bg-[#0d1926] border border-teal-700/60 rounded-3xl w-full max-w-md p-4 space-y-3 shadow-2xl my-auto">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                <h3 class="text-sm font-bold text-teal-200"><i class="fa-solid fa-satellite-dish ml-1"></i> سند -- بالذكاء الاصطناعي والأقمار الصناعية</h3>
+                <h3 class="text-sm font-bold text-teal-200"><i class="fa-solid fa-shield-halved ml-1"></i> سند -- منصة الاتصال والذكاء والمعرفة</h3>
                 <button type="button" onclick="closeIdentityQrModal()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <p class="text-[11px] text-slate-300 leading-relaxed">اتصالك عبر القارات بلا حدود -- تواصل فوري بالرسائل والصوت والذكاء الاصطناعي بكود التعريف أو الرقم الدولي.</p>
+            <img src="/icon-512.png" alt="شعار سند" class="w-24 h-24 rounded-2xl mx-auto border border-cyan-400/30 shadow-lg">
+            <p class="text-[11px] text-slate-300 leading-relaxed text-center">تواصل فوري بالرسائل والصوت، وقنوات إخبارية وثقافية وتعليمية، ومتابعة ذكية من مكان واحد.</p>
             <div class="bg-[#08101a] border border-slate-800 rounded-2xl p-3 flex flex-col items-center gap-2">
                 <div class="text-[11px] text-slate-400">معرّفك النشط الحالي</div>
                 <div id="qr-modal-acct-id" class="font-mono text-base font-bold text-teal-200"></div>
@@ -647,7 +840,7 @@ const htmlContent = `<!DOCTYPE html>
 
     <div id="call-modal" class="hidden fixed inset-0 bg-[#070d14]/95 z-50 flex flex-col items-center justify-between p-4">
         <div class="text-center mt-1">
-            <p class="text-xs text-teal-300 font-semibold">سند • بالذكاء الاصطناعي والأقمار الصناعية</p>
+            <p class="text-xs text-teal-300 font-semibold">سند • اتصال ذكي ومباشر</p>
             <h2 id="call-peer-title" class="text-lg font-bold text-white mt-0.5">...</h2>
             <p id="call-timer-el" class="text-xs font-mono font-semibold text-slate-300 mt-0.5">00:00</p>
             <p id="call-status-msg" class="text-xs text-emerald-300 mt-0.5 font-medium">جاري الاتصال...</p>
@@ -659,7 +852,7 @@ const htmlContent = `<!DOCTYPE html>
                 <div class="w-20 h-20 rounded-full bg-teal-950/80 border border-teal-800/60 flex items-center justify-center text-3xl text-teal-200 animate-pulse">
                     <i class="fa-solid fa-microphone-lines"></i>
                 </div>
-                <span id="call-mode-label" class="text-xs text-slate-300 font-medium">اتصال عبر القارات بلا حدود</span>
+                <span id="call-mode-label" class="text-xs text-slate-300 font-medium">اتصال فوري عبر سند</span>
             </div>
         </div>
         <div class="flex items-center gap-2 mb-2 flex-wrap justify-center">
@@ -823,7 +1016,7 @@ const htmlContent = `<!DOCTYPE html>
         <section id="pane-calls" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
             <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-3 text-center">
                 <h2 class="text-base font-bold text-white">المكالمات الصوتية والمرئية</h2>
-                <p class="text-xs text-teal-200">سند بالذكاء الاصطناعي والأقمار الصناعية -- اتصالك عبر القارات بلا حدود</p>
+                <p class="text-xs text-teal-200">منصة سند للاتصال والذكاء والمعرفة</p>
                 <input type="text" id="call-input" oninput="normalizeDigitsInInput(this); onCallDialInput();" onkeydown="if(event.key==='Enter'){event.preventDefault();startDialedCall('audio');}" placeholder="اكتب الكود أو الرقم أو الاسم..." class="w-full max-w-md mx-auto bg-[#08101a] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-center font-mono text-white">
                 <div id="call-resolved-preview" class="text-[11px] text-teal-200 font-semibold min-h-[18px]"></div>
                 <div class="flex gap-3 justify-center pt-1 flex-wrap">
@@ -835,12 +1028,15 @@ const htmlContent = `<!DOCTYPE html>
 
         <!-- تبويب الذكاء -->
         <section id="pane-ai" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
-            <div class="bg-gradient-to-br from-[#133144] to-[#0d1926] border border-teal-700/60 p-4 rounded-2xl space-y-1.5">
-                <div class="flex items-center justify-between">
-                    <span class="text-sm font-bold text-teal-200"><i class="fa-solid fa-satellite-dish ml-1"></i> سند -- بالذكاء الاصطناعي والأقمار الصناعية</span>
-                    <span class="text-[10px] font-mono bg-teal-950 text-teal-200 border border-teal-800 px-2 py-0.5 rounded-full">v${APP_VERSION}</span>
+            <div class="bg-gradient-to-br from-[#133144] to-[#0d1926] border border-teal-700/60 p-4 rounded-2xl flex items-center gap-3">
+                <img src="/icon-192.png" alt="سند" class="w-14 h-14 rounded-2xl border border-cyan-300/35 shrink-0">
+                <div class="space-y-1 min-w-0">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-sm font-bold text-teal-200 truncate">سند • منصة اتصال ومعرفة</span>
+                        <span class="text-[10px] font-mono bg-teal-950 text-teal-200 border border-teal-800 px-2 py-0.5 rounded-full shrink-0">v${APP_VERSION}</span>
+                    </div>
+                    <p class="text-xs text-slate-200">تواصل فوري، قنوات إخبارية وثقافية وتعليمية، وقراءة ذكية للأجواء والبحار.</p>
                 </div>
-                <p class="text-xs text-slate-200 font-medium">اتصالك عبر القارات بلا حدود -- تواصل صوتي وكتابي ذكي عالي السرعة مع إشعارات فورية ومؤشرات تسليم دقيقة.</p>
             </div>
 
             <div class="bg-[#0d1926] border border-teal-700/60 p-4 rounded-2xl space-y-2.5 text-xs">
@@ -1033,10 +1229,10 @@ const htmlContent = `<!DOCTYPE html>
         };
 
         var LOCAL_SANAD_SCHEDULE = [
-            { tag: 'افتتاحية الجمعة', line: 'صباح الخير والسكينة عليكم في يوم الجمعة؛ نبدأ بث إذاعة سند العالمية بروح هادئة وتواصل واضح.' },
+            { tag: 'افتتاحية الجمعة', line: 'صباح الخير والسكينة عليكم في يوم الجمعة؛ نبدأ بث إذاعة سند بروح هادئة وتواصل واضح.' },
             { tag: 'برنامج • نقطة نظام', line: 'فقرة نقطة نظام وتواصل: وضوح الكلمة وسرعة الرد واحترام وقت الآخرين هما أساس أي علاقة أو عمل ناجح.' },
             { tag: 'إعلان • سند', line: 'مساحة إعلانية: احجز كودك الحصري 88 وتواصل عبر الرسائل والصوت والذكاء الاصطناعي من مكان واحد داخل سند.' },
-            { tag: 'برنامج • حكاية وذائقة', line: 'فقرة حكاية وذائقة: في صباح الجمعة نمنح أنفسنا دقيقة للتأمل واختيار الكلمة الطيبة التي تبقى أثرها.' },
+            { tag: 'برنامج • حكاية وذائقة', line: 'فقرة حكاية وذائقة: نمنح أنفسنا دقيقة للتأمل واختيار الكلمة الطيبة التي تبقى أثرها.' },
             { tag: 'إعلان • خدمات محلية', line: 'مساحة إعلانية: للتعريف بخدماتك أو مشاريعك عبر إذاعة سند، رتّب رسالتك بوضوح لتصل مباشرة للمستمع المهتم.' }
         ];
 
@@ -1631,7 +1827,7 @@ const htmlContent = `<!DOCTYPE html>
             }
             if (Notification.permission === 'granted') {
                 syncNotificationBadge();
-                new Notification('سند AI', { body: 'الإشعارات مفعّلة وجاهزة.' });
+                new Notification('سند', { body: 'الإشعارات مفعّلة وجاهزة.' });
                 return;
             }
             Notification.requestPermission().then(function() {
@@ -1643,7 +1839,7 @@ const htmlContent = `<!DOCTYPE html>
         function triggerSystemNotification(title, body) {
             playChimeSound();
             if ('Notification' in window && Notification.permission === 'granted' && document.visibilityState !== 'visible') {
-                try { new Notification(title || 'سند AI', { body: body || '' }); } catch (e) {}
+                try { new Notification(title || 'سند', { body: body || '' }); } catch (e) {}
             }
         }
 
@@ -1704,7 +1900,7 @@ const htmlContent = `<!DOCTYPE html>
                 'FN:' + nameVal,
                 'N:' + nameVal + ';;;;',
                 'TEL;TYPE=CELL:' + cleanVal,
-                'NOTE:Sanad AI Satellite',
+                'NOTE:Sanad Platform',
                 'END:VCARD'
             ].join('\\r\\n');
             var blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
@@ -1914,15 +2110,15 @@ const htmlContent = `<!DOCTYPE html>
                 var rawVault = localStorage.getItem('sanad_persistent_vault_v1');
                 var vault = rawVault ? JSON.parse(rawVault) : null;
 
-                var sActive = (vault && vault.activeAcct) || localStorage.getItem('sanad1264_active') || localStorage.getItem('sanad1263_active') || localStorage.getItem('sanad1262_active');
-                var sAccts = (vault && vault.myAccts) || JSON.parse(localStorage.getItem('sanad1264_accts') || localStorage.getItem('sanad1263_accts') || 'null');
-                var sVerified = (vault && vault.verifiedPhones) || JSON.parse(localStorage.getItem('sanad1264_verified') || localStorage.getItem('sanad1263_verified') || 'null');
-                var sContacts = (vault && vault.contacts) || JSON.parse(localStorage.getItem('sanad1264_contacts') || localStorage.getItem('sanad1263_contacts') || 'null');
-                var sBlocked = (vault && vault.blocked) || JSON.parse(localStorage.getItem('sanad1264_blocked') || localStorage.getItem('sanad1263_blocked') || 'null');
-                var sThreads = (vault && vault.threads) || JSON.parse(localStorage.getItem('sanad1264_threads') || localStorage.getItem('sanad1263_threads') || 'null');
-                var sGroups = (vault && vault.groups) || JSON.parse(localStorage.getItem('sanad1264_groups') || localStorage.getItem('sanad1263_groups') || 'null');
-                var sBackups = (vault && vault.backupHistory) || JSON.parse(localStorage.getItem('sanad1264_backups') || localStorage.getItem('sanad1263_backups') || 'null');
-                var sCursor = Number((vault && vault.cursor) || localStorage.getItem('sanad1264_cursor') || localStorage.getItem('sanad1263_cursor') || '0');
+                var sActive = (vault && vault.activeAcct) || localStorage.getItem('sanad1265_active') || localStorage.getItem('sanad1264_active') || localStorage.getItem('sanad1263_active');
+                var sAccts = (vault && vault.myAccts) || JSON.parse(localStorage.getItem('sanad1265_accts') || localStorage.getItem('sanad1264_accts') || 'null');
+                var sVerified = (vault && vault.verifiedPhones) || JSON.parse(localStorage.getItem('sanad1265_verified') || localStorage.getItem('sanad1264_verified') || 'null');
+                var sContacts = (vault && vault.contacts) || JSON.parse(localStorage.getItem('sanad1265_contacts') || localStorage.getItem('sanad1264_contacts') || 'null');
+                var sBlocked = (vault && vault.blocked) || JSON.parse(localStorage.getItem('sanad1265_blocked') || localStorage.getItem('sanad1264_blocked') || 'null');
+                var sThreads = (vault && vault.threads) || JSON.parse(localStorage.getItem('sanad1265_threads') || localStorage.getItem('sanad1264_threads') || 'null');
+                var sGroups = (vault && vault.groups) || JSON.parse(localStorage.getItem('sanad1265_groups') || localStorage.getItem('sanad1264_groups') || 'null');
+                var sBackups = (vault && vault.backupHistory) || JSON.parse(localStorage.getItem('sanad1265_backups') || localStorage.getItem('sanad1264_backups') || 'null');
+                var sCursor = Number((vault && vault.cursor) || localStorage.getItem('sanad1265_cursor') || localStorage.getItem('sanad1264_cursor') || '0');
 
                 if (sActive) activeAcct = cleanIdValue(sActive);
                 if (Array.isArray(sAccts) && sAccts.length) myAccts = sAccts.map(cleanIdValue).filter(Boolean);
@@ -1941,15 +2137,15 @@ const htmlContent = `<!DOCTYPE html>
         function persistState() {
             try {
                 var blockedArr = Array.from(blockedIdsSet);
-                localStorage.setItem('sanad1264_active', activeAcct);
-                localStorage.setItem('sanad1264_accts', JSON.stringify(myAccts));
-                localStorage.setItem('sanad1264_verified', JSON.stringify(verifiedPhonesMap));
-                localStorage.setItem('sanad1264_contacts', JSON.stringify(contacts));
-                localStorage.setItem('sanad1264_blocked', JSON.stringify(blockedArr));
-                localStorage.setItem('sanad1264_threads', JSON.stringify(acctThreads));
-                localStorage.setItem('sanad1264_groups', JSON.stringify(sanadGroups));
-                localStorage.setItem('sanad1264_backups', JSON.stringify(backupRecordsHistory));
-                localStorage.setItem('sanad1264_cursor', String(lastSyncCursor));
+                localStorage.setItem('sanad1265_active', activeAcct);
+                localStorage.setItem('sanad1265_accts', JSON.stringify(myAccts));
+                localStorage.setItem('sanad1265_verified', JSON.stringify(verifiedPhonesMap));
+                localStorage.setItem('sanad1265_contacts', JSON.stringify(contacts));
+                localStorage.setItem('sanad1265_blocked', JSON.stringify(blockedArr));
+                localStorage.setItem('sanad1265_threads', JSON.stringify(acctThreads));
+                localStorage.setItem('sanad1265_groups', JSON.stringify(sanadGroups));
+                localStorage.setItem('sanad1265_backups', JSON.stringify(backupRecordsHistory));
+                localStorage.setItem('sanad1265_cursor', String(lastSyncCursor));
 
                 localStorage.setItem('sanad_persistent_vault_v1', JSON.stringify({
                     activeAcct: activeAcct,
@@ -2201,7 +2397,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!acctThreads[activeAcct]) acctThreads[activeAcct] = {};
             if (!acctThreads[activeAcct][DEFAULT_PEER]) {
                 acctThreads[activeAcct][DEFAULT_PEER] = [
-                    { id: 'init-' + activeAcct, from: 'them', senderName: DEFAULT_PEER, kind: 'text', text: 'مرحباً بك في سند -- بالذكاء الاصطناعي والأقمار الصناعية. اتصالك عبر القارات بلا حدود.', sentAt: formatTimeShort(), receipt: 'read' }
+                    { id: 'init-' + activeAcct, from: 'them', senderName: DEFAULT_PEER, kind: 'text', text: 'مرحباً بك في سند -- منصة الاتصال والذكاء والمعرفة.', sentAt: formatTimeShort(), receipt: 'read' }
                 ];
             }
             return acctThreads[activeAcct];
@@ -2619,7 +2815,7 @@ const htmlContent = `<!DOCTYPE html>
                 var st = document.getElementById('call-status-msg');
                 if (!pc || !st) return;
                 if (pc.connectionState === 'connected') {
-                    st.textContent = 'متصل عبر القارات بلا حدود';
+                    st.textContent = 'متصل عبر سند';
                     clearInterval(callDurationTimer);
                     callSeconds = 0;
                     callDurationTimer = setInterval(function() {
@@ -2997,6 +3193,18 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    if (pathname === '/icon-192.png' || pathname === '/apple-touch-icon.png') {
+        res.writeHead(200, { 'Content-Type': 'image/png' });
+        res.end(sanadPng192);
+        return;
+    }
+
+    if (pathname === '/icon-512.png') {
+        res.writeHead(200, { 'Content-Type': 'image/png' });
+        res.end(sanadPng512);
+        return;
+    }
+
     if (pathname === '/api/codes/generate-88' && req.method === 'POST') {
         const code = generateUnique88CodeServer();
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -3067,7 +3275,7 @@ const server = http.createServer((req, res) => {
                                 from: mailFrom,
                                 to: [email],
                                 subject: 'رمز التحقق (6 أرقام) -- سند AI',
-                                html: `<div dir="rtl" style="font-family:sans-serif"><h3>سند -- بالذكاء الاصطناعي والأقمار الصناعية</h3><p>رمز التحقق الخاص بالرقم <b>${parsed.phone || ''}</b> هو: <b>${code}</b></p></div>`
+                                html: `<div dir="rtl" style="font-family:sans-serif"><h3>سند -- منصة الاتصال والذكاء والمعرفة</h3><p>رمز التحقق الخاص بالرقم <b>${parsed.phone || ''}</b> هو: <b>${code}</b></p></div>`
                             })
                         });
                         if (resp && resp.ok) emailSent = true;
@@ -3183,5 +3391,5 @@ wss.on('connection', wsClient => {
 });
 
 server.listen(PORT, () => {
-    console.log(`Sanad AI v${APP_VERSION} running on http://localhost:${PORT}`);
+    console.log(`Sanad v${APP_VERSION} running on http://localhost:${PORT}`);
 });

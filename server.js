@@ -8,7 +8,7 @@ const APP_VERSION = '12.6.6';
 const PORT = process.env.PORT || 3000;
 const ICON_BG_HEX = '#164e63';
 const STATE_FILE_PATH = process.env.SANAD_STATE_FILE || path.join(__dirname, 'sanad-state.json');
-const LOCAL_RADIO_URL = process.env.SANAD_LOCAL_RADIO_URL || '';
+const LOCAL_RADIO_URL = process.env.SANAD_LOCAL_RADIO_URL || '/sanad-radio-promo.mp3';
 
 function toWesternDigitsServer(str) {
     return String(str === undefined || str === null ? '' : str)
@@ -359,7 +359,7 @@ const manifestPayload = JSON.stringify({
 });
 
 const swContent = `const CACHE_NAME = 'sanad-ai-cache-v${APP_VERSION}';
-const APP_SHELL = ['/', '/manifest.json', '/icon.svg', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png'];
+const APP_SHELL = ['/', '/manifest.json', '/icon.svg', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png', '/sanad-radio-playlist.js', '/sanad-radio.m3u', '/sanad-radio-promo.mp3'];
 
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -390,7 +390,10 @@ self.addEventListener('fetch', event => {
     url.pathname === '/icon.svg' ||
     url.pathname === '/icon-192.png' ||
     url.pathname === '/icon-512.png' ||
-    url.pathname === '/apple-touch-icon.png'
+    url.pathname === '/apple-touch-icon.png' ||
+    url.pathname === '/sanad-radio-playlist.js' ||
+    url.pathname === '/sanad-radio.m3u' ||
+    url.pathname === '/sanad-radio-promo.mp3'
   ) {
     event.respondWith(
       fetch(req).then(res => {
@@ -424,6 +427,7 @@ const htmlContent = `<!DOCTYPE html>
     <link rel="manifest" href="/manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/sanad-radio-playlist.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cairo:wght@600;700;800&display=swap');
         :root { --sanad-chat-font: 15px; }
@@ -544,7 +548,7 @@ const htmlContent = `<!DOCTYPE html>
     </script>
 
     <audio id="remote-audio-el" autoplay playsinline class="hidden"></audio>
-    <audio id="radio-audio-el" preload="none" class="hidden"></audio>
+    <audio id="radio-audio-el" preload="auto" class="hidden"></audio>
 
     <div id="auto-update-banner" class="hidden bg-gradient-to-r from-teal-900 via-[#164e63] to-teal-900 border-b border-teal-400/50 text-white px-3.5 py-2 flex items-center justify-between gap-2 text-xs z-30 shrink-0">
         <span id="auto-update-banner-text" class="font-semibold truncate">يتوفر تحديث جديد للنظام -- اضغط للتحديث الآن.</span>
@@ -994,6 +998,9 @@ const htmlContent = `<!DOCTYPE html>
         var radioPlaying = false;
         var localRadioCycleTimer = null;
         var radioFallbackTimer = null;
+        var sanadContinuousPlayer = (typeof SanadContinuousRadio === 'function')
+            ? new SanadContinuousRadio('radio-audio-el', 'radio-ai-host-box')
+            : null;
 
         var currentPeer = DEFAULT_PEER;
         var activePane = 'chats';
@@ -1201,13 +1208,19 @@ const htmlContent = `<!DOCTYPE html>
             localRadioCycleTimer = null;
             clearTimeout(radioFallbackTimer);
             radioFallbackTimer = null;
+            if (sanadContinuousPlayer && typeof sanadContinuousPlayer.stop === 'function') {
+                sanadContinuousPlayer.stop();
+            }
             try {
                 if ('speechSynthesis' in window) window.speechSynthesis.cancel();
             } catch (e) {}
         }
 
         function startStructuredFeed(stationName, scheduleArr) {
-            stopLocalSanadFeed();
+            clearInterval(localRadioCycleTimer);
+            localRadioCycleTimer = null;
+            clearTimeout(radioFallbackTimer);
+            radioFallbackTimer = null;
             var list = Array.isArray(scheduleArr) && scheduleArr.length ? scheduleArr : LOCAL_SANAD_SCHEDULE;
             var idx = 0;
             var runSegment = function() {
@@ -1238,9 +1251,7 @@ const htmlContent = `<!DOCTYPE html>
                 hostBox.textContent = 'مقدم سند AI: الراديو في وضع الإيقاف ولن يستهلك أي بيانات حتى تضغط «تشغيل الراديو».';
                 return;
             }
-            if (usedFallback) return;
-            if (stationId === 'local_sanad' && !SANAD_LOCAL_RADIO_URL) return;
-            if (stationId === 'sanad_kids') return;
+            if (usedFallback || stationId === 'local_sanad' || stationId === 'sanad_kids') return;
 
             hostBox.textContent = 'مقدم سند AI: جاري تشغيل «' + stationName + '»...';
             fetch('/api/ai/chat', {
@@ -1250,7 +1261,7 @@ const htmlContent = `<!DOCTYPE html>
             })
             .then(function(r) { return r.json(); })
             .then(function(data) {
-                if (radioPlaying && hostBox && data && data.reply && !(stationId === 'local_sanad' && !SANAD_LOCAL_RADIO_URL) && stationId !== 'sanad_kids') {
+                if (radioPlaying && hostBox && data && data.reply && stationId !== 'local_sanad' && stationId !== 'sanad_kids') {
                     hostBox.textContent = 'مقدم سند AI (' + stationName + '): ' + data.reply;
                 }
             })
@@ -1278,8 +1289,27 @@ const htmlContent = `<!DOCTYPE html>
 
         function applyRadioAudioSource(info) {
             var aud = document.getElementById('radio-audio-el');
-            stopLocalSanadFeed();
+            clearInterval(localRadioCycleTimer);
+            localRadioCycleTimer = null;
+            clearTimeout(radioFallbackTimer);
+            radioFallbackTimer = null;
             if (!info) return;
+
+            if (info.id === 'local_sanad' && sanadContinuousPlayer && typeof sanadContinuousPlayer.start === 'function') {
+                var hostBox = document.getElementById('radio-ai-host-box');
+                if (hostBox) hostBox.textContent = 'على الهواء الآن: برومو إذاعة راديو سند AI -- البث المباشر';
+                sanadContinuousPlayer.start();
+                radioFallbackTimer = setTimeout(function() {
+                    if (radioPlaying && aud && aud.paused) {
+                        startStructuredFeed(info.name, LOCAL_SANAD_SCHEDULE);
+                    }
+                }, 4500);
+                return;
+            }
+
+            if (sanadContinuousPlayer && typeof sanadContinuousPlayer.stop === 'function') {
+                sanadContinuousPlayer.stop();
+            }
 
             if (info.id === 'sanad_kids' || info.url === 'LOCAL_KIDS') {
                 if (aud) { try { aud.pause(); aud.src = ''; } catch (e) {} }
@@ -2991,6 +3021,38 @@ const server = http.createServer((req, res) => {
         res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
         res.end(swContent);
         return;
+    }
+
+    if (pathname === '/sanad-radio-playlist.js') {
+        const jsPath = path.join(__dirname, 'sanad-radio-playlist.js');
+        if (fs.existsSync(jsPath)) {
+            res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
+            res.end(fs.readFileSync(jsPath, 'utf8'));
+            return;
+        }
+    }
+
+    if (pathname === '/sanad-radio.m3u') {
+        const m3uPath = path.join(__dirname, 'sanad-radio.m3u');
+        if (fs.existsSync(m3uPath)) {
+            res.writeHead(200, { 'Content-Type': 'audio/x-mpegurl; charset=utf-8' });
+            res.end(fs.readFileSync(m3uPath, 'utf8'));
+            return;
+        }
+    }
+
+    if (pathname === '/sanad-radio-promo.mp3') {
+        const audioPath = path.join(__dirname, 'sanad-radio-promo.mp3');
+        if (fs.existsSync(audioPath)) {
+            const stat = fs.statSync(audioPath);
+            res.writeHead(200, {
+                'Content-Type': 'audio/mpeg',
+                'Content-Length': stat.size,
+                'Accept-Ranges': 'bytes'
+            });
+            fs.createReadStream(audioPath).pipe(res);
+            return;
+        }
     }
 
     if (

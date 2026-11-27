@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { WebSocketServer } = require('ws');
 
-const APP_VERSION = '12.3.0';
+const APP_VERSION = '12.4.0';
 const PORT = process.env.PORT || 3000;
 const ICON_BG_HEX = '#164e63';
 const ICON_ACCENT_HEX = '#f0fdfa';
@@ -23,7 +23,8 @@ function normIdServer(v) {
 const presenceMap = new Map();
 const lastSeenMap = new Map();
 const blockListByUser = new Map();
-const pendingVerifications = new Map();
+const pendingVerifications = new Map(); // normPhone -> { code, email, createdAt }
+const reservedCodesSet = new Set();
 const syncEvents = [];
 let eventCursor = 0;
 let saveStateTimer = null;
@@ -36,8 +37,9 @@ function persistServerStateToDisk() {
         });
         const snapshot = {
             eventCursor,
-            syncEvents: syncEvents.slice(-800),
-            blocks: blocksObj
+            syncEvents: syncEvents.slice(-1200),
+            blocks: blocksObj,
+            reservedCodes: Array.from(reservedCodesSet)
         };
         fs.writeFileSync(STATE_FILE_PATH, JSON.stringify(snapshot), 'utf8');
     } catch (e) {}
@@ -45,7 +47,7 @@ function persistServerStateToDisk() {
 
 function scheduleServerStateSave() {
     clearTimeout(saveStateTimer);
-    saveStateTimer = setTimeout(persistServerStateToDisk, 500);
+    saveStateTimer = setTimeout(persistServerStateToDisk, 400);
 }
 
 function loadServerStateFromDisk() {
@@ -57,8 +59,14 @@ function loadServerStateFromDisk() {
             eventCursor = parsed.eventCursor;
         }
         if (Array.isArray(parsed.syncEvents)) {
-            parsed.syncEvents.slice(-800).forEach(ev => {
+            parsed.syncEvents.slice(-1200).forEach(ev => {
                 if (ev && typeof ev === 'object') syncEvents.push(ev);
+            });
+        }
+        if (Array.isArray(parsed.reservedCodes)) {
+            parsed.reservedCodes.forEach(c => {
+                const n = normIdServer(c);
+                if (n) reservedCodesSet.add(n);
             });
         }
         if (parsed.blocks && typeof parsed.blocks === 'object') {
@@ -74,6 +82,23 @@ function loadServerStateFromDisk() {
 
 loadServerStateFromDisk();
 
+function generateUnique88CodeServer() {
+    for (let i = 0; i < 200; i++) {
+        const suffix = String(Math.floor(100000 + Math.random() * 900000));
+        const candidate = '88' + suffix;
+        const n = normIdServer(candidate);
+        if (!reservedCodesSet.has(n)) {
+            reservedCodesSet.add(n);
+            scheduleServerStateSave();
+            return candidate;
+        }
+    }
+    const fallback = '88' + String(Date.now()).slice(-6);
+    reservedCodesSet.add(normIdServer(fallback));
+    scheduleServerStateSave();
+    return fallback;
+}
+
 function recordSyncEvent(payload) {
     eventCursor += 1;
     const item = Object.assign({}, payload, {
@@ -81,8 +106,8 @@ function recordSyncEvent(payload) {
         eventId: payload.eventId || ('srv-' + eventCursor + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7))
     });
     syncEvents.push(item);
-    if (syncEvents.length > 1500) {
-        syncEvents.splice(0, syncEvents.length - 1500);
+    if (syncEvents.length > 2000) {
+        syncEvents.splice(0, syncEvents.length - 2000);
     }
     scheduleServerStateSave();
     return item;
@@ -98,7 +123,7 @@ function getOnlineIdsList() {
         }
     });
     lastSeenMap.forEach((ts, id) => {
-        if (now - ts <= 25000) ids.add(id);
+        if (now - ts <= 30000) ids.add(id);
     });
     return Array.from(ids);
 }
@@ -166,6 +191,9 @@ function processIncomingPacket(payload, senderWs) {
         const ids = Array.isArray(payload.ids) ? payload.ids.slice() : [];
         if (payload.activeId) ids.unshift(payload.activeId);
         const cleanSet = new Set(ids.map(normIdServer).filter(Boolean));
+        cleanSet.forEach(id => {
+            if (id.startsWith('88')) reservedCodesSet.add(id);
+        });
         touchPresenceIds(Array.from(cleanSet));
 
         if (senderWs) {
@@ -423,7 +451,7 @@ const htmlContent = `<!DOCTYPE html>
     <!-- الشريط العلوي -->
     <header class="bg-[#0d1926]/95 border-b border-slate-800/80 px-3.5 py-2 flex justify-between items-center z-20 shrink-0">
         <div class="flex items-center gap-2.5 min-w-0">
-            <button type="button" onclick="openIdentityQrModal()" title="كود التعريف ورمز QR" class="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-[#1e6078] via-[#164e63] to-[#0f3646] border border-teal-300/30 flex flex-col items-center justify-center shrink-0 shadow">
+            <button type="button" onclick="openIdentityQrModal()" title="كود التعريف" class="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-[#1e6078] via-[#164e63] to-[#0f3646] border border-teal-300/30 flex flex-col items-center justify-center shrink-0 shadow">
                 <span class="text-teal-50 font-bold text-base leading-none">س</span>
                 <span class="text-[8px] font-semibold text-teal-200 leading-tight mt-0.5">سند</span>
                 <span id="header-unread-dot" class="hidden absolute -top-1.5 -left-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-600 text-white text-[10px] font-mono font-bold flex items-center justify-center shadow">0</span>
@@ -436,7 +464,7 @@ const htmlContent = `<!DOCTYPE html>
                 </div>
                 <div class="flex items-center gap-1.5 text-[11px] mt-0.5 flex-wrap">
                     <span id="ws-dot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                    <span id="ws-label" class="text-emerald-300 font-medium">متصل عبر القارات بلا حدود</span>
+                    <span id="ws-label" class="text-emerald-300 font-medium">اتصالك عبر القارات بلا حدود</span>
                     <button type="button" onclick="reconnectNow()" title="تحديث الربط" class="text-slate-300 hover:text-white px-1">
                         <i class="fa-solid fa-rotate-right text-[10px]"></i>
                     </button>
@@ -484,7 +512,7 @@ const htmlContent = `<!DOCTYPE html>
                 <div id="qr-modal-acct-id" class="font-mono text-base font-bold text-teal-200"></div>
                 <div class="flex flex-wrap justify-center gap-1.5 text-xs">
                     <button type="button" onclick="copyStringToClipboard(activeAcct, 'تم نسخ كود التعريف')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-xl font-semibold">نسخ الكود</button>
-                    <button type="button" onclick="saveContactToDeviceVcf(activeAcct, 'سند ' + activeAcct)" class="bg-emerald-800 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl font-semibold"><i class="fa-solid fa-address-card ml-1"></i>حفظ في جوالي (.vcf)</button>
+                    <button type="button" onclick="saveContactToDeviceVcf(activeAcct, resolveContactName(activeAcct))" class="bg-emerald-800 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl font-semibold"><i class="fa-solid fa-address-card ml-1"></i>حفظ في جوالي (.vcf)</button>
                 </div>
             </div>
             <div class="flex gap-1.5">
@@ -498,7 +526,7 @@ const htmlContent = `<!DOCTYPE html>
     <div id="call-modal" class="hidden fixed inset-0 bg-[#070d14]/95 z-50 flex flex-col items-center justify-between p-4">
         <div class="text-center mt-1">
             <p class="text-xs text-teal-300 font-semibold">سند • بالذكاء الاصطناعي والأقمار الصناعية</p>
-            <h2 id="call-peer-title" class="text-lg font-bold text-white font-mono mt-0.5">...</h2>
+            <h2 id="call-peer-title" class="text-lg font-bold text-white mt-0.5">...</h2>
             <p id="call-timer-el" class="text-xs font-mono font-semibold text-slate-300 mt-0.5">00:00</p>
             <p id="call-status-msg" class="text-xs text-emerald-300 mt-0.5 font-medium">جاري الاتصال...</p>
         </div>
@@ -542,7 +570,7 @@ const htmlContent = `<!DOCTYPE html>
             <div class="px-3.5 py-1.5 bg-[#0b1521] border-b border-slate-800/80 flex justify-between items-center gap-2 text-xs shrink-0">
                 <div class="flex items-center gap-2 min-w-0">
                     <span id="peer-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></span>
-                    <span id="peer-title" class="font-semibold text-slate-100 font-mono truncate">خدمة العملاء</span>
+                    <span id="peer-title" class="font-semibold text-slate-100 truncate">خدمة العملاء</span>
                     <span id="peer-status" class="text-[11px] font-semibold text-emerald-300 shrink-0">متصل الآن • نشط</span>
                 </div>
                 <div class="flex items-center gap-2 shrink-0 text-[11px]">
@@ -555,16 +583,16 @@ const htmlContent = `<!DOCTYPE html>
 
             <div id="msgs-box" class="flex-1 overflow-y-auto p-3.5 space-y-3 custom-scrollbar"></div>
 
-            <!-- شريط التسجيل الصوتي الذكي النشط -->
+            <!-- شريط التسجيل الصوتي النشط -->
             <div id="voice-rec-bar" class="hidden px-3.5 py-2 bg-[#102838] border-t border-teal-700/60 flex items-center justify-between gap-2 text-xs shrink-0">
                 <div class="flex items-center gap-2 text-teal-200 font-semibold">
                     <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
-                    <span>تسجيل صوتي بالذكاء الاصطناعي...</span>
+                    <span>جاري التسجيل الصوتي...</span>
                     <span id="voice-rec-timer" class="font-mono text-white">00:00</span>
                 </div>
                 <div class="flex items-center gap-1.5">
                     <button type="button" onclick="cancelVoiceRecording()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded-lg font-semibold">إلغاء</button>
-                    <button type="button" onclick="finishVoiceRecordingAndSend()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg font-semibold"><i class="fa-solid fa-paper-plane ml-1"></i>إرسال الصوت</button>
+                    <button type="button" onclick="finishVoiceRecordingAndSend()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg font-semibold"><i class="fa-solid fa-paper-plane ml-1"></i>إرسال</button>
                 </div>
             </div>
 
@@ -572,7 +600,7 @@ const htmlContent = `<!DOCTYPE html>
             <div class="p-2.5 bg-[#0d1926] border-t border-slate-800 flex items-end gap-1.5 shrink-0">
                 <input type="file" id="attach-file" class="hidden" onchange="onFilePicked(event)">
                 <button type="button" onclick="document.getElementById('attach-file').click()" title="إرفاق ملف أو صورة" class="text-slate-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 shrink-0"><i class="fa-solid fa-paperclip text-base"></i></button>
-                <button type="button" id="mic-rec-btn" onclick="toggleVoiceRecording()" title="تسجيل صوتي بالذكاء الاصطناعي" class="text-teal-300 hover:text-white bg-teal-950/70 hover:bg-teal-800 border border-teal-800/60 p-2 rounded-xl shrink-0 transition"><i class="fa-solid fa-microphone text-base"></i></button>
+                <button type="button" id="mic-rec-btn" onclick="toggleVoiceRecording()" title="تسجيل صوتي" class="text-teal-300 hover:text-white bg-teal-950/70 hover:bg-teal-800 border border-teal-800/60 p-2 rounded-xl shrink-0 transition"><i class="fa-solid fa-microphone text-base"></i></button>
                 <textarea id="msg-box-input" rows="1" oninput="autoResizeComposer(this)" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendTextMsg();}" placeholder="اكتب رسالتك أو سجّل صوتك..." class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 sanad-composer-font text-white placeholder-slate-400 focus:outline-none focus:border-teal-600 resize-none max-h-28 overflow-y-auto custom-scrollbar"></textarea>
                 <button type="button" onclick="sendTextMsg()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow shrink-0"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
@@ -596,12 +624,13 @@ const htmlContent = `<!DOCTYPE html>
         <section id="pane-accounts" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
             <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-3">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-sm font-bold text-teal-200">توليد الأكواد (تبدأ بـ 88) وإدارة الحسابات</h2>
+                    <h2 class="text-sm font-bold text-teal-200">توليد الأكواد الحصرية (88...) وإدارة الحسابات</h2>
                     <span id="accounts-count-badge" class="text-[11px] font-mono text-slate-200 bg-slate-800 border border-slate-700 px-2.5 py-0.5 rounded-full">1 حساب</span>
                 </div>
+                <p class="text-[11px] text-slate-400">كل كود يبدأ بـ 88 يتم حجزه باسمك ولا يتكرر لمستخدم آخر.</p>
                 <div class="flex flex-wrap gap-2">
-                    <button type="button" onclick="generate88DigitCode()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2.5 rounded-xl text-xs font-semibold">+ توليد كود (8 أرقام يبدأ بـ 88)</button>
-                    <button type="button" onclick="addCustom88OrId()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 px-4 py-2.5 rounded-xl text-xs font-semibold">+ إدخال كود يبدأ بـ 88</button>
+                    <button type="button" onclick="generate88DigitCode()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2.5 rounded-xl text-xs font-semibold">+ توليد كود حصري (8 أرقام يبدأ بـ 88)</button>
+                    <button type="button" onclick="addCustom88OrId()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 px-4 py-2.5 rounded-xl text-xs font-semibold">+ حجز/إدخال كود 88</button>
                 </div>
                 <div id="last-generated-banner" class="hidden bg-[#08101a] border border-teal-800/60 rounded-xl p-2.5 flex items-center justify-between gap-2 text-xs">
                     <span id="last-generated-text" class="font-mono font-semibold text-teal-200"></span>
@@ -613,39 +642,43 @@ const htmlContent = `<!DOCTYPE html>
                 <div id="accounts-list" class="space-y-2 pt-1"></div>
             </div>
 
+            <!-- تفعيل رقم دولي عبر الإيميل (رمز من 6 أرقام وحفظ الجلسة) -->
             <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-3 text-xs">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-sm font-bold text-emerald-300"><i class="fa-solid fa-earth-americas ml-1"></i> تفعيل رقم دولي (مفتاح البلد + كود من نظامنا)</h3>
-                    <span class="text-[10px] bg-emerald-950/80 text-emerald-200 border border-emerald-800/60 px-2 py-0.5 rounded-full">بدون شركة اتصال</span>
+                    <h3 class="text-sm font-bold text-emerald-300"><i class="fa-solid fa-envelope-circle-check ml-1"></i> تفعيل رقم دولي عبر الإيميل (6 أرقام)</h3>
+                    <span class="text-[10px] bg-emerald-950/80 text-emerald-200 border border-emerald-800/60 px-2 py-0.5 rounded-full">عبر الإيميل</span>
                 </div>
                 <div class="grid grid-cols-3 gap-2">
                     <input type="text" id="intl-cc-input" oninput="normalizeDigitsInInput(this)" value="+967" placeholder="+967" class="bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 font-mono text-white text-center">
                     <input type="text" id="intl-phone-input" oninput="normalizeDigitsInInput(this)" placeholder="رقم الجوال" class="col-span-2 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 font-mono text-white">
                 </div>
-                <input type="email" id="intl-email-input" placeholder="بريد إلكتروني لإرسال نسخة من الكود (أو يظهر مباشرة من السيرفر)" class="w-full bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-white">
-                <button type="button" onclick="requestSanadVerificationCode()" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white py-2 px-3 rounded-xl font-semibold">إرسال كود التفعيل من سند</button>
+                <input type="email" id="intl-email-input" placeholder="البريد الإلكتروني لاستلام كود التحقق (6 أرقام)" class="w-full bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-white">
+                <button type="button" onclick="requestSanadVerificationCode()" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white py-2 px-3 rounded-xl font-semibold">إرسال رمز التحقق (6 أرقام) إلى الإيميل</button>
                 <div id="otp-delivery-box" class="hidden bg-[#08101a] border border-teal-800/60 rounded-xl p-2.5 space-y-2">
                     <div id="otp-delivery-msg" class="text-[11px] text-teal-200 font-mono"></div>
                     <div class="flex gap-2">
-                        <input type="text" id="otp-code-input" oninput="normalizeDigitsInInput(this)" placeholder="أدخل كود التحقق (6 أرقام)" class="flex-1 bg-[#0d1926] border border-slate-700 rounded-xl px-3 py-1.5 font-mono text-white">
-                        <button type="button" onclick="verifySanadPhoneCode()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-1.5 rounded-xl font-semibold">تفعيل الرقم</button>
+                        <input type="text" id="otp-code-input" maxlength="6" oninput="normalizeDigitsInInput(this)" placeholder="أدخل الكود المكون من 6 أرقام" class="flex-1 bg-[#0d1926] border border-slate-700 rounded-xl px-3 py-1.5 font-mono text-white">
+                        <button type="button" onclick="verifySanadPhoneCode()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-1.5 rounded-xl font-semibold">تأكيد وحفظ</button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- تبويب الجهات -->
+        <!-- تبويب الجهات (إظهار الأسماء تلقائياً واستيراد من الجوال وحفظ .vcf) -->
         <section id="pane-contacts" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-[#0d1926] border border-slate-800 p-3.5 rounded-2xl space-y-2.5">
                 <div class="flex items-center justify-between gap-2 flex-wrap">
-                    <h2 class="text-sm font-bold text-teal-200">الجهات وحفظ الكود في جوالك</h2>
-                    <button type="button" onclick="exportAllContactsVcf()" class="bg-emerald-800 hover:bg-emerald-700 text-white px-3 py-1 rounded-lg text-[11px] font-semibold"><i class="fa-solid fa-address-book ml-1"></i>تصدير الكل لجهات الجوال (.vcf)</button>
+                    <h2 class="text-sm font-bold text-teal-200">الجهات والأسماء المحفوظة</h2>
+                    <div class="flex gap-1.5 flex-wrap">
+                        <button type="button" onclick="importFromDeviceContactsPicker()" class="bg-teal-800 hover:bg-teal-700 text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold"><i class="fa-solid fa-mobile-screen-button ml-1"></i>جلب من الجوال</button>
+                        <button type="button" onclick="exportAllContactsVcf()" class="bg-emerald-800 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold"><i class="fa-solid fa-address-book ml-1"></i>حفظ الكل (.vcf)</button>
+                    </div>
                 </div>
-                <p class="text-[11px] text-slate-400">كل طرف يحتفظ بأرقامه على جواله؛ يمكنك حفظ أي كود (88...) أو رقم في جهات اتصال جوالك بضغطة واحدة.</p>
+                <p class="text-[11px] text-slate-400">الأسماء المحفوظة تظهر تلقائياً في الدردشة والمكالمات، وأرقامك وأسماؤك محفوظة دائماً دون ضياع.</p>
                 <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="text" id="c-name" placeholder="الاسم" class="bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <input type="text" id="c-name" placeholder="اسم الشخص" class="bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
                     <input type="text" id="c-id" oninput="normalizeDigitsInInput(this)" placeholder="كود 88... أو رقم الجوال" class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
-                    <button type="button" onclick="addContactAndSaveToPhone()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl text-xs font-semibold">حفظ وإضافة لجوالي</button>
+                    <button type="button" onclick="addContactAndSaveToPhone()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl text-xs font-semibold">حفظ الاسم والرقم</button>
                 </div>
             </div>
             <div id="contacts-list" class="space-y-2"></div>
@@ -673,7 +706,7 @@ const htmlContent = `<!DOCTYPE html>
             </div>
         </section>
 
-        <!-- تبويب الذكاء (يتضمن الهوية الرسمية والتحديثات والمساعد الذكي) -->
+        <!-- تبويب الذكاء -->
         <section id="pane-ai" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-gradient-to-br from-[#133144] to-[#0d1926] border border-teal-700/60 p-4 rounded-2xl space-y-1.5">
                 <div class="flex items-center justify-between">
@@ -688,9 +721,9 @@ const htmlContent = `<!DOCTYPE html>
                     <h2 class="text-sm font-bold text-teal-200"><i class="fa-solid fa-cloud-arrow-down ml-1"></i> تحديثات النظام</h2>
                     <span id="update-ver-badge" class="text-[10px] font-mono bg-teal-950 text-teal-200 border border-teal-800 px-2.5 py-0.5 rounded-full">v${APP_VERSION}</span>
                 </div>
-                <p id="update-status-text" class="text-[11px] text-slate-300">النسخة المثبتة حالياً: v${APP_VERSION} -- جاهز لفحص وتطبيق التحديث.</p>
+                <p id="update-status-text" class="text-[11px] text-slate-300">النسخة المثبتة حالياً: v${APP_VERSION} -- يتم فحص التحديثات تلقائياً ويمكنك التحديث بأي وقت.</p>
                 <div class="flex gap-2 flex-wrap">
-                    <button type="button" onclick="checkForSystemUpdate()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 px-3 py-2 rounded-xl font-semibold">فحص التحديث</button>
+                    <button type="button" onclick="checkForSystemUpdate(true)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 px-3 py-2 rounded-xl font-semibold">فحص التحديث</button>
                     <button type="button" onclick="applySystemUpdateNow()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl font-semibold"><i class="fa-solid fa-rotate ml-1"></i>تحديث النظام الآن</button>
                 </div>
             </div>
@@ -734,6 +767,7 @@ const htmlContent = `<!DOCTYPE html>
         var DEFAULT_PEER = 'خدمة العملاء';
         var activeAcct = 'مستخدم-سند';
         var myAccts = ['مستخدم-سند'];
+        var verifiedPhonesMap = {}; // phone -> { email, verifiedAt }
         var contacts = [{ name: DEFAULT_PEER, id: DEFAULT_PEER }];
         var blockedIdsSet = new Set();
         var sanadGroups = [];
@@ -754,7 +788,7 @@ const htmlContent = `<!DOCTYPE html>
         var pollInFlight = false;
         var lastSyncCursor = 0;
 
-        // التسجيل الصوتي بالذكاء الاصطناعي
+        // التسجيل الصوتي
         var mediaRecorderInstance = null;
         var audioRecordChunks = [];
         var audioRecordStream = null;
@@ -782,6 +816,25 @@ const htmlContent = `<!DOCTYPE html>
             return toWesternDigits(String(val === undefined || val === null ? '' : val)).trim();
         }
         function normalizeStr(v) { return toWesternDigits(v).trim().toLowerCase(); }
+        function digitsOnlyKey(v) { return toWesternDigits(String(v || '')).replace(/[^0-9]/g, ''); }
+
+        // مطابقة الاسم تلقائياً من جهات الاتصال المحفوظة (حتى لو اختلف مفتاح الدولة)
+        function resolveContactName(rawId) {
+            var clean = cleanIdValue(rawId);
+            if (!clean) return '';
+            var exact = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(clean); });
+            if (exact && exact.name) return exact.name;
+            var dKey = digitsOnlyKey(clean);
+            if (dKey.length >= 6) {
+                var byDigits = contacts.find(function(c) {
+                    var cd = digitsOnlyKey(c.id);
+                    return cd && (cd === dKey || cd.endsWith(dKey) || dKey.endsWith(cd));
+                });
+                if (byDigits && byDigits.name) return byDigits.name;
+            }
+            return clean;
+        }
+
         function formatTimeShort(ts) {
             try {
                 var d = ts ? new Date(ts) : new Date();
@@ -859,12 +912,12 @@ const htmlContent = `<!DOCTYPE html>
 
         function refreshUpdateStatusInAi() {
             var st = document.getElementById('update-status-text');
-            if (st) st.textContent = 'النسخة المثبتة حالياً: v' + CLIENT_APP_VERSION + ' -- جاهز لفحص وتطبيق التحديث.';
+            if (st) st.textContent = 'النسخة المثبتة حالياً: v' + CLIENT_APP_VERSION + ' -- جاهز لفحص وتطبيق التحديث في أي وقت.';
         }
 
-        function checkForSystemUpdate() {
+        function checkForSystemUpdate(showNotice) {
             var st = document.getElementById('update-status-text');
-            if (st) st.textContent = 'جاري فحص التحديث من السيرفر...';
+            if (st && showNotice) st.textContent = 'جاري فحص التحديث من السيرفر...';
             fetch('/healthz?t=' + Date.now(), { cache: 'no-store' })
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
@@ -872,17 +925,17 @@ const htmlContent = `<!DOCTYPE html>
                     if (st) {
                         st.textContent = srvVer !== CLIENT_APP_VERSION
                             ? ('يوجد تحديث جديد v' + srvVer + ' متاح للتثبيت الآن.')
-                            : ('النظام محدّث على v' + srvVer + ' ويمكنك إعادة تحميل الملفات بالكامل فوراً.');
+                            : ('النظام جاهز على v' + srvVer + ' -- يمكنك تحديث الملفات في أي وقت بضغطة زر.');
                     }
                 })
                 .catch(function() {
-                    if (st) st.textContent = 'تعذر الاتصال بالسيرفر لفحص التحديث حالياً.';
+                    if (st && showNotice) st.textContent = 'تعذر الاتصال بالسيرفر لفحص التحديث حالياً.';
                 });
         }
 
         function applySystemUpdateNow() {
             var st = document.getElementById('update-status-text');
-            if (st) st.textContent = 'جاري تطبيق التحديث وتحديث الملفات...';
+            if (st) st.textContent = 'جاري تطبيق التحديث مع الحفاظ على أرقامك وأسمائك...';
             persistState();
             var finishReload = function() {
                 location.replace(location.pathname + '?updated=' + Date.now() + '#tab-ai');
@@ -896,11 +949,11 @@ const htmlContent = `<!DOCTYPE html>
             }
         }
 
-        // حفظ في جهات اتصال الجوال (.vcf)
+        // حفظ في جهات اتصال الجوال (.vcf) واستيراد من الجوال
         function saveContactToDeviceVcf(codeOrPhone, displayName) {
             var cleanVal = cleanIdValue(codeOrPhone);
             if (!cleanVal) return;
-            var nameVal = String(displayName || cleanVal).trim() || cleanVal;
+            var nameVal = String(displayName || resolveContactName(cleanVal) || cleanVal).trim() || cleanVal;
             var vcard = [
                 'BEGIN:VCARD',
                 'VERSION:3.0',
@@ -919,7 +972,7 @@ const htmlContent = `<!DOCTYPE html>
             a.click();
             document.body.removeChild(a);
             setTimeout(function() { URL.revokeObjectURL(url); }, 1200);
-            copyStringToClipboard('', 'تم تجهيز بطاقة جهة الاتصال (.vcf) لحفظها في جوالك');
+            copyStringToClipboard('', 'تم تجهيز بطاقة جهة الاتصال (.vcf)');
         }
 
         function exportAllContactsVcf() {
@@ -943,37 +996,81 @@ const htmlContent = `<!DOCTYPE html>
             a.click();
             document.body.removeChild(a);
             setTimeout(function() { URL.revokeObjectURL(url); }, 1200);
-            copyStringToClipboard('', 'تم تصدير الجهات لملف (.vcf)');
+            copyStringToClipboard('', 'تم تصدير جميع الجهات (.vcf)');
+        }
+
+        function importFromDeviceContactsPicker() {
+            if (!navigator.contacts || typeof navigator.contacts.select !== 'function') {
+                return copyStringToClipboard('', 'أدخل الاسم والرقم بالأسفل لحفظه فوراً أو صدّره إلى جهات الجوال (.vcf)');
+            }
+            navigator.contacts.select(['name', 'tel'], { multiple: true }).then(function(picked) {
+                if (!Array.isArray(picked) || !picked.length) return;
+                var added = 0;
+                picked.forEach(function(item) {
+                    var nm = (Array.isArray(item.name) && item.name[0]) ? item.name[0] : '';
+                    var tels = Array.isArray(item.tel) ? item.tel : [];
+                    tels.forEach(function(t) {
+                        var idVal = cleanIdValue(t);
+                        if (!idVal) return;
+                        var label = nm || idVal;
+                        var idx = contacts.findIndex(function(c) { return normalizeStr(c.id) === normalizeStr(idVal); });
+                        if (idx !== -1) contacts[idx] = { name: label, id: idVal };
+                        else contacts.push({ name: label, id: idVal });
+                        added += 1;
+                    });
+                });
+                if (added > 0) {
+                    persistState();
+                    renderPresence();
+                    renderQuickChips();
+                    renderPeerHeader();
+                    renderMsgs();
+                    copyStringToClipboard('', 'تم جلب ' + toWesternDigits(added) + ' جهة اتصال بنجاح');
+                }
+            }).catch(function() {});
         }
 
         function saveCurrentPeerToPhoneContacts() {
             if (!currentPeer || currentPeer === DEFAULT_PEER) return;
-            var c = contacts.find(function(x) { return normalizeStr(x.id) === normalizeStr(currentPeer); });
-            saveContactToDeviceVcf(currentPeer, c ? c.name : currentPeer);
+            saveContactToDeviceVcf(currentPeer, resolveContactName(currentPeer));
         }
 
-        // توليد كود 8 أرقام يبدأ بـ 88
+        // توليد كود 8 أرقام يبدأ بـ 88 مع حجز ومنع التكرار
         function generate88DigitCode() {
-            var suffix = String(Math.floor(100000 + Math.random() * 900000));
-            var code = '88' + suffix;
-            lastGeneratedCode = code;
-            if (myAccts.indexOf(code) === -1) myAccts.unshift(code);
-            activeAcct = code;
-            var banner = document.getElementById('last-generated-banner');
-            var txt = document.getElementById('last-generated-text');
-            if (banner && txt) {
-                txt.textContent = 'الكود المولّد (88...): ' + code;
-                banner.classList.remove('hidden');
-            }
-            persistState();
-            renderAccts();
-            renderActiveHeaderAcct();
-            syncPresenceNow();
-            copyStringToClipboard(code, 'تم توليد وتفعيل الكود: ' + code);
+            fetch('/api/codes/generate-88', { method: 'POST' })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var code = (data && data.code) ? cleanIdValue(data.code) : ('88' + String(Math.floor(100000 + Math.random() * 900000)));
+                    lastGeneratedCode = code;
+                    if (myAccts.indexOf(code) === -1) myAccts.unshift(code);
+                    activeAcct = code;
+                    var banner = document.getElementById('last-generated-banner');
+                    var txt = document.getElementById('last-generated-text');
+                    if (banner && txt) {
+                        txt.textContent = 'الكود الحصري المولّد (88...): ' + code;
+                        banner.classList.remove('hidden');
+                    }
+                    persistState();
+                    renderAccts();
+                    renderActiveHeaderAcct();
+                    syncPresenceNow();
+                    copyStringToClipboard(code, 'تم توليد وحجز الكود: ' + code);
+                })
+                .catch(function() {
+                    var code = '88' + String(Math.floor(100000 + Math.random() * 900000));
+                    lastGeneratedCode = code;
+                    if (myAccts.indexOf(code) === -1) myAccts.unshift(code);
+                    activeAcct = code;
+                    persistState();
+                    renderAccts();
+                    renderActiveHeaderAcct();
+                    syncPresenceNow();
+                    copyStringToClipboard(code, 'تم توليد الكود: ' + code);
+                });
         }
 
         function addCustom88OrId() {
-            var raw = prompt('أدخل الكود (يفضل أن يبدأ بـ 88 من 8 أرقام):', '88');
+            var raw = prompt('أدخل الكود (يبدأ بـ 88 من 8 أرقام):', '88');
             var clean = cleanIdValue(raw);
             if (!clean) return;
             if (myAccts.indexOf(clean) === -1) myAccts.unshift(clean);
@@ -1009,6 +1106,7 @@ const htmlContent = `<!DOCTYPE html>
             syncPresenceNow();
         }
 
+        // تفعيل رقم دولي عبر الإيميل (كود من 6 أرقام وحفظ دائم للجلسة)
         function requestSanadVerificationCode() {
             var ccEl = document.getElementById('intl-cc-input');
             var phEl = document.getElementById('intl-phone-input');
@@ -1032,23 +1130,25 @@ const htmlContent = `<!DOCTYPE html>
                 if (inp && data && data.code) inp.value = data.code;
                 if (msg) {
                     msg.textContent = email
-                        ? ('تم إصدار الكود للرقم ' + fullPhone + ' وتجهيز إرساله إلى ' + email + (data.emailSent ? ' (تم الإرسال)' : '') + ' • الكود: ' + (data.code || ''))
-                        : ('كود التحقق الصادر من نظام سند للرقم ' + fullPhone + ': ' + (data.code || ''));
+                        ? ('تم إرسال رمز التحقق (6 أرقام) إلى الإيميل ' + email + (data.emailSent ? ' بنجاح' : '') + ' • الرمز: ' + (data.code || ''))
+                        : ('رمز التحقق عبر الإيميل للرقم ' + fullPhone + ': ' + (data.code || ''));
                 }
             }).catch(function() {
-                copyStringToClipboard('', 'تعذر طلب الكود من السيرفر');
+                copyStringToClipboard('', 'تعذر طلب رمز التحقق من السيرفر');
             });
         }
 
         function verifySanadPhoneCode() {
             var ccEl = document.getElementById('intl-cc-input');
             var phEl = document.getElementById('intl-phone-input');
+            var emEl = document.getElementById('intl-email-input');
             var codeEl = document.getElementById('otp-code-input');
             var cc = cleanIdValue(ccEl ? ccEl.value : '').replace(/[^0-9+]/g, '');
             if (cc && cc.indexOf('+') !== 0) cc = '+' + cc;
             var ph = cleanIdValue(phEl ? phEl.value : '').replace(/[^0-9]/g, '');
             var fullPhone = (cc || '+967') + ph;
             var code = cleanIdValue(codeEl ? codeEl.value : '');
+            var email = emEl ? emEl.value.trim() : '';
 
             fetch('/api/auth/verify-code', {
                 method: 'POST',
@@ -1056,29 +1156,36 @@ const htmlContent = `<!DOCTYPE html>
                 body: JSON.stringify({ phone: fullPhone, code: code })
             }).then(function(r) { return r.json(); }).then(function(data) {
                 if (!data || !data.ok) return copyStringToClipboard('', 'رمز التحقق غير صحيح');
+                verifiedPhonesMap[normalizeStr(fullPhone)] = { email: email, verifiedAt: Date.now() };
                 if (myAccts.indexOf(fullPhone) === -1) myAccts.unshift(fullPhone);
                 activeAcct = fullPhone;
                 persistState();
                 renderAccts();
                 renderActiveHeaderAcct();
                 syncPresenceNow();
-                copyStringToClipboard(fullPhone, 'تم تفعيل الرقم الدولي: ' + fullPhone);
+                copyStringToClipboard(fullPhone, 'تم تفعيل وحفظ الرقم: ' + fullPhone);
             }).catch(function() {});
         }
 
+        // حفظ واسترجاع البيانات الدائمة (مع حماية كاملة لأرقام وأسماء المستخدم عبر التحديثات)
         function loadSavedState() {
             try {
-                var sActive = localStorage.getItem('sanad123_active');
-                var sAccts = JSON.parse(localStorage.getItem('sanad123_accts') || 'null');
-                var sContacts = JSON.parse(localStorage.getItem('sanad123_contacts') || 'null');
-                var sBlocked = JSON.parse(localStorage.getItem('sanad123_blocked') || 'null');
-                var sThreads = JSON.parse(localStorage.getItem('sanad123_threads') || 'null');
-                var sGroups = JSON.parse(localStorage.getItem('sanad123_groups') || 'null');
-                var sCursor = Number(localStorage.getItem('sanad123_cursor') || '0');
+                var rawVault = localStorage.getItem('sanad_persistent_vault_v1');
+                var vault = rawVault ? JSON.parse(rawVault) : null;
+
+                var sActive = (vault && vault.activeAcct) || localStorage.getItem('sanad124_active') || localStorage.getItem('sanad123_active');
+                var sAccts = (vault && vault.myAccts) || JSON.parse(localStorage.getItem('sanad124_accts') || localStorage.getItem('sanad123_accts') || 'null');
+                var sVerified = (vault && vault.verifiedPhones) || JSON.parse(localStorage.getItem('sanad124_verified') || 'null');
+                var sContacts = (vault && vault.contacts) || JSON.parse(localStorage.getItem('sanad124_contacts') || localStorage.getItem('sanad123_contacts') || 'null');
+                var sBlocked = (vault && vault.blocked) || JSON.parse(localStorage.getItem('sanad124_blocked') || localStorage.getItem('sanad123_blocked') || 'null');
+                var sThreads = (vault && vault.threads) || JSON.parse(localStorage.getItem('sanad124_threads') || localStorage.getItem('sanad123_threads') || 'null');
+                var sGroups = (vault && vault.groups) || JSON.parse(localStorage.getItem('sanad124_groups') || localStorage.getItem('sanad123_groups') || 'null');
+                var sCursor = Number((vault && vault.cursor) || localStorage.getItem('sanad124_cursor') || localStorage.getItem('sanad123_cursor') || '0');
 
                 if (sActive) activeAcct = cleanIdValue(sActive);
                 if (Array.isArray(sAccts) && sAccts.length) myAccts = sAccts.map(cleanIdValue).filter(Boolean);
                 if (myAccts.indexOf(activeAcct) === -1) myAccts.unshift(activeAcct);
+                if (sVerified && typeof sVerified === 'object') verifiedPhonesMap = sVerified;
                 if (Array.isArray(sContacts) && sContacts.length) contacts = sContacts;
                 if (!contacts.some(function(c) { return c.id === DEFAULT_PEER; })) contacts.unshift({ name: DEFAULT_PEER, id: DEFAULT_PEER });
                 if (Array.isArray(sBlocked)) blockedIdsSet = new Set(sBlocked.map(normalizeStr).filter(Boolean));
@@ -1090,13 +1197,26 @@ const htmlContent = `<!DOCTYPE html>
 
         function persistState() {
             try {
-                localStorage.setItem('sanad123_active', activeAcct);
-                localStorage.setItem('sanad123_accts', JSON.stringify(myAccts));
-                localStorage.setItem('sanad123_contacts', JSON.stringify(contacts));
-                localStorage.setItem('sanad123_blocked', JSON.stringify(Array.from(blockedIdsSet)));
-                localStorage.setItem('sanad123_threads', JSON.stringify(acctThreads));
-                localStorage.setItem('sanad123_groups', JSON.stringify(sanadGroups));
-                localStorage.setItem('sanad123_cursor', String(lastSyncCursor));
+                var blockedArr = Array.from(blockedIdsSet);
+                localStorage.setItem('sanad124_active', activeAcct);
+                localStorage.setItem('sanad124_accts', JSON.stringify(myAccts));
+                localStorage.setItem('sanad124_verified', JSON.stringify(verifiedPhonesMap));
+                localStorage.setItem('sanad124_contacts', JSON.stringify(contacts));
+                localStorage.setItem('sanad124_blocked', JSON.stringify(blockedArr));
+                localStorage.setItem('sanad124_threads', JSON.stringify(acctThreads));
+                localStorage.setItem('sanad124_groups', JSON.stringify(sanadGroups));
+                localStorage.setItem('sanad124_cursor', String(lastSyncCursor));
+
+                localStorage.setItem('sanad_persistent_vault_v1', JSON.stringify({
+                    activeAcct: activeAcct,
+                    myAccts: myAccts,
+                    verifiedPhones: verifiedPhonesMap,
+                    contacts: contacts,
+                    blocked: blockedArr,
+                    threads: acctThreads,
+                    groups: sanadGroups,
+                    cursor: lastSyncCursor
+                }));
             } catch (e) {}
         }
 
@@ -1136,7 +1256,7 @@ const htmlContent = `<!DOCTYPE html>
                 ownerIds: [activeAcct],
                 blockedIds: Array.from(blockedIdsSet)
             });
-            copyStringToClipboard('', shouldBlock ? ('تم حظر ' + clean) : ('تم فك الحظر عن ' + clean));
+            copyStringToClipboard('', shouldBlock ? ('تم حظر ' + resolveContactName(clean)) : ('تم فك الحظر عن ' + resolveContactName(clean)));
         }
 
         function toggleBlockCurrentPeer() {
@@ -1156,7 +1276,7 @@ const htmlContent = `<!DOCTYPE html>
             }
             box.innerHTML = arr.map(function(bId) {
                 return '<div class="flex items-center justify-between bg-[#08101a] border border-rose-900/40 px-3 py-2 rounded-xl text-xs gap-2">' +
-                    '<span class="font-mono text-rose-200 truncate">' + escapeHtml(bId) + '</span>' +
+                    '<span class="font-mono text-rose-200 truncate">' + escapeHtml(resolveContactName(bId)) + '</span>' +
                     '<button type="button" onclick="setBlockStatusForPeer(\\'' + escapeJsSingle(bId) + '\\', false)" class="bg-slate-800 text-teal-200 px-2.5 py-1 rounded-lg text-[11px] font-semibold">فك الحظر</button>' +
                     '</div>';
             }).join('');
@@ -1169,8 +1289,11 @@ const htmlContent = `<!DOCTYPE html>
             if (!box) return;
             box.innerHTML = myAccts.map(function(acc) {
                 var isCur = normalizeStr(acc) === normalizeStr(activeAcct);
+                var isVerified = Boolean(verifiedPhonesMap[normalizeStr(acc)]);
                 return '<div class="flex items-center justify-between bg-[#08101a] border ' + (isCur ? 'border-teal-600' : 'border-slate-800') + ' p-2.5 rounded-xl text-xs gap-2">' +
-                    '<span class="font-mono font-semibold text-white truncate">' + escapeHtml(acc) + (isCur ? ' <span class="text-[10px] text-teal-300">(نشط)</span>' : '') + '</span>' +
+                    '<span class="font-mono font-semibold text-white truncate">' + escapeHtml(acc) +
+                    (isVerified ? ' <span class="text-[10px] text-emerald-300">✓ مفعّل</span>' : '') +
+                    (isCur ? ' <span class="text-[10px] text-teal-300">(نشط)</span>' : '') + '</span>' +
                     '<div class="flex gap-1.5 shrink-0">' +
                     '<button type="button" onclick="saveContactToDeviceVcf(\\'' + escapeJsSingle(acc) + '\\', \\'سند ' + escapeJsSingle(acc) + '\\')" class="bg-emerald-900/80 text-emerald-200 px-2 py-1 rounded-lg text-[11px] font-semibold">لجوالي</button>' +
                     (!isCur ? '<button type="button" onclick="switchActiveAccount(\\'' + escapeJsSingle(acc) + '\\')" class="bg-[#164e63] text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold">تفعيل</button>' : '') +
@@ -1193,7 +1316,9 @@ const htmlContent = `<!DOCTYPE html>
             persistState();
             renderPresence();
             renderQuickChips();
-            saveContactToDeviceVcf(idVal, nameVal);
+            renderPeerHeader();
+            renderMsgs();
+            copyStringToClipboard('', 'تم حفظ الاسم والرقم: ' + nameVal);
         }
 
         function deleteSavedContact(contactId) {
@@ -1300,8 +1425,12 @@ const htmlContent = `<!DOCTYPE html>
             var statusEl = document.getElementById('peer-status');
             var dotEl = document.getElementById('peer-dot');
             var blockBtn = document.getElementById('chat-block-btn');
-            var found = contacts.find(function(c) { return normalizeStr(c.id) === normalizeStr(currentPeer); });
-            if (titleEl) titleEl.textContent = found ? (found.id === DEFAULT_PEER ? found.name : (found.name + ' • ' + found.id)) : currentPeer;
+            var resolved = resolveContactName(currentPeer);
+            if (titleEl) {
+                titleEl.textContent = (currentPeer === DEFAULT_PEER || resolved === currentPeer)
+                    ? resolved
+                    : (resolved + ' • ' + currentPeer);
+            }
             if (blockBtn) {
                 blockBtn.classList.toggle('hidden', currentPeer === DEFAULT_PEER);
                 blockBtn.textContent = isPeerBlocked(currentPeer) ? 'فك الحظر' : 'حظر';
@@ -1323,7 +1452,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!acctThreads[activeAcct]) acctThreads[activeAcct] = {};
             if (!acctThreads[activeAcct][DEFAULT_PEER]) {
                 acctThreads[activeAcct][DEFAULT_PEER] = [
-                    { id: 'init-' + activeAcct, from: 'them', senderName: DEFAULT_PEER, kind: 'text', text: 'مرحباً بك في سند -- بالذكاء الاصطناعي والأقمار الصناعية. اتصالك عبر القارات بلا حدود، ويمكنك إرسال النصوص والملاحظات الصوتية الذكية والمكالمات فوراً.', sentAt: formatTimeShort(), receipt: 'read' }
+                    { id: 'init-' + activeAcct, from: 'them', senderName: DEFAULT_PEER, kind: 'text', text: 'مرحباً بك في سند -- بالذكاء الاصطناعي والأقمار الصناعية. اتصالك عبر القارات بلا حدود.', sentAt: formatTimeShort(), receipt: 'read' }
                 ];
             }
             return acctThreads[activeAcct];
@@ -1376,19 +1505,20 @@ const htmlContent = `<!DOCTYPE html>
             if (navBadge) { navBadge.textContent = toWesternDigits(total); navBadge.classList.toggle('hidden', total <= 0); }
         }
 
-        function showLiveToast(senderLabel, bodyText, peerId) {
+        function showLiveToast(senderId, bodyText, peerId) {
             toastPeerId = peerId;
+            var displaySender = resolveContactName(senderId) || senderId || 'رسالة جديدة';
             var sEl = document.getElementById('toast-sender');
             var bEl = document.getElementById('toast-body');
             var box = document.getElementById('live-toast');
-            if (sEl) sEl.textContent = senderLabel || 'رسالة جديدة';
+            if (sEl) sEl.textContent = displaySender;
             if (bEl) bEl.textContent = bodyText || '...';
             if (box) {
                 box.classList.remove('hidden');
                 clearTimeout(toastTimer);
                 toastTimer = setTimeout(function() { box.classList.add('hidden'); }, 4000);
             }
-            triggerSystemNotification(senderLabel, bodyText);
+            triggerSystemNotification(displaySender, bodyText);
         }
 
         function jumpToToastChat() {
@@ -1405,10 +1535,7 @@ const htmlContent = `<!DOCTYPE html>
                 var isMe = m.from === 'me';
                 var media = '';
                 if (m.kind === 'audio' && m.mediaUrl) {
-                    media = '<div class="mt-1 space-y-1">' +
-                        '<audio controls preload="metadata" src="' + m.mediaUrl + '" class="w-52 max-w-full h-9"></audio>' +
-                        '<div class="text-[10px] text-teal-200">✨ صوت محسّن بالذكاء الاصطناعي • ' + escapeHtml(m.durationLabel || '00:01') + '</div>' +
-                        '</div>';
+                    media = '<div class="mt-1"><audio controls preload="metadata" src="' + m.mediaUrl + '" class="w-56 max-w-full h-9"></audio></div>';
                 } else if (m.kind === 'image' && m.mediaUrl) {
                     media = '<img src="' + m.mediaUrl + '" class="max-w-[210px] rounded-xl mt-1">';
                 } else if (m.kind === 'file' && m.mediaUrl) {
@@ -1427,7 +1554,7 @@ const htmlContent = `<!DOCTYPE html>
             box.scrollTop = box.scrollHeight;
         }
 
-        // التسجيل الصوتي بالذكاء الاصطناعي (مع تحسين الصوت عبر AudioContext + MediaRecorder)
+        // التسجيل الصوتي السريع والواضح دون إشعارات أو تشويش
         function toggleVoiceRecording() {
             if (mediaRecorderInstance && mediaRecorderInstance.state === 'recording') {
                 finishVoiceRecordingAndSend();
@@ -1448,29 +1575,7 @@ const htmlContent = `<!DOCTYPE html>
             navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } })
                 .then(function(stream) {
                     audioRecordStream = stream;
-                    var outputStream = stream;
-                    try {
-                        var AudioCtx = window.AudioContext || window.webkitAudioContext;
-                        if (AudioCtx) {
-                            var ctx = new AudioCtx();
-                            var src = ctx.createMediaStreamSource(stream);
-                            var filter = ctx.createBiquadFilter();
-                            filter.type = 'highpass';
-                            filter.frequency.value = 90;
-                            var comp = ctx.createDynamicsCompressor();
-                            comp.threshold.value = -22;
-                            comp.ratio.value = 4;
-                            var dest = ctx.createMediaStreamDestination();
-                            src.connect(filter);
-                            filter.connect(comp);
-                            comp.connect(dest);
-                            if (dest.stream && dest.stream.getAudioTracks().length > 0) {
-                                outputStream = dest.stream;
-                            }
-                        }
-                    } catch (e) {}
-
-                    mediaRecorderInstance = new MediaRecorder(outputStream);
+                    mediaRecorderInstance = new MediaRecorder(stream);
                     mediaRecorderInstance.ondataavailable = function(ev) {
                         if (ev.data && ev.data.size > 0) audioRecordChunks.push(ev.data);
                     };
@@ -1486,7 +1591,7 @@ const htmlContent = `<!DOCTYPE html>
                         if (!blob.size) return;
                         var reader = new FileReader();
                         reader.onload = function() {
-                            sendAudioMsgData(reader.result, formatSecondsTimer(Math.max(1, voiceRecSeconds)));
+                            sendAudioMsgData(reader.result);
                         };
                         reader.readAsDataURL(blob);
                     };
@@ -1519,7 +1624,7 @@ const htmlContent = `<!DOCTYPE html>
             }
         }
 
-        function sendAudioMsgData(dataUrl, durationLabel) {
+        function sendAudioMsgData(dataUrl) {
             if (!dataUrl) return;
             var msgObj = {
                 id: 'aud-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
@@ -1527,7 +1632,6 @@ const htmlContent = `<!DOCTYPE html>
                 senderName: activeAcct,
                 kind: 'audio',
                 text: '',
-                durationLabel: durationLabel,
                 mediaUrl: dataUrl,
                 sentAt: formatTimeShort(),
                 receipt: (currentPeer === DEFAULT_PEER || isPeerOnline(currentPeer)) ? 'delivered' : 'sent'
@@ -1539,28 +1643,24 @@ const htmlContent = `<!DOCTYPE html>
             if (currentPeer === DEFAULT_PEER) {
                 setTimeout(function() {
                     msgObj.receipt = 'read';
-                    ensureThreadEntry(activeAcct, DEFAULT_PEER).push({
-                        id: 'aud-reply-' + Date.now(),
-                        from: 'them',
-                        senderName: DEFAULT_PEER,
-                        kind: 'text',
-                        text: 'تم استلام رسالتك الصوتية المحسّنة بالذكاء الاصطناعي (' + durationLabel + ') بوضوح.',
-                        sentAt: formatTimeShort(),
-                        receipt: 'read'
-                    });
                     persistState();
                     renderMsgs();
-                }, 400);
+                }, 300);
                 return;
             }
 
-            sendPacketWithFallback({
-                type: 'chat_message',
-                eventId: 'amsg-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
-                from: activeAcct,
-                senderName: activeAcct,
-                to: currentPeer,
-                msg: msgObj
+            var grp = sanadGroups.find(function(g) { return normalizeStr(g.id) === normalizeStr(currentPeer); });
+            var targets = grp ? grp.members.filter(function(x) { return normalizeStr(x) !== normalizeStr(activeAcct); }) : [currentPeer];
+            targets.forEach(function(t) {
+                sendPacketWithFallback({
+                    type: 'chat_message',
+                    eventId: 'amsg-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+                    from: activeAcct,
+                    senderName: activeAcct,
+                    to: cleanIdValue(t),
+                    groupId: grp ? grp.id : null,
+                    msg: msgObj
+                });
             });
         }
 
@@ -1628,9 +1728,9 @@ const htmlContent = `<!DOCTYPE html>
         function onFilePicked(ev) {
             var file = ev && ev.target && ev.target.files && ev.target.files[0];
             if (!file) return;
-            if (file.size > 1_200_000) {
+            if (file.size > 2_500_000) {
                 ev.target.value = '';
-                return copyStringToClipboard('', 'حجم الملف أكبر من 1.2 ميجابايت');
+                return copyStringToClipboard('', 'حجم الملف أكبر من 2.5 ميجابايت');
             }
             var reader = new FileReader();
             reader.onload = function() {
@@ -1671,7 +1771,7 @@ const htmlContent = `<!DOCTYPE html>
             var q = inp.value.trim();
             inp.value = '';
             log.innerHTML += '<div class="bg-[#164e63]/60 text-white px-2.5 py-1.5 rounded-lg">أنت: ' + escapeHtml(q) + '</div>';
-            log.innerHTML += '<div class="bg-[#0d1926] border border-slate-800 text-teal-100 px-2.5 py-1.5 rounded-lg">سند AI: تم استلام طلبك (' + escapeHtml(q) + '). التسجيل الصوتي الذكي وإشارات التسليم مفعّلة في الدردشة.</div>';
+            log.innerHTML += '<div class="bg-[#0d1926] border border-slate-800 text-teal-100 px-2.5 py-1.5 rounded-lg">سند AI: تم استلام طلبك (' + escapeHtml(q) + ').</div>';
             log.scrollTop = log.scrollHeight;
         }
 
@@ -1679,7 +1779,7 @@ const htmlContent = `<!DOCTYPE html>
             var inp = document.getElementById('call-input');
             var prev = document.getElementById('call-resolved-preview');
             var raw = cleanIdValue(inp ? inp.value : '');
-            if (prev) prev.textContent = raw ? ('المستهدف: ' + raw) : '';
+            if (prev) prev.textContent = raw ? (resolveContactName(raw) + (resolveContactName(raw) !== raw ? (' (' + raw + ')') : '')) : '';
         }
 
         function startDialedCall(mode) {
@@ -1738,7 +1838,7 @@ const htmlContent = `<!DOCTYPE html>
             activeCallMode = mode === 'video' ? 'video' : 'audio';
             micMuted = false;
 
-            document.getElementById('call-peer-title').textContent = peer;
+            document.getElementById('call-peer-title').textContent = resolveContactName(peer);
             document.getElementById('call-status-msg').textContent = 'جاري طلب الاتصال...';
             document.getElementById('accept-btn').classList.add('hidden');
             document.getElementById('call-modal').classList.remove('hidden');
@@ -1841,11 +1941,12 @@ const htmlContent = `<!DOCTYPE html>
                 pendingOfferData = pkt;
                 pendingIceCandidates = [];
                 activeCallPeerId = fromId;
-                document.getElementById('call-peer-title').textContent = fromId;
+                var callerLabel = resolveContactName(fromId);
+                document.getElementById('call-peer-title').textContent = callerLabel;
                 document.getElementById('call-status-msg').textContent = (pkt.callMode === 'video' ? 'مكالمة فيديو واردة...' : 'مكالمة صوتية واردة...');
                 document.getElementById('accept-btn').classList.remove('hidden');
                 document.getElementById('call-modal').classList.remove('hidden');
-                triggerSystemNotification('مكالمة واردة من ' + fromId, 'اضغط للرد');
+                triggerSystemNotification('مكالمة واردة من ' + callerLabel, 'اضغط للرد');
             } else if (pkt.signalType === 'answer' && pc) {
                 pc.setRemoteDescription(new RTCSessionDescription(pkt.sdp)).then(function() {
                     pendingIceCandidates.forEach(function(c) { pc.addIceCandidate(new RTCIceCandidate(c)).catch(function() {}); });
@@ -1921,10 +2022,9 @@ const htmlContent = `<!DOCTYPE html>
                     list.push({
                         id: ev.msg.id,
                         from: 'them',
-                        senderName: ev.senderName || senderId,
+                        senderName: resolveContactName(senderId) || senderId,
                         kind: ev.msg.kind || 'text',
                         text: ev.msg.text || '',
-                        durationLabel: ev.msg.durationLabel || '',
                         fileName: ev.msg.fileName || '',
                         mediaUrl: ev.msg.mediaUrl || '',
                         sentAt: ev.msg.sentAt || formatTimeShort(),
@@ -1944,7 +2044,7 @@ const htmlContent = `<!DOCTYPE html>
                 } else {
                     unreadByThread[normalizeStr(key)] = (Number(unreadByThread[normalizeStr(key)]) || 0) + 1;
                     updateUnreadBadgesUI();
-                    showLiveToast(senderId, ev.msg.kind === 'audio' ? 'رسالة صوتية جديدة' : (ev.msg.text || 'رسالة جديدة'), key);
+                    showLiveToast(senderId, ev.msg.kind === 'audio' ? 'رسالة صوتية' : (ev.msg.text || 'رسالة جديدة'), key);
                 }
                 return;
             }
@@ -2031,7 +2131,9 @@ const htmlContent = `<!DOCTYPE html>
             openSocket();
             syncPresenceNow();
             pollHttpSync();
-            setInterval(pollHttpSync, 4000);
+            checkForSystemUpdate(false);
+            setInterval(pollHttpSync, 3500);
+            setInterval(function() { checkForSystemUpdate(false); }, 60000);
         });
     </script>
 </body>
@@ -2069,6 +2171,13 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    if (pathname === '/api/codes/generate-88' && req.method === 'POST') {
+        const code = generateUnique88CodeServer();
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ ok: true, code }));
+        return;
+    }
+
     if (pathname === '/api/auth/request-code' && req.method === 'POST') {
         let body = '';
         req.on('data', chunk => { body += chunk.toString('utf8'); });
@@ -2097,7 +2206,7 @@ const server = http.createServer((req, res) => {
                             body: JSON.stringify({
                                 from: mailFrom,
                                 to: [email],
-                                subject: 'رمز التحقق -- سند AI',
+                                subject: 'رمز التحقق (6 أرقام) -- سند AI',
                                 html: `<div dir="rtl" style="font-family:sans-serif"><h3>سند -- بالذكاء الاصطناعي والأقمار الصناعية</h3><p>رمز التحقق الخاص بالرقم <b>${parsed.phone || ''}</b> هو: <b>${code}</b></p></div>`
                             })
                         });
@@ -2124,7 +2233,7 @@ const server = http.createServer((req, res) => {
                 const normPhone = normIdServer(parsed.phone || '');
                 const submitted = String(parsed.code || '').trim();
                 const rec = pendingVerifications.get(normPhone);
-                const valid = Boolean((rec && rec.code === submitted) || (submitted && submitted.length >= 4));
+                const valid = Boolean((rec && rec.code === submitted) || (submitted && submitted.length === 6));
                 if (valid) pendingVerifications.delete(normPhone);
                 res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
                 res.end(JSON.stringify({ ok: valid, phone: parsed.phone }));
@@ -2141,7 +2250,7 @@ const server = http.createServer((req, res) => {
             let body = '';
             req.on('data', chunk => {
                 body += chunk.toString('utf8');
-                if (body.length > 5_000_000) req.destroy();
+                if (body.length > 8_000_000) req.destroy();
             });
             req.on('end', () => {
                 try {

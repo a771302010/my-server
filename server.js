@@ -273,7 +273,7 @@ async function callGeminiText(systemPrompt, userPrompt) {
 async function generateAiAssistantReply(promptText) {
     const q = String(promptText || '').trim();
     const aiOut = await callGeminiText(
-        'أنت مساعد سند الذكي داخل تطبيق سند (منصة اتصال وذكاء اصطناعي وأخبار وثقافة ومعرفة). أجب بالعربية بوضوح ودقة وإيجاز عملي.',
+        'أنت مساعد سند الذكي داخل تطبيق سند (منصة اتصال وذكاء اصطناعي وثقافة ومعرفة للجميع). أجب بالعربية بوضوح وحياد وإيجاز عملي.',
         q
     );
     if (aiOut) return aiOut;
@@ -285,13 +285,13 @@ async function generateAiAssistantReply(promptText) {
     if (/نسخة احتياطية|تصدير|استيراد|تحصيلات/i.test(q)) {
         return 'يمكنك تصدير نسخة احتياطية كاملة واستعراض سجل النسخ مرتباً من الأحدث للأقدم مع أعداد التحصيلات (الجهات، الرسائل، الحسابات، المجموعات، والمحظورين) داخل تبويب الذكاء.';
     }
-    if (/راديو|اذاعة|fm|محلية|اعلانات|قران|اخبار|اغاني|سوى|اطفال/i.test(q)) {
-        return 'راديو سند FM يوفر قنوات متنوعة يختار منها كل مستمع بحرية: القرآن الكريم من القاهرة والسعودية، أخبار عربية عالمية (BBC عربي، مونت كارلو الدولية، سكاي نيوز عربية)، راديو سوى وأغاني عربية، قنوات أطفال تعليمية وثقافية، وإذاعة سند المحلية.';
+    if (/راديو|اذاعة|fm|قران|سند/i.test(q)) {
+        return 'إذاعة سند توفر بثاً مباشراً للجميع مع قنوات القرآن الكريم: السعودية أولاً، ثم القاهرة، ثم التلاوات المختارة، بالإضافة إلى بث إذاعة سند.';
     }
     if (/باب المندب|المخاء|طقس|رياح|مد|جزر|بحر/i.test(q)) {
         return 'لوحة الطقس والرياح والمد والجزر في سند تشمل مضيق باب المندب والمخاء وعدن والحديدة وسواحل ومدن عربية وعالمية مختارة.';
     }
-    return `بخصوص سؤالك («${q.slice(0, 120)}»): مساعد سند الذكي متاح للرد الفوري على أسئلتك ومساعدتك في الترجمة والنسخ الاحتياطية والراديو الذكي. (ولربط نموذج Gemini السحابي الكامل، أضف متغير البيئة GEMINI_API_KEY في إعدادات Render).`;
+    return `بخصوص سؤالك («${q.slice(0, 120)}»): مساعد سند الذكي متاح للرد الفوري على أسئلتك ومساعدتك في الترجمة والنسخ الاحتياطية وإذاعة سند.`;
 }
 
 async function translateTextSmart(text, targetLang) {
@@ -341,7 +341,7 @@ async function translateTextSmart(text, targetLang) {
 const manifestPayload = JSON.stringify({
   name: `Sanad v${APP_VERSION} - منصة سند للاتصال والذكاء والمعرفة`,
   short_name: 'سند',
-  description: 'منصة سند للاتصال والذكاء الاصطناعي والأخبار والثقافة والمعرفة',
+  description: 'منصة سند للاتصال والذكاء الاصطناعي والثقافة والمعرفة للجميع',
   start_url: '/',
   scope: '/',
   display: 'standalone',
@@ -548,7 +548,7 @@ const htmlContent = `<!DOCTYPE html>
     </script>
 
     <audio id="remote-audio-el" autoplay playsinline class="hidden"></audio>
-    <audio id="radio-audio-el" preload="auto" class="hidden"></audio>
+    <audio id="radio-audio-el" preload="auto" playsinline class="hidden"></audio>
 
     <div id="auto-update-banner" class="hidden bg-gradient-to-r from-teal-900 via-[#164e63] to-teal-900 border-b border-teal-400/50 text-white px-3.5 py-2 flex items-center justify-between gap-2 text-xs z-30 shrink-0">
         <span id="auto-update-banner-text" class="font-semibold truncate">يتوفر تحديث جديد للنظام -- اضغط للتحديث الآن.</span>
@@ -632,7 +632,7 @@ const htmlContent = `<!DOCTYPE html>
                 <button type="button" onclick="closeIdentityQrModal()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <img src="/icon-512.png" alt="شعار سند" class="w-24 h-24 rounded-2xl mx-auto border border-cyan-400/30 shadow-lg">
-            <p class="text-[11px] text-slate-300 leading-relaxed text-center">تواصل فوري بالرسائل والصوت، وقنوات إخبارية وثقافية وتعليمية، ومتابعة ذكية من مكان واحد.</p>
+            <p class="text-[11px] text-slate-300 leading-relaxed text-center">تواصل فوري بالرسائل والصوت، وبث إذاعي وثقافي ومعرفي مفتوح للجميع من مكان واحد.</p>
             <div class="bg-[#08101a] border border-slate-800 rounded-2xl p-3 flex flex-col items-center gap-2">
                 <div class="text-[11px] text-slate-400">معرّفك النشط الحالي</div>
                 <div id="qr-modal-acct-id" class="font-mono text-base font-bold text-teal-200"></div>
@@ -842,10 +842,10 @@ const htmlContent = `<!DOCTYPE html>
                 <img src="/icon-192.png" alt="سند" class="w-14 h-14 rounded-2xl border border-cyan-300/35 shrink-0">
                 <div class="space-y-1 min-w-0">
                     <div class="flex items-center justify-between gap-2">
-                        <span class="text-sm font-bold text-teal-200 truncate">سند • منصة اتصال ومعرفة</span>
+                        <span class="text-sm font-bold text-teal-200 truncate">سند • منصة اتصال ومعرفة للجميع</span>
                         <span class="text-[10px] font-mono bg-teal-950 text-teal-200 border border-teal-800 px-2 py-0.5 rounded-full shrink-0">v${APP_VERSION}</span>
                     </div>
-                    <p class="text-xs text-slate-200">تواصل فوري، قنوات إخبارية وثقافية وتعليمية، وقراءة ذكية للأجواء والبحار.</p>
+                    <p class="text-xs text-slate-200">تواصل فوري، بث إذاعي ومحتوى قرآني وثقافي للجميع، وقراءة ذكية للأجواء والبحار.</p>
                 </div>
             </div>
 
@@ -861,36 +861,22 @@ const htmlContent = `<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- راديو سند FM العالمي متعدد القنوات باختيار المستمع -->
+            <!-- إذاعة سند -->
             <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
                 <div class="flex items-center justify-between gap-2">
-                    <h2 class="text-sm font-bold text-amber-300"><i class="fa-solid fa-radio ml-1"></i> راديو سند FM العالمي</h2>
+                    <h2 class="text-sm font-bold text-amber-300"><i class="fa-solid fa-radio ml-1"></i> إذاعة سند</h2>
                     <span id="radio-state-badge" class="text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700 px-2.5 py-0.5 rounded-full">متوقف</span>
                 </div>
-                <p class="text-[11px] text-slate-400">اختر القناة التي تناسبك الآن وشغّلها أو أوقفها في أي وقت، مع احتياطي صوتي ذكي يضمن استمرار البث دون توقف.</p>
+                <p class="text-[11px] text-slate-400">اختر القناة الحية التي تناسبك الآن وشغّلها أو أوقفها في أي وقت، مع تشغيل صوتي مباشر واحتياطي مستمر.</p>
                 <div class="flex gap-2 flex-wrap">
                     <select id="radio-station-select" onchange="onRadioStationChanged()" class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
                         <optgroup label="إذاعة سند">
-                            <option value="local_sanad|إذاعة سند المحلية (برامج وإعلانات)|LOCAL_SANAD">إذاعة سند المحلية (برامج وإعلانات)</option>
+                            <option value="sanad_main|إذاعة سند|LOCAL_SANAD">إذاعة سند</option>
                         </optgroup>
                         <optgroup label="القرآن الكريم">
-                            <option value="quran_cairo|القرآن الكريم -- القاهرة|https://stream.radiojar.com/8s5u5tpdtwzuv">القرآن الكريم -- القاهرة</option>
                             <option value="quran_sa|القرآن الكريم -- السعودية|https://stream.radiojar.com/0tpy1h0kxtzuv">القرآن الكريم -- السعودية</option>
+                            <option value="quran_cairo|القرآن الكريم -- القاهرة|https://stream.radiojar.com/8s5u5tpdtwzuv">القرآن الكريم -- القاهرة</option>
                             <option value="quran_tarateel|تلاوات مختارة وهادئة|https://qurango.net/radio/tarateel">تلاوات مختارة وهادئة</option>
-                        </optgroup>
-                        <optgroup label="أخبار عربية عالمية">
-                            <option value="bbc_arabic|بي بي سي عربي (BBC Arabic)|https://www.bbc.com/arabic/bbc_arabic_radio/liveradio">بي بي سي عربي (BBC Arabic)</option>
-                            <option value="mcd_arabic|مونت كارلو الدولية|https://www.mc-doualiya.com/live">مونت كارلو الدولية</option>
-                            <option value="sky_arabic|سكاي نيوز عربية|https://www.skynewsarabia.com/radio-%D8%B1%D8%A7%D8%AF%D9%8A%D9%88-%D8%B3%D9%83%D8%A7%D9%8A-%D9%86%D9%8A%D9%88%D8%B2-%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9">سكاي نيوز عربية</option>
-                        </optgroup>
-                        <optgroup label="أغاني عربية (راديو سوى وقنوات منوعة)">
-                            <option value="radio_sawa|راديو سوى -- أغاني عربية|https://mytuner-radio.com/radio/radio-sawa-rdyw-sw-kuwait-412489/">راديو سوى -- أغاني عربية</option>
-                            <option value="arabic_pop_world|أغاني عربية عصرية ومحبوبة|https://streams.fluxfm.de/Chillhop/mp3-128/streams.fluxfm.de/">أغاني عربية عصرية ومحبوبة</option>
-                            <option value="arabic_stars|نجوم الأغنية العربية|https://www.nogoumfm.net/live-radio-stream/">نجوم الأغنية العربية</option>
-                        </optgroup>
-                        <optgroup label="أطفال -- تعليمية وثقافية">
-                            <option value="kids_fm|راديو الأطفال كيدز إف إم (تعليمي وثقافي)|https://thekidsfm.com/index-ar.html">راديو الأطفال كيدز إف إم (تعليمي وثقافي)</option>
-                            <option value="sanad_kids|إذاعة سند للأطفال -- قصص ومعرفة|LOCAL_KIDS">إذاعة سند للأطفال -- قصص ومعرفة</option>
                         </optgroup>
                     </select>
                     <button type="button" id="radio-toggle-btn" onclick="toggleSanadRadioFm()" class="bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl font-semibold"><i class="fa-solid fa-play ml-1"></i>تشغيل الراديو</button>
@@ -1041,18 +1027,10 @@ const htmlContent = `<!DOCTYPE html>
             ]
         };
 
-        var LOCAL_SANAD_SCHEDULE = [
-            { tag: 'افتتاحية الجمعة', line: 'صباح الخير والسكينة عليكم في يوم الجمعة؛ نبدأ بث إذاعة سند بروح هادئة وتواصل واضح.' },
-            { tag: 'برنامج • نقطة نظام', line: 'فقرة نقطة نظام وتواصل: وضوح الكلمة وسرعة الرد واحترام وقت الآخرين هما أساس أي علاقة أو عمل ناجح.' },
-            { tag: 'إعلان • سند', line: 'مساحة إعلانية: احجز كودك الحصري 88 وتواصل عبر الرسائل والصوت والذكاء الاصطناعي من مكان واحد داخل سند.' },
-            { tag: 'برنامج • حكاية وذائقة', line: 'فقرة حكاية وذائقة: نمنح أنفسنا دقيقة للتأمل واختيار الكلمة الطيبة التي تبقى أثرها.' },
-            { tag: 'إعلان • خدمات محلية', line: 'مساحة إعلانية: للتعريف بخدماتك أو مشاريعك عبر إذاعة سند، رتّب رسالتك بوضوح لتصل مباشرة للمستمع المهتم.' }
-        ];
-
-        var KIDS_CHANNEL_SCHEDULE = [
-            { tag: 'حكاية صغيرة', line: 'أهلاً بأصدقائنا الصغار في فقرة حكاية ومعرفة: النملة الذكية والغيمة الطيبة التي سقت الحقل الصغير.' },
-            { tag: 'سؤال وثقافة', line: 'معلومة سريعة: لماذا نسمع صدى الصوت في الأماكن الواسعة؟ لأن الصوت يرتد عن الأسطح ويعود إلينا.' },
-            { tag: 'لغة وأدب', line: 'كلمة اليوم: «الفضول» هو الرغبة الجميلة في طرح الأسئلة وتعلم أشياء جديدة كل يوم.' }
+        var SANAD_RADIO_SCHEDULE = [
+            { tag: 'افتتاحية البث', line: 'أهلاً بكم في إذاعة سند؛ مساحة صوتية مفتوحة للجميع تجمع بين السكينة والوضوح والمعرفة.' },
+            { tag: 'فقرة • تواصل ومعرفة', line: 'نقدّم خدمة تواصل ومعرفة لكل مستمع بروح إيجابية ومحتوى نافع وموثوق.' },
+            { tag: 'إذاعة سند', line: 'تستمعون الآن إلى بث إذاعة سند عبر تطبيق سند؛ اختر قناتك المفضلة واستمتع بالبث المباشر.' }
         ];
 
         function cleanIdValue(val) {
@@ -1190,15 +1168,15 @@ const htmlContent = `<!DOCTYPE html>
 
         function getSelectedRadioInfo() {
             var sel = document.getElementById('radio-station-select');
-            var raw = sel ? sel.value : 'local_sanad|إذاعة سند المحلية (برامج وإعلانات)|LOCAL_SANAD';
+            var raw = sel ? sel.value : 'sanad_main|إذاعة سند|LOCAL_SANAD';
             var parts = raw.split('|');
             var urlVal = parts[2] || '';
-            if ((parts[0] || '') === 'local_sanad' && SANAD_LOCAL_RADIO_URL) {
+            if ((parts[0] || '') === 'sanad_main' && SANAD_LOCAL_RADIO_URL) {
                 urlVal = SANAD_LOCAL_RADIO_URL;
             }
             return {
-                id: parts[0] || 'local_sanad',
-                name: parts[1] || 'إذاعة سند المحلية (برامج وإعلانات)',
+                id: parts[0] || 'sanad_main',
+                name: parts[1] || 'إذاعة سند',
                 url: urlVal
             };
         }
@@ -1221,7 +1199,7 @@ const htmlContent = `<!DOCTYPE html>
             localRadioCycleTimer = null;
             clearTimeout(radioFallbackTimer);
             radioFallbackTimer = null;
-            var list = Array.isArray(scheduleArr) && scheduleArr.length ? scheduleArr : LOCAL_SANAD_SCHEDULE;
+            var list = Array.isArray(scheduleArr) && scheduleArr.length ? scheduleArr : SANAD_RADIO_SCHEDULE;
             var idx = 0;
             var runSegment = function() {
                 if (!radioPlaying) return;
@@ -1251,7 +1229,7 @@ const htmlContent = `<!DOCTYPE html>
                 hostBox.textContent = 'مقدم سند AI: الراديو في وضع الإيقاف ولن يستهلك أي بيانات حتى تضغط «تشغيل الراديو».';
                 return;
             }
-            if (usedFallback || stationId === 'local_sanad' || stationId === 'sanad_kids') return;
+            if (usedFallback || stationId === 'sanad_main') return;
 
             hostBox.textContent = 'مقدم سند AI: جاري تشغيل «' + stationName + '»...';
             fetch('/api/ai/chat', {
@@ -1261,7 +1239,7 @@ const htmlContent = `<!DOCTYPE html>
             })
             .then(function(r) { return r.json(); })
             .then(function(data) {
-                if (radioPlaying && hostBox && data && data.reply && stationId !== 'local_sanad' && stationId !== 'sanad_kids') {
+                if (radioPlaying && hostBox && data && data.reply && stationId !== 'sanad_main') {
                     hostBox.textContent = 'مقدم سند AI (' + stationName + '): ' + data.reply;
                 }
             })
@@ -1287,6 +1265,28 @@ const htmlContent = `<!DOCTYPE html>
             }
         }
 
+        function playDirectAudioElement(aud, srcUrl, onFail) {
+            if (!aud) {
+                if (typeof onFail === 'function') onFail();
+                return;
+            }
+            try {
+                aud.pause();
+                aud.muted = false;
+                aud.volume = 1.0;
+                aud.src = srcUrl;
+                aud.load();
+                var p = aud.play();
+                if (p && typeof p.catch === 'function') {
+                    p.catch(function() {
+                        if (typeof onFail === 'function') onFail();
+                    });
+                }
+            } catch (e) {
+                if (typeof onFail === 'function') onFail();
+            }
+        }
+
         function applyRadioAudioSource(info) {
             var aud = document.getElementById('radio-audio-el');
             clearInterval(localRadioCycleTimer);
@@ -1295,26 +1295,39 @@ const htmlContent = `<!DOCTYPE html>
             radioFallbackTimer = null;
             if (!info) return;
 
-            if (info.id === 'local_sanad' && sanadContinuousPlayer && typeof sanadContinuousPlayer.start === 'function') {
+            if (info.id === 'sanad_main') {
                 var hostBox = document.getElementById('radio-ai-host-box');
-                if (hostBox) hostBox.textContent = 'على الهواء الآن: برومو إذاعة راديو سند AI -- البث المباشر';
-                sanadContinuousPlayer.start();
-                radioFallbackTimer = setTimeout(function() {
-                    if (radioPlaying && aud && aud.paused) {
-                        startStructuredFeed(info.name, LOCAL_SANAD_SCHEDULE);
+                if (hostBox) hostBox.textContent = 'على الهواء الآن: بث إذاعة سند -- المباشر';
+
+                var started = false;
+                var launchSanadAudio = function() {
+                    if (started || !radioPlaying) return;
+                    started = true;
+                    if (sanadContinuousPlayer && typeof sanadContinuousPlayer.start === 'function') {
+                        try {
+                            sanadContinuousPlayer.start();
+                        } catch (e) {}
                     }
-                }, 4500);
+                    if (aud && (!aud.src || aud.paused)) {
+                        playDirectAudioElement(aud, info.url || SANAD_LOCAL_RADIO_URL, function() {
+                            if (radioPlaying && (!aud || aud.paused)) {
+                                startStructuredFeed(info.name, SANAD_RADIO_SCHEDULE);
+                            }
+                        });
+                    }
+                    radioFallbackTimer = setTimeout(function() {
+                        if (radioPlaying && (!aud || aud.paused)) {
+                            startStructuredFeed(info.name, SANAD_RADIO_SCHEDULE);
+                        }
+                    }, 4000);
+                };
+
+                launchSanadAudio();
                 return;
             }
 
             if (sanadContinuousPlayer && typeof sanadContinuousPlayer.stop === 'function') {
                 sanadContinuousPlayer.stop();
-            }
-
-            if (info.id === 'sanad_kids' || info.url === 'LOCAL_KIDS') {
-                if (aud) { try { aud.pause(); aud.src = ''; } catch (e) {} }
-                startStructuredFeed(info.name, KIDS_CHANNEL_SCHEDULE);
-                return;
             }
 
             if (info.url && info.url !== 'LOCAL_SANAD') {
@@ -1323,7 +1336,7 @@ const htmlContent = `<!DOCTYPE html>
                     if (!radioPlaying || fallbackEngaged) return;
                     fallbackEngaged = true;
                     if (aud) { try { aud.pause(); aud.src = ''; } catch (e) {} }
-                    startStructuredFeed(info.name + ' (بث بديل مستمر)', LOCAL_SANAD_SCHEDULE);
+                    startStructuredFeed(info.name + ' (بث بديل مستمر)', SANAD_RADIO_SCHEDULE);
                     updateRadioAiCommentary(info.name, true, info.id, true);
                 };
 
@@ -1336,11 +1349,7 @@ const htmlContent = `<!DOCTYPE html>
                     aud.onplaying = function() {
                         clearTimeout(radioFallbackTimer);
                     };
-                    aud.src = info.url;
-                    var p = aud.play();
-                    if (p && typeof p.catch === 'function') {
-                        p.catch(triggerFallback);
-                    }
+                    playDirectAudioElement(aud, info.url, triggerFallback);
                     radioFallbackTimer = setTimeout(function() {
                         if (radioPlaying && aud.paused) triggerFallback();
                     }, 5000);
@@ -1349,7 +1358,7 @@ const htmlContent = `<!DOCTYPE html>
                 }
             } else {
                 if (aud) { try { aud.pause(); aud.src = ''; } catch (e) {} }
-                startStructuredFeed(info.name, LOCAL_SANAD_SCHEDULE);
+                startStructuredFeed(info.name, SANAD_RADIO_SCHEDULE);
             }
         }
 
@@ -1367,7 +1376,7 @@ const htmlContent = `<!DOCTYPE html>
                 }
                 syncRadioUi();
                 updateRadioAiCommentary(info.name, false, info.id, false);
-                copyStringToClipboard('', 'تم إيقاف راديو سند FM');
+                copyStringToClipboard('', 'تم إيقاف إذاعة سند');
                 return;
             }
             radioPlaying = true;

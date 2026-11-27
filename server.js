@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { WebSocketServer } = require('ws');
 
-const APP_VERSION = '12.6.1';
+const APP_VERSION = '12.6.2';
 const PORT = process.env.PORT || 3000;
 const ICON_BG_HEX = '#164e63';
 const ICON_ACCENT_HEX = '#f0fdfa';
@@ -287,7 +287,7 @@ async function generateAiAssistantReply(promptText) {
         return 'يمكنك تصدير نسخة احتياطية كاملة واستعراض سجل النسخ مرتباً من الأحدث للأقدم مع أعداد التحصيلات (الجهات، الرسائل، الحسابات، المجموعات، والمحظورين) داخل تبويب الذكاء.';
     }
     if (/راديو|اذاعة|fm|محلية|اعلانات/i.test(q)) {
-        return 'راديو سند FM يوفر قنوات متعددة (القرآن الكريم، أغاني عربية شرقية ويمنية، أخبار عربية، أخبار إنجليزية، وإذاعة سند المحلية للبرامج والإعلانات) مع تشغيل وإيقاف اختياري بالكامل.';
+        return 'راديو سند FM يوفر قنوات متعددة (القرآن الكريم، أغاني عربية شرقية ويمنية، أخبار عربية، أخبار إنجليزية، وإذاعة سند المحلية المرتبة بين البرامج والإعلانات) مع تشغيل وإيقاف اختياري بالكامل.';
     }
     return `بخصوص سؤالك («${q.slice(0, 120)}»): مساعد سند الذكي متاح للرد الفوري على أسئلتك ومساعدتك في الترجمة والنسخ الاحتياطية والراديو الذكي. (ولربط نموذج Gemini السحابي الكامل، أضف متغير البيئة GEMINI_API_KEY في إعدادات Render).`;
 }
@@ -852,20 +852,20 @@ const htmlContent = `<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- راديو سند FM متعدد القنوات + إذاعة محلية اختيارية بالذكاء الاصطناعي -->
+            <!-- راديو سند FM متعدد القنوات + إذاعة محلية مرتبة بالذكاء الاصطناعي -->
             <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
                 <div class="flex items-center justify-between gap-2">
                     <h2 class="text-sm font-bold text-amber-300"><i class="fa-solid fa-radio ml-1"></i> راديو سند FM الذكي</h2>
                     <span id="radio-state-badge" class="text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700 px-2.5 py-0.5 rounded-full">متوقف</span>
                 </div>
-                <p class="text-[11px] text-slate-400">اختر القناة التي تناسبك وشغّلها أو أطفئها متى شئت، بما في ذلك إذاعة سند المحلية للبرامج والإعلانات.</p>
+                <p class="text-[11px] text-slate-400">اختر القناة التي تناسبك وشغّلها أو أطفئها متى شئت، بما في ذلك إذاعة سند المحلية المرتبة بين البرامج والإعلانات.</p>
                 <div class="flex gap-2 flex-wrap">
                     <select id="radio-station-select" onchange="onRadioStationChanged()" class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                        <option value="local_sanad|إذاعة سند المحلية (برامج وإعلانات)|LOCAL_SANAD">إذاعة سند المحلية (برامج وإعلانات)</option>
                         <option value="quran|إذاعة القرآن الكريم|https://stream.radiojar.com/8s5u5tpdtwzuv">إذاعة القرآن الكريم</option>
                         <option value="arabic_songs|أغاني عربية (شرقية ويمنية)|https://streams.fluxfm.de/Chillhop/mp3-128/streams.fluxfm.de/">أغاني عربية (شرقية ويمنية)</option>
                         <option value="arabic_news|أخبار عربية|https://stream.live.vc.bbcmedia.co.uk/bbc_arabic_radio">أخبار عربية</option>
                         <option value="english_news|أخبار إنجليزية (دولية)|https://stream.live.vc.bbcmedia.co.uk/bbc_world_service">أخبار إنجليزية (دولية)</option>
-                        <option value="local_sanad|إذاعة سند المحلية (برامج وإعلانات)|LOCAL_SANAD">إذاعة سند المحلية (برامج وإعلانات)</option>
                     </select>
                     <button type="button" id="radio-toggle-btn" onclick="toggleSanadRadioFm()" class="bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl font-semibold"><i class="fa-solid fa-play ml-1"></i>تشغيل الراديو</button>
                 </div>
@@ -978,10 +978,13 @@ const htmlContent = `<!DOCTYPE html>
             ]
         };
 
-        var LOCAL_SANAD_PROGRAMS = [
-            'فقرة برامج سند المحلية: نرحب بمستمعينا الكرام في بثنا المحلي الخاص عبر تطبيق سند.',
-            'مساحة إعلانات سند: للتواصل والإعلانات المحلية والخدمات الذكية عبر أكواد سند 88.',
-            'زاوية المجتمع والخدمة: نشارككم أخبار وأنشطة المجتمع المحلي بصوت عربي واضح.'
+        // ترتيب متوازن ومناسب لصباح الجمعة بين الفقرات والبرامج والإعلانات
+        var LOCAL_SANAD_SCHEDULE = [
+            { tag: 'افتتاحية الجمعة', line: 'صباح الخير والسكينة عليكم في يوم الجمعة؛ نبدأ بث إذاعة سند المحلية بروح هادئة وتواصل واضح.' },
+            { tag: 'برنامج • نقطة نظام', line: 'فقرة نقطة نظام وتواصل: وضوح الكلمة وسرعة الرد واحترام وقت الآخرين هما أساس أي علاقة أو عمل ناجح.' },
+            { tag: 'إعلان • سند', line: 'مساحة إعلانية: احجز كودك الحصري 88 وتواصل عبر الرسائل والصوت والذكاء الاصطناعي من مكان واحد داخل سند.' },
+            { tag: 'برنامج • حكاية وذائقة', line: 'فقرة حكاية وذائقة: في صباح الجمعة نمنح أنفسنا دقيقة للتأمل واختيار الكلمة الطيبة التي تبقى أثرها.' },
+            { tag: 'إعلان • خدمات محلية', line: 'مساحة إعلانية: للتعريف بخدماتك أو مشاريعك المحلية عبر إذاعة سند، رتّب رسالتك بوضوح لتصل مباشرة للمستمع المهتم.' }
         ];
 
         function cleanIdValue(val) {
@@ -1085,15 +1088,15 @@ const htmlContent = `<!DOCTYPE html>
 
         function getSelectedRadioInfo() {
             var sel = document.getElementById('radio-station-select');
-            var raw = sel ? sel.value : 'quran|إذاعة القرآن الكريم|https://stream.radiojar.com/8s5u5tpdtwzuv';
+            var raw = sel ? sel.value : 'local_sanad|إذاعة سند المحلية (برامج وإعلانات)|LOCAL_SANAD';
             var parts = raw.split('|');
             var urlVal = parts[2] || '';
             if ((parts[0] || '') === 'local_sanad' && SANAD_LOCAL_RADIO_URL) {
                 urlVal = SANAD_LOCAL_RADIO_URL;
             }
             return {
-                id: parts[0] || 'quran',
-                name: parts[1] || 'راديو سند FM',
+                id: parts[0] || 'local_sanad',
+                name: parts[1] || 'إذاعة سند المحلية (برامج وإعلانات)',
                 url: urlVal
             };
         }
@@ -1111,16 +1114,16 @@ const htmlContent = `<!DOCTYPE html>
             var idx = 0;
             var runSegment = function() {
                 if (!radioPlaying) return;
-                var line = LOCAL_SANAD_PROGRAMS[idx % LOCAL_SANAD_PROGRAMS.length];
+                var slot = LOCAL_SANAD_SCHEDULE[idx % LOCAL_SANAD_SCHEDULE.length];
                 idx += 1;
                 var hostBox = document.getElementById('radio-ai-host-box');
-                if (hostBox) hostBox.textContent = stationName + ': ' + line;
+                if (hostBox) hostBox.textContent = stationName + ' • [' + slot.tag + ']: ' + slot.line;
                 try {
                     if ('speechSynthesis' in window) {
                         window.speechSynthesis.cancel();
-                        var utter = new SpeechSynthesisUtterance(line);
+                        var utter = new SpeechSynthesisUtterance(slot.line);
                         utter.lang = 'ar';
-                        utter.rate = 1.0;
+                        utter.rate = 0.98;
                         window.speechSynthesis.speak(utter);
                     }
                 } catch (e) {}
@@ -1129,7 +1132,7 @@ const htmlContent = `<!DOCTYPE html>
             localRadioCycleTimer = setInterval(runSegment, 22000);
         }
 
-        function updateRadioAiCommentary(stationName, isPlaying) {
+        function updateRadioAiCommentary(stationName, isPlaying, stationId) {
             var hostBox = document.getElementById('radio-ai-host-box');
             if (!hostBox) return;
             if (!isPlaying) {
@@ -1137,15 +1140,18 @@ const htmlContent = `<!DOCTYPE html>
                 hostBox.textContent = 'مقدم سند AI: الراديو في وضع الإيقاف ولن يستهلك أي بيانات حتى تضغط «تشغيل الراديو».';
                 return;
             }
+            if (stationId === 'local_sanad' && !SANAD_LOCAL_RADIO_URL) {
+                return;
+            }
             hostBox.textContent = 'مقدم سند AI: جاري تشغيل «' + stationName + '»...';
             fetch('/api/ai/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: 'اكتب مقدمة إذاعية قصيرة ومناسبة في سطر واحد فقط للقناة: ' + stationName })
+                body: JSON.stringify({ prompt: 'اكتب مقدمة إذاعية قصيرة ومناسبة لصباح الجمعة في سطر واحد فقط للقناة: ' + stationName })
             })
             .then(function(r) { return r.json(); })
             .then(function(data) {
-                if (radioPlaying && hostBox && data && data.reply) {
+                if (radioPlaying && hostBox && data && data.reply && !(stationId === 'local_sanad' && !SANAD_LOCAL_RADIO_URL)) {
                     hostBox.textContent = 'مقدم سند AI (' + stationName + '): ' + data.reply;
                 }
             })
@@ -1197,21 +1203,21 @@ const htmlContent = `<!DOCTYPE html>
                     try { aud.pause(); aud.src = ''; } catch (e) {}
                 }
                 syncRadioUi();
-                updateRadioAiCommentary(info.name, false);
+                updateRadioAiCommentary(info.name, false, info.id);
                 copyStringToClipboard('', 'تم إيقاف راديو سند FM');
                 return;
             }
             radioPlaying = true;
             syncRadioUi();
-            updateRadioAiCommentary(info.name, true);
             applyRadioAudioSource(info);
+            updateRadioAiCommentary(info.name, true, info.id);
         }
 
         function onRadioStationChanged() {
             var info = getSelectedRadioInfo();
             if (!radioPlaying) return;
-            updateRadioAiCommentary(info.name, true);
             applyRadioAudioSource(info);
+            updateRadioAiCommentary(info.name, true, info.id);
         }
 
         function computeBackupCounts(snapshotObj) {
@@ -1777,15 +1783,15 @@ const htmlContent = `<!DOCTYPE html>
                 var rawVault = localStorage.getItem('sanad_persistent_vault_v1');
                 var vault = rawVault ? JSON.parse(rawVault) : null;
 
-                var sActive = (vault && vault.activeAcct) || localStorage.getItem('sanad1261_active') || localStorage.getItem('sanad126_active') || localStorage.getItem('sanad125_active');
-                var sAccts = (vault && vault.myAccts) || JSON.parse(localStorage.getItem('sanad1261_accts') || localStorage.getItem('sanad126_accts') || 'null');
-                var sVerified = (vault && vault.verifiedPhones) || JSON.parse(localStorage.getItem('sanad1261_verified') || localStorage.getItem('sanad126_verified') || 'null');
-                var sContacts = (vault && vault.contacts) || JSON.parse(localStorage.getItem('sanad1261_contacts') || localStorage.getItem('sanad126_contacts') || 'null');
-                var sBlocked = (vault && vault.blocked) || JSON.parse(localStorage.getItem('sanad1261_blocked') || localStorage.getItem('sanad126_blocked') || 'null');
-                var sThreads = (vault && vault.threads) || JSON.parse(localStorage.getItem('sanad1261_threads') || localStorage.getItem('sanad126_threads') || 'null');
-                var sGroups = (vault && vault.groups) || JSON.parse(localStorage.getItem('sanad1261_groups') || localStorage.getItem('sanad126_groups') || 'null');
-                var sBackups = (vault && vault.backupHistory) || JSON.parse(localStorage.getItem('sanad1261_backups') || localStorage.getItem('sanad126_backups') || 'null');
-                var sCursor = Number((vault && vault.cursor) || localStorage.getItem('sanad1261_cursor') || localStorage.getItem('sanad126_cursor') || '0');
+                var sActive = (vault && vault.activeAcct) || localStorage.getItem('sanad1262_active') || localStorage.getItem('sanad1261_active') || localStorage.getItem('sanad126_active');
+                var sAccts = (vault && vault.myAccts) || JSON.parse(localStorage.getItem('sanad1262_accts') || localStorage.getItem('sanad1261_accts') || 'null');
+                var sVerified = (vault && vault.verifiedPhones) || JSON.parse(localStorage.getItem('sanad1262_verified') || localStorage.getItem('sanad1261_verified') || 'null');
+                var sContacts = (vault && vault.contacts) || JSON.parse(localStorage.getItem('sanad1262_contacts') || localStorage.getItem('sanad1261_contacts') || 'null');
+                var sBlocked = (vault && vault.blocked) || JSON.parse(localStorage.getItem('sanad1262_blocked') || localStorage.getItem('sanad1261_blocked') || 'null');
+                var sThreads = (vault && vault.threads) || JSON.parse(localStorage.getItem('sanad1262_threads') || localStorage.getItem('sanad1261_threads') || 'null');
+                var sGroups = (vault && vault.groups) || JSON.parse(localStorage.getItem('sanad1262_groups') || localStorage.getItem('sanad1261_groups') || 'null');
+                var sBackups = (vault && vault.backupHistory) || JSON.parse(localStorage.getItem('sanad1262_backups') || localStorage.getItem('sanad1261_backups') || 'null');
+                var sCursor = Number((vault && vault.cursor) || localStorage.getItem('sanad1262_cursor') || localStorage.getItem('sanad1261_cursor') || '0');
 
                 if (sActive) activeAcct = cleanIdValue(sActive);
                 if (Array.isArray(sAccts) && sAccts.length) myAccts = sAccts.map(cleanIdValue).filter(Boolean);
@@ -1804,15 +1810,15 @@ const htmlContent = `<!DOCTYPE html>
         function persistState() {
             try {
                 var blockedArr = Array.from(blockedIdsSet);
-                localStorage.setItem('sanad1261_active', activeAcct);
-                localStorage.setItem('sanad1261_accts', JSON.stringify(myAccts));
-                localStorage.setItem('sanad1261_verified', JSON.stringify(verifiedPhonesMap));
-                localStorage.setItem('sanad1261_contacts', JSON.stringify(contacts));
-                localStorage.setItem('sanad1261_blocked', JSON.stringify(blockedArr));
-                localStorage.setItem('sanad1261_threads', JSON.stringify(acctThreads));
-                localStorage.setItem('sanad1261_groups', JSON.stringify(sanadGroups));
-                localStorage.setItem('sanad1261_backups', JSON.stringify(backupRecordsHistory));
-                localStorage.setItem('sanad1261_cursor', String(lastSyncCursor));
+                localStorage.setItem('sanad1262_active', activeAcct);
+                localStorage.setItem('sanad1262_accts', JSON.stringify(myAccts));
+                localStorage.setItem('sanad1262_verified', JSON.stringify(verifiedPhonesMap));
+                localStorage.setItem('sanad1262_contacts', JSON.stringify(contacts));
+                localStorage.setItem('sanad1262_blocked', JSON.stringify(blockedArr));
+                localStorage.setItem('sanad1262_threads', JSON.stringify(acctThreads));
+                localStorage.setItem('sanad1262_groups', JSON.stringify(sanadGroups));
+                localStorage.setItem('sanad1262_backups', JSON.stringify(backupRecordsHistory));
+                localStorage.setItem('sanad1262_cursor', String(lastSyncCursor));
 
                 localStorage.setItem('sanad_persistent_vault_v1', JSON.stringify({
                     activeAcct: activeAcct,

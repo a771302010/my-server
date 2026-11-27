@@ -1,11 +1,14 @@
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 const { WebSocketServer } = require('ws');
 
-const APP_VERSION = '12.0.0';
+const APP_VERSION = '12.1.0';
 const PORT = process.env.PORT || 3000;
 const ICON_BG_HEX = '#164e63';
 const ICON_ACCENT_HEX = '#f0fdfa';
 const ICON_SUB_HEX = '#0f3646';
+const STATE_FILE_PATH = process.env.SANAD_STATE_FILE || path.join(__dirname, 'sanad-state.json');
 
 function toWesternDigitsServer(str) {
     return String(str === undefined || str === null ? '' : str)
@@ -18,9 +21,57 @@ function normIdServer(v) {
 }
 
 const presenceMap = new Map();
+const lastSeenMap = new Map();
 const blockListByUser = new Map(); // normId -> Set(blockedNormId)
 const syncEvents = [];
 let eventCursor = 0;
+let saveStateTimer = null;
+
+function persistServerStateToDisk() {
+    try {
+        const blocksObj = {};
+        blockListByUser.forEach((setVal, key) => {
+            blocksObj[key] = Array.from(setVal);
+        });
+        const snapshot = {
+            eventCursor,
+            syncEvents: syncEvents.slice(-800),
+            blocks: blocksObj
+        };
+        fs.writeFileSync(STATE_FILE_PATH, JSON.stringify(snapshot), 'utf8');
+    } catch (e) {}
+}
+
+function scheduleServerStateSave() {
+    clearTimeout(saveStateTimer);
+    saveStateTimer = setTimeout(persistServerStateToDisk, 400);
+}
+
+function loadServerStateFromDisk() {
+    try {
+        if (!fs.existsSync(STATE_FILE_PATH)) return;
+        const raw = fs.readFileSync(STATE_FILE_PATH, 'utf8');
+        const parsed = JSON.parse(raw || '{}');
+        if (typeof parsed.eventCursor === 'number' && parsed.eventCursor > 0) {
+            eventCursor = parsed.eventCursor;
+        }
+        if (Array.isArray(parsed.syncEvents)) {
+            parsed.syncEvents.slice(-800).forEach(ev => {
+                if (ev && typeof ev === 'object') syncEvents.push(ev);
+            });
+        }
+        if (parsed.blocks && typeof parsed.blocks === 'object') {
+            Object.keys(parsed.blocks).forEach(ownerKey => {
+                const arr = parsed.blocks[ownerKey];
+                if (Array.isArray(arr)) {
+                    blockListByUser.set(normIdServer(ownerKey), new Set(arr.map(normIdServer).filter(Boolean)));
+                }
+            });
+        }
+    } catch (e) {}
+}
+
+loadServerStateFromDisk();
 
 function recordSyncEvent(payload) {
     eventCursor += 1;
@@ -32,15 +83,31 @@ function recordSyncEvent(payload) {
     if (syncEvents.length > 1500) {
         syncEvents.splice(0, syncEvents.length - 1500);
     }
+    scheduleServerStateSave();
     return item;
 }
 
 function getOnlineIdsList() {
-    const ids = [];
+    const now = Date.now();
+    const ids = new Set();
     presenceMap.forEach((sockets, id) => {
-        if (sockets && sockets.size > 0) ids.push(id);
+        if (sockets && sockets.size > 0) {
+            ids.add(id);
+            lastSeenMap.set(id, now);
+        }
     });
-    return ids;
+    lastSeenMap.forEach((ts, id) => {
+        if (now - ts <= 25000) ids.add(id);
+    });
+    return Array.from(ids);
+}
+
+function touchPresenceIds(idsList) {
+    const now = Date.now();
+    (Array.isArray(idsList) ? idsList : []).forEach(rawId => {
+        const n = normIdServer(rawId);
+        if (n) lastSeenMap.set(n, now);
+    });
 }
 
 function broadcastOnlineUsersWs() {
@@ -61,6 +128,7 @@ function setUserBlockSetServer(ownerId, blockedList) {
             .filter(Boolean)
     );
     blockListByUser.set(ownerNorm, nextSet);
+    scheduleServerStateSave();
 }
 
 function isBlockedServer(senderId, recipientId) {
@@ -91,10 +159,14 @@ function deliverToPeerWs(targetId, payload) {
 function processIncomingPacket(payload, senderWs) {
     if (!payload || typeof payload !== 'object' || !payload.type) return;
 
+    if (payload.from) touchPresenceIds([payload.from]);
+
     if (payload.type === 'register_ids') {
         const ids = Array.isArray(payload.ids) ? payload.ids.slice() : [];
         if (payload.activeId) ids.unshift(payload.activeId);
         const cleanSet = new Set(ids.map(normIdServer).filter(Boolean));
+        touchPresenceIds(Array.from(cleanSet));
+
         if (senderWs) {
             if (!senderWs._sanadIds) senderWs._sanadIds = new Set();
             senderWs._sanadIds.forEach(oldId => {
@@ -424,11 +496,11 @@ const htmlContent = `<!DOCTYPE html>
                     <span class="text-[10px] bg-teal-950/80 text-teal-200 border border-teal-800/60 px-2 py-0.5 rounded-full font-semibold">AI v${APP_VERSION}</span>
                     <span id="current-tab-badge" class="text-[10px] bg-slate-800/90 text-slate-200 border border-slate-700/80 px-2 py-0.5 rounded-full font-semibold">الدردشة</span>
                     <span id="device-badge" class="text-[10px] bg-slate-800/90 text-slate-300 border border-slate-700/60 px-2 py-0.5 rounded-full font-medium">جهاز</span>
-                    <span id="net-badge" class="text-[10px] bg-slate-800/90 text-sky-200 border border-sky-800/50 px-2 py-0.5 rounded-full font-semibold">وضع مرن</span>
+                    <span id="net-badge" class="text-[10px] bg-slate-800/90 text-sky-200 border border-sky-800/50 px-2 py-0.5 rounded-full font-semibold">متصل</span>
                 </div>
                 <div class="flex items-center gap-1.5 text-[11px] mt-0.5 flex-wrap">
-                    <span id="ws-dot" class="w-2 h-2 rounded-full bg-amber-300"></span>
-                    <span id="ws-label" class="text-amber-200 font-medium">جاري الاتصال...</span>
+                    <span id="ws-dot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span id="ws-label" class="text-emerald-300 font-medium">متصل</span>
                     <button type="button" onclick="reconnectNow()" title="تحديث الربط" class="text-slate-300 hover:text-white px-1">
                         <i class="fa-solid fa-rotate-right text-[10px]"></i>
                     </button>
@@ -699,9 +771,9 @@ const htmlContent = `<!DOCTYPE html>
 
             <div class="px-3.5 py-1.5 bg-[#0b1521] border-b border-slate-800/80 flex justify-between items-center gap-2 text-xs shrink-0">
                 <div class="flex items-center gap-2 min-w-0">
-                    <span id="peer-dot" class="w-2.5 h-2.5 rounded-full bg-slate-600 shrink-0"></span>
+                    <span id="peer-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></span>
                     <span id="peer-title" class="font-semibold text-slate-100 font-mono truncate">خدمة العملاء</span>
-                    <span id="peer-status" class="text-[11px] font-semibold text-slate-400 shrink-0 whitespace-nowrap">غير متصل</span>
+                    <span id="peer-status" class="text-[11px] font-semibold text-emerald-300 shrink-0 whitespace-nowrap">نشط</span>
                 </div>
                 <div class="flex items-center gap-1.5 shrink-0 text-[11px]">
                     <button type="button" onclick="changeChatFontSize(-1)" title="تصغير خط الدردشة" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-1.5 py-0.5 rounded font-bold">أ-</button>
@@ -1062,23 +1134,28 @@ const htmlContent = `<!DOCTYPE html>
                 badge.className = 'text-[10px] bg-amber-950/90 text-amber-200 border border-amber-800/70 px-2 py-0.5 rounded-full font-semibold';
                 return;
             }
-            badge.textContent = isWeakNetworkMode() ? 'توفير ذكي' : 'أداء سريع';
-            badge.className = 'text-[10px] bg-slate-800/90 text-sky-200 border border-sky-800/50 px-2 py-0.5 rounded-full font-semibold';
+            badge.textContent = serverReachable ? 'نشط' : 'توفير ذكي';
+            badge.className = serverReachable
+                ? 'text-[10px] bg-emerald-950/90 text-emerald-200 border border-emerald-700/60 px-2 py-0.5 rounded-full font-semibold'
+                : 'text-[10px] bg-slate-800/90 text-sky-200 border border-sky-800/50 px-2 py-0.5 rounded-full font-semibold';
         }
         function updateOfflineNetworkUI(isOfflineNow) {
             var banner = document.getElementById('offline-banner');
             if (banner) banner.classList.toggle('hidden', !isOfflineNow);
             updateNetBadge();
             if (isOfflineNow) setHeaderStatus('بدون نت (محلي)', false);
+            else setHeaderStatus('متصل', true);
         }
         function setHeaderStatus(text, isOnline) {
             var dot = document.getElementById('ws-dot');
             var lbl = document.getElementById('ws-label');
-            if (dot) dot.className = isOnline ? 'w-2 h-2 rounded-full bg-emerald-400' : 'w-2 h-2 rounded-full bg-amber-300';
+            var activeNow = (isOnline !== false) && (typeof navigator === 'undefined' || navigator.onLine !== false);
+            if (dot) dot.className = activeNow ? 'w-2 h-2 rounded-full bg-emerald-400' : 'w-2 h-2 rounded-full bg-amber-300';
             if (lbl) {
-                lbl.className = isOnline ? 'text-emerald-300 font-medium' : 'text-amber-200 font-medium';
-                lbl.textContent = text;
+                lbl.className = activeNow ? 'text-emerald-300 font-medium' : 'text-amber-200 font-medium';
+                lbl.textContent = activeNow ? (text || 'متصل') : (text || 'بدون نت');
             }
+            updateNetBadge();
             updateQueueBadge();
         }
         function updateQueueBadge() {
@@ -1090,13 +1167,6 @@ const htmlContent = `<!DOCTYPE html>
             } else {
                 qb.classList.add('hidden');
             }
-        }
-        function triggerSilentAppUpdateIfNeeded(serverVer) {
-            if (!serverVer || serverVer === CLIENT_APP_VERSION || autoReloadingForUpdate) return;
-            if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
-            autoReloadingForUpdate = true;
-            try { persistState(); } catch (e) {}
-            location.replace(location.origin + location.pathname + '?v=' + encodeURIComponent(serverVer) + (location.hash || ''));
         }
         function copyStringToClipboard(text, customLabel) {
             var str = String(text || '');
@@ -1150,9 +1220,6 @@ const htmlContent = `<!DOCTYPE html>
                 hash = Math.imul(hash, 16777619);
             }
 
-            function isFinder(r, c) {
-                return (r < 7 && c < 7) || (r < 7 && c >= size - 7) || (r >= size - 7 && c < 7);
-            }
             function drawFinderBox(sr, sc) {
                 ctx.fillStyle = '#0f3646';
                 ctx.fillRect(offset + sc * cell, offset + sr * cell, 7 * cell, 7 * cell);
@@ -1164,8 +1231,8 @@ const htmlContent = `<!DOCTYPE html>
 
             for (var r = 0; r < size; r++) {
                 for (var c = 0; c < size; c++) {
-                    if (isFinder(r, c)) continue;
-                    var bit = ((hash >>> ((r * 7 + c * 3 + i) % 24)) ^ (r * 13 + c * 17 + str.charCodeAt(c % str.length))) & 1;
+                    if ((r < 7 && c < 7) || (r < 7 && c >= size - 7) || (r >= size - 7 && c < 7)) continue;
+                    var bit = ((hash >>> ((r * 7 + c * 3) % 24)) ^ (r * 13 + c * 17 + str.charCodeAt(c % str.length))) & 1;
                     if (bit) {
                         ctx.fillStyle = '#0f3646';
                         ctx.fillRect(offset + c * cell, offset + r * cell, cell, cell);
@@ -1606,7 +1673,7 @@ const htmlContent = `<!DOCTYPE html>
             } else if (/اختصار|شاشة|كاميرا|qr/i.test(q)) {
                 reply = 'اضغط زر (كودي) في الأعلى لعرض رمز QR والمسح بالكاميرا، أو زر (اختصار الشاشة) لإضافة أيقونة سند AI إلى شاشة جوالك.';
             } else if (/كود|رقم|معرّف|معرف/i.test(q)) {
-                reply = 'يمكنك توليد معرّف فوري من تبويب (الحسابات ← + توليد معرّف 8 أرقام) أو حذف أي حساب إضافي بعد حفظه.';
+                reply = 'يمكنك توليد معرّف فوري من تبويب (الحسابات ← + توليد معرّف 8 أرقام) وتُحفظ حساباتك وأرقامك تلقائياً عبر التحديثات.';
             } else if (/لخص|تلخيص/i.test(q)) {
                 reply = smartTransformText(q, 'summarize');
             } else {
@@ -1622,7 +1689,49 @@ const htmlContent = `<!DOCTYPE html>
             alert(smartTransformText(text, 'summarize'));
         }
 
-        // التخزين والحالة
+        // التخزين والحالة (حماية كاملة للبيانات المولّدة والمحفوظة عبر التحديثات)
+        function buildStateSnapshotObject() {
+            return {
+                activeAcct: activeAcct,
+                myAccts: myAccts,
+                contacts: contacts,
+                blockedIds: Array.from(blockedIdsSet),
+                fontPx: chatFontSizePx,
+                threads: acctThreads,
+                groups: sanadGroups,
+                pins: pinnedByThread,
+                unread: unreadByThread,
+                outbox: outboxQueue,
+                cursor: lastSyncCursor
+            };
+        }
+
+        function applySnapshotObject(parsed) {
+            if (!parsed || typeof parsed !== 'object') return;
+            var savedFont = Number(parsed.fontPx || 15);
+            if (savedFont >= 13 && savedFont <= 22) chatFontSizePx = savedFont;
+            if (Array.isArray(parsed.blockedIds)) {
+                blockedIdsSet = new Set(parsed.blockedIds.map(normalizeStr).filter(Boolean));
+            }
+            if (parsed.activeAcct) activeAcct = cleanIdValue(parsed.activeAcct);
+            if (Array.isArray(parsed.myAccts) && parsed.myAccts.length) {
+                myAccts = parsed.myAccts.map(cleanIdValue).filter(Boolean);
+            }
+            if (myAccts.indexOf(activeAcct) === -1) myAccts.unshift(activeAcct);
+            if (Array.isArray(parsed.contacts) && parsed.contacts.length) {
+                contacts = parsed.contacts;
+            }
+            if (!contacts.some(function(c) { return c.id === DEFAULT_PEER; })) {
+                contacts.unshift({ name: DEFAULT_PEER, id: DEFAULT_PEER });
+            }
+            if (parsed.threads && typeof parsed.threads === 'object') acctThreads = parsed.threads;
+            if (Array.isArray(parsed.groups)) sanadGroups = parsed.groups;
+            if (parsed.pins && typeof parsed.pins === 'object') pinnedByThread = parsed.pins;
+            if (parsed.unread && typeof parsed.unread === 'object') unreadByThread = parsed.unread;
+            if (Array.isArray(parsed.outbox)) outboxQueue = parsed.outbox;
+            if (Number(parsed.cursor || 0) > lastSyncCursor) lastSyncCursor = Number(parsed.cursor || 0);
+        }
+
         function loadSavedState() {
             try {
                 var savedActive = localStorage.getItem('sanad892_active');
@@ -1640,21 +1749,25 @@ const htmlContent = `<!DOCTYPE html>
                 var savedScratch = localStorage.getItem('sanad892_scratchpad') || '';
                 if (scratchEl && savedScratch) scratchEl.value = savedScratch;
 
-                if (savedFont >= 13 && savedFont <= 22) chatFontSizePx = savedFont;
-                if (Array.isArray(savedBlocked)) {
-                    blockedIdsSet = new Set(savedBlocked.map(normalizeStr).filter(Boolean));
+                applySnapshotObject({
+                    activeAcct: savedActive,
+                    myAccts: savedAccts,
+                    contacts: savedContacts,
+                    blockedIds: savedBlocked,
+                    fontPx: savedFont,
+                    threads: savedThreads,
+                    groups: savedGroups,
+                    pins: savedPins,
+                    unread: savedUnread,
+                    outbox: savedOutbox,
+                    cursor: savedCursor
+                });
+
+                // استرجاع احتياطي من window.name إذا كان localStorage فارغاً
+                if (myAccts.length <= 1 && window.name && window.name.indexOf('SANAD_STATE:') === 0) {
+                    var winSnap = JSON.parse(window.name.slice('SANAD_STATE:'.length) || 'null');
+                    applySnapshotObject(winSnap);
                 }
-                if (savedActive) activeAcct = cleanIdValue(savedActive);
-                if (Array.isArray(savedAccts) && savedAccts.length) myAccts = savedAccts.map(cleanIdValue).filter(Boolean);
-                if (myAccts.indexOf(activeAcct) === -1) myAccts.unshift(activeAcct);
-                if (Array.isArray(savedContacts) && savedContacts.length) contacts = savedContacts;
-                if (!contacts.some(function(c) { return c.id === DEFAULT_PEER; })) contacts.unshift({ name: DEFAULT_PEER, id: DEFAULT_PEER });
-                if (savedThreads && typeof savedThreads === 'object') acctThreads = savedThreads;
-                if (Array.isArray(savedGroups)) sanadGroups = savedGroups;
-                if (savedPins && typeof savedPins === 'object') pinnedByThread = savedPins;
-                if (savedUnread && typeof savedUnread === 'object') unreadByThread = savedUnread;
-                if (Array.isArray(savedOutbox)) outboxQueue = savedOutbox;
-                if (savedCursor > 0) lastSyncCursor = savedCursor;
             } catch (e) {}
             applyChatFontSize();
         }
@@ -1671,6 +1784,15 @@ const htmlContent = `<!DOCTYPE html>
                 localStorage.setItem('sanad892_unread', JSON.stringify(unreadByThread));
                 localStorage.setItem('sanad892_outbox', JSON.stringify(outboxQueue));
                 localStorage.setItem('sanad892_cursor', String(lastSyncCursor));
+                window.name = 'SANAD_STATE:' + JSON.stringify({
+                    activeAcct: activeAcct,
+                    myAccts: myAccts,
+                    contacts: contacts,
+                    blockedIds: Array.from(blockedIdsSet),
+                    fontPx: chatFontSizePx,
+                    groups: sanadGroups,
+                    cursor: lastSyncCursor
+                });
             } catch (e) {}
         }
 
@@ -1714,12 +1836,14 @@ const htmlContent = `<!DOCTYPE html>
             if (!raw) return;
             try {
                 var parsed = JSON.parse(raw);
-                if (Array.isArray(parsed.myAccts) && parsed.myAccts.length) myAccts = parsed.myAccts.map(cleanIdValue).filter(Boolean);
-                if (parsed.activeAcct) activeAcct = cleanIdValue(parsed.activeAcct);
-                if (Array.isArray(parsed.contacts) && parsed.contacts.length) contacts = parsed.contacts;
-                if (Array.isArray(parsed.blockedIds)) blockedIdsSet = new Set(parsed.blockedIds.map(normalizeStr).filter(Boolean));
-                if (Array.isArray(parsed.sanadGroups)) sanadGroups = parsed.sanadGroups;
-                if (parsed.acctThreads && typeof parsed.acctThreads === 'object') acctThreads = parsed.acctThreads;
+                applySnapshotObject({
+                    activeAcct: parsed.activeAcct,
+                    myAccts: parsed.myAccts,
+                    contacts: parsed.contacts,
+                    blockedIds: parsed.blockedIds,
+                    groups: parsed.sanadGroups || parsed.groups,
+                    threads: parsed.acctThreads || parsed.threads
+                });
                 persistAndDraw();
                 syncPresenceNow();
                 syncBlocklistToServer();
@@ -1745,6 +1869,8 @@ const htmlContent = `<!DOCTYPE html>
         }
         function isPeerOnline(id) {
             var target = normalizeStr(id);
+            if (!target) return false;
+            if (target === normalizeStr(DEFAULT_PEER)) return true;
             var found = false;
             onlinePeers.forEach(function(item) { if (normalizeStr(item) === target) found = true; });
             return found;
@@ -2037,8 +2163,11 @@ const htmlContent = `<!DOCTYPE html>
 
             var grp = findGroupById(currentPeer);
             if (grp) {
-                if (statusEl) statusEl.textContent = toWesternDigits((grp.members || []).length) + ' أعضاء';
-                if (dotEl) dotEl.className = 'w-2.5 h-2.5 rounded-full bg-teal-400 shrink-0';
+                if (statusEl) {
+                    statusEl.textContent = 'نشط • ' + toWesternDigits((grp.members || []).length) + ' أعضاء';
+                    statusEl.className = 'text-[11px] font-semibold text-emerald-300 shrink-0 whitespace-nowrap';
+                }
+                if (dotEl) dotEl.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0';
                 if (blockBtn) blockBtn.classList.add('hidden');
                 return;
             }
@@ -2050,14 +2179,26 @@ const htmlContent = `<!DOCTYPE html>
             }
 
             if (isPeerBlocked(currentPeer)) {
-                if (statusEl) statusEl.textContent = 'محظور';
+                if (statusEl) {
+                    statusEl.textContent = 'محظور';
+                    statusEl.className = 'text-[11px] font-semibold text-rose-400 shrink-0 whitespace-nowrap';
+                }
                 if (dotEl) dotEl.className = 'w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0';
                 return;
             }
 
             var online = isPeerOnline(currentPeer) || currentPeer === DEFAULT_PEER;
-            if (statusEl) statusEl.textContent = online ? 'متصل الآن' : 'غير متصل';
-            if (dotEl) dotEl.className = online ? 'w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0' : 'w-2.5 h-2.5 rounded-full bg-slate-600 shrink-0';
+            if (statusEl) {
+                statusEl.textContent = online ? 'متصل الآن • نشط' : 'غير متصل';
+                statusEl.className = online
+                    ? 'text-[11px] font-semibold text-emerald-300 shrink-0 whitespace-nowrap'
+                    : 'text-[11px] font-semibold text-slate-400 shrink-0 whitespace-nowrap';
+            }
+            if (dotEl) {
+                dotEl.className = online
+                    ? 'w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0'
+                    : 'w-2.5 h-2.5 rounded-full bg-slate-600 shrink-0';
+            }
         }
 
         // المحادثات والإشعارات والرسائل
@@ -2065,7 +2206,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!acctThreads[activeAcct]) acctThreads[activeAcct] = {};
             if (!acctThreads[activeAcct][DEFAULT_PEER]) {
                 acctThreads[activeAcct][DEFAULT_PEER] = [
-                    { id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'مرحباً بك في سند AI v${APP_VERSION}، كيف نقدر نخدمك اليوم؟', sentAt: formatTimeShort() }
+                    { id: 'init-' + activeAcct, from: 'them', kind: 'text', text: 'مرحباً بك في سند AI v${APP_VERSION}، الاتصال نشط وجاهز للمراسلة والاتصال.', sentAt: formatTimeShort() }
                 ];
             }
             return acctThreads[activeAcct];
@@ -2627,7 +2768,7 @@ const htmlContent = `<!DOCTYPE html>
             var banner = document.getElementById('last-generated-banner');
             var txt = document.getElementById('last-generated-text');
             if (banner && txt) {
-                txt.textContent = 'المعرّف الجديد: ' + code;
+                txt.textContent = 'المعرّف الجديد (محفوظ): ' + code;
                 banner.classList.remove('hidden');
             }
             persistAndDraw();
@@ -2688,7 +2829,7 @@ const htmlContent = `<!DOCTYPE html>
                 var isDefault = c.id === DEFAULT_PEER;
                 return '<div class="flex items-center justify-between bg-[#0d1926] border border-slate-800 p-3 rounded-xl text-xs gap-2">' +
                     '<div class="min-w-0">' +
-                    '<p class="font-bold text-white truncate">' + escapeHtml(c.name) + ' <span class="text-[10px] font-normal ' + (blocked ? 'text-rose-400' : (online ? 'text-emerald-400' : 'text-slate-500')) + '">• ' + (blocked ? 'محظور' : (online ? 'متصل' : 'غير متصل')) + '</span></p>' +
+                    '<p class="font-bold text-white truncate">' + escapeHtml(c.name) + ' <span class="text-[10px] font-normal ' + (blocked ? 'text-rose-400' : (online ? 'text-emerald-400' : 'text-slate-500')) + '">• ' + (blocked ? 'محظور' : (online ? 'متصل الآن' : 'غير متصل')) + '</span></p>' +
                     '<p class="font-mono text-[11px] text-slate-400 truncate">' + escapeHtml(c.id) + '</p>' +
                     '</div>' +
                     '<div class="flex gap-1.5 shrink-0">' +
@@ -3118,14 +3259,17 @@ const htmlContent = `<!DOCTYPE html>
                 body: JSON.stringify(pkt)
             }).then(function(r) { return r.json(); }).then(function(data) {
                 serverReachable = true;
-                if (data && data.appVersion) triggerSilentAppUpdateIfNeeded(data.appVersion);
+                setHeaderStatus('متصل', true);
                 if (data && Array.isArray(data.onlineIds)) {
                     onlinePeers = new Set(data.onlineIds);
                     renderPeerHeader();
                     renderPresence();
                 }
             }).catch(function() {
-                serverReachable = false;
+                if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                    serverReachable = false;
+                    setHeaderStatus('بدون نت (محلي)', false);
+                }
             });
         }
 
@@ -3144,7 +3288,7 @@ const htmlContent = `<!DOCTYPE html>
                 body: JSON.stringify(pkt)
             }).then(function(r) { return r.json(); }).then(function(data) {
                 serverReachable = true;
-                if (data && data.appVersion) triggerSilentAppUpdateIfNeeded(data.appVersion);
+                setHeaderStatus('متصل', true);
                 if (data && typeof data.cursor === 'number' && data.cursor > lastSyncCursor) {
                     lastSyncCursor = data.cursor;
                     persistState();
@@ -3288,7 +3432,7 @@ const htmlContent = `<!DOCTYPE html>
             try {
                 ws = new WebSocket(proto + '//' + location.host);
             } catch (e) {
-                setHeaderStatus('وضع المزامنة السريعة', true);
+                setHeaderStatus('متصل', true);
                 scheduleReconnect();
                 return;
             }
@@ -3296,7 +3440,7 @@ const htmlContent = `<!DOCTYPE html>
             ws.onopen = function() {
                 wsConnected = true;
                 serverReachable = true;
-                setHeaderStatus('متصل مباشر', true);
+                setHeaderStatus('متصل', true);
                 syncPresenceNow();
                 syncBlocklistToServer();
                 flushOutboxQueue();
@@ -3314,7 +3458,7 @@ const htmlContent = `<!DOCTYPE html>
                 if (typeof navigator !== 'undefined' && navigator.onLine === false) {
                     updateOfflineNetworkUI(true);
                 } else {
-                    setHeaderStatus('وضع المزامنة السريعة', true);
+                    setHeaderStatus('متصل', true);
                     scheduleReconnect();
                 }
             };
@@ -3326,7 +3470,7 @@ const htmlContent = `<!DOCTYPE html>
 
         function scheduleReconnect() {
             clearTimeout(reconnectTimer);
-            var delay = isWeakNetworkMode() ? 5000 : 2500;
+            var delay = isWeakNetworkMode() ? 4500 : 2500;
             reconnectTimer = setTimeout(function() {
                 if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
                 openSocket();
@@ -3339,8 +3483,9 @@ const htmlContent = `<!DOCTYPE html>
                 return;
             }
             updateOfflineNetworkUI(false);
-            setHeaderStatus('جاري التحديث...', false);
+            setHeaderStatus('متصل', true);
             openSocket();
+            syncPresenceNow();
             pollHttpSync();
             flushOutboxQueue();
         }
@@ -3358,7 +3503,7 @@ const htmlContent = `<!DOCTYPE html>
             }).then(function(r) { return r.json(); }).then(function(data) {
                 pollInFlight = false;
                 serverReachable = true;
-                if (data && data.appVersion) triggerSilentAppUpdateIfNeeded(data.appVersion);
+                setHeaderStatus('متصل', true);
                 if (data && Array.isArray(data.onlineIds)) {
                     onlinePeers = new Set(data.onlineIds);
                     renderPeerHeader();
@@ -3371,11 +3516,12 @@ const htmlContent = `<!DOCTYPE html>
                     lastSyncCursor = data.cursor;
                     persistState();
                 }
-                if (!wsConnected) setHeaderStatus('متصل', true);
                 flushOutboxQueue();
             }).catch(function() {
                 pollInFlight = false;
-                if (!wsConnected) setHeaderStatus('جاري إعادة الربط...', false);
+                if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                    updateOfflineNetworkUI(true);
+                }
             });
         }
 
@@ -3403,14 +3549,17 @@ const htmlContent = `<!DOCTYPE html>
             if (devEl) devEl.textContent = detectDevice();
             loadSavedState();
             checkUrlPeerInvite();
-            updateNetBadge();
+            setHeaderStatus('متصل', true);
             persistAndDraw();
             onCallDialInput();
             openSocket();
             syncPresenceNow();
             syncBlocklistToServer();
             pollHttpSync();
-            setInterval(pollHttpSync, 2500);
+            setInterval(function() {
+                syncPresenceNow();
+                pollHttpSync();
+            }, 2500);
         });
         window.addEventListener('online', function() { updateOfflineNetworkUI(false); reconnectNow(); });
         window.addEventListener('offline', function() { updateOfflineNetworkUI(true); });
@@ -3477,6 +3626,8 @@ const server = http.createServer((req, res) => {
         const since = Number(reqUrl.searchParams.get('since') || 0);
         const idsParam = String(reqUrl.searchParams.get('ids') || '');
         const watchedIds = new Set(idsParam.split(',').map(normIdServer).filter(Boolean));
+        if (watchedIds.size > 0) touchPresenceIds(Array.from(watchedIds));
+
         const matchedEvents = syncEvents.filter(ev => {
             if (ev.cursor <= since) return false;
             if (!watchedIds.size) return true;

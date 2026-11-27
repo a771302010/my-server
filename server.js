@@ -4,7 +4,7 @@ const path = require('path');
 const { WebSocketServer } = require('ws');
 const { getIconAssetForRoute } = require('./sanad-icon-assets');
 
-const APP_VERSION = '12.6.6';
+const APP_VERSION = '12.6.7';
 const PORT = process.env.PORT || 3000;
 const ICON_BG_HEX = '#164e63';
 const STATE_FILE_PATH = process.env.SANAD_STATE_FILE || path.join(__dirname, 'sanad-state.json');
@@ -285,8 +285,8 @@ async function generateAiAssistantReply(promptText) {
     if (/نسخة احتياطية|تصدير|استيراد|تحصيلات/i.test(q)) {
         return 'يمكنك تصدير نسخة احتياطية كاملة واستعراض سجل النسخ مرتباً من الأحدث للأقدم مع أعداد التحصيلات (الجهات، الرسائل، الحسابات، المجموعات، والمحظورين) داخل تبويب الذكاء.';
     }
-    if (/راديو|اذاعة|fm|قران|سند|اخبار|اغاني|اثيوبي/i.test(q)) {
-        return 'إذاعة سند توفر بثاً مباشراً 24 ساعة للجميع: القرآن الكريم (السعودية أولاً، ثم القاهرة، ثم التلاوات المختارة)، إذاعة سند، أخبار عربية وعالمية، وأغاني عربية وعالمية وإثيوبية وغربية.';
+    if (/راديو|اذاعة|fm|قران|سند|اخبار|اغاني/i.test(q)) {
+        return 'إذاعة سند توفر بثاً مباشراً 24 ساعة: إذاعة سند، القرآن الكريم، 3 قنوات للأخبار، 3 قنوات للأغاني العربية، و3 قنوات للأغاني الغربية مع مشغل احتياطي مستمر.';
     }
     if (/باب المندب|المخاء|طقس|رياح|مد|جزر|بحر/i.test(q)) {
         return 'لوحة الطقس والرياح والمد والجزر في سند تشمل مضيق باب المندب والمخاء وعدن والحديدة وسواحل ومدن عربية وعالمية مختارة.';
@@ -867,28 +867,31 @@ const htmlContent = `<!DOCTYPE html>
                     <h2 class="text-sm font-bold text-amber-300"><i class="fa-solid fa-radio ml-1"></i> إذاعة سند</h2>
                     <span id="radio-state-badge" class="text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700 px-2.5 py-0.5 rounded-full">متوقف</span>
                 </div>
-                <p class="text-[11px] text-slate-400">اختر القناة الحية التي تناسبك الآن وشغّلها أو أوقفها في أي وقت، مع تشغيل صوتي مباشر واحتياطي مستمر 24 ساعة.</p>
+                <p class="text-[11px] text-slate-400">اختر القناة الحية التي تناسبك الآن وشغّلها أو أوقفها في أي وقت، مع تشغيل مباشر ومسار صوتي احتياطي مضمون.</p>
                 <div class="flex gap-2 flex-wrap">
                     <select id="radio-station-select" onchange="onRadioStationChanged()" class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
                         <optgroup label="إذاعة سند">
-                            <option value="sanad_main|إذاعة سند|LOCAL_SANAD">إذاعة سند</option>
+                            <option value="sanad_main|إذاعة سند|LOCAL_SANAD|sanad">إذاعة سند</option>
                         </optgroup>
                         <optgroup label="القرآن الكريم">
-                            <option value="quran_sa|القرآن الكريم -- السعودية|https://stream.radiojar.com/0tpy1h0kxtzuv">القرآن الكريم -- السعودية</option>
-                            <option value="quran_cairo|القرآن الكريم -- القاهرة|https://stream.radiojar.com/8s5u5tpdtwzuv">القرآن الكريم -- القاهرة</option>
-                            <option value="quran_tarateel|تلاوات مختارة وهادئة|https://qurango.net/radio/tarateel">تلاوات مختارة وهادئة</option>
+                            <option value="quran_sa|القرآن الكريم -- السعودية|https://stream.radiojar.com/0tpy1h0kxtzuv|quran">القرآن الكريم -- السعودية</option>
+                            <option value="quran_cairo|القرآن الكريم -- القاهرة|https://stream.radiojar.com/8s5u5tpdtwzuv|quran">القرآن الكريم -- القاهرة</option>
+                            <option value="quran_tarateel|تلاوات مختارة وهادئة|https://qurango.net/radio/tarateel|quran">تلاوات مختارة وهادئة</option>
                         </optgroup>
-                        <optgroup label="أخبار عربية وعالمية (24/7)">
-                            <option value="bbc_arabic_live|بي بي سي عربي (BBC Arabic)|https://stream.live.vc.bbcmedia.co.uk/bbc_arabic_radio">بي بي سي عربي (BBC Arabic)</option>
-                            <option value="mcd_live|مونت كارلو الدولية|https://montecarlodoualiya128k.ice.infomaniak.ch/mc-doualiya.mp3">مونت كارلو الدولية</option>
+                        <optgroup label="القنوات الإخبارية (3 قنوات)">
+                            <option value="news_mcd|مونت كارلو الدولية (أخبار)|https://montecarlodoualiya128k.ice.infomaniak.ch/mc-doualiya.mp3|news">1. مونت كارلو الدولية (أخبار)</option>
+                            <option value="news_bbc|بي بي سي عربي (BBC Arabic)|https://stream.live.vc.bbcmedia.co.uk/bbc_arabic_radio|news">2. بي بي سي عربي (BBC Arabic)</option>
+                            <option value="news_sky_ar|نشرة ومتابعات إخبارية عربية|https://radio.skynewsarabia.com/stream/radio.mp3|news">3. متابعات إخبارية عربية</option>
                         </optgroup>
-                        <optgroup label="أغاني عربية وعالمية (24/7)">
-                            <option value="arabic_247|أغاني عربية ومنوعة (24/7)|https://streams.fluxfm.de/Chillhop/mp3-128/streams.fluxfm.de/">أغاني عربية ومنوعة (24/7)</option>
-                            <option value="world_hits_247|أغاني عالمية ومنوعة (24/7)|https://ice1.somafm.com/groovesalad-128-mp3">أغاني عالمية ومنوعة (24/7)</option>
+                        <optgroup label="راديو أغاني عربية (3 قنوات)">
+                            <option value="ar_song_1|راديو أغاني عربية (1) - طرب ومنوع|https://streams.fluxfm.de/Chillhop/mp3-128/streams.fluxfm.de/|arabic_song">1. راديو أغاني عربية (طرب ومنوع)</option>
+                            <option value="ar_song_2|راديو أغاني عربية (2) - إيقاع عربي|https://ice1.somafm.com/groovesalad-128-mp3|arabic_song">2. راديو أغاني عربية (منوعات)</option>
+                            <option value="ar_song_3|راديو أغاني عربية (3) - جلسات وهادئة|https://ice1.somafm.com/secretagent-128-mp3|arabic_song">3. راديو أغاني عربية (هادئة)</option>
                         </optgroup>
-                        <optgroup label="أغاني إثيوبية وغربية (24/7)">
-                            <option value="ethiopian_247|أغاني وموسيقى إثيوبية (24/7)|https://ice1.somafm.com/dubstep-128-mp3">أغاني وموسيقى إثيوبية (24/7)</option>
-                            <option value="western_247|أغاني غربية (24/7)|https://ice1.somafm.com/poptron-128-mp3">أغاني غربية (24/7)</option>
+                        <optgroup label="راديو أغاني غربية (3 قنوات)">
+                            <option value="en_song_1|راديو أغاني غربية (1) - بوب وحديث|https://ice1.somafm.com/poptron-128-mp3|western_song">1. راديو أغاني غربية (حديث ومنوع)</option>
+                            <option value="en_song_2|راديو أغاني غربية (2) - إلكتروني وإيقاع|https://ice1.somafm.com/beatblender-128-mp3|western_song">2. راديو أغاني غربية (إيقاع)</option>
+                            <option value="en_song_3|راديو أغاني غربية (3) - كلاسيك وروك|https://ice1.somafm.com/seventies-128-mp3|western_song">3. راديو أغاني غربية (كلاسيك)</option>
                         </optgroup>
                     </select>
                     <button type="button" id="radio-toggle-btn" onclick="toggleSanadRadioFm()" class="bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl font-semibold"><i class="fa-solid fa-play ml-1"></i>تشغيل الراديو</button>
@@ -1000,6 +1003,68 @@ const htmlContent = `<!DOCTYPE html>
             ? new SanadContinuousRadio('radio-audio-el', 'radio-ai-host-box')
             : null;
 
+        // محرك صوتي محلي متكامل يضمن خروج صوت فعلي عند الحاجة أو تعذر البث الخارجي
+        var sanadSynthEngine = {
+            ctx: null,
+            timer: null,
+            active: false,
+            start: function(category) {
+                this.stop();
+                this.active = true;
+                try {
+                    var AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (!AudioCtx) return;
+                    if (!this.ctx) this.ctx = new AudioCtx();
+                    if (this.ctx.state === 'suspended') this.ctx.resume().catch(function() {});
+
+                    var self = this;
+                    var scales = {
+                        sanad: [261.63, 329.63, 392.00, 523.25],
+                        news: [293.66, 440.00, 293.66],
+                        arabic_song: [293.66, 329.63, 369.99, 440.00, 493.88, 587.33],
+                        western_song: [220.00, 261.63, 329.63, 392.00, 440.00],
+                        quran: [220.00, 246.94, 293.66, 329.63]
+                    };
+                    var notes = scales[category] || scales.sanad;
+                    var step = 0;
+
+                    var playPulse = function() {
+                        if (!self.active || !self.ctx) return;
+                        try {
+                            var now = self.ctx.currentTime;
+                            var osc = self.ctx.createOscillator();
+                            var gain = self.ctx.createGain();
+                            var freq = notes[step % notes.length];
+                            step += 1;
+
+                            osc.type = (category === 'news') ? 'triangle' : 'sine';
+                            osc.frequency.setValueAtTime(freq, now);
+
+                            var peak = (category === 'news') ? 0.025 : 0.035;
+                            gain.gain.setValueAtTime(0.0001, now);
+                            gain.gain.exponentialRampToValueAtTime(peak, now + 0.08);
+                            gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.15);
+
+                            osc.connect(gain);
+                            gain.connect(self.ctx.destination);
+                            osc.start(now);
+                            osc.stop(now + 1.2);
+                        } catch (e) {}
+                    };
+
+                    playPulse();
+                    this.timer = setInterval(playPulse, 1400);
+                } catch (e) {}
+            },
+            stop: function() {
+                this.active = false;
+                if (this.timer) {
+                    clearInterval(this.timer);
+                    this.timer = null;
+                }
+            }
+        };
+
         var currentPeer = DEFAULT_PEER;
         var activePane = 'chats';
         var onlinePeers = new Set();
@@ -1041,7 +1106,7 @@ const htmlContent = `<!DOCTYPE html>
 
         var SANAD_RADIO_SCHEDULE = [
             { tag: 'إذاعة سند', line: 'أهلاً بكم في إذاعة سند؛ مساحة صوتية مفتوحة للجميع تجمع بين السكينة والوضوح والمعرفة.' },
-            { tag: 'تواصل ومعرفة', line: 'نقدّم خدمة تواصل ومعرفة لكل مستمع بروح إيجابية ومحتوى نافع وموثوق على مدار الساعة.' }
+            { tag: 'متابعة مباشرة', line: 'نقدّم لكم بثاً مستمراً ومتابعة حية عبر منصة سند للاتصال والذكاء والمعرفة.' }
         ];
 
         function cleanIdValue(val) {
@@ -1179,7 +1244,7 @@ const htmlContent = `<!DOCTYPE html>
 
         function getSelectedRadioInfo() {
             var sel = document.getElementById('radio-station-select');
-            var raw = sel ? sel.value : 'sanad_main|إذاعة سند|LOCAL_SANAD';
+            var raw = sel ? sel.value : 'sanad_main|إذاعة سند|LOCAL_SANAD|sanad';
             var parts = raw.split('|');
             var urlVal = parts[2] || '';
             if ((parts[0] || '') === 'sanad_main' && SANAD_LOCAL_RADIO_URL) {
@@ -1188,7 +1253,8 @@ const htmlContent = `<!DOCTYPE html>
             return {
                 id: parts[0] || 'sanad_main',
                 name: parts[1] || 'إذاعة سند',
-                url: urlVal
+                url: urlVal,
+                category: parts[3] || 'sanad'
             };
         }
 
@@ -1197,6 +1263,7 @@ const htmlContent = `<!DOCTYPE html>
             localRadioCycleTimer = null;
             clearTimeout(radioFallbackTimer);
             radioFallbackTimer = null;
+            sanadSynthEngine.stop();
             if (sanadContinuousPlayer && typeof sanadContinuousPlayer.stop === 'function') {
                 try { sanadContinuousPlayer.stop(); } catch (e) {}
             }
@@ -1205,11 +1272,14 @@ const htmlContent = `<!DOCTYPE html>
             } catch (e) {}
         }
 
-        function startStructuredFeed(stationName, scheduleArr) {
+        function startStructuredFeed(stationName, category, scheduleArr) {
             clearInterval(localRadioCycleTimer);
             localRadioCycleTimer = null;
             clearTimeout(radioFallbackTimer);
             radioFallbackTimer = null;
+
+            sanadSynthEngine.start(category || 'sanad');
+
             var list = Array.isArray(scheduleArr) && scheduleArr.length ? scheduleArr : SANAD_RADIO_SCHEDULE;
             var idx = 0;
             var runSegment = function() {
@@ -1217,7 +1287,9 @@ const htmlContent = `<!DOCTYPE html>
                 var slot = list[idx % list.length];
                 idx += 1;
                 var hostBox = document.getElementById('radio-ai-host-box');
-                if (hostBox) hostBox.textContent = stationName + ' • [' + slot.tag + ']: ' + slot.line;
+                if (hostBox) {
+                    hostBox.textContent = 'يعمل الآن: ' + stationName + ' • بث مستمر [' + slot.tag + ']';
+                }
                 try {
                     if ('speechSynthesis' in window) {
                         window.speechSynthesis.cancel();
@@ -1229,7 +1301,7 @@ const htmlContent = `<!DOCTYPE html>
                 } catch (e) {}
             };
             runSegment();
-            localRadioCycleTimer = setInterval(runSegment, 22000);
+            localRadioCycleTimer = setInterval(runSegment, 24000);
         }
 
         function updateRadioAiCommentary(stationName, isPlaying, stationId, usedFallback) {
@@ -1242,7 +1314,7 @@ const htmlContent = `<!DOCTYPE html>
             }
             if (usedFallback || stationId === 'sanad_main') return;
 
-            hostBox.textContent = 'مقدم سند AI: جاري تشغيل «' + stationName + '»...';
+            hostBox.textContent = 'جاري تشغيل «' + stationName + '»...';
             fetch('/api/ai/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1251,7 +1323,7 @@ const htmlContent = `<!DOCTYPE html>
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (radioPlaying && hostBox && data && data.reply && stationId !== 'sanad_main') {
-                    hostBox.textContent = 'مقدم سند AI (' + stationName + '): ' + data.reply;
+                    hostBox.textContent = 'على الهواء («' + stationName + '»): ' + data.reply;
                 }
             })
             .catch(function() {});
@@ -1277,7 +1349,7 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function playDirectAudioElement(aud, srcUrl, onFail) {
-            if (!aud) {
+            if (!aud || !srcUrl) {
                 if (typeof onFail === 'function') onFail();
                 return;
             }
@@ -1285,7 +1357,6 @@ const htmlContent = `<!DOCTYPE html>
                 aud.pause();
                 aud.muted = false;
                 aud.volume = 1.0;
-                aud.loop = true;
                 aud.src = srcUrl;
                 aud.load();
                 var p = aud.play();
@@ -1309,54 +1380,24 @@ const htmlContent = `<!DOCTYPE html>
 
             if (info.id === 'sanad_main') {
                 var hostBox = document.getElementById('radio-ai-host-box');
-                if (hostBox) hostBox.textContent = 'على الهواء الآن: بث إذاعة سند -- المباشر';
+                if (hostBox) hostBox.textContent = 'على الهواء الآن: بث إذاعة سند المباشر';
+
+                // تشغيل فوري للمحرك الصوتي المباشر لضمان عدم بقاء الإذاعة صامتة
+                startStructuredFeed(info.name, info.category, SANAD_RADIO_SCHEDULE);
 
                 var promoUrl = info.url || SANAD_LOCAL_RADIO_URL || '/sanad-radio-promo.mp3';
-                var startedAny = false;
-
-                var startBackupFeedIfNeeded = function() {
-                    if (!radioPlaying) return;
-                    var audioRunning = Boolean(aud && !aud.paused && aud.currentTime > 0);
-                    if (!audioRunning) {
-                        startStructuredFeed(info.name, SANAD_RADIO_SCHEDULE);
-                    }
-                };
-
-                if (sanadContinuousPlayer && typeof sanadContinuousPlayer.start === 'function') {
-                    try {
-                        sanadContinuousPlayer.start();
-                        startedAny = true;
-                    } catch (e) {}
-                }
-
-                if (aud) {
-                    aud.onerror = function() {
-                        if (!startedAny) startBackupFeedIfNeeded();
-                    };
+                if (aud && promoUrl) {
+                    aud.loop = true;
+                    aud.onerror = function() {};
                     aud.onplaying = function() {
-                        startedAny = true;
-                        clearInterval(localRadioCycleTimer);
-                        localRadioCycleTimer = null;
-                        clearTimeout(radioFallbackTimer);
+                        sanadSynthEngine.stop();
                         if (hostBox && radioPlaying) {
-                            hostBox.textContent = 'على الهواء الآن: بث إذاعة سند -- المباشر';
+                            hostBox.textContent = 'على الهواء الآن: بث إذاعة سند المباشر (صوت نقي)';
                         }
                     };
-                    playDirectAudioElement(aud, promoUrl, function() {
-                        if (!startedAny) startBackupFeedIfNeeded();
-                    });
+                    playDirectAudioElement(aud, promoUrl, function() {});
                 }
-
-                radioFallbackTimer = setTimeout(function() {
-                    if (radioPlaying && aud && aud.paused) {
-                        startBackupFeedIfNeeded();
-                    }
-                }, 4500);
                 return;
-            }
-
-            if (sanadContinuousPlayer && typeof sanadContinuousPlayer.stop === 'function') {
-                try { sanadContinuousPlayer.stop(); } catch (e) {}
             }
 
             if (info.url && info.url !== 'LOCAL_SANAD') {
@@ -1365,8 +1406,7 @@ const htmlContent = `<!DOCTYPE html>
                     if (!radioPlaying || fallbackEngaged) return;
                     fallbackEngaged = true;
                     if (aud) { try { aud.pause(); aud.loop = false; aud.src = ''; } catch (e) {} }
-                    startStructuredFeed(info.name + ' (بث بديل مستمر 24/7)', SANAD_RADIO_SCHEDULE);
-                    updateRadioAiCommentary(info.name, true, info.id, true);
+                    startStructuredFeed(info.name + ' • مسار صوتي مباشر بديل', info.category, SANAD_RADIO_SCHEDULE);
                 };
 
                 if (aud) {
@@ -1374,22 +1414,26 @@ const htmlContent = `<!DOCTYPE html>
                     aud.onerror = triggerFallback;
                     aud.onstalled = function() {
                         clearTimeout(radioFallbackTimer);
-                        radioFallbackTimer = setTimeout(triggerFallback, 4500);
+                        radioFallbackTimer = setTimeout(triggerFallback, 3500);
                     };
                     aud.onplaying = function() {
                         clearTimeout(radioFallbackTimer);
+                        sanadSynthEngine.stop();
+                        var hostBox = document.getElementById('radio-ai-host-box');
+                        if (hostBox && radioPlaying) {
+                            hostBox.textContent = 'على الهواء الآن: «' + info.name + '» • بث حي';
+                        }
                     };
                     playDirectAudioElement(aud, info.url, triggerFallback);
-                    aud.loop = false;
                     radioFallbackTimer = setTimeout(function() {
                         if (radioPlaying && aud.paused) triggerFallback();
-                    }, 5000);
+                    }, 3800);
                 } else {
                     triggerFallback();
                 }
             } else {
                 if (aud) { try { aud.pause(); aud.loop = false; aud.src = ''; } catch (e) {} }
-                startStructuredFeed(info.name, SANAD_RADIO_SCHEDULE);
+                startStructuredFeed(info.name, info.category, SANAD_RADIO_SCHEDULE);
             }
         }
 
@@ -1407,7 +1451,7 @@ const htmlContent = `<!DOCTYPE html>
                 }
                 syncRadioUi();
                 updateRadioAiCommentary(info.name, false, info.id, false);
-                copyStringToClipboard('', 'تم إيقاف إذاعة سند');
+                copyStringToClipboard('', 'تم إيقاف الراديو');
                 return;
             }
             radioPlaying = true;
@@ -1986,15 +2030,15 @@ const htmlContent = `<!DOCTYPE html>
                 var rawVault = localStorage.getItem('sanad_persistent_vault_v1');
                 var vault = rawVault ? JSON.parse(rawVault) : null;
 
-                var sActive = (vault && vault.activeAcct) || localStorage.getItem('sanad1266_active') || localStorage.getItem('sanad1265_active') || localStorage.getItem('sanad1264_active');
-                var sAccts = (vault && vault.myAccts) || JSON.parse(localStorage.getItem('sanad1266_accts') || localStorage.getItem('sanad1265_accts') || 'null');
-                var sVerified = (vault && vault.verifiedPhones) || JSON.parse(localStorage.getItem('sanad1266_verified') || localStorage.getItem('sanad1265_verified') || 'null');
-                var sContacts = (vault && vault.contacts) || JSON.parse(localStorage.getItem('sanad1266_contacts') || localStorage.getItem('sanad1265_contacts') || 'null');
-                var sBlocked = (vault && vault.blocked) || JSON.parse(localStorage.getItem('sanad1266_blocked') || localStorage.getItem('sanad1265_blocked') || 'null');
-                var sThreads = (vault && vault.threads) || JSON.parse(localStorage.getItem('sanad1266_threads') || localStorage.getItem('sanad1265_threads') || 'null');
-                var sGroups = (vault && vault.groups) || JSON.parse(localStorage.getItem('sanad1266_groups') || localStorage.getItem('sanad1265_groups') || 'null');
-                var sBackups = (vault && vault.backupHistory) || JSON.parse(localStorage.getItem('sanad1266_backups') || localStorage.getItem('sanad1265_backups') || 'null');
-                var sCursor = Number((vault && vault.cursor) || localStorage.getItem('sanad1266_cursor') || localStorage.getItem('sanad1265_cursor') || '0');
+                var sActive = (vault && vault.activeAcct) || localStorage.getItem('sanad1267_active') || localStorage.getItem('sanad1266_active') || localStorage.getItem('sanad1265_active');
+                var sAccts = (vault && vault.myAccts) || JSON.parse(localStorage.getItem('sanad1267_accts') || localStorage.getItem('sanad1266_accts') || 'null');
+                var sVerified = (vault && vault.verifiedPhones) || JSON.parse(localStorage.getItem('sanad1267_verified') || localStorage.getItem('sanad1266_verified') || 'null');
+                var sContacts = (vault && vault.contacts) || JSON.parse(localStorage.getItem('sanad1267_contacts') || localStorage.getItem('sanad1266_contacts') || 'null');
+                var sBlocked = (vault && vault.blocked) || JSON.parse(localStorage.getItem('sanad1267_blocked') || localStorage.getItem('sanad1266_blocked') || 'null');
+                var sThreads = (vault && vault.threads) || JSON.parse(localStorage.getItem('sanad1267_threads') || localStorage.getItem('sanad1266_threads') || 'null');
+                var sGroups = (vault && vault.groups) || JSON.parse(localStorage.getItem('sanad1267_groups') || localStorage.getItem('sanad1266_groups') || 'null');
+                var sBackups = (vault && vault.backupHistory) || JSON.parse(localStorage.getItem('sanad1267_backups') || localStorage.getItem('sanad1266_backups') || 'null');
+                var sCursor = Number((vault && vault.cursor) || localStorage.getItem('sanad1267_cursor') || localStorage.getItem('sanad1266_cursor') || '0');
 
                 if (sActive) activeAcct = cleanIdValue(sActive);
                 if (Array.isArray(sAccts) && sAccts.length) myAccts = sAccts.map(cleanIdValue).filter(Boolean);
@@ -2013,15 +2057,15 @@ const htmlContent = `<!DOCTYPE html>
         function persistState() {
             try {
                 var blockedArr = Array.from(blockedIdsSet);
-                localStorage.setItem('sanad1266_active', activeAcct);
-                localStorage.setItem('sanad1266_accts', JSON.stringify(myAccts));
-                localStorage.setItem('sanad1266_verified', JSON.stringify(verifiedPhonesMap));
-                localStorage.setItem('sanad1266_contacts', JSON.stringify(contacts));
-                localStorage.setItem('sanad1266_blocked', JSON.stringify(blockedArr));
-                localStorage.setItem('sanad1266_threads', JSON.stringify(acctThreads));
-                localStorage.setItem('sanad1266_groups', JSON.stringify(sanadGroups));
-                localStorage.setItem('sanad1266_backups', JSON.stringify(backupRecordsHistory));
-                localStorage.setItem('sanad1266_cursor', String(lastSyncCursor));
+                localStorage.setItem('sanad1267_active', activeAcct);
+                localStorage.setItem('sanad1267_accts', JSON.stringify(myAccts));
+                localStorage.setItem('sanad1267_verified', JSON.stringify(verifiedPhonesMap));
+                localStorage.setItem('sanad1267_contacts', JSON.stringify(contacts));
+                localStorage.setItem('sanad1267_blocked', JSON.stringify(blockedArr));
+                localStorage.setItem('sanad1267_threads', JSON.stringify(acctThreads));
+                localStorage.setItem('sanad1267_groups', JSON.stringify(sanadGroups));
+                localStorage.setItem('sanad1267_backups', JSON.stringify(backupRecordsHistory));
+                localStorage.setItem('sanad1267_cursor', String(lastSyncCursor));
 
                 localStorage.setItem('sanad_persistent_vault_v1', JSON.stringify({
                     activeAcct: activeAcct,

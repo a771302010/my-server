@@ -3,21 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>سند AI -- اتصال ذكي وأقمار صناعية</title>
+  <title>سند AI v12.6.9 -- اتصال ذكي وأقمار صناعية</title>
 
   <meta name="theme-color" content="#083847" />
   <meta name="msapplication-TileColor" content="#083847" />
-  <meta name="msapplication-TileImage" content="./icons/icon-192.png?v=12" />
+  <meta name="msapplication-TileImage" content="./icons/icon-192.png?v=12.6.9" />
 
-  <link rel="icon" href="./icons/sanad-icon.svg?v=12" type="image/svg+xml" />
-  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png?v=12" />
-  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png?v=12" />
-  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png?v=12" />
-  <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=12" />
+  <link rel="icon" href="./icons/sanad-icon.svg?v=12.6.9" type="image/svg+xml" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png?v=12.6.9" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png?v=12.6.9" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png?v=12.6.9" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=12.6.9" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="سند AI" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="manifest" href="./manifest.json?v=12" />
+  <link rel="manifest" href="./manifest.json?v=12.6.9" />
 
   <style>
     :root {
@@ -751,6 +752,49 @@
       gap: 10px;
     }
 
+    .radio-box {
+      background: rgba(8, 28, 38, 0.92);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 14px;
+      padding: 11px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .radio-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .radio-badge {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(100, 116, 139, 0.22);
+      color: #cbd5e1;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
+    .radio-badge.live {
+      background: rgba(16, 185, 129, 0.18);
+      color: #6ee7b7;
+      border-color: rgba(52, 211, 153, 0.55);
+    }
+
+    .radio-status-note {
+      font-size: 12px;
+      color: #bae6fd;
+      background: rgba(5, 19, 26, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.18);
+      border-radius: 10px;
+      padding: 8px 10px;
+      line-height: 1.5;
+    }
+
     .menu-stack {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -837,6 +881,16 @@
     .btn-primary {
       background: #0ea5e9;
       color: #03151e;
+    }
+
+    .btn-success {
+      background: #10b981;
+      color: #031812;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: #ffffff;
     }
 
     .btn-secondary {
@@ -967,7 +1021,7 @@
       <header class="top-bar">
         <div class="brand-title-wrap">
           <div class="brand-badge" id="main-brand-badge">
-            <img src="./icons/sanad-icon.svg?v=12" alt="سند AI" onerror="this.onerror=null;this.src='./icons/icon-192.png?v=12';this.onerror=function(){this.closest('.brand-badge').classList.add('missing-img');};" />
+            <img src="./icons/sanad-icon.svg?v=12.6.9" alt="سند AI" onerror="this.onerror=null;this.src='./icons/icon-192.png?v=12.6.9';this.onerror=function(){this.closest('.brand-badge').classList.add('missing-img');};" />
             <span class="fallback-s">س</span>
           </div>
           <div>
@@ -1003,7 +1057,7 @@
       <header class="top-bar">
         <div class="brand-title-wrap">
           <div class="brand-badge">
-            <img src="./icons/sanad-icon.svg?v=12" alt="سند AI" onerror="this.onerror=null;this.src='./icons/icon-192.png?v=12';this.onerror=function(){this.closest('.brand-badge').classList.add('missing-img');};" />
+            <img src="./icons/sanad-icon.svg?v=12.6.9" alt="سند AI" onerror="this.onerror=null;this.src='./icons/icon-192.png?v=12.6.9';this.onerror=function(){this.closest('.brand-badge').classList.add('missing-img');};" />
             <span class="fallback-s">س</span>
           </div>
           <div>
@@ -1028,12 +1082,12 @@
       </div>
     </section>
 
-    <!-- 3. شاشة مساعد سند AI الذكي -->
+    <!-- 3. شاشة مساعد سند AI الذكي + إذاعة سند -->
     <section class="screen" data-screen="ai">
       <header class="top-bar">
         <div class="brand-title-wrap">
           <div class="brand-badge">
-            <img src="./icons/sanad-icon.svg?v=12" alt="مساعد سند AI" onerror="this.onerror=null;this.src='./icons/icon-192.png?v=12';this.onerror=function(){this.closest('.brand-badge').classList.add('missing-img');};" />
+            <img src="./icons/sanad-icon.svg?v=12.6.9" alt="مساعد سند AI" onerror="this.onerror=null;this.src='./icons/icon-192.png?v=12.6.9';this.onerror=function(){this.closest('.brand-badge').classList.add('missing-img');};" />
             <span class="fallback-s">س</span>
           </div>
           <div>
@@ -1041,12 +1095,36 @@
               <span>مساعد سند AI</span>
               <span class="presence-lamp" title="نشط"></span>
             </h1>
-            <div class="brand-tag">مساعدة ودية • تلخيص • صياغة مريحة • ترجمة فورية</div>
+            <div class="brand-tag">مساعدة ودية • إذاعة سند • تلخيص • ترجمة فورية</div>
           </div>
         </div>
       </header>
+
       <div class="messages-stream" id="ai-thread-box"></div>
-      <div class="panel-card" style="border-radius:0;border-left:0;border-right:0;padding:8px 12px;">
+
+      <div class="panel-card" style="border-radius:0;border-left:0;border-right:0;padding:8px 12px;gap:8px;">
+        <div class="radio-box" id="sanad-radio-widget">
+          <div class="radio-top">
+            <strong style="font-size:13px;color:#fcd34d;">📻 إذاعة سند والبث المباشر</strong>
+            <span class="radio-badge" id="radio-state-badge">متوقف</span>
+          </div>
+          <div class="flex-row">
+            <select id="radio-station-select" style="flex:1;min-width:170px;padding:8px 10px;font-size:12.5px;">
+              <option value="sanad_main|إذاعة سند|/sanad-radio-promo.mp3|sanad">إذاعة سند</option>
+              <option value="quran_sa|القرآن الكريم -- السعودية|https://stream.radiojar.com/0tpy1h0kxtzuv|quran">القرآن الكريم -- السعودية</option>
+              <option value="quran_cairo|القرآن الكريم -- القاهرة|https://stream.radiojar.com/8s5u5tpdtwzuv|quran">القرآن الكريم -- القاهرة</option>
+              <option value="quran_tarateel|تلاوات مختارة وهادئة|https://qurango.net/radio/tarateel|quran">تلاوات مختارة وهادئة</option>
+              <option value="news_mcd|مونت كارلو الدولية (أخبار)|https://montecarlodoualiya128k.ice.infomaniak.ch/mc-doualiya.mp3|news">مونت كارلو الدولية (أخبار)</option>
+              <option value="news_bbc|بي بي سي عربي (BBC Arabic)|https://stream.live.vc.bbcmedia.co.uk/bbc_arabic_radio|news">بي بي سي عربي (BBC Arabic)</option>
+              <option value="news_sky_ar|متابعات إخبارية عربية|https://radio.skynewsarabia.com/stream/radio.mp3|news">متابعات إخبارية عربية</option>
+            </select>
+            <button type="button" class="action-btn btn-success" id="radio-toggle-btn" style="padding:8px 13px;font-size:12.5px;">▶ تشغيل الراديو</button>
+          </div>
+          <div class="radio-status-note" id="radio-ai-host-box">
+            الراديو في وضع الإيقاف. اضغط «تشغيل الراديو» لبدء البث من البداية والتنقل التلقائي بين مقاطع إذاعة سند.
+          </div>
+        </div>
+
         <div class="flex-row">
           <button type="button" class="action-btn btn-secondary" id="ai-sum-btn" style="padding:6px 11px;font-size:12px;">📝 تلخيص</button>
           <button type="button" class="action-btn btn-secondary" id="ai-draft-btn" style="padding:6px 11px;font-size:12px;">✍️ صياغة لطيفة</button>
@@ -1054,6 +1132,7 @@
           <button type="button" class="action-btn btn-secondary" id="ai-tag-btn" style="padding:6px 11px;font-size:12px;">🏷️ تصنيف</button>
         </div>
       </div>
+
       <div class="composer-bar" style="padding:9px 12px;background:var(--bg-card);border-top:1px solid var(--border);">
         <textarea class="composer-input" id="ai-input" rows="3" placeholder="اكتب ما تحب بكل راحة، وأنا أساعدك بلطف..."></textarea>
         <button type="button" class="send-fab" id="ai-send-btn">➤</button>
@@ -1065,7 +1144,7 @@
       <header class="top-bar">
         <div class="brand-title-wrap">
           <div class="brand-badge">
-            <img src="./icons/sanad-icon.svg?v=12" alt="سند AI" onerror="this.onerror=null;this.src='./icons/icon-192.png?v=12';this.onerror=function(){this.closest('.brand-badge').classList.add('missing-img');};" />
+            <img src="./icons/sanad-icon.svg?v=12.6.9" alt="سند AI" onerror="this.onerror=null;this.src='./icons/icon-192.png?v=12.6.9';this.onerror=function(){this.closest('.brand-badge').classList.add('missing-img');};" />
             <span class="fallback-s">س</span>
           </div>
           <div>
@@ -1167,7 +1246,7 @@
             <button type="button" class="action-btn btn-secondary" id="toggle-notif-btn">تفعيل الإشعارات</button>
           </div>
           <div class="flex-row" style="justify-content:space-between;">
-            <span class="sub-note" id="update-status-note">الإصدار v12.0.0 • البيانات محمية</span>
+            <span class="sub-note" id="update-status-note">الإصدار v12.6.9 • البيانات محمية</span>
             <button type="button" class="action-btn btn-primary" id="check-update-btn">تحديث آمن</button>
           </div>
         </div>
@@ -1277,11 +1356,14 @@
   </div>
 
   <div class="notice-pill" id="toast"></div>
+  <audio id="sanad-radio-player" preload="none" playsinline style="display:none;"></audio>
 
-  <script src="./sanad-sync.js"></script>
-  <script src="./sanad-audio-media.js"></script>
+  <script src="./sanad-radio-playlist.js?v=12.6.9"></script>
+  <script src="./sanad-sync.js?v=12.6.9"></script>
+  <script src="./sanad-audio-media.js?v=12.6.9"></script>
   <script>
     (() => {
+      const APP_VERSION = '12.6.9';
       const PRIMARY_KEY = 'sanad_ai_persistent_store_v1';
       const LEGACY_KEYS = ['sanad_ai_v9_global_wa_v4', 'sanad_ai_v9_global_wa_v3'];
       const SUPPORT_CODE = '80000008';
@@ -1389,6 +1471,187 @@
         toast._t = setTimeout(() => el.classList.remove('show'), 2300);
       }
 
+      // ===== مشغّل إذاعة سند المستقر =====
+      let radioIsPlaying = false;
+      let radioSessionCounter = 0;
+      let radioFallbackTimer = null;
+      const radioAudioEl = document.getElementById('sanad-radio-player');
+
+      function getSanadSequenceTracks() {
+        if (window.SANAD_RADIO_PLAYLIST && Array.isArray(window.SANAD_RADIO_PLAYLIST.tracks) && window.SANAD_RADIO_PLAYLIST.tracks.length) {
+          return window.SANAD_RADIO_PLAYLIST.tracks.filter((t) => t && t.url);
+        }
+        return [
+          { id: 'promo', title: 'برومو إذاعة سند', url: '/sanad-radio-promo.mp3' },
+          { id: 'seg2', title: 'المقطع الثاني -- إذاعة سند', url: '/sanad-seg-2.mp3' }
+        ];
+      }
+
+      function setRadioStatusText(txt) {
+        const note = document.getElementById('radio-ai-host-box');
+        if (note) note.textContent = txt;
+      }
+
+      function syncRadioButtonsUi() {
+        const badge = document.getElementById('radio-state-badge');
+        const btn = document.getElementById('radio-toggle-btn');
+        if (badge) {
+          badge.textContent = radioIsPlaying ? 'يعمل الآن' : 'متوقف';
+          badge.classList.toggle('live', radioIsPlaying);
+        }
+        if (btn) {
+          btn.textContent = radioIsPlaying ? '⏹ إيقاف الراديو' : '▶ تشغيل الراديو';
+          btn.classList.toggle('btn-success', !radioIsPlaying);
+          btn.classList.toggle('btn-danger', radioIsPlaying);
+        }
+      }
+
+      function stopRadioPlayback(silent = false) {
+        radioSessionCounter += 1;
+        radioIsPlaying = false;
+        clearTimeout(radioFallbackTimer);
+        radioFallbackTimer = null;
+        if (radioAudioEl) {
+          radioAudioEl.onplaying = null;
+          radioAudioEl.onended = null;
+          radioAudioEl.onerror = null;
+          try {
+            radioAudioEl.pause();
+            radioAudioEl.loop = false;
+            radioAudioEl.removeAttribute('src');
+            radioAudioEl.load();
+          } catch {}
+        }
+        syncRadioButtonsUi();
+        if (!silent) {
+          setRadioStatusText('الراديو في وضع الإيقاف ولن يستهلك أي بيانات حتى تضغط «تشغيل الراديو».');
+        }
+      }
+
+      function playSanadTracksLoop(tracks, index, sessionId) {
+        if (!radioIsPlaying || sessionId !== radioSessionCounter || !radioAudioEl) return;
+        const safeTracks = Array.isArray(tracks) && tracks.length ? tracks : [{ id: 'promo', title: 'إذاعة سند', url: '/sanad-radio-promo.mp3' }];
+        const idx = ((index % safeTracks.length) + safeTracks.length) % safeTracks.length;
+        const track = safeTracks[idx];
+        const title = `إذاعة سند (${idx + 1}/${safeTracks.length}) • ${track.title || 'بث سند'}`;
+
+        clearTimeout(radioFallbackTimer);
+        setRadioStatusText(`جاري تشغيل ${title}...`);
+
+        radioAudioEl.loop = false;
+        radioAudioEl.onplaying = () => {
+          if (!radioIsPlaying || sessionId !== radioSessionCounter) return;
+          setRadioStatusText(`على الهواء الآن: ${title}`);
+        };
+        radioAudioEl.onended = () => {
+          if (!radioIsPlaying || sessionId !== radioSessionCounter) return;
+          playSanadTracksLoop(safeTracks, idx + 1, sessionId);
+        };
+        radioAudioEl.onerror = () => {
+          if (!radioIsPlaying || sessionId !== radioSessionCounter) return;
+          if (safeTracks.length > 1 && idx + 1 < safeTracks.length) {
+            playSanadTracksLoop(safeTracks, idx + 1, sessionId);
+          } else {
+            setRadioStatusText('تعذر تشغيل ملفات الإذاعة الصوتية من السيرفر؛ تأكد من رفع sanad-radio-promo.mp3 و sanad-seg-2.mp3.');
+          }
+        };
+
+        try {
+          radioAudioEl.pause();
+          radioAudioEl.muted = false;
+          radioAudioEl.volume = 1.0;
+          radioAudioEl.src = track.url;
+          radioAudioEl.load();
+          const playPromise = radioAudioEl.play();
+          if (playPromise && typeof playPromise.catch === 'function') {
+            playPromise.catch(() => {
+              if (!radioIsPlaying || sessionId !== radioSessionCounter) return;
+              if (safeTracks.length > 1 && idx + 1 < safeTracks.length) {
+                playSanadTracksLoop(safeTracks, idx + 1, sessionId);
+              } else {
+                setRadioStatusText('اضغط مرة أخرى على «تشغيل الراديو» لتأكيد الإذن الصوتي في المتصفح.');
+              }
+            });
+          }
+        } catch {
+          setRadioStatusText('تعذر بدء تشغيل الراديو في هذا المتصفح.');
+        }
+      }
+
+      function startRadioStation() {
+        const sel = document.getElementById('radio-station-select');
+        const rawVal = sel ? sel.value : 'sanad_main|إذاعة سند|/sanad-radio-promo.mp3|sanad';
+        const parts = rawVal.split('|');
+        const stationId = parts[0] || 'sanad_main';
+        const stationName = parts[1] || 'إذاعة سند';
+        const stationUrl = parts[2] || '/sanad-radio-promo.mp3';
+
+        stopRadioPlayback(true);
+        radioIsPlaying = true;
+        const sessionId = radioSessionCounter;
+        syncRadioButtonsUi();
+
+        if (stationId === 'sanad_main') {
+          playSanadTracksLoop(getSanadSequenceTracks(), 0, sessionId);
+          return;
+        }
+
+        if (!radioAudioEl || !stationUrl) return;
+        setRadioStatusText(`جاري الاتصال بالقناة: «${stationName}»...`);
+        radioFallbackTimer = setTimeout(() => {
+          if (!radioIsPlaying || sessionId !== radioSessionCounter) return;
+          if (radioAudioEl.paused) {
+            setRadioStatusText(`«${stationName}» يستغرق وقتاً أو غير متاح حالياً؛ جرّب قناة أخرى أو «إذاعة سند».`);
+          }
+        }, 7000);
+
+        radioAudioEl.loop = false;
+        radioAudioEl.onplaying = () => {
+          clearTimeout(radioFallbackTimer);
+          if (!radioIsPlaying || sessionId !== radioSessionCounter) return;
+          setRadioStatusText(`على الهواء الآن: «${stationName}»`);
+        };
+        radioAudioEl.onerror = () => {
+          clearTimeout(radioFallbackTimer);
+          if (!radioIsPlaying || sessionId !== radioSessionCounter) return;
+          setRadioStatusText(`تعذر تشغيل «${stationName}» من المصدر الخارجي؛ اختر قناة أخرى من القائمة.`);
+        };
+
+        try {
+          radioAudioEl.pause();
+          radioAudioEl.muted = false;
+          radioAudioEl.volume = 1.0;
+          radioAudioEl.src = stationUrl;
+          radioAudioEl.load();
+          const p = radioAudioEl.play();
+          if (p && typeof p.catch === 'function') {
+            p.catch(() => {
+              clearTimeout(radioFallbackTimer);
+              if (!radioIsPlaying || sessionId !== radioSessionCounter) return;
+              setRadioStatusText(`تعذر تشغيل «${stationName}» حالياً؛ جرّب قناة أخرى من القائمة.`);
+            });
+          }
+        } catch {
+          setRadioStatusText(`تعذر تشغيل «${stationName}» حالياً.`);
+        }
+      }
+
+      document.getElementById('radio-toggle-btn')?.addEventListener('click', () => {
+        if (radioIsPlaying) {
+          stopRadioPlayback(false);
+          toast('تم إيقاف الراديو');
+        } else {
+          startRadioStation();
+          toast('جاري تشغيل الراديو');
+        }
+      });
+
+      document.getElementById('radio-station-select')?.addEventListener('change', () => {
+        if (radioIsPlaying) {
+          startRadioStation();
+        }
+      });
+
       function isBrowserOnline() {
         return typeof navigator === 'undefined' ? true : navigator.onLine !== false;
       }
@@ -1449,8 +1712,8 @@
           if ('Notification' in window && Notification.permission === 'granted') {
             new Notification(title, {
               body,
-              icon: './icons/icon-192.png?v=12',
-              badge: './icons/icon-192.png?v=12',
+              icon: './icons/icon-192.png?v=12.6.9',
+              badge: './icons/icon-192.png?v=12.6.9',
               tag: 'sanad-ai-alert'
             });
           }
@@ -1747,6 +2010,7 @@
       }
 
       async function startThreadCall(isVideo, explicitTarget) {
+        stopRadioPlayback(false);
         const target = (explicitTarget || db.activeThreadId || SUPPORT_CODE).trim();
         const name = resolveName(target);
         const modeLabel = isVideo ? 'مكالمة فيديو' : 'اتصال صوتي';
@@ -1867,6 +2131,7 @@
           mediaRecorder.stop();
           return;
         }
+        stopRadioPlayback(false);
         try {
           if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -2358,15 +2623,15 @@
             const regs = await navigator.serviceWorker.getRegistrations();
             await Promise.all(regs.map((r) => r.update()));
           }
-          const res = await fetch('./api/health', { cache: 'no-store' });
+          const res = await fetch('./healthz?t=' + Date.now(), { cache: 'no-store' });
           if (res.ok) {
             const data = await res.json();
-            if (note) note.textContent = `محدث • الإصدار v${data.version || '12.0.0'} • كل بياناتك محفوظة`;
+            if (note) note.textContent = `محدث • الإصدار v${data.version || APP_VERSION} • كل بياناتك محفوظة`;
             toast('تم التحديث بأمان دون مسح أي بيانات');
             return;
           }
         } catch {}
-        if (note) note.textContent = 'الإصدار v12.0.0 • البيانات محمية';
+        if (note) note.textContent = `الإصدار v${APP_VERSION} • البيانات محمية`;
         toast('تم التحقق بأمان');
       });
 
@@ -2391,7 +2656,6 @@
         if (b) openThread(b.getAttribute('data-open-thread'));
       });
 
-      // استقبال أحداث المزامنة الحية من sanad-sync.js إن وُجد
       window.addEventListener('sanad:presence', (ev) => {
         const detail = ev.detail || {};
         if (!detail.peerId) return;
@@ -2436,11 +2700,14 @@
 
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js?v=12').catch(() => {});
+          navigator.serviceWorker.register('./sw.js?v=12.6.9').then((reg) => {
+            if (reg && reg.update) reg.update().catch(() => {});
+          }).catch(() => {});
         });
       }
 
       gen8();
+      syncRadioButtonsUi();
       refreshPresenceUi();
       renderChatsOverview();
       renderCalls();

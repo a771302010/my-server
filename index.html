@@ -878,6 +878,11 @@
       gap: 6px;
     }
 
+    .action-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     .btn-primary {
       background: #0ea5e9;
       color: #03151e;
@@ -1110,7 +1115,7 @@
           </div>
           <div class="flex-row">
             <select id="radio-station-select" style="flex:1;min-width:170px;padding:8px 10px;font-size:12.5px;">
-              <option value="sanad_main|إذاعة سند|/sanad-radio-promo.mp3|sanad">إذاعة سند</option>
+              <option value="sanad_main|إذاعة سند|./sanad-radio-promo.mp3|sanad">إذاعة سند</option>
               <option value="quran_sa|القرآن الكريم -- السعودية|https://stream.radiojar.com/0tpy1h0kxtzuv|quran">القرآن الكريم -- السعودية</option>
               <option value="quran_cairo|القرآن الكريم -- القاهرة|https://stream.radiojar.com/8s5u5tpdtwzuv|quran">القرآن الكريم -- القاهرة</option>
               <option value="quran_tarateel|تلاوات مختارة وهادئة|https://qurango.net/radio/tarateel|quran">تلاوات مختارة وهادئة</option>
@@ -1356,7 +1361,7 @@
   </div>
 
   <div class="notice-pill" id="toast"></div>
-  <audio id="sanad-radio-player" preload="none" playsinline style="display:none;"></audio>
+  <audio id="sanad-radio-player" preload="auto" playsinline style="display:none;"></audio>
 
   <script src="./sanad-radio-playlist.js?v=12.6.9"></script>
   <script src="./sanad-sync.js?v=12.6.9"></script>
@@ -1468,7 +1473,7 @@
         el.textContent = msg;
         el.classList.add('show');
         clearTimeout(toast._t);
-        toast._t = setTimeout(() => el.classList.remove('show'), 2300);
+        toast._t = setTimeout(() => el.classList.remove('show'), 2500);
       }
 
       // ===== مشغّل إذاعة سند المستقر =====
@@ -1477,13 +1482,21 @@
       let radioFallbackTimer = null;
       const radioAudioEl = document.getElementById('sanad-radio-player');
 
+      function normalizeTrackUrl(url) {
+        if (!url) return '';
+        if (url.startsWith('/sanad-')) return '.' + url;
+        return url;
+      }
+
       function getSanadSequenceTracks() {
         if (window.SANAD_RADIO_PLAYLIST && Array.isArray(window.SANAD_RADIO_PLAYLIST.tracks) && window.SANAD_RADIO_PLAYLIST.tracks.length) {
-          return window.SANAD_RADIO_PLAYLIST.tracks.filter((t) => t && t.url);
+          return window.SANAD_RADIO_PLAYLIST.tracks
+            .filter((t) => t && t.url)
+            .map((t) => Object.assign({}, t, { url: normalizeTrackUrl(t.url) }));
         }
         return [
-          { id: 'promo', title: 'برومو إذاعة سند', url: '/sanad-radio-promo.mp3' },
-          { id: 'seg2', title: 'المقطع الثاني -- إذاعة سند', url: '/sanad-seg-2.mp3' }
+          { id: 'promo', title: 'برومو إذاعة سند', url: './sanad-radio-promo.mp3' },
+          { id: 'seg2', title: 'المقطع الثاني -- إذاعة سند', url: './sanad-seg-2.mp3' }
         ];
       }
 
@@ -1530,29 +1543,46 @@
 
       function playSanadTracksLoop(tracks, index, sessionId) {
         if (!radioIsPlaying || sessionId !== radioSessionCounter || !radioAudioEl) return;
-        const safeTracks = Array.isArray(tracks) && tracks.length ? tracks : [{ id: 'promo', title: 'إذاعة سند', url: '/sanad-radio-promo.mp3' }];
+        const safeTracks = Array.isArray(tracks) && tracks.length
+          ? tracks
+          : [{ id: 'promo', title: 'إذاعة سند', url: './sanad-radio-promo.mp3' }];
         const idx = ((index % safeTracks.length) + safeTracks.length) % safeTracks.length;
         const track = safeTracks[idx];
+        const trackUrl = normalizeTrackUrl(track.url);
         const title = `إذاعة سند (${idx + 1}/${safeTracks.length}) • ${track.title || 'بث سند'}`;
 
         clearTimeout(radioFallbackTimer);
         setRadioStatusText(`جاري تشغيل ${title}...`);
 
-        radioAudioEl.loop = false;
-        radioAudioEl.onplaying = () => {
-          if (!radioIsPlaying || sessionId !== radioSessionCounter) return;
-          setRadioStatusText(`على الهواء الآن: ${title}`);
-        };
-        radioAudioEl.onended = () => {
-          if (!radioIsPlaying || sessionId !== radioSessionCounter) return;
-          playSanadTracksLoop(safeTracks, idx + 1, sessionId);
-        };
-        radioAudioEl.onerror = () => {
+        radioFallbackTimer = setTimeout(() => {
           if (!radioIsPlaying || sessionId !== radioSessionCounter) return;
           if (safeTracks.length > 1 && idx + 1 < safeTracks.length) {
             playSanadTracksLoop(safeTracks, idx + 1, sessionId);
           } else {
-            setRadioStatusText('تعذر تشغيل ملفات الإذاعة الصوتية من السيرفر؛ تأكد من رفع sanad-radio-promo.mp3 و sanad-seg-2.mp3.');
+            setRadioStatusText('استغرق تشغيل المقطع وقتاً أطول من المعتاد؛ تأكد من توفر ملفات الصوت على الخادم.');
+          }
+        }, 8000);
+
+        radioAudioEl.loop = false;
+        radioAudioEl.onplaying = () => {
+          clearTimeout(radioFallbackTimer);
+          if (!radioIsPlaying || sessionId !== radioSessionCounter) return;
+          setRadioStatusText(`على الهواء الآن: ${title}`);
+        };
+        radioAudioEl.onended = () => {
+          clearTimeout(radioFallbackTimer);
+          if (!radioIsPlaying || sessionId !== radioSessionCounter) return;
+          playSanadTracksLoop(safeTracks, idx + 1, sessionId);
+        };
+        radioAudioEl.onerror = () => {
+          clearTimeout(radioFallbackTimer);
+          if (!radioIsPlaying || sessionId !== radioSessionCounter) return;
+          if (safeTracks.length > 1 && idx + 1 < safeTracks.length) {
+            playSanadTracksLoop(safeTracks, idx + 1, sessionId);
+          } else {
+            stopRadioPlayback(true);
+            setRadioStatusText('تعذر تشغيل ملفات الإذاعة الصوتية؛ تأكد من رفع sanad-radio-promo.mp3 و sanad-seg-2.mp3.');
+            toast('تعذر تشغيل ملف الصوت');
           }
         };
 
@@ -1560,31 +1590,41 @@
           radioAudioEl.pause();
           radioAudioEl.muted = false;
           radioAudioEl.volume = 1.0;
-          radioAudioEl.src = track.url;
+          radioAudioEl.src = `${trackUrl}${trackUrl.includes('?') ? '&' : '?'}v=${encodeURIComponent(APP_VERSION)}`;
           radioAudioEl.load();
           const playPromise = radioAudioEl.play();
           if (playPromise && typeof playPromise.catch === 'function') {
-            playPromise.catch(() => {
+            playPromise.catch((err) => {
+              clearTimeout(radioFallbackTimer);
               if (!radioIsPlaying || sessionId !== radioSessionCounter) return;
+              if (err && err.name === 'NotAllowedError') {
+                stopRadioPlayback(true);
+                setRadioStatusText('اضغط مرة أخرى على «تشغيل الراديو» للسماح بتشغيل الصوت في المتصفح.');
+                toast('اضغط مرة أخرى لتأكيد الصوت');
+                return;
+              }
               if (safeTracks.length > 1 && idx + 1 < safeTracks.length) {
                 playSanadTracksLoop(safeTracks, idx + 1, sessionId);
               } else {
-                setRadioStatusText('اضغط مرة أخرى على «تشغيل الراديو» لتأكيد الإذن الصوتي في المتصفح.');
+                stopRadioPlayback(true);
+                setRadioStatusText('تعذر بدء تشغيل الراديو حالياً؛ تحقق من اتصال الشبكة أو ملف الصوت.');
               }
             });
           }
         } catch {
+          clearTimeout(radioFallbackTimer);
+          stopRadioPlayback(true);
           setRadioStatusText('تعذر بدء تشغيل الراديو في هذا المتصفح.');
         }
       }
 
       function startRadioStation() {
         const sel = document.getElementById('radio-station-select');
-        const rawVal = sel ? sel.value : 'sanad_main|إذاعة سند|/sanad-radio-promo.mp3|sanad';
+        const rawVal = sel ? sel.value : 'sanad_main|إذاعة سند|./sanad-radio-promo.mp3|sanad';
         const parts = rawVal.split('|');
         const stationId = parts[0] || 'sanad_main';
         const stationName = parts[1] || 'إذاعة سند';
-        const stationUrl = parts[2] || '/sanad-radio-promo.mp3';
+        const stationUrl = normalizeTrackUrl(parts[2] || './sanad-radio-promo.mp3');
 
         stopRadioPlayback(true);
         radioIsPlaying = true;
@@ -1603,7 +1643,7 @@
           if (radioAudioEl.paused) {
             setRadioStatusText(`«${stationName}» يستغرق وقتاً أو غير متاح حالياً؛ جرّب قناة أخرى أو «إذاعة سند».`);
           }
-        }, 7000);
+        }, 8000);
 
         radioAudioEl.loop = false;
         radioAudioEl.onplaying = () => {
@@ -1614,7 +1654,9 @@
         radioAudioEl.onerror = () => {
           clearTimeout(radioFallbackTimer);
           if (!radioIsPlaying || sessionId !== radioSessionCounter) return;
+          stopRadioPlayback(true);
           setRadioStatusText(`تعذر تشغيل «${stationName}» من المصدر الخارجي؛ اختر قناة أخرى من القائمة.`);
+          toast('القناة غير متاحة حالياً');
         };
 
         try {
@@ -1625,13 +1667,20 @@
           radioAudioEl.load();
           const p = radioAudioEl.play();
           if (p && typeof p.catch === 'function') {
-            p.catch(() => {
+            p.catch((err) => {
               clearTimeout(radioFallbackTimer);
               if (!radioIsPlaying || sessionId !== radioSessionCounter) return;
-              setRadioStatusText(`تعذر تشغيل «${stationName}» حالياً؛ جرّب قناة أخرى من القائمة.`);
+              stopRadioPlayback(true);
+              if (err && err.name === 'NotAllowedError') {
+                setRadioStatusText('اضغط مرة أخرى على «تشغيل الراديو» لتأكيد الإذن الصوتي في المتصفح.');
+              } else {
+                setRadioStatusText(`تعذر تشغيل «${stationName}» حالياً؛ جرّب قناة أخرى من القائمة.`);
+              }
             });
           }
         } catch {
+          clearTimeout(radioFallbackTimer);
+          stopRadioPlayback(true);
           setRadioStatusText(`تعذر تشغيل «${stationName}» حالياً.`);
         }
       }
@@ -2614,25 +2663,74 @@
         }
       });
 
-      document.getElementById('check-update-btn')?.addEventListener('click', async () => {
+      async function fetchWithTimeout(url, timeoutMs = 4500) {
+        const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+        try {
+          const res = await fetch(url, {
+            cache: 'no-store',
+            signal: controller ? controller.signal : undefined
+          });
+          return res;
+        } finally {
+          if (timer) clearTimeout(timer);
+        }
+      }
+
+      const updateBtn = document.getElementById('check-update-btn');
+      updateBtn?.addEventListener('click', async () => {
         save();
         const note = document.getElementById('update-status-note');
-        if (note) note.textContent = 'جاري التحديث مع حماية البيانات...';
+        if (updateBtn) updateBtn.disabled = true;
+        if (note) note.textContent = 'جاري فحص وتحديث الموارد مع حماية البيانات...';
+
+        let swUpdated = false;
         try {
           if ('serviceWorker' in navigator) {
             const regs = await navigator.serviceWorker.getRegistrations();
-            await Promise.all(regs.map((r) => r.update()));
+            await Promise.all(regs.map(async (r) => {
+              await r.update();
+              if (r.waiting) {
+                r.waiting.postMessage({ type: 'SKIP_WAITING' });
+                swUpdated = true;
+              }
+            }));
           }
-          const res = await fetch('./healthz?t=' + Date.now(), { cache: 'no-store' });
-          if (res.ok) {
-            const data = await res.json();
-            if (note) note.textContent = `محدث • الإصدار v${data.version || APP_VERSION} • كل بياناتك محفوظة`;
-            toast('تم التحديث بأمان دون مسح أي بيانات');
+        } catch {}
+
+        try {
+          const healthRes = await fetchWithTimeout('./healthz?t=' + Date.now(), 4500);
+          if (healthRes && healthRes.ok) {
+            const data = await healthRes.json().catch(() => ({}));
+            const ver = data.version || APP_VERSION;
+            if (note) {
+              note.textContent = swUpdated
+                ? `تم تجهيز تحديث v${ver} • البيانات محمية`
+                : `محدث • الإصدار v${ver} • كل بياناتك محفوظة`;
+            }
+            toast('تم التحقق والتحديث بأمان دون مسح أي بيانات');
+            if (updateBtn) updateBtn.disabled = false;
             return;
           }
         } catch {}
-        if (note) note.textContent = `الإصدار v${APP_VERSION} • البيانات محمية`;
-        toast('تم التحقق بأمان');
+
+        try {
+          const manRes = await fetchWithTimeout(`./manifest.json?v=${encodeURIComponent(APP_VERSION)}&t=${Date.now()}`, 4500);
+          if (manRes && manRes.ok) {
+            if (note) {
+              note.textContent = `الإصدار v${APP_VERSION} • تم التحقق من الملفات والبيانات محمية`;
+            }
+            toast('النظام محدّث والبيانات محفوظة');
+            if (updateBtn) updateBtn.disabled = false;
+            return;
+          }
+        } catch {}
+
+        if (note) {
+          note.textContent = `الإصدار v${APP_VERSION} • تعذر الوصول للخادم حالياً، وبياناتك محفوظة محلياً`;
+        }
+        toast('تم حفظ البيانات محلياً؛ تحقق من اتصال الخادم');
+        if (updateBtn) updateBtn.disabled = false;
       });
 
       function renderSettings() {

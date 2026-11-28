@@ -1,6 +1,3 @@
-
-
-
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -325,36 +322,60 @@ async function callGeminiText(systemPrompt, userPrompt) {
     return '';
 }
 
-async function generateAiAssistantReply(promptText) {
+function polishEnglishTextLocal(raw) {
+    let out = String(raw || '').trim().replace(/\s+/g, ' ');
+    if (!out) return '';
+    out = out.replace(/\bi\b/g, 'I');
+    out = out.charAt(0).toUpperCase() + out.slice(1);
+    if (!/[.!?]$/.test(out)) out += '.';
+    return out;
+}
+
+async function generateAiAssistantReply(promptText, mode) {
     const q = String(promptText || '').trim();
+    if (mode === 'polish_en') {
+        const aiEn = await callGeminiText(
+            'You are an English writing assistant inside Sanad AI. Improve grammar, clarity, and natural tone while keeping the exact meaning. Reply cleanly and concisely.',
+            q
+        );
+        return aiEn || polishEnglishTextLocal(q);
+    }
+    if (mode === 'polish_ar') {
+        const aiAr = await callGeminiText(
+            'أنت مساعد لغوي عربي داخل تطبيق سند AI. حسّن الصياغة العربية لتكون واضحة وفصيحة وسليمة مع الحفاظ الكامل على المعنى.',
+            q
+        );
+        return aiAr || q;
+    }
+
     const aiOut = await callGeminiText(
-        `أنت مساعد ${SYSTEM_SCIENTIFIC_NAME} (سند AI). أجب بالعربية بوضوح ودقة علمية وعملية.`,
+        `أنت مساعد ${SYSTEM_SCIENTIFIC_NAME} (سند AI). أجب بوضوح ودقة علمية وعملية، وتجاوب مع لغة السؤال (عربية أو إنجليزية).`,
         q
     );
     if (aiOut) return aiOut;
 
-    if (!q) return 'أهلاً بك في مساعد سند AI. اكتب سؤالك وسأجيبك فوراً.';
-    if (/تحديث|اصدار|نسخة/i.test(q)) {
+    if (!q) return 'أهلاً بك في مساعد سند AI. اكتب سؤالك بالعربية أو الإنجليزية وسأجيبك فوراً.';
+    if (/تحديث|اصدار|نسخة|update|version/i.test(q)) {
         return `النسخة الحالية هي v${APP_VERSION}. يتم فحص التحديثات تلقائياً مع ظهور شريط تنبيه أعلى الشاشة عند توفر إصدار جديد.`;
     }
-    if (/نسخة احتياطية|تصدير|استيراد|تحصيلات/i.test(q)) {
+    if (/نسخة احتياطية|تصدير|استيراد|تحصيلات|backup/i.test(q)) {
         return 'يتم تجهيز وحفظ النسخ الاحتياطية وتصدير جهات الاتصال تلقائياً على جهازك مع تسجيل السجل من الأحدث للأقدم.';
     }
-    if (/راديو|اذاعة|fm|قران|سند|اخبار|mp3|m4a|mp4/i.test(q)) {
+    if (/راديو|اذاعة|fm|قران|سند|اخبار|mp3|m4a|mp4|radio/i.test(q)) {
         return 'إذاعة سند AI تعمل ببث مستمر يدعم صيغ MP3 وM4A وMP4 مع انتقال آلي بين المقاطع والقرآن الكريم والقنوات الإخبارية.';
     }
-    if (/باب المندب|المخاء|طقس|رياح|مد|جزر|بحر|اقمار/i.test(q)) {
+    if (/باب المندب|المخاء|طقس|رياح|مد|جزر|بحر|اقمار|weather|marine/i.test(q)) {
         return 'لوحة الطقس والرياح والمد والجزر في سند AI مدعومة ببيانات الرصد الجوي والبحري والأقمار الصناعية لمضيق باب المندب والمخاء وعدن والحديدة وسواحل العالم.';
     }
-    return `بخصوص سؤالك («${q.slice(0, 120)}»): مساعد سند AI متاح للرد الفوري ومساعدتك في الترجمة والنسخ الاحتياطية وإذاعة سند.`;
+    return `بخصوص سؤالك («${q.slice(0, 120)}»): مساعد سند AI متاح للرد الفوري ومساعدتك في اللغة الإنجليزية والعربية والترجمة والنسخ الاحتياطية وإذاعة سند.`;
 }
 
 async function translateTextSmart(text, targetLang) {
     const src = String(text || '').trim();
     if (!src) return '';
-    const target = targetLang === 'en' ? 'الإنجليزية' : 'العربية';
+    const target = targetLang === 'en' ? 'English' : 'Arabic';
     const aiOut = await callGeminiText(
-        `أنت مترجم فوري دقيق داخل تطبيق سند AI. ترجم النص التالي إلى ${target} فقط دون مقدمات أو شروحات إضافية.`,
+        `You are an accurate real-time translator inside Sanad AI. Translate the following text into ${target} only, without extra commentary.`,
         src
     );
     if (aiOut) return aiOut;
@@ -371,7 +392,7 @@ async function translateTextSmart(text, targetLang) {
             }
         } catch (e) {}
     }
-    return `[ترجمة فورية]: ${src}`;
+    return targetLang === 'en' ? polishEnglishTextLocal(src) : src;
 }
 
 const manifestPayload = JSON.stringify({
@@ -486,7 +507,6 @@ const htmlContent = `<!DOCTYPE html>
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e6078; border-radius: 9999px; }
         .sanad-pane { display: none; height: 100%; width: 100%; overflow-y: auto; }
         .sanad-pane.sanad-pane-active { display: flex; flex-direction: column; }
-        /* أخضر زمردي هادئ مريح للعين */
         .calm-emerald-dot {
             background-color: #34d399;
             box-shadow: 0 0 6px rgba(52, 211, 153, 0.28);
@@ -503,6 +523,46 @@ const htmlContent = `<!DOCTYPE html>
         var SYSTEM_SCIENTIFIC_NAME = '${SYSTEM_SCIENTIFIC_NAME}';
         var SANAD_LOCAL_RADIO_URL = '${LOCAL_RADIO_URL.replace(/'/g, '')}';
         var SANAD_SERVER_EXTRA_TRACKS = ${JSON.stringify(SANAD_EXTRA_TRACKS)};
+        var sanadUiLang = 'ar';
+
+        var SANAD_I18N = {
+            ar: {
+                dir: 'rtl',
+                lang: 'ar',
+                tabs: {
+                    chats: 'الدردشة',
+                    groups: 'المجموعات',
+                    accounts: 'الحسابات',
+                    contacts: 'الجهات',
+                    calls: 'المكالمات',
+                    ai: 'الذكاء'
+                },
+                wsOnline: 'منظومة سند نشطة 24/7 • شبكة عالمية',
+                wsReconnecting: 'إعادة ربط الجلسة بالخادم...',
+                notifBtn: 'إشعار',
+                notifActive: 'نشطة',
+                peerPlaceholder: 'اكتب الاسم أو الكود أو الرقم أو ابحث في الرسائل...',
+                msgPlaceholder: 'اكتب رسالتك (عربي / English) أو سجّل صوتك...'
+            },
+            en: {
+                dir: 'ltr',
+                lang: 'en',
+                tabs: {
+                    chats: 'Chats',
+                    groups: 'Groups',
+                    accounts: 'Accounts',
+                    contacts: 'Contacts',
+                    calls: 'Calls',
+                    ai: 'AI & Tools'
+                },
+                wsOnline: 'Sanad System Active 24/7 • Global Mesh',
+                wsReconnecting: 'Reconnecting session to server...',
+                notifBtn: 'Notify',
+                notifActive: 'Active',
+                peerPlaceholder: 'Enter name, code, number, or search messages...',
+                msgPlaceholder: 'Type your message (Arabic / English) or record voice...'
+            }
+        };
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
@@ -550,6 +610,40 @@ const htmlContent = `<!DOCTYPE html>
             ai: 'الذكاء'
         };
         window.__sanadCurrentTab = 'chats';
+
+        function toggleSanadLanguage() {
+            sanadUiLang = (sanadUiLang === 'ar') ? 'en' : 'ar';
+            var dict = SANAD_I18N[sanadUiLang] || SANAD_I18N.ar;
+            document.documentElement.setAttribute('lang', dict.lang);
+            document.documentElement.setAttribute('dir', dict.dir);
+            try { localStorage.setItem('sanad1290_lang', sanadUiLang); } catch (e) {}
+
+            Object.keys(dict.tabs).forEach(function(k) {
+                SANAD_TAB_LABELS[k] = dict.tabs[k];
+                var btn = document.getElementById('btn-' + k);
+                if (btn) {
+                    var spans = btn.getElementsByTagName('span');
+                    var labelSpan = spans[spans.length - 1];
+                    if (labelSpan) labelSpan.textContent = dict.tabs[k];
+                }
+            });
+
+            var langBtn = document.getElementById('lang-toggle-btn');
+            if (langBtn) langBtn.textContent = (sanadUiLang === 'ar') ? 'EN' : 'عربي';
+
+            var peerInp = document.getElementById('peer-input');
+            if (peerInp) peerInp.placeholder = dict.peerPlaceholder;
+
+            var msgInp = document.getElementById('msg-box-input');
+            if (msgInp) msgInp.placeholder = dict.msgPlaceholder;
+
+            var tabBadge = document.getElementById('current-tab-badge');
+            if (tabBadge) tabBadge.textContent = SANAD_TAB_LABELS[window.__sanadCurrentTab] || dict.tabs.chats;
+
+            if (typeof syncNotificationBadge === 'function') syncNotificationBadge();
+            if (typeof renderMsgs === 'function') renderMsgs();
+            copyStringToClipboard('', sanadUiLang === 'en' ? 'Switched to English' : 'تم التبديل إلى العربية');
+        }
 
         function applySanadPaneDisplay(tabName) {
             var target = SANAD_TAB_LABELS[tabName] ? tabName : 'chats';
@@ -635,6 +729,9 @@ const htmlContent = `<!DOCTYPE html>
         </div>
 
         <div class="flex items-center gap-1.5 shrink-0">
+            <button type="button" id="lang-toggle-btn" onclick="toggleSanadLanguage()" title="تبديل اللغة العربية / الإنجليزية" class="px-2 h-9 rounded-xl bg-teal-950/90 hover:bg-teal-800 border border-teal-700/70 text-teal-200 flex items-center justify-center text-[11px] font-mono font-bold transition">
+                EN
+            </button>
             <button type="button" onclick="requestSystemNotifications()" title="حالة وتفعيل الإشعارات" class="px-2.5 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-200 flex items-center gap-1 text-[11px] font-semibold transition">
                 <i class="fa-solid fa-bell text-xs"></i><span id="notif-status-txt">إشعار</span>
             </button>
@@ -738,7 +835,7 @@ const htmlContent = `<!DOCTYPE html>
         <section id="pane-chats" class="sanad-pane sanad-pane-active flex-1 flex-col h-full overflow-hidden">
             <div class="p-2 bg-[#0d1926]/90 border-b border-slate-800/80 space-y-1.5 shrink-0">
                 <div class="flex gap-2">
-                    <input type="text" id="peer-input" oninput="normalizeDigitsInInput(this); onTopPeerSearchInput();" onkeydown="if(event.key==='Enter'){event.preventDefault();openPeerByInput();}" placeholder="اكتب الاسم أو الكود أو الرقم..." class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-1.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-teal-600">
+                    <input type="text" id="peer-input" oninput="normalizeDigitsInInput(this); onTopPeerSearchInput();" onkeydown="if(event.key==='Enter'){event.preventDefault();openPeerByInput();}" placeholder="اكتب الاسم أو الكود أو الرقم أو ابحث في الرسائل..." class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-1.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-teal-600">
                     <button type="button" onclick="openPeerByInput()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold">فتح</button>
                     <button type="button" onclick="saveCurrentPeerToPhoneContacts()" title="حفظ في جهات اتصال الجوال" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 px-2.5 py-1.5 rounded-xl text-xs font-semibold">
                         <i class="fa-solid fa-address-card"></i>
@@ -787,7 +884,8 @@ const htmlContent = `<!DOCTYPE html>
                 <input type="file" id="attach-file" class="hidden" onchange="onFilePicked(event)">
                 <button type="button" onclick="document.getElementById('attach-file').click()" title="إرفاق ملف أو صورة" class="text-slate-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 shrink-0"><i class="fa-solid fa-paperclip text-base"></i></button>
                 <button type="button" id="mic-rec-btn" onclick="toggleVoiceRecording()" title="تسجيل صوتي" class="text-teal-300 hover:text-white bg-teal-950/70 hover:bg-teal-800 border border-teal-800/60 p-2 rounded-xl shrink-0 transition"><i class="fa-solid fa-microphone text-base"></i></button>
-                <textarea id="msg-box-input" rows="1" oninput="autoResizeComposer(this)" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendTextMsg();}" placeholder="اكتب رسالتك أو سجّل صوتك..." class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 sanad-composer-font text-white placeholder-slate-400 focus:outline-none focus:border-teal-600 resize-none max-h-28 overflow-y-auto custom-scrollbar"></textarea>
+                <button type="button" onclick="polishComposerEnglish()" title="تحسين صياغة الإنجليزية في النص المكتوب" class="text-emerald-300 hover:text-white bg-emerald-950/60 hover:bg-emerald-800 border border-emerald-800/60 px-2 py-2 rounded-xl text-[11px] font-mono font-bold shrink-0 transition">EN+</button>
+                <textarea id="msg-box-input" rows="1" oninput="autoResizeComposer(this)" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendTextMsg();}" placeholder="اكتب رسالتك (عربي / English) أو سجّل صوتك..." class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 sanad-composer-font text-white placeholder-slate-400 focus:outline-none focus:border-teal-600 resize-none max-h-28 overflow-y-auto custom-scrollbar"></textarea>
                 <button type="button" onclick="sendTextMsg()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow shrink-0"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
         </section>
@@ -1044,13 +1142,14 @@ const htmlContent = `<!DOCTYPE html>
             </div>
 
             <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
-                <h3 class="text-sm font-bold text-teal-200"><i class="fa-solid fa-brain ml-1"></i> مساعد سند AI</h3>
+                <h3 class="text-sm font-bold text-teal-200"><i class="fa-solid fa-brain ml-1"></i> مساعد سند AI (عربي / English)</h3>
                 <div id="ai-log" class="bg-[#08101a] border border-slate-800 rounded-xl p-3 h-40 overflow-y-auto space-y-2 custom-scrollbar">
-                    <div class="text-slate-400">مرحباً بك في مساعد سند AI (v${APP_VERSION}). اسألني وسأرد عليك فوراً.</div>
+                    <div class="text-slate-400">مرحباً بك في مساعد سند AI (v${APP_VERSION}). اسألني بالعربية أو الإنجليزية وسأرد عليك فوراً.</div>
                 </div>
-                <div class="flex gap-2">
-                    <input type="text" id="ai-q" onkeydown="if(event.key==='Enter')askSanadAI()" placeholder="اسأل مساعد سند AI عن أي شيء..." class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
-                    <button type="button" onclick="askSanadAI()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl text-xs font-semibold">إرسال</button>
+                <div class="flex gap-2 flex-wrap">
+                    <input type="text" id="ai-q" onkeydown="if(event.key==='Enter')askSanadAI('chat')" placeholder="اسأل أو اكتب نصاً إنجليزياً لتحسينه..." class="flex-1 min-w-[180px] bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <button type="button" onclick="askSanadAI('chat')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3.5 py-2 rounded-xl text-xs font-semibold">إرسال</button>
+                    <button type="button" onclick="askSanadAI('polish_en')" class="bg-emerald-800 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-mono font-semibold">تحسين EN</button>
                 </div>
             </div>
         </section>
@@ -1376,7 +1475,6 @@ const htmlContent = `<!DOCTYPE html>
             }
         }
 
-        // تنزيل أو مشاركة تلقائية سلسة للجوال دون تعقيد
         function triggerSeamlessFileDelivery(blob, fileName, titleText) {
             try {
                 if (navigator.share && typeof File === 'function' && navigator.canShare) {
@@ -1464,7 +1562,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!m || !m.text) return;
             var isArabic = /[\\u0600-\\u06FF]/.test(m.text);
             var targetLang = isArabic ? 'en' : 'ar';
-            translationsByMsgId[msgId] = 'جاري الترجمة...';
+            translationsByMsgId[msgId] = targetLang === 'en' ? 'Translating to English...' : 'جاري الترجمة إلى العربية...';
             renderMsgs();
 
             fetch('/api/ai/translate', {
@@ -1481,6 +1579,27 @@ const htmlContent = `<!DOCTYPE html>
                 translationsByMsgId[msgId] = m.text;
                 renderMsgs();
             });
+        }
+
+        function polishComposerEnglish() {
+            var inp = document.getElementById('msg-box-input');
+            if (!inp || !inp.value.trim()) return copyStringToClipboard('', 'اكتب نصاً إنجليزياً لتحسين صياغته');
+            var rawText = inp.value.trim();
+            copyStringToClipboard('', 'Improving English phrasing...');
+            fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: rawText, mode: 'polish_en' })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data && data.reply) {
+                    inp.value = data.reply;
+                    autoResizeComposer(inp);
+                    copyStringToClipboard('', 'English phrasing improved');
+                }
+            })
+            .catch(function() {});
         }
 
         function getSelectedRadioInfo() {
@@ -1989,11 +2108,12 @@ const htmlContent = `<!DOCTYPE html>
 
         function syncNotificationBadge() {
             var lbl = document.getElementById('notif-status-txt');
+            var dict = SANAD_I18N[sanadUiLang] || SANAD_I18N.ar;
             if (!lbl) return;
             if ('Notification' in window && Notification.permission === 'granted') {
-                lbl.textContent = 'نشطة';
+                lbl.textContent = dict.notifActive;
             } else {
-                lbl.textContent = 'إشعار';
+                lbl.textContent = dict.notifBtn;
             }
         }
 
@@ -2300,6 +2420,17 @@ const htmlContent = `<!DOCTYPE html>
 
         function loadSavedState() {
             try {
+                var savedLang = localStorage.getItem('sanad1290_lang');
+                if (savedLang === 'en') {
+                    sanadUiLang = 'en';
+                    var dict = SANAD_I18N.en;
+                    document.documentElement.setAttribute('lang', 'en');
+                    document.documentElement.setAttribute('dir', 'ltr');
+                    Object.keys(dict.tabs).forEach(function(k) { SANAD_TAB_LABELS[k] = dict.tabs[k]; });
+                    var langBtn = document.getElementById('lang-toggle-btn');
+                    if (langBtn) langBtn.textContent = 'عربي';
+                }
+
                 var rawVault = localStorage.getItem('sanad_persistent_vault_v1');
                 var vault = rawVault ? JSON.parse(rawVault) : null;
 
@@ -2556,7 +2687,9 @@ const htmlContent = `<!DOCTYPE html>
 
         function onTopPeerSearchInput() {
             var inp = document.getElementById('peer-input');
-            renderQuickChips(inp ? inp.value.trim() : '');
+            var q = inp ? inp.value.trim() : '';
+            renderQuickChips(q);
+            if (window.__sanadCurrentTab === 'chats') renderMsgs(q);
         }
 
         function choosePeer(id) {
@@ -2580,6 +2713,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!inp || !inp.value.trim()) return;
             choosePeer(inp.value.trim());
             inp.value = '';
+            renderMsgs('');
         }
 
         function renderPeerHeader() {
@@ -2691,14 +2825,19 @@ const htmlContent = `<!DOCTYPE html>
             if (toastPeerId) choosePeer(toastPeerId);
         }
 
-        function renderMsgs() {
+        function renderMsgs(searchFilter) {
             var box = document.getElementById('msgs-box');
             if (!box) return;
             if (!currentPeer) {
                 box.innerHTML = '<div class="h-full flex items-center justify-center text-xs text-slate-400 text-center px-4">أدخل كود 88 أو رقماً في الأعلى لبدء دردشة مباشرة عبر منظومة سند.</div>';
                 return;
             }
-            var list = (getThreadMap()[currentPeer] || []).filter(function(m) { return m && !m.deleted; });
+            var q = normalizeStr(searchFilter || '');
+            var list = (getThreadMap()[currentPeer] || []).filter(function(m) {
+                if (!m || m.deleted) return false;
+                if (!q) return true;
+                return normalizeStr(m.text || '').indexOf(q) !== -1 || normalizeStr(m.fileName || '').indexOf(q) !== -1;
+            });
             box.innerHTML = list.map(function(m) {
                 var isMe = m.from === 'me';
                 var media = '';
@@ -2729,8 +2868,8 @@ const htmlContent = `<!DOCTYPE html>
 
                 var actionsHtml = '<div class="flex items-center gap-2.5 text-[10px] text-slate-300/85 mt-1.5 pt-1 border-t border-white/10 flex-wrap">' +
                     '<button type="button" onclick="setReplyTarget(\\'' + safeId + '\\')" class="hover:text-teal-200 flex items-center gap-0.5" title="رد على الرسالة"><i class="fa-solid fa-reply"></i><span>رد</span></button>' +
-                    (m.text ? '<button type="button" onclick="translateChatMessage(\\'' + safeId + '\\')" class="hover:text-emerald-200 flex items-center gap-0.5" title="ترجمة داخل المحادثة"><i class="fa-solid fa-language"></i><span>ترجمة</span></button>' : '') +
-                    (m.text ? '<button type="button" onclick="speakMessageText(\\'' + safeId + '\\')" class="hover:text-teal-200 flex items-center gap-0.5" title="قراءة صوتية بالذكاء الاصطناعي"><i class="fa-solid fa-volume-high"></i><span>قراءة</span></button>' : '') +
+                    (m.text ? '<button type="button" onclick="translateChatMessage(\\'' + safeId + '\\')" class="hover:text-emerald-200 flex items-center gap-0.5" title="ترجمة عربي/إنجليزي"><i class="fa-solid fa-language"></i><span>ترجمة</span></button>' : '') +
+                    (m.text ? '<button type="button" onclick="speakMessageText(\\'' + safeId + '\\')" class="hover:text-teal-200 flex items-center gap-0.5" title="قراءة صوتية"><i class="fa-solid fa-volume-high"></i><span>قراءة</span></button>' : '') +
                     (m.text ? '<button type="button" onclick="copyStringToClipboard(decodeURIComponent(\\'' + encodeURIComponent(m.text) + '\\'), \\'تم نسخ الرسالة\\')" class="hover:text-teal-200 flex items-center gap-0.5" title="نسخ"><i class="fa-regular fa-copy"></i><span>نسخ</span></button>' : '') +
                     '<button type="button" onclick="openDeleteMsgModal(\\'' + safeId + '\\')" class="hover:text-rose-300 flex items-center gap-0.5 mr-auto" title="حذف نهائي"><i class="fa-solid fa-trash-can"></i><span>حذف نهائي</span></button>' +
                     '</div>';
@@ -2939,13 +3078,14 @@ const htmlContent = `<!DOCTYPE html>
             ev.target.value = '';
         }
 
-        function askSanadAI() {
+        function askSanadAI(mode) {
             var inp = document.getElementById('ai-q');
             var log = document.getElementById('ai-log');
             if (!inp || !inp.value.trim() || !log) return;
             var q = inp.value.trim();
             inp.value = '';
-            log.innerHTML += '<div class="bg-[#164e63]/60 text-white px-2.5 py-1.5 rounded-lg">أنت: ' + escapeHtml(q) + '</div>';
+            var prefix = (mode === 'polish_en') ? 'EN Polish' : 'أنت';
+            log.innerHTML += '<div class="bg-[#164e63]/60 text-white px-2.5 py-1.5 rounded-lg">' + escapeHtml(prefix) + ': ' + escapeHtml(q) + '</div>';
             var pendingId = 'ai-wait-' + Date.now();
             log.innerHTML += '<div id="' + pendingId + '" class="bg-[#0d1926] border border-slate-800 text-teal-200 px-2.5 py-1.5 rounded-lg">جاري التفكير والرد...</div>';
             log.scrollTop = log.scrollHeight;
@@ -2953,7 +3093,7 @@ const htmlContent = `<!DOCTYPE html>
             fetch('/api/ai/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: q })
+                body: JSON.stringify({ prompt: q, mode: mode || 'chat' })
             })
             .then(function(r) { return r.json(); })
             .then(function(data) {
@@ -3271,15 +3411,14 @@ const htmlContent = `<!DOCTYPE html>
             var setWsUi = function(connected) {
                 var dot = document.getElementById('ws-dot');
                 var lbl = document.getElementById('ws-label');
+                var dict = SANAD_I18N[sanadUiLang] || SANAD_I18N.ar;
                 if (dot) {
                     dot.className = connected
                         ? 'w-2.5 h-2.5 rounded-full calm-emerald-dot'
                         : 'w-2.5 h-2.5 rounded-full bg-amber-400';
                 }
                 if (lbl) {
-                    lbl.textContent = connected
-                        ? 'منظومة سند نشطة 24/7 • شبكة عالمية'
-                        : 'إعادة ربط الجلسة بالخادم...';
+                    lbl.textContent = connected ? dict.wsOnline : dict.wsReconnecting;
                     lbl.className = connected ? 'calm-emerald-text font-semibold' : 'text-amber-300 font-medium';
                 }
             };
@@ -3493,7 +3632,7 @@ const server = http.createServer((req, res) => {
         req.on('end', async () => {
             try {
                 const parsed = JSON.parse(body || '{}');
-                const reply = await generateAiAssistantReply(parsed.prompt || '');
+                const reply = await generateAiAssistantReply(parsed.prompt || '', parsed.mode || 'chat');
                 res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
                 res.end(JSON.stringify({ ok: true, reply }));
             } catch (e) {

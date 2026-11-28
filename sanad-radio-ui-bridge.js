@@ -19,18 +19,54 @@ const SANAD_PRESET_CITIES = [
     { id: 'new_york', label: 'نيويورك • أمريكا', lat: 40.7128, lon: -74.0060, method: 2 }
 ];
 
-function createSanadRadioController(elements = {}) {
-    const audioEl = elements.audioEl || document.getElementById('sanad-audio-player') || null;
+function resolveAudioElement(customAudioEl) {
+    if (customAudioEl) return customAudioEl;
+    if (typeof document === 'undefined') return null;
+    return (
+        document.getElementById('sanad-radio-player') ||
+        document.getElementById('sanad-audio-player') ||
+        document.getElementById('radio-audio-el') ||
+        null
+    );
+}
 
-    const service = new SanadRadioService({
+function createSanadRadioController(elements = {}) {
+    const ServiceClass =
+        elements.ServiceClass ||
+        (typeof SanadRadioService !== 'undefined'
+            ? SanadRadioService
+            : (typeof window !== 'undefined' ? window.SanadRadioService : null));
+
+    if (typeof ServiceClass !== 'function') {
+        throw new Error('SanadRadioService غير متوفر؛ تأكد من تحميل sanad-radio-service.js قبل sanad-radio-ui-bridge.js');
+    }
+
+    const audioEl = resolveAudioElement(elements.audioEl);
+    let busyPromise = null;
+
+    const runGuarded = async (fn) => {
+        if (busyPromise) {
+            try { await busyPromise; } catch {}
+        }
+        busyPromise = (async () => fn())();
+        try {
+            return await busyPromise;
+        } finally {
+            busyPromise = null;
+        }
+    };
+
+    const service = new ServiceClass({
         apiBase: elements.apiBase || '/api/radio',
         audioEl,
-        onStateChange: (state) => {
+        onStateChange: (state = {}) => {
             if (elements.locationBadgeEl) {
-                elements.locationBadgeEl.textContent = `${state.cityLabel} (${state.timezone})`;
+                const cityText = state.cityLabel || 'موقع غير محدد';
+                const tzText = state.timezone ? ` (${state.timezone})` : '';
+                elements.locationBadgeEl.textContent = `${cityText}${tzText}`;
             }
             if (elements.modeBadgeEl) {
-                elements.modeBadgeEl.textContent = state.playing ? state.mode : 'idle';
+                elements.modeBadgeEl.textContent = state.playing ? (state.mode || 'playing') : 'idle';
             }
             if (typeof elements.onStateChange === 'function') {
                 elements.onStateChange(state);
@@ -39,19 +75,20 @@ function createSanadRadioController(elements = {}) {
         onScheduleUpdate: (schedule) => {
             if (elements.timingsBoxEl && schedule && schedule.timings) {
                 const t = schedule.timings;
-                elements.timingsBoxEl.innerHTML =
-                    `الفجر: ${t.Fajr} | الظهر: ${t.Dhuhr} | العصر: ${t.Asr} | المغرب: ${t.Maghrib} | العشاء: ${t.Isha}`;
+                elements.timingsBoxEl.textContent =
+                    `الفجر: ${t.Fajr || '--:--'} | الظهر: ${t.Dhuhr || '--:--'} | العصر: ${t.Asr || '--:--'} | المغرب: ${t.Maghrib || '--:--'} | العشاء: ${t.Isha || '--:--'}`;
             }
             if (typeof elements.onScheduleUpdate === 'function') {
                 elements.onScheduleUpdate(schedule);
             }
         },
         onStatusMessage: (msg) => {
+            const text = String(msg || '');
             if (elements.statusEl) {
-                elements.statusEl.textContent = msg;
+                elements.statusEl.textContent = text;
             }
             if (typeof elements.onStatusMessage === 'function') {
-                elements.onStatusMessage(msg);
+                elements.onStatusMessage(text);
             }
         }
     });
@@ -59,18 +96,38 @@ function createSanadRadioController(elements = {}) {
     return {
         service,
         cities: SANAD_PRESET_CITIES,
-        start: () => service.init(),
-        refreshGps: () => service.detectUserLocationAndSchedule(),
+        start: () => runGuarded(() => (typeof service.init === 'function' ? service.init() : undefined)),
+        refreshGps: () =>
+            runGuarded(() =>
+                typeof service.detectUserLocationAndSchedule === 'function'
+                    ? service.detectUserLocationAndSchedule()
+                    : undefined
+            ),
         selectCityById: (cityId) => {
-            const found = SANAD_PRESET_CITIES.find(c => c.id === cityId);
-            if (!found) return Promise.resolve();
-            return service.setManualCity(found.lat, found.lon, found.label, found.method);
+            const found = SANAD_PRESET_CITIES.find((c) => c.id === cityId);
+            if (!found || typeof service.setManualCity !== 'function') {
+                return Promise.resolve();
+            }
+            return runGuarded(() => service.setManualCity(found.lat, found.lon, found.label, found.method));
         },
-        playRadio: (stationId, stationName, streamUrl) =>
-            service.playRadioStation(stationId, stationName, streamUrl),
-        playAdhanNow: (label) => service.playRealAdhan(label),
-        playQuranNow: (msg) => service.playRealQuran(msg),
-        stop: () => service.stopAll()
+        playRadio: (stationId, stationName, streamUrl) => {
+            if (typeof service.playRadioStation !== 'function') return Promise.resolve();
+            return runGuarded(() => service.playRadioStation(stationId, stationName, streamUrl));
+        },
+        playAdhanNow: (label) => {
+            if (typeof service.playRealAdhan !== 'function') return Promise.resolve();
+            return runGuarded(() => service.playRealAdhan(label));
+        },
+        playQuranNow: (msg) => {
+            if (typeof service.playRealQuran !== 'function') return Promise.resolve();
+            return runGuarded(() => service.playRealQuran(msg));
+        },
+        stop: () => {
+            busyPromise = null;
+            if (typeof service.stopAll === 'function') {
+                return service.stopAll();
+            }
+        }
     };
 }
 

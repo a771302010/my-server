@@ -24,6 +24,7 @@ const PORT = process.env.PORT || 3000;
 const ICON_BG_HEX = '#164e63';
 const SYSTEM_SCIENTIFIC_NAME = 'منظومة سند الذكية الموزّعة للاتصال الفوري والرصد الرقمي';
 const STATE_FILE_PATH = process.env.SANAD_STATE_FILE || path.join(__dirname, 'sanad-state.json');
+const EXTERNAL_HTML_PATH = path.join(__dirname, 'index.html');
 const LOCAL_RADIO_URL = process.env.SANAD_LOCAL_RADIO_URL || '/sanad-radio-promo.mp3';
 const ONLINE_GRACE_MS = 30000;
 
@@ -63,7 +64,7 @@ function toWesternDigitsServer(str) {
 }
 
 function normIdServer(v) {
-    return toWesternDigitsServer(v).trim().toLowerCase();
+    return toWesternDigitsServer(v).trim().toLowerCase().slice(0, 120);
 }
 
 const presenceMap = new Map();
@@ -71,9 +72,23 @@ const lastSeenMap = new Map();
 const blockListByUser = new Map();
 const pendingVerifications = new Map();
 const reservedCodesSet = new Set();
+const rateLimitMap = new Map();
 const syncEvents = [];
 let eventCursor = 0;
 let saveStateTimer = null;
+
+function isRateLimited(ipOrKey, maxHits, windowMs) {
+    const now = Date.now();
+    const key = String(ipOrKey || 'global');
+    const cur = rateLimitMap.get(key) || { count: 0, resetAt: now + windowMs };
+    if (now > cur.resetAt) {
+        cur.count = 0;
+        cur.resetAt = now + windowMs;
+    }
+    cur.count += 1;
+    rateLimitMap.set(key, cur);
+    return cur.count > maxHits;
+}
 
 function persistServerStateToDisk() {
     try {
@@ -185,7 +200,7 @@ function getOnlineIdsList() {
 
 function touchPresenceIds(idsList) {
     const now = Date.now();
-    (Array.isArray(idsList) ? idsList : []).forEach(rawId => {
+    (Array.isArray(idsList) ? idsList.slice(0, 100) : []).forEach(rawId => {
         const n = normIdServer(rawId);
         if (n) lastSeenMap.set(n, now);
     });
@@ -204,7 +219,7 @@ function setUserBlockSetServer(ownerId, blockedList) {
     const ownerNorm = normIdServer(ownerId);
     if (!ownerNorm) return;
     const nextSet = new Set(
-        (Array.isArray(blockedList) ? blockedList : [])
+        (Array.isArray(blockedList) ? blockedList.slice(0, 500) : [])
             .map(normIdServer)
             .filter(Boolean)
     );
@@ -243,7 +258,7 @@ function processIncomingPacket(payload, senderWs) {
     if (payload.from) touchPresenceIds([payload.from]);
 
     if (payload.type === 'register_ids') {
-        const ids = Array.isArray(payload.ids) ? payload.ids.slice() : [];
+        const ids = Array.isArray(payload.ids) ? payload.ids.slice(0, 100) : [];
         if (payload.activeId) ids.unshift(payload.activeId);
         const cleanSet = new Set(ids.map(normIdServer).filter(Boolean));
         cleanSet.forEach(id => {
@@ -277,7 +292,7 @@ function processIncomingPacket(payload, senderWs) {
 
     if (payload.type === 'sync_blocklist') {
         const ownerIds = Array.isArray(payload.ownerIds) && payload.ownerIds.length
-            ? payload.ownerIds
+            ? payload.ownerIds.slice(0, 20)
             : [payload.from];
         ownerIds.forEach(oid => setUserBlockSetServer(oid, payload.blockedIds));
         return;
@@ -326,7 +341,7 @@ async function callGeminiText(systemPrompt, userPrompt) {
 }
 
 async function generateAiAssistantReply(promptText) {
-    const q = String(promptText || '').trim();
+    const q = String(promptText || '').trim().slice(0, 1500);
     const aiOut = await callGeminiText(
         `أنت مساعد ${SYSTEM_SCIENTIFIC_NAME} (سند AI). أجب بالعربية بوضوح ودقة علمية وعملية.`,
         q
@@ -350,7 +365,7 @@ async function generateAiAssistantReply(promptText) {
 }
 
 async function translateTextSmart(text, targetLang) {
-    const src = String(text || '').trim();
+    const src = String(text || '').trim().slice(0, 1500);
     if (!src) return '';
     const target = targetLang === 'en' ? 'الإنجليزية' : 'العربية';
     const aiOut = await callGeminiText(
@@ -488,7 +503,6 @@ const htmlContent = `<!DOCTYPE html>
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e6078; border-radius: 9999px; }
         .sanad-pane { display: none; height: 100%; width: 100%; overflow-y: auto; }
         .sanad-pane.sanad-pane-active { display: flex; flex-direction: column; }
-        /* مؤشر أزرق بترولي هادئ مريح للعين */
         .petrol-calm-dot {
             background-color: #38bdf8;
             box-shadow: 0 0 7px rgba(56, 189, 248, 0.35);
@@ -756,10 +770,10 @@ const htmlContent = `<!DOCTYPE html>
 
         function escapeJsSingle(str) {
             return String(str === undefined || str === null ? '' : str)
-                .split('\\\\').join('\\\\\\\\')
-                .split("'").join("\\\\'")
-                .split('\\r').join(' ')
-                .split('\\n').join(' ');
+                .replace(/\\\\/g, '\\\\\\\\')
+                .replace(/'/g, "\\\\'")
+                .replace(/\\r/g, ' ')
+                .replace(/\\n/g, ' ');
         }
 
         function getActiveTabLabels() {
@@ -875,6 +889,9 @@ const htmlContent = `<!DOCTYPE html>
             if (typeof renderMsgs === 'function') renderMsgs();
             if (typeof renderPresence === 'function') renderPresence();
             if (typeof renderBlockedList === 'function') renderBlockedList();
+            if (typeof renderGroupsList === 'function') renderGroupsList();
+            if (typeof renderAccts === 'function') renderAccts();
+            if (typeof renderBackupHistoryList === 'function') renderBackupHistoryList();
             if (typeof syncRadioUi === 'function') syncRadioUi();
             if (typeof refreshUpdateStatusInAi === 'function') refreshUpdateStatusInAi();
         }
@@ -1076,7 +1093,6 @@ const htmlContent = `<!DOCTYPE html>
     </div>
 
     <main class="flex-1 flex flex-col overflow-hidden">
-        <!-- تبويب الدردشة -->
         <section id="pane-chats" class="sanad-pane sanad-pane-active flex-1 flex-col h-full overflow-hidden">
             <div class="p-2 bg-[#0d1926]/90 border-b border-slate-800/80 space-y-1.5 shrink-0">
                 <div class="flex gap-2">
@@ -1135,12 +1151,11 @@ const htmlContent = `<!DOCTYPE html>
             </div>
         </section>
 
-        <!-- تبويب المجموعات -->
         <section id="pane-groups" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-3">
                 <div class="flex items-center justify-between">
                     <h2 id="groups-heading" class="text-sm font-bold sanad-brand-title"><i class="fa-solid fa-users ml-1"></i> مجموعات التواصل</h2>
-                    <span id="groups-count-badge" class="text-[11px] font-mono text-slate-200 bg-slate-800 border border-slate-700 px-2.5 py-0.5 rounded-full">0 مجموعة</span>
+                    <span id="groups-count-badge" class="text-[11px] font-mono text-slate-200 bg-slate-800 border border-slate-700 px-2.5 py-0.5 rounded-full">0</span>
                 </div>
                 <input type="text" id="g-name" placeholder="اسم المجموعة" class="w-full bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
                 <input type="text" id="g-members" oninput="normalizeDigitsInInput(this)" placeholder="أعضاء إضافيون (أرقام أو أكواد 88... مفصولة بفاصلة)" class="w-full bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
@@ -1149,12 +1164,11 @@ const htmlContent = `<!DOCTYPE html>
             <div id="groups-list" class="space-y-2"></div>
         </section>
 
-        <!-- تبويب الحسابات -->
         <section id="pane-accounts" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
             <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-3">
                 <div class="flex items-center justify-between">
                     <h2 id="accounts-heading" class="text-sm font-bold sanad-brand-title">توليد الأكواد الحصرية (88...) وإدارة الحسابات</h2>
-                    <span id="accounts-count-badge" class="text-[11px] font-mono text-slate-200 bg-slate-800 border border-slate-700 px-2.5 py-0.5 rounded-full">1 حساب</span>
+                    <span id="accounts-count-badge" class="text-[11px] font-mono text-slate-200 bg-slate-800 border border-slate-700 px-2.5 py-0.5 rounded-full">1</span>
                 </div>
                 <p id="accounts-desc-txt" class="text-[11px] text-slate-400">كل كود يبدأ بـ 88 يتم حجزه على الخادم ولا يُعاد استخدامه لغيرك، ويتم حفظه تلقائياً إلى جوالك عند التوليد.</p>
                 <div class="flex flex-wrap gap-2">
@@ -1192,7 +1206,6 @@ const htmlContent = `<!DOCTYPE html>
             </div>
         </section>
 
-        <!-- تبويب الجهات -->
         <section id="pane-contacts" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-[#0d1926] border border-slate-800 p-3.5 rounded-2xl space-y-2.5">
                 <div class="flex items-center justify-between gap-2 flex-wrap">
@@ -1220,7 +1233,6 @@ const htmlContent = `<!DOCTYPE html>
             </div>
         </section>
 
-        <!-- تبويب المكالمات -->
         <section id="pane-calls" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
             <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-3 text-center">
                 <h2 id="calls-heading" class="text-base font-bold sanad-brand-title">المكالمات الصوتية والمرئية</h2>
@@ -1234,7 +1246,6 @@ const htmlContent = `<!DOCTYPE html>
             </div>
         </section>
 
-        <!-- تبويب الذكاء -->
         <section id="pane-ai" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
             <div class="bg-gradient-to-br from-[#133144] to-[#0d1926] border border-sky-800/60 p-4 rounded-2xl flex items-center gap-3">
                 <img src="/icon-192.png" alt="سند AI" class="w-14 h-14 rounded-2xl border border-sky-400/35 shrink-0">
@@ -1259,7 +1270,6 @@ const htmlContent = `<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- إذاعة سند الذكية سريعة الاستجابة -->
             <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
                 <div class="flex items-center justify-between gap-2">
                     <h2 id="radio-heading" class="text-sm font-bold text-sky-200"><i class="fa-solid fa-radio ml-1"></i> إذاعة سند AI • بث ذكي فوري</h2>
@@ -1289,7 +1299,6 @@ const htmlContent = `<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- نظام المواقيت والقرآن والأذان الحقيقي الآلي -->
             <div id="sanad-real-adhan-box" class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
                 <div class="flex items-center justify-between gap-2">
                     <h2 id="adhan-heading" class="text-sm font-bold text-sky-200"><i class="fa-solid fa-mosque ml-1"></i> القرآن والأذان الحقيقي الآلي</h2>
@@ -1338,7 +1347,6 @@ const htmlContent = `<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- لوحة الطقس والرياح والمد والجزر والأقمار الصناعية -->
             <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
                 <div class="flex items-center justify-between gap-2">
                     <h2 id="marine-heading" class="text-sm font-bold text-sky-200"><i class="fa-solid fa-satellite ml-1"></i> الرصد الجوي والبحري والأقمار الصناعية</h2>
@@ -1371,7 +1379,6 @@ const htmlContent = `<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- النسخة الاحتياطية وسجل التحصيلات -->
             <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-3 text-xs">
                 <div class="flex items-center justify-between">
                     <h2 id="backup-heading" class="text-sm font-bold text-sky-200"><i class="fa-solid fa-database ml-1"></i> النسخة الاحتياطية وسجل التحصيلات</h2>
@@ -1438,7 +1445,7 @@ const htmlContent = `<!DOCTYPE html>
         var radioStatusTimer = null;
         var ringtoneInterval = null;
         var ringtoneAudioCtx = null;
-        var callSpeakerMode = false; // افتراضياً سماعة الأذن (خصوصية) وليس مكبر الصوت
+        var callSpeakerMode = false;
 
         var REAL_ADHAN_AUDIO_SRC = '/sanad-adhan.mp3';
         var REAL_QURAN_STREAM_SRC = 'https://stream.radiojar.com/0tpy1h0kxtzuv';
@@ -2229,7 +2236,7 @@ const htmlContent = `<!DOCTYPE html>
                     '<span>• ' + (isEn ? 'Blocked' : 'المحظورون') + ': <b class="text-rose-300">' + toWesternDigits(c.blocked || 0) + '</b></span>' +
                     '</div>' +
                     '<div class="flex justify-end">' +
-                    '<button type="button" onclick="restoreBackupByRecordId(\\'' + escapeJsSingle(item.id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold">' + (isEn ? 'Restore' : 'استعادة') + '</button>' +
+                    '<button type="button" onclick="restoreBackupByRecordId(\'' + escapeJsSingle(item.id) + '\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold">' + (isEn ? 'Restore' : 'استعادة') + '</button>' +
                     '</div></div>';
             }).join('');
         }
@@ -2368,7 +2375,6 @@ const htmlContent = `<!DOCTYPE html>
             ev.target.value = '';
         }
 
-        /* نغمة الرنين وبروتوكول الإشارة الصوتية للمكالمات */
         function playSingleTonePulse(freq, durationSec, volumeVal) {
             try {
                 var AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -2439,7 +2445,6 @@ const htmlContent = `<!DOCTYPE html>
             playSingleTonePulse(740, 0.2, 0.06);
         }
 
-        /* التحكم في سماعة الأذن أو مكبر الصوت أثناء المكالمة */
         function applyCallAudioRouting() {
             var remAudio = document.getElementById('remote-audio-el');
             if (!remAudio) return;
@@ -2583,7 +2588,7 @@ const htmlContent = `<!DOCTYPE html>
                 'TEL;TYPE=CELL:' + cleanVal,
                 'NOTE:Sanad AI Platform',
                 'END:VCARD'
-            ].join('\\r\\n');
+            ].join('\r\n');
             var blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
             var fileName = 'sanad-' + cleanVal.replace(/[^a-zA-Z0-9+_-]/g, '') + '.vcf';
             if (autoDeliver !== false) {
@@ -2601,8 +2606,8 @@ const htmlContent = `<!DOCTYPE html>
                     'FN:' + c.name,
                     'TEL;TYPE=CELL:' + cleanIdValue(c.id),
                     'END:VCARD'
-                ].join('\\r\\n');
-            }).join('\\r\\n');
+                ].join('\r\n');
+            }).join('\r\n');
             var blob = new Blob([cards], { type: 'text/vcard;charset=utf-8' });
             if (autoDeliver !== false) {
                 triggerSeamlessFileDelivery(blob, 'sanad-contacts.vcf', 'Sanad Contacts');
@@ -2725,7 +2730,9 @@ const htmlContent = `<!DOCTYPE html>
                 if (box) box.classList.remove('hidden');
                 if (inp && data && data.code) inp.value = data.code;
                 if (msg) {
-                    msg.textContent = fullPhone + ' • ' + (data.code || '');
+                    msg.textContent = data && data.emailSent
+                        ? (fullPhone + ' • ' + email)
+                        : (fullPhone + (data && data.code ? (' • ' + data.code) : ''));
                 }
             }).catch(function() {});
         }
@@ -2900,7 +2907,7 @@ const htmlContent = `<!DOCTYPE html>
             box.innerHTML = arr.map(function(bId) {
                 return '<div class="flex items-center justify-between bg-[#08101a] border border-rose-900/40 px-3 py-2 rounded-xl text-xs gap-2">' +
                     '<span class="font-semibold text-rose-200 truncate">' + escapeHtml(resolveContactName(bId)) + '</span>' +
-                    '<button type="button" onclick="setBlockStatusForPeer(\\'' + escapeJsSingle(bId) + '\\', false)" class="bg-slate-800 text-sky-200 px-2.5 py-1 rounded-lg text-[11px] font-semibold">' + (isEn ? 'Unblock' : 'فك الحظر') + '</button>' +
+                    '<button type="button" onclick="setBlockStatusForPeer(\'' + escapeJsSingle(bId) + '\', false)" class="bg-slate-800 text-sky-200 px-2.5 py-1 rounded-lg text-[11px] font-semibold">' + (isEn ? 'Unblock' : 'فك الحظر') + '</button>' +
                     '</div>';
             }).join('');
         }
@@ -2919,9 +2926,9 @@ const htmlContent = `<!DOCTYPE html>
                     (isVerified ? ' <span class="text-[10px] text-sky-300">✓</span>' : '') +
                     (isCur ? ' <span class="text-[10px] text-sky-300">(' + (isEn ? 'Active' : 'نشط') + ')</span>' : '') + '</span>' +
                     '<div class="flex gap-1.5 shrink-0">' +
-                    '<button type="button" onclick="saveContactToDeviceVcf(\\'' + escapeJsSingle(acc) + '\\', \\'Sanad ' + escapeJsSingle(acc) + '\\', true)" class="bg-slate-800 text-sky-200 px-2 py-1 rounded-lg text-[11px] font-semibold">VCF</button>' +
-                    (!isCur ? '<button type="button" onclick="switchActiveAccount(\\'' + escapeJsSingle(acc) + '\\')" class="bg-[#164e63] text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold">' + (isEn ? 'Use' : 'تفعيل') + '</button>' : '') +
-                    (myAccts.length > 1 ? '<button type="button" onclick="deleteSavedAccount(\\'' + escapeJsSingle(acc) + '\\')" class="bg-rose-950/80 text-rose-200 px-2 py-1 rounded-lg text-[11px]">' + (isEn ? 'Del' : 'حذف') + '</button>' : '') +
+                    '<button type="button" onclick="saveContactToDeviceVcf(\'' + escapeJsSingle(acc) + '\', \'Sanad ' + escapeJsSingle(acc) + '\', true)" class="bg-slate-800 text-sky-200 px-2 py-1 rounded-lg text-[11px] font-semibold">VCF</button>' +
+                    (!isCur ? '<button type="button" onclick="switchActiveAccount(\'' + escapeJsSingle(acc) + '\')" class="bg-[#164e63] text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold">' + (isEn ? 'Use' : 'تفعيل') + '</button>' : '') +
+                    (myAccts.length > 1 ? '<button type="button" onclick="deleteSavedAccount(\'' + escapeJsSingle(acc) + '\')" class="bg-rose-950/80 text-rose-200 px-2 py-1 rounded-lg text-[11px]">' + (isEn ? 'Del' : 'حذف') + '</button>' : '') +
                     '</div></div>';
             }).join('');
         }
@@ -2982,9 +2989,9 @@ const htmlContent = `<!DOCTYPE html>
                     '<p class="font-mono text-[11px] text-slate-400 truncate">' + escapeHtml(c.id) + '</p>' +
                     '</div></div>' +
                     '<div class="flex gap-1.5 shrink-0">' +
-                    '<button type="button" onclick="saveContactToDeviceVcf(\\'' + escapeJsSingle(c.id) + '\\', \\'' + escapeJsSingle(c.name) + '\\', true)" class="bg-slate-800 text-sky-200 px-2 py-1.5 rounded-lg text-[11px] font-semibold">VCF</button>' +
-                    '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(c.id) + '\\')" class="bg-[#164e63] text-white px-2.5 py-1.5 rounded-lg font-semibold">' + (isEn ? 'Chat' : 'دردشة') + '</button>' +
-                    '<button type="button" onclick="deleteSavedContact(\\'' + escapeJsSingle(c.id) + '\\')" class="bg-rose-950/80 text-rose-200 px-2.5 py-1.5 rounded-lg font-semibold">' + (isEn ? 'Del' : 'حذف') + '</button>' +
+                    '<button type="button" onclick="saveContactToDeviceVcf(\'' + escapeJsSingle(c.id) + '\', \'' + escapeJsSingle(c.name) + '\', true)" class="bg-slate-800 text-sky-200 px-2 py-1.5 rounded-lg text-[11px] font-semibold">VCF</button>' +
+                    '<button type="button" onclick="choosePeer(\'' + escapeJsSingle(c.id) + '\')" class="bg-[#164e63] text-white px-2.5 py-1.5 rounded-lg font-semibold">' + (isEn ? 'Chat' : 'دردشة') + '</button>' +
+                    '<button type="button" onclick="deleteSavedContact(\'' + escapeJsSingle(c.id) + '\')" class="bg-rose-950/80 text-rose-200 px-2.5 py-1.5 rounded-lg font-semibold">' + (isEn ? 'Del' : 'حذف') + '</button>' +
                     '</div></div>';
             }).join('');
         }
@@ -2998,7 +3005,7 @@ const htmlContent = `<!DOCTYPE html>
             box.innerHTML = sanadGroups.map(function(g) {
                 return '<div class="flex items-center justify-between bg-[#0d1926] border border-slate-800 p-3 rounded-xl text-xs gap-2">' +
                     '<span class="font-bold text-white truncate">👥 ' + escapeHtml(g.name) + '</span>' +
-                    '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(g.id) + '\\')" class="bg-[#164e63] text-white px-3 py-1.5 rounded-lg font-semibold">' + (isEn ? 'Open' : 'فتح') + '</button>' +
+                    '<button type="button" onclick="choosePeer(\'' + escapeJsSingle(g.id) + '\')" class="bg-[#164e63] text-white px-3 py-1.5 rounded-lg font-semibold">' + (isEn ? 'Open' : 'فتح') + '</button>' +
                     '</div>';
             }).join('');
         }
@@ -3008,7 +3015,7 @@ const htmlContent = `<!DOCTYPE html>
             var mEl = document.getElementById('g-members');
             var name = nEl ? nEl.value.trim() : '';
             if (!name) return;
-            var extra = mEl ? toWesternDigits(mEl.value).split(/[\\s,،]+/).map(cleanIdValue).filter(Boolean) : [];
+            var extra = mEl ? toWesternDigits(mEl.value).split(/[\s,،]+/).map(cleanIdValue).filter(Boolean) : [];
             var grp = { id: 'grp-' + Date.now(), name: name, members: Array.from(new Set([activeAcct].concat(extra))) };
             sanadGroups.unshift(grp);
             if (nEl) nEl.value = '';
@@ -3028,7 +3035,7 @@ const htmlContent = `<!DOCTYPE html>
             if (q) items = items.filter(function(it) { return normalizeStr(it.label).indexOf(q) !== -1 || normalizeStr(it.id).indexOf(q) !== -1; });
             box.innerHTML = items.slice(0, 12).map(function(it) {
                 var active = normalizeStr(it.id) === normalizeStr(currentPeer);
-                return '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(it.id) + '\\')" class="px-2.5 py-1 rounded-full border text-xs font-semibold whitespace-nowrap shrink-0 ' +
+                return '<button type="button" onclick="choosePeer(\'' + escapeJsSingle(it.id) + '\')" class="px-2.5 py-1 rounded-full border text-xs font-semibold whitespace-nowrap shrink-0 ' +
                     (active ? 'bg-[#164e63] border-sky-500/60 text-white' : 'bg-[#08101a] border-slate-800 text-slate-300') + '">' + escapeHtml(it.label) + '</button>';
             }).join('');
         }
@@ -3186,11 +3193,11 @@ const htmlContent = `<!DOCTYPE html>
                 var isMe = m.from === 'me';
                 var media = '';
                 if (m.kind === 'audio' && m.mediaUrl) {
-                    media = '<div class="mt-1"><audio controls preload="metadata" src="' + m.mediaUrl + '" class="w-52 max-w-full h-9"></audio></div>';
+                    media = '<div class="mt-1"><audio controls preload="metadata" src="' + escapeHtml(m.mediaUrl) + '" class="w-52 max-w-full h-9"></audio></div>';
                 } else if (m.kind === 'image' && m.mediaUrl) {
-                    media = '<img src="' + m.mediaUrl + '" class="max-w-[195px] rounded-xl mt-1">';
+                    media = '<img src="' + escapeHtml(m.mediaUrl) + '" class="max-w-[195px] rounded-xl mt-1">';
                 } else if (m.kind === 'file' && m.mediaUrl) {
-                    media = '<a href="' + m.mediaUrl + '" download="' + escapeHtml(m.fileName || 'file') + '" class="underline text-xs text-sky-200 block mt-1">' + escapeHtml(m.fileName || 'file') + '</a>';
+                    media = '<a href="' + escapeHtml(m.mediaUrl) + '" download="' + escapeHtml(m.fileName || 'file') + '" class="underline text-xs text-sky-200 block mt-1">' + escapeHtml(m.fileName || 'file') + '</a>';
                 }
                 var receiptHtml = isMe ? renderReceiptTick(m.receipt || 'sent') : '';
                 var safeId = escapeJsSingle(m.id || '');
@@ -3211,11 +3218,11 @@ const htmlContent = `<!DOCTYPE html>
                 }
 
                 var actionsHtml = '<div class="flex items-center gap-2.5 text-[10px] text-slate-300/85 mt-1.5 pt-1 border-t border-white/10 flex-wrap">' +
-                    '<button type="button" onclick="setReplyTarget(\\'' + safeId + '\\')" class="hover:text-white flex items-center gap-0.5"><i class="fa-solid fa-reply"></i><span>' + escapeHtml(dict.replyBtn) + '</span></button>' +
-                    (m.text ? '<button type="button" onclick="translateChatMessage(\\'' + safeId + '\\')" class="hover:text-white flex items-center gap-0.5"><i class="fa-solid fa-language"></i><span>' + escapeHtml(dict.translateBtn) + '</span></button>' : '') +
-                    (m.text ? '<button type="button" onclick="speakMessageText(\\'' + safeId + '\\')" class="hover:text-white flex items-center gap-0.5"><i class="fa-solid fa-volume-high"></i><span>' + escapeHtml(dict.speakBtn) + '</span></button>' : '') +
-                    (m.text ? '<button type="button" onclick="copyStringToClipboard(decodeURIComponent(\\'' + encodeURIComponent(m.text) + '\\'))" class="hover:text-white flex items-center gap-0.5"><i class="fa-regular fa-copy"></i><span>' + escapeHtml(dict.copyBtn) + '</span></button>' : '') +
-                    '<button type="button" onclick="openDeleteMsgModal(\\'' + safeId + '\\')" class="hover:text-rose-300 flex items-center gap-0.5 mr-auto"><i class="fa-solid fa-trash-can"></i><span>' + escapeHtml(dict.deleteFinalBtn) + '</span></button>' +
+                    '<button type="button" onclick="setReplyTarget(\'' + safeId + '\')" class="hover:text-white flex items-center gap-0.5"><i class="fa-solid fa-reply"></i><span>' + escapeHtml(dict.replyBtn) + '</span></button>' +
+                    (m.text ? '<button type="button" onclick="translateChatMessage(\'' + safeId + '\')" class="hover:text-white flex items-center gap-0.5"><i class="fa-solid fa-language"></i><span>' + escapeHtml(dict.translateBtn) + '</span></button>' : '') +
+                    (m.text ? '<button type="button" onclick="speakMessageText(\'' + safeId + '\')" class="hover:text-white flex items-center gap-0.5"><i class="fa-solid fa-volume-high"></i><span>' + escapeHtml(dict.speakBtn) + '</span></button>' : '') +
+                    (m.text ? '<button type="button" onclick="copyStringToClipboard(decodeURIComponent(\'' + encodeURIComponent(m.text) + '\'))" class="hover:text-white flex items-center gap-0.5"><i class="fa-regular fa-copy"></i><span>' + escapeHtml(dict.copyBtn) + '</span></button>' : '') +
+                    '<button type="button" onclick="openDeleteMsgModal(\'' + safeId + '\')" class="hover:text-rose-300 flex items-center gap-0.5 mr-auto"><i class="fa-solid fa-trash-can"></i><span>' + escapeHtml(dict.deleteFinalBtn) + '</span></button>' +
                     '</div>';
 
                 return '<div class="flex ' + (isMe ? 'justify-start' : 'justify-end') + '">' +
@@ -3387,7 +3394,7 @@ const htmlContent = `<!DOCTYPE html>
             }
             var reader = new FileReader();
             reader.onload = function() {
-                var isImg = /^image\\//i.test(file.type);
+                var isImg = /^image\//i.test(file.type);
                 var msgObj = {
                     id: 'f-' + Date.now(),
                     from: 'me',
@@ -3884,6 +3891,7 @@ const htmlContent = `<!DOCTYPE html>
 const server = http.createServer((req, res) => {
     const reqUrl = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
     const pathname = reqUrl.pathname;
+    const clientIp = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown').toString().split(',')[0].trim();
 
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.setHeader('Pragma', 'no-cache');
@@ -3983,6 +3991,11 @@ const server = http.createServer((req, res) => {
     }
 
     if (pathname === '/api/codes/generate-88' && req.method === 'POST') {
+        if (isRateLimited(`gen88:${clientIp}`, 25, 60000)) {
+            res.writeHead(429, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ ok: false, error: 'Too many requests' }));
+            return;
+        }
         const code = generateUnique88CodeServer();
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
         res.end(JSON.stringify({ ok: true, code }));
@@ -3990,8 +4003,16 @@ const server = http.createServer((req, res) => {
     }
 
     if (pathname === '/api/ai/chat' && req.method === 'POST') {
+        if (isRateLimited(`ai:${clientIp}`, 40, 60000)) {
+            res.writeHead(429, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ ok: false, reply: 'تم تجاوز حد الطلبات المؤقت.' }));
+            return;
+        }
         let body = '';
-        req.on('data', chunk => { body += chunk.toString('utf8'); });
+        req.on('data', chunk => {
+            body += chunk.toString('utf8');
+            if (body.length > 250_000) req.destroy();
+        });
         req.on('end', async () => {
             try {
                 const parsed = JSON.parse(body || '{}');
@@ -4007,8 +4028,16 @@ const server = http.createServer((req, res) => {
     }
 
     if (pathname === '/api/ai/translate' && req.method === 'POST') {
+        if (isRateLimited(`tr:${clientIp}`, 50, 60000)) {
+            res.writeHead(429, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ ok: false, translated: '' }));
+            return;
+        }
         let body = '';
-        req.on('data', chunk => { body += chunk.toString('utf8'); });
+        req.on('data', chunk => {
+            body += chunk.toString('utf8');
+            if (body.length > 250_000) req.destroy();
+        });
         req.on('end', async () => {
             try {
                 const parsed = JSON.parse(body || '{}');
@@ -4024,13 +4053,21 @@ const server = http.createServer((req, res) => {
     }
 
     if (pathname === '/api/auth/request-code' && req.method === 'POST') {
+        if (isRateLimited(`otp:${clientIp}`, 15, 60000)) {
+            res.writeHead(429, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ ok: false }));
+            return;
+        }
         let body = '';
-        req.on('data', chunk => { body += chunk.toString('utf8'); });
+        req.on('data', chunk => {
+            body += chunk.toString('utf8');
+            if (body.length > 64_000) req.destroy();
+        });
         req.on('end', async () => {
             try {
                 const parsed = JSON.parse(body || '{}');
                 const normPhone = normIdServer(parsed.phone || '');
-                const email = String(parsed.email || '').trim();
+                const email = String(parsed.email || '').trim().slice(0, 180);
                 const code = String(Math.floor(100000 + Math.random() * 900000));
                 if (normPhone) {
                     pendingVerifications.set(normPhone, { code, email, createdAt: Date.now() });
@@ -4052,7 +4089,7 @@ const server = http.createServer((req, res) => {
                                 from: mailFrom,
                                 to: [email],
                                 subject: 'رمز التحقق (6 أرقام) -- سند AI',
-                                html: `<div dir="rtl" style="font-family:sans-serif"><h3>${SYSTEM_SCIENTIFIC_NAME}</h3><p>رمز التحقق الخاص بالرقم <b>${parsed.phone || ''}</b> هو: <b>${code}</b></p></div>`
+                                html: `<div dir="rtl" style="font-family:sans-serif"><h3>${SYSTEM_SCIENTIFIC_NAME}</h3><p>رمز التحقق الخاص بالرقم <b>${String(parsed.phone || '').replace(/[<>&]/g, '')}</b> هو: <b>${code}</b></p></div>`
                             })
                         });
                         if (resp && resp.ok) emailSent = true;
@@ -4060,7 +4097,13 @@ const server = http.createServer((req, res) => {
                 }
 
                 res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-                res.end(JSON.stringify({ ok: true, phone: parsed.phone, email, code, emailSent }));
+                res.end(JSON.stringify({
+                    ok: true,
+                    phone: parsed.phone,
+                    email,
+                    code: emailSent ? '' : code,
+                    emailSent
+                }));
             } catch (e) {
                 res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
                 res.end(JSON.stringify({ ok: false }));
@@ -4071,14 +4114,18 @@ const server = http.createServer((req, res) => {
 
     if (pathname === '/api/auth/verify-code' && req.method === 'POST') {
         let body = '';
-        req.on('data', chunk => { body += chunk.toString('utf8'); });
+        req.on('data', chunk => {
+            body += chunk.toString('utf8');
+            if (body.length > 64_000) req.destroy();
+        });
         req.on('end', () => {
             try {
                 const parsed = JSON.parse(body || '{}');
                 const normPhone = normIdServer(parsed.phone || '');
                 const submitted = String(parsed.code || '').trim();
                 const rec = pendingVerifications.get(normPhone);
-                const valid = Boolean(rec && rec.code === submitted);
+                const isFresh = rec && (Date.now() - rec.createdAt <= 15 * 60 * 1000);
+                const valid = Boolean(isFresh && rec.code === submitted);
                 if (valid) pendingVerifications.delete(normPhone);
                 res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
                 res.end(JSON.stringify({ ok: valid, phone: parsed.phone }));
@@ -4114,9 +4161,9 @@ const server = http.createServer((req, res) => {
             return;
         }
 
-        const since = Number(reqUrl.searchParams.get('since') || 0);
+        const since = Math.max(0, Number(reqUrl.searchParams.get('since') || 0));
         const idsParam = String(reqUrl.searchParams.get('ids') || '');
-        const watchedIds = new Set(idsParam.split(',').map(normIdServer).filter(Boolean));
+        const watchedIds = new Set(idsParam.split(',').slice(0, 100).map(normIdServer).filter(Boolean));
         if (watchedIds.size > 0) touchPresenceIds(Array.from(watchedIds));
 
         const matchedEvents = watchedIds.size > 0
@@ -4139,7 +4186,11 @@ const server = http.createServer((req, res) => {
     }
 
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-    res.end(htmlContent);
+    if (fs.existsSync(EXTERNAL_HTML_PATH)) {
+        res.end(fs.readFileSync(EXTERNAL_HTML_PATH, 'utf8'));
+    } else {
+        res.end(htmlContent);
+    }
 });
 
 const wss = new WebSocketServer({ server });
@@ -4149,7 +4200,9 @@ wss.on('connection', wsClient => {
 
     wsClient.on('message', raw => {
         try {
-            const parsed = JSON.parse(String(raw || '{}'));
+            const rawStr = String(raw || '{}');
+            if (rawStr.length > 8_000_000) return;
+            const parsed = JSON.parse(rawStr);
             processIncomingPacket(parsed, wsClient);
         } catch (e) {}
     });

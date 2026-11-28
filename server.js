@@ -38,6 +38,21 @@ const MEDIA_MIME_TYPES = {
     '.mp4': 'video/mp4'
 };
 
+function buildDynamicM3uContent() {
+    const lines = [
+        '#EXTM3U',
+        '#EXTINF:-1,برومو إذاعة سند AI -- البث المباشر',
+        LOCAL_RADIO_URL || '/sanad-radio-promo.mp3'
+    ];
+    SANAD_EXTRA_TRACKS.forEach(tr => {
+        if (tr && tr.url) {
+            lines.push(`#EXTINF:-1,${tr.title || 'مقطع إذاعة سند'}`);
+            lines.push(tr.url);
+        }
+    });
+    return lines.join('\n') + '\n';
+}
+
 function toWesternDigitsServer(str) {
     return String(str === undefined || str === null ? '' : str)
         .replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 1632))
@@ -1088,7 +1103,7 @@ const htmlContent = `<!DOCTYPE html>
             if (window.SANAD_RADIO_PLAYLIST && Array.isArray(window.SANAD_RADIO_PLAYLIST.tracks) && window.SANAD_RADIO_PLAYLIST.tracks.length) {
                 return window.SANAD_RADIO_PLAYLIST.tracks.slice();
             }
-            var list = [{ id: 'promo', title: 'برومو إذاعة سند', url: SANAD_LOCAL_RADIO_URL || '/sanad-radio-promo.mp3' }];
+            var list = [{ id: 'promo', title: 'برومو إذاعة سند AI -- البث المباشر', url: SANAD_LOCAL_RADIO_URL || '/sanad-radio-promo.mp3' }];
             if (Array.isArray(SANAD_SERVER_EXTRA_TRACKS)) {
                 SANAD_SERVER_EXTRA_TRACKS.forEach(function(t) {
                     if (t && t.url) list.push({ id: t.id || ('srv-' + list.length), title: t.title || ('مقطع ' + list.length), url: t.url });
@@ -3341,11 +3356,12 @@ const server = http.createServer((req, res) => {
 
     if (pathname === '/sanad-radio.m3u') {
         const m3uPath = path.join(__dirname, 'sanad-radio.m3u');
-        if (fs.existsSync(m3uPath)) {
-            res.writeHead(200, { 'Content-Type': 'audio/x-mpegurl; charset=utf-8' });
-            res.end(fs.readFileSync(m3uPath, 'utf8'));
-            return;
-        }
+        const m3uBody = fs.existsSync(m3uPath)
+            ? fs.readFileSync(m3uPath, 'utf8')
+            : buildDynamicM3uContent();
+        res.writeHead(200, { 'Content-Type': 'audio/x-mpegurl; charset=utf-8' });
+        res.end(m3uBody);
+        return;
     }
 
     const mediaExt = path.extname(pathname).toLowerCase();

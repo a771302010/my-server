@@ -460,7 +460,7 @@ self.addEventListener('fetch', event => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.pathname.startsWith('/api/') || url.pathname === '/healthz') return;
-  if (req.headers.get('range') || /\\.(mp3|m4a|mp4|wav|ogg)$/i.test(url.pathname)) return;
+  if (req.headers.get('range') || /\.(mp3|m4a|mp4|wav|ogg)$/i.test(url.pathname)) return;
 
   if (
     req.mode === 'navigate' ||
@@ -798,10 +798,10 @@ const htmlContent = `<!DOCTYPE html>
 
         function escapeJsSingle(str) {
             return String(str === undefined || str === null ? '' : str)
-                .replace(/\\\\/g, '\\\\\\\\')
-                .replace(/'/g, "\\\\'")
-                .replace(/\\r/g, ' ')
-                .replace(/\\n/g, ' ');
+                .split('\\').join('\\\\')
+                .split("'").join("\\'")
+                .split('\r').join(' ')
+                .split('\n').join(' ');
         }
 
         function getActiveTabLabels() {
@@ -1907,7 +1907,7 @@ const htmlContent = `<!DOCTYPE html>
             var list = getThreadMap()[currentPeer] || [];
             var m = list.find(function(item) { return item && item.id === msgId && item.text; });
             if (!m || !m.text) return;
-            var isArabic = /[\\u0600-\\u06FF]/.test(m.text);
+            var isArabic = /[\u0600-\u06FF]/.test(m.text);
             var targetLang = isArabic ? 'en' : 'ar';
             translationsByMsgId[msgId] = '...';
             renderMsgs();
@@ -1951,7 +1951,7 @@ const htmlContent = `<!DOCTYPE html>
             try {
                 window.speechSynthesis.cancel();
                 var utter = new SpeechSynthesisUtterance(cleanTxt);
-                utter.lang = /[\\u0600-\\u06FF]/.test(cleanTxt) ? 'ar' : 'en-US';
+                utter.lang = /[\u0600-\u06FF]/.test(cleanTxt) ? 'ar' : 'en-US';
                 utter.rate = 0.96;
                 window.speechSynthesis.speak(utter);
             } catch (e) {}
@@ -2075,7 +2075,7 @@ const htmlContent = `<!DOCTYPE html>
                 return;
             }
 
-            var isMp4 = /\\.mp4(\\?.*)?$/i.test(tr.url);
+            var isMp4 = /\.mp4(\?.*)?$/i.test(tr.url);
             var player = isMp4 ? (document.getElementById('radio-mp4-el') || document.getElementById('radio-audio-el')) : document.getElementById('radio-audio-el');
             if (!player) return;
 
@@ -2163,6 +2163,7 @@ const htmlContent = `<!DOCTYPE html>
                     if (p2 && typeof p2.catch === 'function') {
                         p2.catch(function() {
                             clearTimeout(radioStatusTimer);
+                            if (!radioPlaying || sessionId !== radioSessionSeq) return;
                             playSmartFallbackLiveStream(sessionId, 0);
                         });
                     }
@@ -2281,7 +2282,7 @@ const htmlContent = `<!DOCTYPE html>
                     '<span>• ' + (isEn ? 'Blocked' : 'المحظورون') + ': <b class="text-rose-300">' + toWesternDigits(c.blocked || 0) + '</b></span>' +
                     '</div>' +
                     '<div class="flex justify-end">' +
-                    '<button type="button" onclick="restoreBackupByRecordId(\'' + escapeJsSingle(item.id) + '\')" class="sanad-primary-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold">' + (isEn ? 'Restore' : 'استعادة') + '</button>' +
+                    '<button type="button" onclick="restoreBackupByRecordId('' + escapeJsSingle(item.id) + '')" class="sanad-primary-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold">' + (isEn ? 'Restore' : 'استعادة') + '</button>' +
                     '</div></div>';
             }).join('');
         }
@@ -2987,7 +2988,7 @@ const htmlContent = `<!DOCTYPE html>
             box.innerHTML = arr.map(function(bId) {
                 return '<div class="flex items-center justify-between bg-[#07131c] border border-rose-900/40 px-3 py-2 rounded-xl text-xs gap-2">' +
                     '<span class="font-semibold text-rose-200 truncate">' + escapeHtml(resolveContactName(bId)) + '</span>' +
-                    '<button type="button" onclick="setBlockStatusForPeer(\'' + escapeJsSingle(bId) + '\', false)" class="bg-[#0e2736] text-teal-200 px-2.5 py-1 rounded-lg text-[11px] font-semibold">' + (isEn ? 'Unblock' : 'فك الحظر') + '</button>' +
+                    '<button type="button" onclick="setBlockStatusForPeer('' + escapeJsSingle(bId) + '', false)" class="bg-[#0e2736] text-teal-200 px-2.5 py-1 rounded-lg text-[11px] font-semibold">' + (isEn ? 'Unblock' : 'فك الحظر') + '</button>' +
                     '</div>';
             }).join('');
         }
@@ -3016,9 +3017,9 @@ const htmlContent = `<!DOCTYPE html>
                     (isVerified ? ' <span class="text-[10px] text-teal-300">✓</span>' : '') +
                     (isCur ? ' <span class="text-[10px] text-teal-300">(' + (isEn ? 'Active' : 'نشط') + ')</span>' : '') + '</span>' +
                     '<div class="flex gap-1.5 shrink-0">' +
-                    '<button type="button" onclick="saveContactToDeviceVcf(\'' + escapeJsSingle(acc) + '\', \'Sanad ' + escapeJsSingle(acc) + '\', true)" class="bg-[#0e2736] text-teal-200 px-2 py-1 rounded-lg text-[11px] font-semibold">VCF</button>' +
-                    (!isCur ? '<button type="button" onclick="switchActiveAccount(\'' + escapeJsSingle(acc) + '\')" class="sanad-primary-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold">' + (isEn ? 'Use' : 'تفعيل') + '</button>' : '') +
-                    (myAccts.length > 1 ? '<button type="button" onclick="deleteSavedAccount(\'' + escapeJsSingle(acc) + '\')" class="bg-rose-950/80 text-rose-200 px-2 py-1 rounded-lg text-[11px]">' + (isEn ? 'Del' : 'حذف') + '</button>' : '') +
+                    '<button type="button" onclick="saveContactToDeviceVcf('' + escapeJsSingle(acc) + '', 'Sanad ' + escapeJsSingle(acc) + '', true)" class="bg-[#0e2736] text-teal-200 px-2 py-1 rounded-lg text-[11px] font-semibold">VCF</button>' +
+                    (!isCur ? '<button type="button" onclick="switchActiveAccount('' + escapeJsSingle(acc) + '')" class="sanad-primary-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold">' + (isEn ? 'Use' : 'تفعيل') + '</button>' : '') +
+                    (myAccts.length > 1 ? '<button type="button" onclick="deleteSavedAccount('' + escapeJsSingle(acc) + '')" class="bg-rose-950/80 text-rose-200 px-2 py-1 rounded-lg text-[11px]">' + (isEn ? 'Del' : 'حذف') + '</button>' : '') +
                     '</div></div>';
             }).join('');
         }
@@ -3079,9 +3080,9 @@ const htmlContent = `<!DOCTYPE html>
                     '<p class="font-mono text-[11px] text-slate-400 truncate">' + escapeHtml(c.id) + '</p>' +
                     '</div></div>' +
                     '<div class="flex gap-1.5 shrink-0">' +
-                    '<button type="button" onclick="saveContactToDeviceVcf(\'' + escapeJsSingle(c.id) + '\', \'' + escapeJsSingle(c.name) + '\', true)" class="bg-[#0e2736] text-teal-200 px-2 py-1.5 rounded-lg text-[11px] font-semibold">VCF</button>' +
-                    '<button type="button" onclick="choosePeer(\'' + escapeJsSingle(c.id) + '\')" class="sanad-primary-btn px-2.5 py-1.5 rounded-lg font-semibold">' + (isEn ? 'Chat' : 'دردشة') + '</button>' +
-                    '<button type="button" onclick="deleteSavedContact(\'' + escapeJsSingle(c.id) + '\')" class="bg-rose-950/80 text-rose-200 px-2.5 py-1.5 rounded-lg font-semibold">' + (isEn ? 'Del' : 'حذف') + '</button>' +
+                    '<button type="button" onclick="saveContactToDeviceVcf('' + escapeJsSingle(c.id) + '', '' + escapeJsSingle(c.name) + '', true)" class="bg-[#0e2736] text-teal-200 px-2 py-1.5 rounded-lg text-[11px] font-semibold">VCF</button>' +
+                    '<button type="button" onclick="choosePeer('' + escapeJsSingle(c.id) + '')" class="sanad-primary-btn px-2.5 py-1.5 rounded-lg font-semibold">' + (isEn ? 'Chat' : 'دردشة') + '</button>' +
+                    '<button type="button" onclick="deleteSavedContact('' + escapeJsSingle(c.id) + '')" class="bg-rose-950/80 text-rose-200 px-2.5 py-1.5 rounded-lg font-semibold">' + (isEn ? 'Del' : 'حذف') + '</button>' +
                     '</div></div>';
             }).join('');
         }
@@ -3095,7 +3096,7 @@ const htmlContent = `<!DOCTYPE html>
             box.innerHTML = sanadGroups.map(function(g) {
                 return '<div class="flex items-center justify-between bg-[#0b1b26] border border-slate-800 p-3 rounded-xl text-xs gap-2">' +
                     '<span class="font-bold text-white truncate">👥 ' + escapeHtml(g.name) + '</span>' +
-                    '<button type="button" onclick="choosePeer(\'' + escapeJsSingle(g.id) + '\')" class="sanad-primary-btn px-3 py-1.5 rounded-lg font-semibold">' + (isEn ? 'Open' : 'فتح') + '</button>' +
+                    '<button type="button" onclick="choosePeer('' + escapeJsSingle(g.id) + '')" class="sanad-primary-btn px-3 py-1.5 rounded-lg font-semibold">' + (isEn ? 'Open' : 'فتح') + '</button>' +
                     '</div>';
             }).join('');
         }
@@ -3125,7 +3126,7 @@ const htmlContent = `<!DOCTYPE html>
             if (q) items = items.filter(function(it) { return normalizeStr(it.label).indexOf(q) !== -1 || normalizeStr(it.id).indexOf(q) !== -1; });
             box.innerHTML = items.slice(0, 12).map(function(it) {
                 var active = normalizeStr(it.id) === normalizeStr(currentPeer);
-                return '<button type="button" onclick="choosePeer(\'' + escapeJsSingle(it.id) + '\')" class="px-2.5 py-1 rounded-full border text-xs font-semibold whitespace-nowrap shrink-0 ' +
+                return '<button type="button" onclick="choosePeer('' + escapeJsSingle(it.id) + '')" class="px-2.5 py-1 rounded-full border text-xs font-semibold whitespace-nowrap shrink-0 ' +
                     (active ? 'bg-[#0f4c5c] border-teal-500/60 text-white' : 'bg-[#07131c] border-slate-800 text-slate-300') + '">' + escapeHtml(it.label) + '</button>';
             }).join('');
         }
@@ -3308,11 +3309,11 @@ const htmlContent = `<!DOCTYPE html>
                 }
 
                 var actionsHtml = '<div class="flex items-center gap-2.5 text-[10px] text-slate-300/85 mt-1.5 pt-1 border-t border-white/10 flex-wrap">' +
-                    '<button type="button" onclick="setReplyTarget(\'' + safeId + '\')" class="hover:text-white flex items-center gap-0.5"><i class="fa-solid fa-reply"></i><span>' + escapeHtml(dict.replyBtn) + '</span></button>' +
-                    (m.text ? '<button type="button" onclick="translateChatMessage(\'' + safeId + '\')" class="hover:text-white flex items-center gap-0.5"><i class="fa-solid fa-language"></i><span>' + escapeHtml(dict.translateBtn) + '</span></button>' : '') +
-                    (m.text ? '<button type="button" onclick="speakMessageText(\'' + safeId + '\')" class="hover:text-white flex items-center gap-0.5"><i class="fa-solid fa-volume-high"></i><span>' + escapeHtml(dict.speakBtn) + '</span></button>' : '') +
-                    (m.text ? '<button type="button" onclick="copyStringToClipboard(decodeURIComponent(\'' + encodeURIComponent(m.text) + '\'))" class="hover:text-white flex items-center gap-0.5"><i class="fa-regular fa-copy"></i><span>' + escapeHtml(dict.copyBtn) + '</span></button>' : '') +
-                    '<button type="button" onclick="openDeleteMsgModal(\'' + safeId + '\')" class="hover:text-rose-300 flex items-center gap-0.5 mr-auto"><i class="fa-solid fa-trash-can"></i><span>' + escapeHtml(dict.deleteFinalBtn) + '</span></button>' +
+                    '<button type="button" onclick="setReplyTarget('' + safeId + '')" class="hover:text-white flex items-center gap-0.5"><i class="fa-solid fa-reply"></i><span>' + escapeHtml(dict.replyBtn) + '</span></button>' +
+                    (m.text ? '<button type="button" onclick="translateChatMessage('' + safeId + '')" class="hover:text-white flex items-center gap-0.5"><i class="fa-solid fa-language"></i><span>' + escapeHtml(dict.translateBtn) + '</span></button>' : '') +
+                    (m.text ? '<button type="button" onclick="speakMessageText('' + safeId + '')" class="hover:text-white flex items-center gap-0.5"><i class="fa-solid fa-volume-high"></i><span>' + escapeHtml(dict.speakBtn) + '</span></button>' : '') +
+                    (m.text ? '<button type="button" onclick="copyStringToClipboard(decodeURIComponent('' + encodeURIComponent(m.text) + ''))" class="hover:text-white flex items-center gap-0.5"><i class="fa-regular fa-copy"></i><span>' + escapeHtml(dict.copyBtn) + '</span></button>' : '') +
+                    '<button type="button" onclick="openDeleteMsgModal('' + safeId + '')" class="hover:text-rose-300 flex items-center gap-0.5 mr-auto"><i class="fa-solid fa-trash-can"></i><span>' + escapeHtml(dict.deleteFinalBtn) + '</span></button>' +
                     '</div>';
 
                 return '<div class="flex ' + (isMe ? 'justify-start' : 'justify-end') + '">' +

@@ -1,8 +1,9 @@
 // sanad-radio-playlist.js
-// قائمة البث المتواصل لإذاعة سند المحلية (تعمل تلقائياً بالتتابع دون فجوات)
+// قائمة البث المتواصل لإذاعة سند المحلية (تعمل تلقائياً بالتتابع من البداية)
 
 const SANAD_RADIO_M3U_URL = '/sanad-radio.m3u';
 const SANAD_PROMO_AUDIO_URL = 'https://my-server-t0s5.onrender.com/sanad-radio-promo.mp3';
+const SANAD_SEG_2_AUDIO_URL = 'https://my-server-t0s5.onrender.com/sanad-seg-2.mp3';
 
 const SANAD_RADIO_PLAYLIST = [
     {
@@ -10,6 +11,12 @@ const SANAD_RADIO_PLAYLIST = [
         title: 'برومو إذاعة راديو سند AI -- البث المباشر',
         url: SANAD_PROMO_AUDIO_URL,
         durationSec: 63
+    },
+    {
+        id: 'seg-2',
+        title: 'المقطع الثاني -- إذاعة سند',
+        url: SANAD_SEG_2_AUDIO_URL,
+        durationSec: 0
     }
 ];
 
@@ -49,7 +56,12 @@ class SanadContinuousRadio {
             this.audio.preload = 'auto';
             this.audio.addEventListener('ended', () => this.playNext());
             this.audio.addEventListener('error', () => {
-                setTimeout(() => this.playNext(), 1500);
+                if (!this.isPlaying) return;
+                if (this.playlist.length > 1) {
+                    this.playNext();
+                } else {
+                    setTimeout(() => this.playNext(), 1500);
+                }
             });
         }
     }
@@ -64,7 +76,6 @@ class SanadContinuousRadio {
             );
             if (parsed.length > 0) {
                 this.playlist = parsed;
-                this.currentIndex = 0;
                 return true;
             }
         } catch (e) {}
@@ -77,8 +88,9 @@ class SanadContinuousRadio {
         const activeList = this.playlist.length ? this.playlist : SANAD_RADIO_PLAYLIST;
         if (!activeList.length) return;
         this.playlist = activeList;
+        this.currentIndex = 0; // يبدأ دائماً من البداية عند التشغيل
         this.isPlaying = true;
-        this.playIndex(this.currentIndex);
+        this.playIndex(0);
     }
 
     stop() {
@@ -92,9 +104,11 @@ class SanadContinuousRadio {
 
     playIndex(index) {
         if (!this.isPlaying || !this.playlist.length) return;
-        this.currentIndex = index % this.playlist.length;
+        this.currentIndex = ((index % this.playlist.length) + this.playlist.length) % this.playlist.length;
         const track = this.playlist[this.currentIndex];
-        if (this.badge) this.badge.textContent = `على الهواء الآن: ${track.title}`;
+        if (this.badge) {
+            this.badge.textContent = `على الهواء الآن (${this.currentIndex + 1}/${this.playlist.length}): ${track.title}`;
+        }
         this.audio.src = track.url;
         this.audio.play().catch(() => {});
     }

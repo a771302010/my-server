@@ -1,8 +1,16 @@
-const http = require('http');
+const http = require('http'); 
 const fs = require('fs');
 const path = require('path');
 const { WebSocketServer } = require('ws');
-const { getIconAssetForRoute } = require('./sanad-icon-assets');
+let getIconAssetForRoute = () => ({ mimeType: 'image/svg+xml; charset=utf-8', buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128" rx="28" fill="#164e63"/><text x="64" y="82" text-anchor="middle" font-size="56" fill="#ffffff" font-family="sans-serif">س</text></svg>') });
+try {
+    const iconMod = require('./sanad-icon-assets');
+    if (iconMod && typeof iconMod.getIconAssetForRoute === 'function') {
+        getIconAssetForRoute = iconMod.getIconAssetForRoute;
+    }
+} catch (e) {
+    console.warn('sanad-icon-assets fallback active:', e && e.message ? e.message : e);
+}
 
 const APP_VERSION = '12.6.9';
 const PORT = process.env.PORT || 3000;
@@ -1384,7 +1392,7 @@ const htmlContent = `<!DOCTYPE html>
             var list = getThreadMap()[currentPeer] || [];
             var m = list.find(function(item) { return item && item.id === msgId && item.text; });
             if (!m || !m.text) return;
-            var isArabic = /[\\u0600-\\u06FF]/.test(m.text);
+            var isArabic = /[\u0600-\u06FF]/.test(m.text);
             var targetLang = isArabic ? 'en' : 'ar';
             translationsByMsgId[msgId] = 'جاري الترجمة...';
             renderMsgs();
@@ -1670,7 +1678,7 @@ const htmlContent = `<!DOCTYPE html>
                     '<span>• المحظورون: <b class="text-rose-300">' + toWesternDigits(c.blocked || 0) + '</b></span>' +
                     '</div>' +
                     '<div class="flex justify-end">' +
-                    '<button type="button" onclick="restoreBackupByRecordId(\\'' + escapeJsSingle(item.id) + '\\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold">استعادة هذه النسخة</button>' +
+                    '<button type="button" onclick="restoreBackupByRecordId(\'' + escapeJsSingle(item.id) + '\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold">استعادة هذه النسخة</button>' +
                     '</div></div>';
             }).join('');
         }
@@ -1745,7 +1753,7 @@ const htmlContent = `<!DOCTYPE html>
             try {
                 window.speechSynthesis.cancel();
                 var utter = new SpeechSynthesisUtterance(textToSpeak);
-                utter.lang = /[\\u0600-\\u06FF]/.test(textToSpeak) ? 'ar' : 'en-US';
+                utter.lang = /[\u0600-\u06FF]/.test(textToSpeak) ? 'ar' : 'en-US';
                 utter.rate = 1.0;
                 window.speechSynthesis.speak(utter);
                 copyStringToClipboard('', 'جاري قراءة الرسالة صوتياً...');
@@ -1941,7 +1949,7 @@ const htmlContent = `<!DOCTYPE html>
                 'TEL;TYPE=CELL:' + cleanVal,
                 'NOTE:Sanad Platform',
                 'END:VCARD'
-            ].join('\\r\\n');
+            ].join('\r\n');
             var blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
@@ -1964,8 +1972,8 @@ const htmlContent = `<!DOCTYPE html>
                     'FN:' + c.name,
                     'TEL;TYPE=CELL:' + cleanIdValue(c.id),
                     'END:VCARD'
-                ].join('\\r\\n');
-            }).join('\\r\\n');
+                ].join('\r\n');
+            }).join('\r\n');
             var blob = new Blob([cards], { type: 'text/vcard;charset=utf-8' });
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
@@ -2149,15 +2157,28 @@ const htmlContent = `<!DOCTYPE html>
                 var rawVault = localStorage.getItem('sanad_persistent_vault_v1');
                 var vault = rawVault ? JSON.parse(rawVault) : null;
 
-                var sActive = (vault && vault.activeAcct) || localStorage.getItem('sanad1269_active') || localStorage.getItem('sanad1268_active') || localStorage.getItem('sanad1267_active');
-                var sAccts = (vault && vault.myAccts) || JSON.parse(localStorage.getItem('sanad1269_accts') || localStorage.getItem('sanad1268_accts') || 'null');
-                var sVerified = (vault && vault.verifiedPhones) || JSON.parse(localStorage.getItem('sanad1269_verified') || localStorage.getItem('sanad1268_verified') || 'null');
-                var sContacts = (vault && vault.contacts) || JSON.parse(localStorage.getItem('sanad1269_contacts') || localStorage.getItem('sanad1268_contacts') || 'null');
-                var sBlocked = (vault && vault.blocked) || JSON.parse(localStorage.getItem('sanad1269_blocked') || localStorage.getItem('sanad1268_blocked') || 'null');
-                var sThreads = (vault && vault.threads) || JSON.parse(localStorage.getItem('sanad1269_threads') || localStorage.getItem('sanad1268_threads') || 'null');
-                var sGroups = (vault && vault.groups) || JSON.parse(localStorage.getItem('sanad1269_groups') || localStorage.getItem('sanad1268_groups') || 'null');
-                var sBackups = (vault && vault.backupHistory) || JSON.parse(localStorage.getItem('sanad1269_backups') || localStorage.getItem('sanad1268_backups') || 'null');
-                var sCursor = Number((vault && vault.cursor) || localStorage.getItem('sanad1269_cursor') || localStorage.getItem('sanad1268_cursor') || '0');
+                var pickKey = function(suffix) {
+                    var prefixes = ['sanad1269_', 'sanad1268_', 'sanad1267_', 'sanad1266_', 'sanad1265_', 'sanad1264_'];
+                    for (var i = 0; i < prefixes.length; i++) {
+                        var v = localStorage.getItem(prefixes[i] + suffix);
+                        if (v !== null && v !== undefined && v !== '') return v;
+                    }
+                    return null;
+                };
+                var parseJsonKey = function(suffix) {
+                    var raw = pickKey(suffix);
+                    if (!raw) return null;
+                    try { return JSON.parse(raw); } catch (e) { return null; }
+                };
+                var sActive = (vault && vault.activeAcct) || pickKey('active');
+                var sAccts = (vault && vault.myAccts) || parseJsonKey('accts');
+                var sVerified = (vault && vault.verifiedPhones) || parseJsonKey('verified');
+                var sContacts = (vault && vault.contacts) || parseJsonKey('contacts');
+                var sBlocked = (vault && vault.blocked) || parseJsonKey('blocked');
+                var sThreads = (vault && vault.threads) || parseJsonKey('threads');
+                var sGroups = (vault && vault.groups) || parseJsonKey('groups');
+                var sBackups = (vault && vault.backupHistory) || parseJsonKey('backups');
+                var sCursor = Number((vault && vault.cursor) || pickKey('cursor') || '0');
 
                 if (sActive) activeAcct = cleanIdValue(sActive);
                 if (Array.isArray(sAccts) && sAccts.length) myAccts = sAccts.map(cleanIdValue).filter(Boolean);
@@ -2257,7 +2278,7 @@ const htmlContent = `<!DOCTYPE html>
             box.innerHTML = arr.map(function(bId) {
                 return '<div class="flex items-center justify-between bg-[#08101a] border border-rose-900/40 px-3 py-2 rounded-xl text-xs gap-2">' +
                     '<span class="font-semibold text-rose-200 truncate">' + escapeHtml(resolveContactName(bId)) + '</span>' +
-                    '<button type="button" onclick="setBlockStatusForPeer(\\'' + escapeJsSingle(bId) + '\\', false)" class="bg-slate-800 text-teal-200 px-2.5 py-1 rounded-lg text-[11px] font-semibold">فك الحظر</button>' +
+                    '<button type="button" onclick="setBlockStatusForPeer(\'' + escapeJsSingle(bId) + '\', false)" class="bg-slate-800 text-teal-200 px-2.5 py-1 rounded-lg text-[11px] font-semibold">فك الحظر</button>' +
                     '</div>';
             }).join('');
         }
@@ -2275,9 +2296,9 @@ const htmlContent = `<!DOCTYPE html>
                     (isVerified ? ' <span class="text-[10px] text-emerald-300">✓ مفعّل</span>' : '') +
                     (isCur ? ' <span class="text-[10px] text-teal-300">(نشط)</span>' : '') + '</span>' +
                     '<div class="flex gap-1.5 shrink-0">' +
-                    '<button type="button" onclick="saveContactToDeviceVcf(\\'' + escapeJsSingle(acc) + '\\', \\'سند ' + escapeJsSingle(acc) + '\\')" class="bg-emerald-900/80 text-emerald-200 px-2 py-1 rounded-lg text-[11px] font-semibold">لجوالي</button>' +
-                    (!isCur ? '<button type="button" onclick="switchActiveAccount(\\'' + escapeJsSingle(acc) + '\\')" class="bg-[#164e63] text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold">تفعيل</button>' : '') +
-                    (myAccts.length > 1 ? '<button type="button" onclick="deleteSavedAccount(\\'' + escapeJsSingle(acc) + '\\')" class="bg-rose-950/80 text-rose-200 px-2 py-1 rounded-lg text-[11px]">حذف</button>' : '') +
+                    '<button type="button" onclick="saveContactToDeviceVcf(\'' + escapeJsSingle(acc) + '\', \'سند ' + escapeJsSingle(acc) + '\')" class="bg-emerald-900/80 text-emerald-200 px-2 py-1 rounded-lg text-[11px] font-semibold">لجوالي</button>' +
+                    (!isCur ? '<button type="button" onclick="switchActiveAccount(\'' + escapeJsSingle(acc) + '\')" class="bg-[#164e63] text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold">تفعيل</button>' : '') +
+                    (myAccts.length > 1 ? '<button type="button" onclick="deleteSavedAccount(\'' + escapeJsSingle(acc) + '\')" class="bg-rose-950/80 text-rose-200 px-2 py-1 rounded-lg text-[11px]">حذف</button>' : '') +
                     '</div></div>';
             }).join('');
         }
@@ -2325,9 +2346,9 @@ const htmlContent = `<!DOCTYPE html>
                     '<p class="font-mono text-[11px] text-slate-400 truncate">' + escapeHtml(c.id) + '</p>' +
                     '</div></div>' +
                     '<div class="flex gap-1.5 shrink-0">' +
-                    '<button type="button" onclick="saveContactToDeviceVcf(\\'' + escapeJsSingle(c.id) + '\\', \\'' + escapeJsSingle(c.name) + '\\')" class="bg-emerald-900/80 text-emerald-200 px-2 py-1.5 rounded-lg text-[11px] font-semibold">لجوالي</button>' +
-                    '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(c.id) + '\\')" class="bg-[#164e63] text-white px-2.5 py-1.5 rounded-lg font-semibold">دردشة</button>' +
-                    (!isDef ? '<button type="button" onclick="deleteSavedContact(\\'' + escapeJsSingle(c.id) + '\\')" class="bg-rose-950/80 text-rose-200 px-2 py-1.5 rounded-lg font-semibold">حذف</button>' : '') +
+                    '<button type="button" onclick="saveContactToDeviceVcf(\'' + escapeJsSingle(c.id) + '\', \'' + escapeJsSingle(c.name) + '\')" class="bg-emerald-900/80 text-emerald-200 px-2 py-1.5 rounded-lg text-[11px] font-semibold">لجوالي</button>' +
+                    '<button type="button" onclick="choosePeer(\'' + escapeJsSingle(c.id) + '\')" class="bg-[#164e63] text-white px-2.5 py-1.5 rounded-lg font-semibold">دردشة</button>' +
+                    (!isDef ? '<button type="button" onclick="deleteSavedContact(\'' + escapeJsSingle(c.id) + '\')" class="bg-rose-950/80 text-rose-200 px-2 py-1.5 rounded-lg font-semibold">حذف</button>' : '') +
                     '</div></div>';
             }).join('');
         }
@@ -2340,7 +2361,7 @@ const htmlContent = `<!DOCTYPE html>
             box.innerHTML = sanadGroups.map(function(g) {
                 return '<div class="flex items-center justify-between bg-[#0d1926] border border-slate-800 p-3 rounded-xl text-xs gap-2">' +
                     '<span class="font-bold text-white truncate">👥 ' + escapeHtml(g.name) + '</span>' +
-                    '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(g.id) + '\\')" class="bg-[#164e63] text-white px-3 py-1.5 rounded-lg font-semibold">فتح</button>' +
+                    '<button type="button" onclick="choosePeer(\'' + escapeJsSingle(g.id) + '\')" class="bg-[#164e63] text-white px-3 py-1.5 rounded-lg font-semibold">فتح</button>' +
                     '</div>';
             }).join('');
         }
@@ -2350,7 +2371,7 @@ const htmlContent = `<!DOCTYPE html>
             var mEl = document.getElementById('g-members');
             var name = nEl ? nEl.value.trim() : '';
             if (!name) return;
-            var extra = mEl ? toWesternDigits(mEl.value).split(/[\\s,،]+/).map(cleanIdValue).filter(Boolean) : [];
+            var extra = mEl ? toWesternDigits(mEl.value).split(/[\s,،]+/).map(cleanIdValue).filter(Boolean) : [];
             var grp = { id: 'grp-' + Date.now(), name: name, members: Array.from(new Set([activeAcct].concat(extra))) };
             sanadGroups.unshift(grp);
             if (nEl) nEl.value = '';
@@ -2370,7 +2391,7 @@ const htmlContent = `<!DOCTYPE html>
             if (q) items = items.filter(function(it) { return normalizeStr(it.label).indexOf(q) !== -1 || normalizeStr(it.id).indexOf(q) !== -1; });
             box.innerHTML = items.slice(0, 12).map(function(it) {
                 var active = normalizeStr(it.id) === normalizeStr(currentPeer);
-                return '<button type="button" onclick="choosePeer(\\'' + escapeJsSingle(it.id) + '\\')" class="px-2.5 py-1 rounded-full border text-xs font-semibold whitespace-nowrap shrink-0 ' +
+                return '<button type="button" onclick="choosePeer(\'' + escapeJsSingle(it.id) + '\')" class="px-2.5 py-1 rounded-full border text-xs font-semibold whitespace-nowrap shrink-0 ' +
                     (active ? 'bg-[#164e63] border-teal-500 text-white' : 'bg-[#08101a] border-slate-800 text-slate-300') + '">' + escapeHtml(it.label) + '</button>';
             }).join('');
         }
@@ -2526,7 +2547,7 @@ const htmlContent = `<!DOCTYPE html>
                     media = '<a href="' + m.mediaUrl + '" download="' + escapeHtml(m.fileName || 'file') + '" class="underline text-xs text-teal-200 block mt-1">' + escapeHtml(m.fileName || 'ملف') + '</a>';
                 }
                 var receiptHtml = isMe ? renderReceiptTick(m.receipt || 'sent') : '';
-                var safeId = escapeJsSingle(m.id);
+                var safeId = String(m.id || '').replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '&quot;');
 
                 var replyQuoteHtml = '';
                 if (m.replyTo && (m.replyTo.snippet || m.replyTo.author)) {
@@ -2544,11 +2565,11 @@ const htmlContent = `<!DOCTYPE html>
                 }
 
                 var actionsHtml = '<div class="flex items-center gap-2.5 text-[10px] text-slate-300/85 mt-1.5 pt-1 border-t border-white/10 flex-wrap">' +
-                    '<button type="button" onclick="setReplyTarget(\\'' + safeId + '\\')" class="hover:text-teal-200 flex items-center gap-0.5" title="رد على الرسالة"><i class="fa-solid fa-reply"></i><span>رد</span></button>' +
-                    (m.text ? '<button type="button" onclick="translateChatMessage(\\'' + safeId + '\\')" class="hover:text-emerald-200 flex items-center gap-0.5" title="ترجمة داخل المحادثة"><i class="fa-solid fa-language"></i><span>ترجمة</span></button>' : '') +
-                    (m.text ? '<button type="button" onclick="speakMessageText(\\'' + safeId + '\\')" class="hover:text-teal-200 flex items-center gap-0.5" title="قراءة صوتية بالذكاء الاصطناعي"><i class="fa-solid fa-volume-high"></i><span>قراءة</span></button>' : '') +
-                    (m.text ? '<button type="button" onclick="copyStringToClipboard(decodeURIComponent(\\'' + encodeURIComponent(m.text) + '\\'), \\'تم نسخ الرسالة\\')" class="hover:text-teal-200 flex items-center gap-0.5" title="نسخ"><i class="fa-regular fa-copy"></i><span>نسخ</span></button>' : '') +
-                    '<button type="button" onclick="openDeleteMsgModal(\\'' + safeId + '\\')" class="hover:text-rose-300 flex items-center gap-0.5 mr-auto" title="حذف نهائي"><i class="fa-solid fa-trash-can"></i><span>حذف نهائي</span></button>' +
+                    '<button type="button" onclick="setReplyTarget(\'' + safeId + '\')" class="hover:text-teal-200 flex items-center gap-0.5" title="رد على الرسالة"><i class="fa-solid fa-reply"></i><span>رد</span></button>' +
+                    (m.text ? '<button type="button" onclick="translateChatMessage(\'' + safeId + '\')" class="hover:text-emerald-200 flex items-center gap-0.5" title="ترجمة داخل المحادثة"><i class="fa-solid fa-language"></i><span>ترجمة</span></button>' : '') +
+                    (m.text ? '<button type="button" onclick="speakMessageText(\'' + safeId + '\')" class="hover:text-teal-200 flex items-center gap-0.5" title="قراءة صوتية بالذكاء الاصطناعي"><i class="fa-solid fa-volume-high"></i><span>قراءة</span></button>' : '') +
+                    (m.text ? '<button type="button" onclick="copyStringToClipboard(decodeURIComponent(\'' + encodeURIComponent(m.text) + '\'), \'تم نسخ الرسالة\')" class="hover:text-teal-200 flex items-center gap-0.5" title="نسخ"><i class="fa-regular fa-copy"></i><span>نسخ</span></button>' : '') +
+                    '<button type="button" onclick="openDeleteMsgModal(\'' + safeId + '\')" class="hover:text-rose-300 flex items-center gap-0.5 mr-auto" title="حذف نهائي"><i class="fa-solid fa-trash-can"></i><span>حذف نهائي</span></button>' +
                     '</div>';
 
                 return '<div class="flex ' + (isMe ? 'justify-start' : 'justify-end') + '">' +
@@ -2752,7 +2773,7 @@ const htmlContent = `<!DOCTYPE html>
             }
             var reader = new FileReader();
             reader.onload = function() {
-                var isImg = /^image\\//i.test(file.type);
+                var isImg = /^image\//i.test(file.type);
                 var msgObj = {
                     id: 'f-' + Date.now(),
                     from: 'me',
@@ -3110,11 +3131,26 @@ const htmlContent = `<!DOCTYPE html>
             if (ws) { try { ws.onclose = null; ws.close(); } catch (e) {} ws = null; }
             var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
             try { ws = new WebSocket(proto + '//' + location.host); } catch (e) { return; }
-            ws.onopen = function() { syncPresenceNow(); };
+            var setWsUi = function(connected) {
+                var dot = document.getElementById('ws-dot');
+                var lbl = document.getElementById('ws-label');
+                if (dot) {
+                    dot.className = connected
+                        ? 'w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)]'
+                        : 'w-2.5 h-2.5 rounded-full bg-amber-400';
+                }
+                if (lbl) {
+                    lbl.textContent = connected ? 'منصة سند متصلة ونشطة' : 'إعادة مزامنة الاتصال...';
+                    lbl.className = connected ? 'text-emerald-300 font-medium' : 'text-amber-300 font-medium';
+                }
+            };
+            ws.onopen = function() { setWsUi(true); syncPresenceNow(); };
+            ws.onerror = function() { setWsUi(false); };
             ws.onmessage = function(evt) {
                 try { handleIncomingServerEvent(JSON.parse(String(evt.data || '{}'))); } catch (e) {}
             };
             ws.onclose = function() {
+                setWsUi(false);
                 clearTimeout(reconnectTimer);
                 reconnectTimer = setTimeout(openSocket, 3500);
             };
@@ -3248,8 +3284,9 @@ const server = http.createServer((req, res) => {
 
     if (pathname.startsWith('/') && pathname.toLowerCase().endsWith('.mp3')) {
         const safeName = path.basename(pathname);
-        const audioPath = path.join(__dirname, safeName);
-        if (fs.existsSync(audioPath)) {
+        const audioPath = path.resolve(__dirname, safeName);
+        const baseDir = path.resolve(__dirname) + path.sep;
+        if (audioPath.startsWith(baseDir) && fs.existsSync(audioPath)) {
             const stat = fs.statSync(audioPath);
             res.writeHead(200, {
                 'Content-Type': 'audio/mpeg',

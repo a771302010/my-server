@@ -19,7 +19,7 @@ try {
     console.warn('sanad-icon-assets fallback active:', e && e.message ? e.message : e);
 }
 
-const APP_VERSION = '12.9.0';
+const APP_VERSION = '13.0.0';
 const PORT = process.env.PORT || 3000;
 const ICON_BG_HEX = '#164e63';
 const SYSTEM_SCIENTIFIC_NAME = 'منظومة سند الذكية الموزّعة للاتصال الفوري والرصد الرقمي';
@@ -153,6 +153,7 @@ function recordSyncEvent(payload) {
     eventCursor += 1;
     const item = Object.assign({}, payload, {
         cursor: eventCursor,
+        createdAtMs: Date.now(),
         eventId:
             payload.eventId ||
             ('srv-' + eventCursor + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7))
@@ -284,10 +285,11 @@ function processIncomingPacket(payload, senderWs) {
         return;
     }
 
+    // الرسائل والإشارات الموجّهة لطرف أو مجموعة تصل إلى المستهدف المحدد فقط
     const storedEvent = recordSyncEvent(payload);
     if (payload.to) {
         deliverToPeerWs(payload.to, storedEvent);
-    } else if (payload.broadcast) {
+    } else if (payload.broadcast === true && payload.channel === 'system_announcement') {
         const encoded = JSON.stringify(storedEvent);
         wss.clients.forEach(client => {
             if (client !== senderWs && client.readyState === 1) {
@@ -368,7 +370,9 @@ async function translateTextSmart(text, targetLang) {
             }
         } catch (e) {}
     }
-    return `[ترجمة فورية]: ${src}`;
+    return targetLang === 'en'
+        ? `Translation unavailable at the moment: ${src}`
+        : `تعذرت الترجمة الفورية حالياً: ${src}`;
 }
 
 const manifestPayload = JSON.stringify({
@@ -447,7 +451,7 @@ self.addEventListener('fetch', event => {
 });`;
 
 const htmlContent = `<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html id="sanad-html-root" lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -483,7 +487,6 @@ const htmlContent = `<!DOCTYPE html>
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e6078; border-radius: 9999px; }
         .sanad-pane { display: none; height: 100%; width: 100%; overflow-y: auto; }
         .sanad-pane.sanad-pane-active { display: flex; flex-direction: column; }
-        /* أخضر زمردي هادئ مريح للعين */
         .calm-emerald-dot {
             background-color: #34d399;
             box-shadow: 0 0 6px rgba(52, 211, 153, 0.28);
@@ -500,6 +503,55 @@ const htmlContent = `<!DOCTYPE html>
         var SYSTEM_SCIENTIFIC_NAME = '${SYSTEM_SCIENTIFIC_NAME}';
         var SANAD_LOCAL_RADIO_URL = '${LOCAL_RADIO_URL.replace(/'/g, '')}';
         var SANAD_SERVER_EXTRA_TRACKS = ${JSON.stringify(SANAD_EXTRA_TRACKS)};
+        var sanadUiLang = 'ar';
+        var sanadAutoSpeakIncoming = false;
+
+        var SANAD_I18N = {
+            ar: {
+                dir: 'rtl',
+                lang: 'ar',
+                tabs: {
+                    chats: 'الدردشة',
+                    groups: 'المجموعات',
+                    accounts: 'الحسابات',
+                    contacts: 'الجهات',
+                    calls: 'المكالمات',
+                    ai: 'الذكاء'
+                },
+                wsOnline: 'منظومة سند نشطة 24/7 • شبكة عالمية',
+                wsReconnecting: 'إعادة ربط الجلسة بالخادم...',
+                notifBtn: 'إشعار',
+                notifActive: 'نشطة',
+                langBtnLabel: 'EN',
+                peerPlaceholder: 'اكتب الاسم أو الكود أو الرقم...',
+                openBtn: 'فتح',
+                msgPlaceholder: 'اكتب رسالتك أو سجّل صوتك...',
+                autoSpeakOn: 'قراءة تلقائية: مفعّلة',
+                autoSpeakOff: 'قراءة تلقائية: إيقاف'
+            },
+            en: {
+                dir: 'ltr',
+                lang: 'en',
+                tabs: {
+                    chats: 'Chats',
+                    groups: 'Groups',
+                    accounts: 'Accounts',
+                    contacts: 'Contacts',
+                    calls: 'Calls',
+                    ai: 'AI Hub'
+                },
+                wsOnline: 'Sanad Active 24/7 • Global Network',
+                wsReconnecting: 'Reconnecting session...',
+                notifBtn: 'Alert',
+                notifActive: 'Active',
+                langBtnLabel: 'عربي',
+                peerPlaceholder: 'Enter name, 88 code, or phone...',
+                openBtn: 'Open',
+                msgPlaceholder: 'Write a message or record voice...',
+                autoSpeakOn: 'Auto Read: ON',
+                autoSpeakOff: 'Auto Read: OFF'
+            }
+        };
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
@@ -538,18 +590,59 @@ const htmlContent = `<!DOCTYPE html>
                 .split('\\n').join(' ');
         }
 
-        var SANAD_TAB_LABELS = {
-            chats: 'الدردشة',
-            groups: 'المجموعات',
-            accounts: 'الحسابات',
-            contacts: 'الجهات',
-            calls: 'المكالمات',
-            ai: 'الذكاء'
-        };
+        function getActiveTabLabels() {
+            return (SANAD_I18N[sanadUiLang] && SANAD_I18N[sanadUiLang].tabs) || SANAD_I18N.ar.tabs;
+        }
+
+        function applyUiLanguage(langCode) {
+            sanadUiLang = langCode === 'en' ? 'en' : 'ar';
+            var dict = SANAD_I18N[sanadUiLang] || SANAD_I18N.ar;
+            var root = document.getElementById('sanad-html-root');
+            if (root) {
+                root.setAttribute('lang', dict.lang);
+                root.setAttribute('dir', dict.dir);
+            }
+            var langBtn = document.getElementById('lang-toggle-btn');
+            if (langBtn) langBtn.textContent = dict.langBtnLabel;
+
+            var peerInp = document.getElementById('peer-input');
+            if (peerInp) peerInp.placeholder = dict.peerPlaceholder;
+            var openPeerBtn = document.getElementById('open-peer-btn');
+            if (openPeerBtn) openPeerBtn.textContent = dict.openBtn;
+            var msgInp = document.getElementById('msg-box-input');
+            if (msgInp) msgInp.placeholder = dict.msgPlaceholder;
+
+            var navMap = {
+                chats: 'nav-lbl-chats',
+                groups: 'nav-lbl-groups',
+                accounts: 'nav-lbl-accounts',
+                contacts: 'nav-lbl-contacts',
+                calls: 'nav-lbl-calls',
+                ai: 'nav-lbl-ai'
+            };
+            Object.keys(navMap).forEach(function(k) {
+                var el = document.getElementById(navMap[k]);
+                if (el && dict.tabs[k]) el.textContent = dict.tabs[k];
+            });
+
+            var tabBadge = document.getElementById('current-tab-badge');
+            var curTab = window.__sanadCurrentTab || 'chats';
+            if (tabBadge && dict.tabs[curTab]) tabBadge.textContent = dict.tabs[curTab];
+
+            if (typeof persistState === 'function') persistState();
+            if (typeof syncNotificationBadge === 'function') syncNotificationBadge();
+            if (typeof syncAutoSpeakUi === 'function') syncAutoSpeakUi();
+        }
+
+        function toggleUiLanguage() {
+            applyUiLanguage(sanadUiLang === 'ar' ? 'en' : 'ar');
+        }
+
         window.__sanadCurrentTab = 'chats';
 
         function applySanadPaneDisplay(tabName) {
-            var target = SANAD_TAB_LABELS[tabName] ? tabName : 'chats';
+            var labels = getActiveTabLabels();
+            var target = labels[tabName] ? tabName : 'chats';
             window.__sanadCurrentTab = target;
             if (typeof activePane !== 'undefined') activePane = target;
             var ids = ['chats', 'groups', 'accounts', 'contacts', 'calls', 'ai'];
@@ -576,11 +669,12 @@ const htmlContent = `<!DOCTYPE html>
                 }
             }
             var tabBadge = document.getElementById('current-tab-badge');
-            if (tabBadge) tabBadge.textContent = SANAD_TAB_LABELS[target];
+            if (tabBadge) tabBadge.textContent = labels[target];
         }
 
         function setPane(p) {
-            var target = SANAD_TAB_LABELS[p] ? p : 'chats';
+            var labels = getActiveTabLabels();
+            var target = labels[p] ? p : 'chats';
             applySanadPaneDisplay(target);
             try {
                 if (location.hash !== '#tab-' + target) history.replaceState(null, '', '#tab-' + target);
@@ -632,6 +726,9 @@ const htmlContent = `<!DOCTYPE html>
         </div>
 
         <div class="flex items-center gap-1.5 shrink-0">
+            <button type="button" id="lang-toggle-btn" onclick="toggleUiLanguage()" title="تبديل اللغة العربية / الإنجليزية" class="px-2 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 flex items-center justify-center text-[11px] font-bold transition">
+                EN
+            </button>
             <button type="button" onclick="requestSystemNotifications()" title="حالة وتفعيل الإشعارات" class="px-2.5 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-200 flex items-center gap-1 text-[11px] font-semibold transition">
                 <i class="fa-solid fa-bell text-xs"></i><span id="notif-status-txt">إشعار</span>
             </button>
@@ -736,7 +833,7 @@ const htmlContent = `<!DOCTYPE html>
             <div class="p-2 bg-[#0d1926]/90 border-b border-slate-800/80 space-y-1.5 shrink-0">
                 <div class="flex gap-2">
                     <input type="text" id="peer-input" oninput="normalizeDigitsInInput(this); onTopPeerSearchInput();" onkeydown="if(event.key==='Enter'){event.preventDefault();openPeerByInput();}" placeholder="اكتب الاسم أو الكود أو الرقم..." class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-1.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-teal-600">
-                    <button type="button" onclick="openPeerByInput()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold">فتح</button>
+                    <button type="button" id="open-peer-btn" onclick="openPeerByInput()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold">فتح</button>
                     <button type="button" onclick="saveCurrentPeerToPhoneContacts()" title="حفظ في جهات اتصال الجوال" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-200 px-2.5 py-1.5 rounded-xl text-xs font-semibold">
                         <i class="fa-solid fa-address-card"></i>
                     </button>
@@ -751,6 +848,7 @@ const htmlContent = `<!DOCTYPE html>
                     <span id="peer-status" class="text-[11px] font-semibold calm-emerald-text shrink-0">جلسة نشطة</span>
                 </div>
                 <div class="flex items-center gap-2 shrink-0 text-[11px]">
+                    <button type="button" id="auto-speak-toggle-btn" onclick="toggleAutoSpeakIncoming()" class="text-teal-200 hover:text-white font-medium" title="قراءة الرسائل الواردة صوتياً">قراءة تلقائية: إيقاف</button>
                     <button type="button" onclick="launchCall('audio')" class="text-emerald-300 hover:text-emerald-200"><i class="fa-solid fa-phone"></i></button>
                     <button type="button" onclick="launchCall('video')" class="text-teal-200 hover:text-white"><i class="fa-solid fa-video"></i></button>
                     <button type="button" id="chat-block-btn" onclick="toggleBlockCurrentPeer()" class="text-amber-300 hover:text-amber-200 font-medium">حظر</button>
@@ -1056,22 +1154,22 @@ const htmlContent = `<!DOCTYPE html>
     <nav class="bg-[#0d1926]/95 border-t border-slate-800 px-0.5 py-2 flex justify-around items-center z-20 shrink-0">
         <a href="#tab-chats" onclick="setPane('chats'); return false;" id="btn-chats" class="relative flex flex-col items-center gap-0.5 text-teal-300 font-bold text-[11px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer">
             <span id="nav-chats-badge" class="hidden absolute -top-0.5 -left-1.5 min-w-[16px] h-[16px] px-1 rounded-full bg-rose-600 text-white text-[9px] font-mono font-bold flex items-center justify-center">0</span>
-            <i class="fa-solid fa-comments text-sm"></i><span>الدردشة</span>
+            <i class="fa-solid fa-comments text-sm"></i><span id="nav-lbl-chats">الدردشة</span>
         </a>
         <a href="#tab-groups" onclick="setPane('groups'); return false;" id="btn-groups" class="relative flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[11px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer">
-            <i class="fa-solid fa-users text-sm"></i><span>المجموعات</span>
+            <i class="fa-solid fa-users text-sm"></i><span id="nav-lbl-groups">المجموعات</span>
         </a>
         <a href="#tab-accounts" onclick="setPane('accounts'); return false;" id="btn-accounts" class="relative flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[11px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer">
-            <i class="fa-solid fa-id-card text-sm"></i><span>الحسابات</span>
+            <i class="fa-solid fa-id-card text-sm"></i><span id="nav-lbl-accounts">الحسابات</span>
         </a>
         <a href="#tab-contacts" onclick="setPane('contacts'); return false;" id="btn-contacts" class="relative flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[11px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer">
-            <i class="fa-solid fa-address-book text-sm"></i><span>الجهات</span>
+            <i class="fa-solid fa-address-book text-sm"></i><span id="nav-lbl-contacts">الجهات</span>
         </a>
         <a href="#tab-calls" onclick="setPane('calls'); return false;" id="btn-calls" class="relative flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[11px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer">
-            <i class="fa-solid fa-phone-volume text-sm"></i><span>المكالمات</span>
+            <i class="fa-solid fa-phone-volume text-sm"></i><span id="nav-lbl-calls">المكالمات</span>
         </a>
         <a href="#tab-ai" onclick="setPane('ai'); return false;" id="btn-ai" class="relative flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[11px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer">
-            <i class="fa-solid fa-brain text-sm"></i><span>الذكاء</span>
+            <i class="fa-solid fa-brain text-sm"></i><span id="nav-lbl-ai">الذكاء</span>
         </a>
     </nav>
 
@@ -1326,6 +1424,44 @@ const htmlContent = `<!DOCTYPE html>
             ]
         };
 
+        // مخزن IndexedDB احتياطي لضمان بقاء الرسائل والبيانات حتى في المتصفحات ذات القيود على localStorage
+        function saveBackupToIndexedDb(snapshotObj) {
+            try {
+                if (!('indexedDB' in window)) return;
+                var req = indexedDB.open('SanadAiOfflineDb', 1);
+                req.onupgradeneeded = function(ev) {
+                    var db = ev.target.result;
+                    if (!db.objectStoreNames.contains('vault')) {
+                        db.createObjectStore('vault');
+                    }
+                };
+                req.onsuccess = function(ev) {
+                    var db = ev.target.result;
+                    var tx = db.transaction('vault', 'readwrite');
+                    tx.objectStore('vault').put(snapshotObj, 'latest_state');
+                };
+            } catch (e) {}
+        }
+
+        function hydrateFromIndexedDbIfEmpty() {
+            try {
+                if (!('indexedDB' in window)) return;
+                var req = indexedDB.open('SanadAiOfflineDb', 1);
+                req.onsuccess = function(ev) {
+                    var db = ev.target.result;
+                    if (!db.objectStoreNames.contains('vault')) return;
+                    var tx = db.transaction('vault', 'readonly');
+                    var getReq = tx.objectStore('vault').get('latest_state');
+                    getReq.onsuccess = function() {
+                        var saved = getReq.result;
+                        if (saved && typeof saved === 'object' && (!contacts.length || !Object.keys(acctThreads).length)) {
+                            applyBackupSnapshot(saved);
+                        }
+                    };
+                };
+            } catch (e) {}
+        }
+
         function cleanIdValue(val) {
             return toWesternDigits(String(val === undefined || val === null ? '' : val)).trim();
         }
@@ -1373,7 +1509,6 @@ const htmlContent = `<!DOCTYPE html>
             }
         }
 
-        // تنزيل أو مشاركة تلقائية سلسة للجوال دون تعقيد
         function triggerSeamlessFileDelivery(blob, fileName, titleText) {
             try {
                 if (navigator.share && typeof File === 'function' && navigator.canShare) {
@@ -1461,7 +1596,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!m || !m.text) return;
             var isArabic = /[\\u0600-\\u06FF]/.test(m.text);
             var targetLang = isArabic ? 'en' : 'ar';
-            translationsByMsgId[msgId] = 'جاري الترجمة...';
+            translationsByMsgId[msgId] = targetLang === 'ar' ? 'جاري الترجمة إلى العربية...' : 'Translating to English...';
             renderMsgs();
 
             fetch('/api/ai/translate', {
@@ -1478,6 +1613,36 @@ const htmlContent = `<!DOCTYPE html>
                 translationsByMsgId[msgId] = m.text;
                 renderMsgs();
             });
+        }
+
+        function syncAutoSpeakUi() {
+            var btn = document.getElementById('auto-speak-toggle-btn');
+            var dict = SANAD_I18N[sanadUiLang] || SANAD_I18N.ar;
+            if (btn) {
+                btn.textContent = sanadAutoSpeakIncoming ? dict.autoSpeakOn : dict.autoSpeakOff;
+                btn.className = sanadAutoSpeakIncoming
+                    ? 'text-emerald-300 font-bold hover:text-emerald-200'
+                    : 'text-teal-200 hover:text-white font-medium';
+            }
+        }
+
+        function toggleAutoSpeakIncoming() {
+            sanadAutoSpeakIncoming = !sanadAutoSpeakIncoming;
+            syncAutoSpeakUi();
+            persistState();
+            copyStringToClipboard('', sanadAutoSpeakIncoming ? 'تم تفعيل القراءة التلقائية للرسائل الواردة' : 'تم إيقاف القراءة التلقائية');
+        }
+
+        function speakRawText(textToSpeak) {
+            var cleanTxt = String(textToSpeak || '').trim();
+            if (!cleanTxt || !('speechSynthesis' in window)) return;
+            try {
+                window.speechSynthesis.cancel();
+                var utter = new SpeechSynthesisUtterance(cleanTxt);
+                utter.lang = /[\\u0600-\\u06FF]/.test(cleanTxt) ? 'ar' : 'en-US';
+                utter.rate = 0.96;
+                window.speechSynthesis.speak(utter);
+            } catch (e) {}
         }
 
         function getSelectedRadioInfo() {
@@ -1880,16 +2045,8 @@ const htmlContent = `<!DOCTYPE html>
             if (!('speechSynthesis' in window)) {
                 return copyStringToClipboard('', 'ميزة القراءة الصوتية غير مدعومة في هذا المتصفح');
             }
-            try {
-                window.speechSynthesis.cancel();
-                var utter = new SpeechSynthesisUtterance(textToSpeak);
-                utter.lang = /[\\u0600-\\u06FF]/.test(textToSpeak) ? 'ar' : 'en-US';
-                utter.rate = 1.0;
-                window.speechSynthesis.speak(utter);
-                copyStringToClipboard('', 'جاري قراءة الرسالة صوتياً...');
-            } catch (e) {
-                copyStringToClipboard('', 'تعذر تشغيل القراءة الصوتية');
-            }
+            speakRawText(textToSpeak);
+            copyStringToClipboard('', 'جاري قراءة الرسالة صوتياً...');
         }
 
         function openDeleteMsgModal(msgId) {
@@ -1986,11 +2143,12 @@ const htmlContent = `<!DOCTYPE html>
 
         function syncNotificationBadge() {
             var lbl = document.getElementById('notif-status-txt');
+            var dict = SANAD_I18N[sanadUiLang] || SANAD_I18N.ar;
             if (!lbl) return;
             if ('Notification' in window && Notification.permission === 'granted') {
-                lbl.textContent = 'نشطة';
+                lbl.textContent = dict.notifActive;
             } else {
-                lbl.textContent = 'إشعار';
+                lbl.textContent = dict.notifBtn;
             }
         }
 
@@ -2065,7 +2223,7 @@ const htmlContent = `<!DOCTYPE html>
 
         function applySystemUpdateNow() {
             var st = document.getElementById('update-status-text');
-            if (st) st.textContent = 'جاري تطبيق التحديث مع الحفاظ الكامل على أرقامك وأسمائك...';
+            if (st) st.textContent = 'جاري تطبيق التحديث مع الحفاظ الكامل على أرقامك وأسمائك ورسائلك...';
             copyStringToClipboard('', 'جاري تحديث النظام...');
             persistState();
             var finishReload = function() {
@@ -2301,7 +2459,7 @@ const htmlContent = `<!DOCTYPE html>
                 var vault = rawVault ? JSON.parse(rawVault) : null;
 
                 var pickKey = function(suffix) {
-                    var prefixes = ['sanad1290_', 'sanad1280_', 'sanad1270_', 'sanad1269_', 'sanad1268_', 'sanad1267_', 'sanad1266_', 'sanad1265_', 'sanad1264_'];
+                    var prefixes = ['sanad1300_', 'sanad1290_', 'sanad1280_', 'sanad1270_', 'sanad1269_', 'sanad1268_', 'sanad1267_', 'sanad1266_', 'sanad1265_', 'sanad1264_'];
                     for (var i = 0; i < prefixes.length; i++) {
                         var v = localStorage.getItem(prefixes[i] + suffix);
                         if (v !== null && v !== undefined && v !== '') return v;
@@ -2322,6 +2480,13 @@ const htmlContent = `<!DOCTYPE html>
                 var sGroups = (vault && vault.groups) || parseJsonKey('groups');
                 var sBackups = (vault && vault.backupHistory) || parseJsonKey('backups');
                 var sCursor = Number((vault && vault.cursor) || pickKey('cursor') || '0');
+                var sLang = (vault && vault.uiLang) || pickKey('lang');
+                var sAutoSpeak = (vault && typeof vault.autoSpeakIncoming === 'boolean')
+                    ? vault.autoSpeakIncoming
+                    : (pickKey('autospeak') === '1');
+
+                if (sLang === 'en' || sLang === 'ar') sanadUiLang = sLang;
+                sanadAutoSpeakIncoming = Boolean(sAutoSpeak);
 
                 if (sActive) activeAcct = cleanIdValue(sActive);
                 if (Array.isArray(sAccts) && sAccts.length) myAccts = sAccts.map(cleanIdValue).filter(Boolean);
@@ -2344,17 +2509,19 @@ const htmlContent = `<!DOCTYPE html>
         function persistState() {
             try {
                 var blockedArr = Array.from(blockedIdsSet);
-                localStorage.setItem('sanad1290_active', activeAcct);
-                localStorage.setItem('sanad1290_accts', JSON.stringify(myAccts));
-                localStorage.setItem('sanad1290_verified', JSON.stringify(verifiedPhonesMap));
-                localStorage.setItem('sanad1290_contacts', JSON.stringify(contacts));
-                localStorage.setItem('sanad1290_blocked', JSON.stringify(blockedArr));
-                localStorage.setItem('sanad1290_threads', JSON.stringify(acctThreads));
-                localStorage.setItem('sanad1290_groups', JSON.stringify(sanadGroups));
-                localStorage.setItem('sanad1290_backups', JSON.stringify(backupRecordsHistory));
-                localStorage.setItem('sanad1290_cursor', String(lastSyncCursor));
+                localStorage.setItem('sanad1300_active', activeAcct);
+                localStorage.setItem('sanad1300_accts', JSON.stringify(myAccts));
+                localStorage.setItem('sanad1300_verified', JSON.stringify(verifiedPhonesMap));
+                localStorage.setItem('sanad1300_contacts', JSON.stringify(contacts));
+                localStorage.setItem('sanad1300_blocked', JSON.stringify(blockedArr));
+                localStorage.setItem('sanad1300_threads', JSON.stringify(acctThreads));
+                localStorage.setItem('sanad1300_groups', JSON.stringify(sanadGroups));
+                localStorage.setItem('sanad1300_backups', JSON.stringify(backupRecordsHistory));
+                localStorage.setItem('sanad1300_cursor', String(lastSyncCursor));
+                localStorage.setItem('sanad1300_lang', sanadUiLang);
+                localStorage.setItem('sanad1300_autospeak', sanadAutoSpeakIncoming ? '1' : '0');
 
-                localStorage.setItem('sanad_persistent_vault_v1', JSON.stringify({
+                var vaultSnapshot = {
                     activeAcct: activeAcct,
                     myAccts: myAccts,
                     verifiedPhones: verifiedPhonesMap,
@@ -2363,8 +2530,12 @@ const htmlContent = `<!DOCTYPE html>
                     threads: acctThreads,
                     groups: sanadGroups,
                     backupHistory: backupRecordsHistory,
-                    cursor: lastSyncCursor
-                }));
+                    cursor: lastSyncCursor,
+                    uiLang: sanadUiLang,
+                    autoSpeakIncoming: sanadAutoSpeakIncoming
+                };
+                localStorage.setItem('sanad_persistent_vault_v1', JSON.stringify(vaultSnapshot));
+                saveBackupToIndexedDb(vaultSnapshot);
             } catch (e) {}
         }
 
@@ -3255,6 +3426,9 @@ const htmlContent = `<!DOCTYPE html>
                     updateUnreadBadgesUI();
                     showLiveToast(senderId, ev.msg.kind === 'audio' ? 'رسالة صوتية' : (ev.msg.text || 'رسالة جديدة'), key);
                 }
+                if (sanadAutoSpeakIncoming && ev.msg.text) {
+                    speakRawText(ev.msg.text);
+                }
                 return;
             }
 
@@ -3266,6 +3440,7 @@ const htmlContent = `<!DOCTYPE html>
             var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
             try { ws = new WebSocket(proto + '//' + location.host); } catch (e) { return; }
             var setWsUi = function(connected) {
+                var dict = SANAD_I18N[sanadUiLang] || SANAD_I18N.ar;
                 var dot = document.getElementById('ws-dot');
                 var lbl = document.getElementById('ws-label');
                 if (dot) {
@@ -3274,9 +3449,7 @@ const htmlContent = `<!DOCTYPE html>
                         : 'w-2.5 h-2.5 rounded-full bg-amber-400';
                 }
                 if (lbl) {
-                    lbl.textContent = connected
-                        ? 'منظومة سند نشطة 24/7 • شبكة عالمية'
-                        : 'إعادة ربط الجلسة بالخادم...';
+                    lbl.textContent = connected ? dict.wsOnline : dict.wsReconnecting;
                     lbl.className = connected ? 'calm-emerald-text font-semibold' : 'text-amber-300 font-medium';
                 }
             };
@@ -3348,7 +3521,10 @@ const htmlContent = `<!DOCTYPE html>
 
         window.addEventListener('DOMContentLoaded', function() {
             loadSavedState();
+            hydrateFromIndexedDbIfEmpty();
+            applyUiLanguage(sanadUiLang);
             syncNotificationBadge();
+            syncAutoSpeakUi();
             refreshUpdateStatusInAi();
             renderActiveHeaderAcct();
             renderQuickChips();
@@ -3614,12 +3790,13 @@ const server = http.createServer((req, res) => {
         const watchedIds = new Set(idsParam.split(',').map(normIdServer).filter(Boolean));
         if (watchedIds.size > 0) touchPresenceIds(Array.from(watchedIds));
 
-        const matchedEvents = syncEvents.filter(ev => {
-            if (ev.cursor <= since) return false;
-            if (!watchedIds.size) return true;
-            if (ev.to && isBlockedServer(ev.from, ev.to)) return false;
-            return watchedIds.has(normIdServer(ev.to)) || watchedIds.has(normIdServer(ev.from));
-        });
+        const matchedEvents = watchedIds.size > 0
+            ? syncEvents.filter(ev => {
+                if (ev.cursor <= since) return false;
+                if (ev.to && isBlockedServer(ev.from, ev.to)) return false;
+                return watchedIds.has(normIdServer(ev.to)) || watchedIds.has(normIdServer(ev.from));
+            })
+            : [];
 
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
         res.end(JSON.stringify({

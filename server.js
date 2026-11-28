@@ -6,7 +6,7 @@ const { WebSocketServer } = require('ws');
 let getIconAssetForRoute = () => ({
     mimeType: 'image/svg+xml; charset=utf-8',
     buffer: Buffer.from(
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128" rx="28" fill="#164e63"/><text x="64" y="82" text-anchor="middle" font-size="56" fill="#ffffff" font-family="sans-serif">س</text></svg>'
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128" rx="28" fill="#0f4c5c"/><text x="64" y="82" text-anchor="middle" font-size="56" fill="#e6f4f1" font-family="sans-serif">س</text></svg>'
     )
 });
 
@@ -19,14 +19,17 @@ try {
     console.warn('sanad-icon-assets fallback active:', e && e.message ? e.message : e);
 }
 
-const APP_VERSION = '13.2.0';
+const APP_VERSION = '13.3.0';
 const PORT = process.env.PORT || 3000;
-const ICON_BG_HEX = '#164e63';
+const ICON_BG_HEX = '#0f4c5c';
 const SYSTEM_SCIENTIFIC_NAME = 'منظومة سند الذكية الموزّعة للاتصال الفوري والرصد الرقمي';
 const STATE_FILE_PATH = process.env.SANAD_STATE_FILE || path.join(__dirname, 'sanad-state.json');
 const EXTERNAL_HTML_PATH = path.join(__dirname, 'index.html');
 const LOCAL_RADIO_URL = process.env.SANAD_LOCAL_RADIO_URL || '/sanad-radio-promo.mp3';
 const ONLINE_GRACE_MS = 30000;
+
+const MAX_MANUAL_88_PER_SESSION = 2;
+const MAX_LINKED_NUMBERS_PER_USER = 10;
 
 const SANAD_EXTRA_TRACKS = [
     { id: 'seg2', title: 'المقطع الثاني -- إذاعة سند', url: '/sanad-seg-2.mp3' },
@@ -72,6 +75,7 @@ const lastSeenMap = new Map();
 const blockListByUser = new Map();
 const pendingVerifications = new Map();
 const reservedCodesSet = new Set();
+const codeQuotaByActor = new Map();
 const rateLimitMap = new Map();
 const syncEvents = [];
 let eventCursor = 0;
@@ -148,6 +152,21 @@ function loadServerStateFromDisk() {
 }
 
 loadServerStateFromDisk();
+
+function consumeManual88Quota(actorKey) {
+    const key = normIdServer(actorKey) || 'default-actor';
+    const cur = codeQuotaByActor.get(key) || { count: 0 };
+    if (cur.count >= MAX_MANUAL_88_PER_SESSION) {
+        return { allowed: false, count: cur.count, remaining: 0 };
+    }
+    cur.count += 1;
+    codeQuotaByActor.set(key, cur);
+    return {
+        allowed: true,
+        count: cur.count,
+        remaining: Math.max(0, MAX_MANUAL_88_PER_SESSION - cur.count)
+    };
+}
 
 function generateUnique88CodeServer() {
     for (let i = 0; i < 200; i++) {
@@ -399,7 +418,7 @@ const manifestPayload = JSON.stringify({
     scope: '/',
     display: 'standalone',
     orientation: 'portrait',
-    background_color: '#09111b',
+    background_color: '#08131d',
     theme_color: ICON_BG_HEX,
     dir: 'rtl',
     lang: 'ar',
@@ -478,7 +497,7 @@ const htmlContent = `<!DOCTYPE html>
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="سند AI">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#164e63">
+    <meta name="theme-color" content="#0f4c5c">
     <title>سند AI v${APP_VERSION} -- ${SYSTEM_SCIENTIFIC_NAME}</title>
     <link id="sanad-favicon" rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -492,27 +511,34 @@ const htmlContent = `<!DOCTYPE html>
         :root { --sanad-chat-font: 14.5px; }
         body {
             font-family: 'IBM Plex Sans Arabic', 'Cairo', sans-serif;
-            background: radial-gradient(circle at top, #102436 0%, #09111b 55%, #070d14 100%);
-            color: #eef5fa;
+            background: radial-gradient(circle at top, #112d3a 0%, #091720 55%, #061017 100%);
+            color: #e8f3f5;
             line-height: 1.65;
         }
         .sanad-msg-text { font-size: var(--sanad-chat-font); line-height: 1.65; }
         .sanad-composer-font { font-size: var(--sanad-chat-font); line-height: 1.6; }
         button, a { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e6078; border-radius: 9999px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1c6673; border-radius: 9999px; }
         .sanad-pane { display: none; height: 100%; width: 100%; overflow-y: auto; }
         .sanad-pane.sanad-pane-active { display: flex; flex-direction: column; }
-        .petrol-calm-dot {
-            background-color: #38bdf8;
-            box-shadow: 0 0 7px rgba(56, 189, 248, 0.35);
+        .sanad-teal-dot {
+            background-color: #2dd4bf;
+            box-shadow: 0 0 7px rgba(45, 212, 191, 0.35);
         }
-        .petrol-calm-text {
-            color: #7dd3fc;
+        .sanad-teal-text {
+            color: #5eead4;
         }
         .sanad-brand-title {
-            color: #e2ecf5;
+            color: #d8f0ee;
             letter-spacing: 0.2px;
+        }
+        .sanad-primary-btn {
+            background-color: #0f4c5c;
+            color: #f0fdfa;
+        }
+        .sanad-primary-btn:hover {
+            background-color: #156275;
         }
     </style>
 </head>
@@ -523,6 +549,8 @@ const htmlContent = `<!DOCTYPE html>
         var SYSTEM_SCIENTIFIC_NAME = '${SYSTEM_SCIENTIFIC_NAME}';
         var SANAD_LOCAL_RADIO_URL = '${LOCAL_RADIO_URL.replace(/'/g, '')}';
         var SANAD_SERVER_EXTRA_TRACKS = ${JSON.stringify(SANAD_EXTRA_TRACKS)};
+        var MAX_MANUAL_88_LIMIT = ${MAX_MANUAL_88_PER_SESSION};
+        var MAX_LINKED_NUMBERS_LIMIT = ${MAX_LINKED_NUMBERS_PER_USER};
         var sanadUiLang = 'ar';
         var sanadAutoSpeakIncoming = false;
 
@@ -586,19 +614,19 @@ const htmlContent = `<!DOCTYPE html>
                 groupMembersPlaceholder: 'أعضاء إضافيون (أرقام أو أكواد 88... مفصولة بفاصلة)',
                 createGroupBtn: '+ إنشاء مجموعة',
                 accountsTitle: 'توليد الأكواد الحصرية (88...) وإدارة الحسابات',
-                accountsDesc: 'كل كود يبدأ بـ 88 يتم حجزه على الخادم ولا يُعاد استخدامه لغيرك، ويتم حفظه تلقائياً إلى جوالك عند التوليد.',
+                accountsDesc: 'توليد منضبط (حد 2 كود يدوي في الدورة لمنع العبث) مع إمكانية ربط حتى 10 أرقام/وسائل اتصال والتحقق عبر الإيميل أو SMS أو اختياري.',
                 gen88Btn: '+ توليد كود حصري (8 أرقام يبدأ بـ 88)',
                 custom88Btn: '+ حجز/إدخال كود 88',
-                intlTitle: 'تفعيل رقم دولي عبر الإيميل (6 أرقام)',
+                intlTitle: 'تفعيل رقم دولي واختيار وسيلة التحقق (إيميل / SMS / اختياري)',
                 intlPhonePlaceholder: 'رقم الجوال',
-                intlEmailPlaceholder: 'البريد الإلكتروني لاستلام كود التحقق (6 أرقام)',
-                sendOtpBtn: 'إرسال رمز التحقق (6 أرقام) إلى الإيميل',
+                intlEmailPlaceholder: 'البريد الإلكتروني (اختياري أو لرمز التحقق)',
+                sendOtpBtn: 'إرسال رمز التحقق (6 أرقام)',
                 otpPlaceholder: 'أدخل الكود المكون من 6 أرقام',
                 verifyOtpBtn: 'تأكيد وحفظ',
                 contactsTitle: 'الجهات والأسماء المحفوظة',
                 importContactsBtn: 'جلب من الجوال',
                 exportAllVcfBtn: 'حفظ الكل (.vcf)',
-                contactsDesc: 'عند حفظ اسم الشخص يتم تجهيز ملف جهة الاتصال (.vcf) للجوال تلقائياً ويظهر بمؤشر أزرق بترولي هادئ عند نشاط جلسته.',
+                contactsDesc: 'عند حفظ اسم الشخص يتم تجهيز ملف جهة الاتصال (.vcf) للجوال تلقائياً ويظهر بمؤشر أخضر/بترولي هادئ عند نشاط جلسته.',
                 contactNamePlaceholder: 'اسم الشخص',
                 contactIdPlaceholder: 'كود 88... أو رقم الجوال',
                 saveContactPhoneBtn: 'حفظ وتنزيل للجوال',
@@ -689,19 +717,19 @@ const htmlContent = `<!DOCTYPE html>
                 groupMembersPlaceholder: 'Additional members (phones or 88 codes, comma separated)',
                 createGroupBtn: '+ Create Group',
                 accountsTitle: 'Exclusive 88 Codes & Account Management',
-                accountsDesc: 'Each 88 code is reserved on the server and automatically saved to your device upon generation.',
+                accountsDesc: 'Controlled manual generation (up to 2 per cycle to prevent abuse) with support for up to 10 linked numbers/channels and Email/SMS/Optional verification.',
                 gen88Btn: '+ Generate Exclusive 88 Code',
                 custom88Btn: '+ Reserve / Enter 88 Code',
-                intlTitle: 'Verify International Number via Email (6 Digits)',
+                intlTitle: 'Verify International Number & Verification Channel (Email / SMS / Optional)',
                 intlPhonePlaceholder: 'Phone number',
-                intlEmailPlaceholder: 'Email address for 6-digit verification code',
-                sendOtpBtn: 'Send 6-Digit Code to Email',
+                intlEmailPlaceholder: 'Email address (optional or for OTP)',
+                sendOtpBtn: 'Send 6-Digit Verification Code',
                 otpPlaceholder: 'Enter 6-digit verification code',
                 verifyOtpBtn: 'Confirm & Save',
                 contactsTitle: 'Saved Contacts',
                 importContactsBtn: 'Pick from Phone',
                 exportAllVcfBtn: 'Save All (.vcf)',
-                contactsDesc: 'Saving a contact prepares a .vcf card for your phone and shows a calm petrol-blue indicator when active.',
+                contactsDesc: 'Saving a contact prepares a .vcf card for your phone and shows a calm teal indicator when active.',
                 contactNamePlaceholder: 'Contact name',
                 contactIdPlaceholder: '88 code or phone number',
                 saveContactPhoneBtn: 'Save & Download to Phone',
@@ -926,7 +954,7 @@ const htmlContent = `<!DOCTYPE html>
                 }
                 if (btn) {
                     btn.className = isTarget
-                        ? 'relative flex flex-col items-center gap-0.5 text-sky-300 font-bold text-[11px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer'
+                        ? 'relative flex flex-col items-center gap-0.5 text-teal-300 font-bold text-[11px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer'
                         : 'relative flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[11px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer';
                 }
             }
@@ -958,72 +986,72 @@ const htmlContent = `<!DOCTYPE html>
     <video id="radio-mp4-el" preload="auto" playsinline class="hidden"></video>
     <audio id="devotional-audio-el" preload="none" playsinline class="hidden"></audio>
 
-    <div id="auto-update-banner" class="hidden bg-gradient-to-r from-sky-950 via-[#164e63] to-sky-950 border-b border-sky-500/40 text-white px-3.5 py-2 flex items-center justify-between gap-2 text-xs z-30 shrink-0">
+    <div id="auto-update-banner" class="hidden bg-gradient-to-r from-[#0b3945] via-[#0f4c5c] to-[#0b3945] border-b border-teal-500/40 text-white px-3.5 py-2 flex items-center justify-between gap-2 text-xs z-30 shrink-0">
         <span id="auto-update-banner-text" class="font-semibold truncate">يتوفر تحديث جديد للمنظومة -- اضغط للتحديث الآن.</span>
-        <button type="button" onclick="applySystemUpdateNow()" class="bg-sky-700 hover:bg-sky-600 text-white font-bold px-3 py-1 rounded-lg text-[11px] shrink-0">تحديث الآن</button>
+        <button type="button" onclick="applySystemUpdateNow()" class="bg-teal-700 hover:bg-teal-600 text-white font-bold px-3 py-1 rounded-lg text-[11px] shrink-0">تحديث الآن</button>
     </div>
 
-    <header class="bg-[#0d1926]/95 border-b border-slate-800/80 px-3.5 py-2 flex justify-between items-center z-20 shrink-0">
+    <header class="bg-[#0b1b26]/95 border-b border-teal-950/80 px-3.5 py-2 flex justify-between items-center z-20 shrink-0">
         <div class="flex items-center gap-2.5 min-w-0">
-            <button type="button" onclick="openIdentityQrModal()" title="هوية منظومة سند وكود التعريف" class="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-[#155e75] via-[#164e63] to-[#0f3646] border border-sky-400/35 flex items-center justify-center shrink-0 shadow overflow-hidden">
+            <button type="button" onclick="openIdentityQrModal()" title="هوية منظومة سند وكود التعريف" class="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-[#135c6b] via-[#0f4c5c] to-[#0a313c] border border-teal-400/35 flex items-center justify-center shrink-0 shadow overflow-hidden">
                 <img src="/icon-192.png" alt="سند AI" class="w-full h-full object-cover">
                 <span id="header-unread-dot" class="hidden absolute -top-1.5 -left-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-600 text-white text-[10px] font-mono font-bold flex items-center justify-center shadow">0</span>
             </button>
             <div class="min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
                     <h1 id="brand-main-title" class="font-bold text-base sanad-brand-title leading-none">سند AI</h1>
-                    <span id="brand-uptime-pill" class="text-[10px] bg-sky-950/80 text-sky-200 border border-sky-800/70 px-2 py-0.5 rounded-full font-semibold">24/7 • عالمي • v${APP_VERSION}</span>
-                    <span id="current-tab-badge" class="text-[10px] bg-slate-800/90 text-slate-200 border border-slate-700/80 px-2 py-0.5 rounded-full font-semibold">الدردشة</span>
+                    <span id="brand-uptime-pill" class="text-[10px] bg-teal-950/85 text-teal-200 border border-teal-800/70 px-2 py-0.5 rounded-full font-semibold">24/7 • عالمي • v${APP_VERSION}</span>
+                    <span id="current-tab-badge" class="text-[10px] bg-[#0e2736] text-teal-100 border border-teal-900/80 px-2 py-0.5 rounded-full font-semibold">الدردشة</span>
                 </div>
                 <div class="flex items-center gap-1.5 text-[11px] mt-0.5 flex-wrap">
-                    <span id="ws-dot" class="w-2.5 h-2.5 rounded-full petrol-calm-dot"></span>
-                    <span id="ws-label" class="petrol-calm-text font-semibold">منظومة سند نشطة 24/7 • شبكة عالمية</span>
+                    <span id="ws-dot" class="w-2.5 h-2.5 rounded-full sanad-teal-dot"></span>
+                    <span id="ws-label" class="sanad-teal-text font-semibold">منظومة سند نشطة 24/7 • شبكة عالمية</span>
                     <button type="button" onclick="reconnectNow()" title="تحديث الربط" class="text-slate-300 hover:text-white px-1">
                         <i class="fa-solid fa-rotate-right text-[10px]"></i>
                     </button>
                     <span class="text-slate-600">•</span>
-                    <button type="button" onclick="openIdentityQrModal()" class="font-mono font-semibold text-sky-200 hover:underline truncate max-w-[130px]" id="active-acct-label"></button>
+                    <button type="button" onclick="openIdentityQrModal()" class="font-mono font-semibold text-teal-200 hover:underline truncate max-w-[130px]" id="active-acct-label"></button>
                 </div>
             </div>
         </div>
 
         <div class="flex items-center gap-1.5 shrink-0">
-            <button type="button" id="lang-toggle-btn" onclick="toggleUiLanguage()" title="تبديل اللغة العربية / الإنجليزية" class="px-2 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sky-200 flex items-center justify-center text-[11px] font-bold transition">
+            <button type="button" id="lang-toggle-btn" onclick="toggleUiLanguage()" title="تبديل اللغة العربية / الإنجليزية" class="px-2 h-9 rounded-xl bg-[#0e2736] hover:bg-[#14374b] border border-teal-900/70 text-teal-200 flex items-center justify-center text-[11px] font-bold transition">
                 EN
             </button>
-            <button type="button" onclick="requestSystemNotifications()" title="حالة وتفعيل الإشعارات" class="px-2.5 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-200 flex items-center gap-1 text-[11px] font-semibold transition">
+            <button type="button" onclick="requestSystemNotifications()" title="حالة وتفعيل الإشعارات" class="px-2.5 h-9 rounded-xl bg-[#0e2736] hover:bg-[#14374b] border border-teal-900/70 text-amber-200 flex items-center gap-1 text-[11px] font-semibold transition">
                 <i class="fa-solid fa-bell text-xs"></i><span id="notif-status-txt">إشعار</span>
             </button>
-            <button type="button" onclick="launchCall('audio')" title="مكالمة صوتية" class="w-9 h-9 rounded-xl bg-sky-950/80 hover:bg-sky-800 border border-sky-800/70 text-sky-200 flex items-center justify-center transition">
+            <button type="button" onclick="launchCall('audio')" title="مكالمة صوتية" class="w-9 h-9 rounded-xl bg-teal-950/85 hover:bg-teal-900 border border-teal-800/70 text-teal-200 flex items-center justify-center transition">
                 <i class="fa-solid fa-phone text-xs"></i>
             </button>
-            <button type="button" onclick="launchCall('video')" title="مكالمة فيديو" class="w-9 h-9 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-sky-200 flex items-center justify-center transition">
+            <button type="button" onclick="launchCall('video')" title="مكالمة فيديو" class="w-9 h-9 rounded-xl bg-[#0e2736] hover:bg-[#14374b] border border-teal-900/70 text-teal-200 flex items-center justify-center transition">
                 <i class="fa-solid fa-video text-xs"></i>
             </button>
         </div>
     </header>
 
-    <div id="copy-toast-banner" class="hidden fixed top-14 left-1/2 -translate-x-1/2 bg-sky-950/95 border border-sky-600/60 text-sky-100 px-4 py-1.5 rounded-full shadow-xl z-50 text-xs font-semibold">
+    <div id="copy-toast-banner" class="hidden fixed top-14 left-1/2 -translate-x-1/2 bg-teal-950/95 border border-teal-600/60 text-teal-100 px-4 py-1.5 rounded-full shadow-xl z-50 text-xs font-semibold">
         تم التنفيذ بنجاح
     </div>
 
-    <div id="live-toast" onclick="jumpToToastChat()" class="hidden fixed top-16 left-3 right-3 max-w-md mx-auto bg-[#0d1926]/95 border border-sky-800/80 text-slate-100 px-3.5 py-2.5 rounded-2xl shadow-2xl z-40 flex items-center justify-between gap-2 cursor-pointer text-xs">
+    <div id="live-toast" onclick="jumpToToastChat()" class="hidden fixed top-16 left-3 right-3 max-w-md mx-auto bg-[#0b1b26]/95 border border-teal-800/80 text-slate-100 px-3.5 py-2.5 rounded-2xl shadow-2xl z-40 flex items-center justify-between gap-2 cursor-pointer text-xs">
         <div class="min-w-0">
-            <p id="toast-sender" class="font-bold petrol-calm-text truncate">رسالة جديدة</p>
+            <p id="toast-sender" class="font-bold sanad-teal-text truncate">رسالة جديدة</p>
             <p id="toast-body" class="text-slate-200 truncate">...</p>
         </div>
-        <span class="bg-sky-950 text-sky-200 border border-sky-800/70 px-2 py-1 rounded-lg text-[10px] font-semibold shrink-0">فتح</span>
+        <span class="bg-teal-950 text-teal-200 border border-teal-800/70 px-2 py-1 rounded-lg text-[10px] font-semibold shrink-0">فتح</span>
     </div>
 
-    <div id="delete-msg-modal" onclick="if(event.target===this)closeDeleteMsgModal()" class="hidden fixed inset-0 bg-[#070d14]/88 z-50 flex items-center justify-center p-4">
-        <div class="bg-[#0d1926] border border-slate-700 rounded-2xl w-full max-w-xs p-4 space-y-3 shadow-2xl text-xs">
+    <div id="delete-msg-modal" onclick="if(event.target===this)closeDeleteMsgModal()" class="hidden fixed inset-0 bg-[#061017]/88 z-50 flex items-center justify-center p-4">
+        <div class="bg-[#0b1b26] border border-slate-700 rounded-2xl w-full max-w-xs p-4 space-y-3 shadow-2xl text-xs">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                 <h3 class="font-bold text-rose-300"><i class="fa-solid fa-trash-can ml-1"></i> حذف نهائي للرسالة</h3>
                 <button type="button" onclick="closeDeleteMsgModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <p class="text-slate-300 leading-relaxed">يرجى اختيار نطاق الحذف النهائي المطلوب:</p>
             <div class="space-y-2">
-                <button type="button" onclick="confirmDeleteMessage('self')" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-2.5 px-3 rounded-xl font-semibold text-right">
+                <button type="button" onclick="confirmDeleteMessage('self')" class="w-full bg-[#0e2736] hover:bg-[#14374b] border border-slate-700 text-white py-2.5 px-3 rounded-xl font-semibold text-right">
                     حذف نهائي لي فقط
                 </button>
                 <button type="button" onclick="confirmDeleteMessage('everyone')" class="w-full bg-rose-900/90 hover:bg-rose-800 border border-rose-700 text-rose-50 py-2.5 px-3 rounded-xl font-semibold text-right">
@@ -1036,54 +1064,54 @@ const htmlContent = `<!DOCTYPE html>
         </div>
     </div>
 
-    <div id="identity-qr-modal" onclick="if(event.target===this)closeIdentityQrModal()" class="hidden fixed inset-0 bg-[#070d14]/88 z-50 flex items-center justify-center p-3.5 overflow-y-auto">
-        <div class="bg-[#0d1926] border border-sky-800/70 rounded-3xl w-full max-w-md p-4 space-y-3 shadow-2xl my-auto">
+    <div id="identity-qr-modal" onclick="if(event.target===this)closeIdentityQrModal()" class="hidden fixed inset-0 bg-[#061017]/88 z-50 flex items-center justify-center p-3.5 overflow-y-auto">
+        <div class="bg-[#0b1b26] border border-teal-800/70 rounded-3xl w-full max-w-md p-4 space-y-3 shadow-2xl my-auto">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
                 <h3 class="text-sm font-bold sanad-brand-title"><i class="fa-solid fa-satellite-dish ml-1"></i> ${SYSTEM_SCIENTIFIC_NAME}</h3>
                 <button type="button" onclick="closeIdentityQrModal()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <img src="/icon-512.png" alt="شعار سند AI" class="w-24 h-24 rounded-2xl mx-auto border border-sky-400/35 shadow-lg">
+            <img src="/icon-512.png" alt="شعار سند AI" class="w-24 h-24 rounded-2xl mx-auto border border-teal-400/35 shadow-lg">
             <p class="text-[11px] text-slate-300 leading-relaxed text-center">منظومة برمجية موزّعة تعمل على مدار 24 ساعة في مختلف المناطق عبر الشبكات السحابية والذكاء الاصطناعي.</p>
-            <div class="bg-[#08101a] border border-slate-800 rounded-2xl p-3 flex flex-col items-center gap-2">
+            <div class="bg-[#07131c] border border-slate-800 rounded-2xl p-3 flex flex-col items-center gap-2">
                 <div class="text-[11px] text-slate-400">معرّف الجلسة النشط</div>
-                <div id="qr-modal-acct-id" class="font-mono text-base font-bold text-sky-200"></div>
+                <div id="qr-modal-acct-id" class="font-mono text-base font-bold text-teal-200"></div>
                 <div class="flex flex-wrap justify-center gap-1.5 text-xs">
-                    <button type="button" onclick="copyStringToClipboard(activeAcct, 'تم نسخ كود التعريف')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-xl font-semibold">نسخ الكود</button>
-                    <button type="button" onclick="saveContactToDeviceVcf(activeAcct, resolveContactName(activeAcct), true)" class="bg-sky-900 hover:bg-sky-800 text-white px-3 py-1.5 rounded-xl font-semibold"><i class="fa-solid fa-address-card ml-1"></i>حفظ في الجوال (.vcf)</button>
+                    <button type="button" onclick="copyStringToClipboard(activeAcct, 'تم نسخ كود التعريف')" class="sanad-primary-btn px-3 py-1.5 rounded-xl font-semibold">نسخ الكود</button>
+                    <button type="button" onclick="saveContactToDeviceVcf(activeAcct, resolveContactName(activeAcct), true)" class="bg-teal-900 hover:bg-teal-800 text-white px-3 py-1.5 rounded-xl font-semibold"><i class="fa-solid fa-address-card ml-1"></i>حفظ في الجوال (.vcf)</button>
                 </div>
             </div>
             <div class="flex gap-1.5">
-                <input type="text" id="qr-manual-code-input" oninput="normalizeDigitsInInput(this)" placeholder="أدخل كود 88 أو رقم دولي لفتح الدردشة..." class="flex-1 bg-[#08101a] border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono">
-                <button type="button" onclick="connectFromQrOrCodeInput()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-xl text-xs font-semibold">فتح</button>
+                <input type="text" id="qr-manual-code-input" oninput="normalizeDigitsInInput(this)" placeholder="أدخل كود 88 أو رقم دولي لفتح الدردشة..." class="flex-1 bg-[#07131c] border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono">
+                <button type="button" onclick="connectFromQrOrCodeInput()" class="sanad-primary-btn px-3 py-1.5 rounded-xl text-xs font-semibold">فتح</button>
             </div>
         </div>
     </div>
 
-    <div id="call-modal" class="hidden fixed inset-0 bg-[#070d14]/95 z-50 flex flex-col items-center justify-between p-4">
+    <div id="call-modal" class="hidden fixed inset-0 bg-[#061017]/95 z-50 flex flex-col items-center justify-between p-4">
         <div class="text-center mt-1">
-            <p id="call-channel-sub" class="text-xs text-sky-300 font-semibold">سند AI • قناة اتصال عالمية مشفّرة</p>
+            <p id="call-channel-sub" class="text-xs text-teal-300 font-semibold">سند AI • قناة اتصال عالمية مشفّرة</p>
             <h2 id="call-peer-title" class="text-lg font-bold text-white mt-0.5">...</h2>
             <p id="call-timer-el" class="text-xs font-mono font-semibold text-slate-300 mt-0.5">00:00</p>
-            <p id="call-status-msg" class="text-xs petrol-calm-text mt-0.5 font-medium">جاري الربط...</p>
+            <p id="call-status-msg" class="text-xs sanad-teal-text mt-0.5 font-medium">جاري الربط...</p>
         </div>
-        <div class="relative w-full max-w-sm flex-1 my-2.5 max-h-[58vh] aspect-[9/16] bg-[#0d1926] rounded-3xl border border-slate-800 overflow-hidden flex items-center justify-center shadow-2xl">
+        <div class="relative w-full max-w-sm flex-1 my-2.5 max-h-[58vh] aspect-[9/16] bg-[#0b1b26] rounded-3xl border border-slate-800 overflow-hidden flex items-center justify-center shadow-2xl">
             <video id="remote-video-el" autoplay playsinline class="w-full h-full object-cover hidden"></video>
-            <video id="local-video-el" autoplay playsinline muted class="w-24 h-36 object-cover rounded-2xl border-2 border-sky-400/70 shadow-lg absolute bottom-3 left-3 hidden"></video>
+            <video id="local-video-el" autoplay playsinline muted class="w-24 h-36 object-cover rounded-2xl border-2 border-teal-400/70 shadow-lg absolute bottom-3 left-3 hidden"></video>
             <div id="voice-call-card" class="flex flex-col items-center gap-2.5 px-4 text-center">
-                <div class="w-20 h-20 rounded-full bg-sky-950/80 border border-sky-800/70 flex items-center justify-center text-3xl text-sky-200 animate-pulse">
+                <div class="w-20 h-20 rounded-full bg-teal-950/85 border border-teal-800/70 flex items-center justify-center text-3xl text-teal-200 animate-pulse">
                     <i class="fa-solid fa-microphone-lines"></i>
                 </div>
                 <span id="direct-call-sub" class="text-xs text-slate-300 font-medium">اتصال مباشر عبر منظومة سند</span>
             </div>
         </div>
         <div class="flex items-center gap-2 mb-2 flex-wrap justify-center">
-            <button type="button" id="accept-btn" onclick="answerCall()" class="hidden bg-sky-700 hover:bg-sky-600 border border-sky-400/40 text-white px-4 py-3 rounded-2xl font-semibold text-xs animate-bounce">
+            <button type="button" id="accept-btn" onclick="answerCall()" class="hidden bg-teal-700 hover:bg-teal-600 border border-teal-400/40 text-white px-4 py-3 rounded-2xl font-semibold text-xs animate-bounce">
                 <i class="fa-solid fa-phone ml-1"></i><span id="accept-btn-label">رد الآن</span>
             </button>
-            <button type="button" id="speaker-toggle-btn" onclick="toggleCallSpeakerMode()" title="تبديل بين سماعة الأذن ومكبر الصوت" class="px-3 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sky-200 flex items-center gap-1.5 text-xs font-semibold">
+            <button type="button" id="speaker-toggle-btn" onclick="toggleCallSpeakerMode()" title="تبديل بين سماعة الأذن ومكبر الصوت" class="px-3 py-3 rounded-2xl bg-[#0e2736] hover:bg-[#14374b] border border-slate-700 text-teal-200 flex items-center gap-1.5 text-xs font-semibold">
                 <i id="speaker-icon" class="fa-solid fa-ear-listen"></i><span id="speaker-btn-label">سماعة الأذن</span>
             </button>
-            <button type="button" id="mute-btn" onclick="toggleMuteTrack()" title="كتم / تشغيل الميكروفون" class="w-11 h-11 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white flex items-center justify-center">
+            <button type="button" id="mute-btn" onclick="toggleMuteTrack()" title="كتم / تشغيل الميكروفون" class="w-11 h-11 rounded-2xl bg-[#0e2736] hover:bg-[#14374b] border border-slate-700 text-white flex items-center justify-center">
                 <i id="mute-icon" class="fa-solid fa-microphone"></i>
             </button>
             <button type="button" onclick="endActiveCall()" class="bg-rose-800 hover:bg-rose-700 text-white px-4 py-3 rounded-2xl font-semibold text-xs">
@@ -1094,27 +1122,27 @@ const htmlContent = `<!DOCTYPE html>
 
     <main class="flex-1 flex flex-col overflow-hidden">
         <section id="pane-chats" class="sanad-pane sanad-pane-active flex-1 flex-col h-full overflow-hidden">
-            <div class="p-2 bg-[#0d1926]/90 border-b border-slate-800/80 space-y-1.5 shrink-0">
+            <div class="p-2 bg-[#0b1b26]/90 border-b border-slate-800/80 space-y-1.5 shrink-0">
                 <div class="flex gap-2">
-                    <input type="text" id="peer-input" oninput="normalizeDigitsInInput(this); onTopPeerSearchInput();" onkeydown="if(event.key==='Enter'){event.preventDefault();openPeerByInput();}" placeholder="اكتب الاسم أو الكود أو الرقم..." class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-1.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-sky-700">
-                    <button type="button" id="open-peer-btn" onclick="openPeerByInput()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold">فتح</button>
-                    <button type="button" onclick="saveCurrentPeerToPhoneContacts()" title="حفظ في جهات اتصال الجوال" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sky-200 px-2.5 py-1.5 rounded-xl text-xs font-semibold">
+                    <input type="text" id="peer-input" oninput="normalizeDigitsInInput(this); onTopPeerSearchInput();" onkeydown="if(event.key==='Enter'){event.preventDefault();openPeerByInput();}" placeholder="اكتب الاسم أو الكود أو الرقم..." class="flex-1 bg-[#07131c] border border-slate-800 rounded-xl px-3 py-1.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-teal-700">
+                    <button type="button" id="open-peer-btn" onclick="openPeerByInput()" class="sanad-primary-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold">فتح</button>
+                    <button type="button" onclick="saveCurrentPeerToPhoneContacts()" title="حفظ في جهات اتصال الجوال" class="bg-[#0e2736] hover:bg-[#14374b] border border-slate-700 text-teal-200 px-2.5 py-1.5 rounded-xl text-xs font-semibold">
                         <i class="fa-solid fa-address-card"></i>
                     </button>
                 </div>
                 <div id="quick-chips" class="flex items-center gap-1.5 overflow-x-auto pb-0.5 text-xs"></div>
             </div>
 
-            <div class="px-3.5 py-1.5 bg-[#0b1521] border-b border-slate-800/80 flex justify-between items-center gap-2 text-xs shrink-0">
+            <div class="px-3.5 py-1.5 bg-[#091620] border-b border-slate-800/80 flex justify-between items-center gap-2 text-xs shrink-0">
                 <div class="flex items-center gap-2 min-w-0">
-                    <span id="peer-dot" class="w-2.5 h-2.5 rounded-full petrol-calm-dot shrink-0"></span>
+                    <span id="peer-dot" class="w-2.5 h-2.5 rounded-full sanad-teal-dot shrink-0"></span>
                     <span id="peer-title" class="font-bold text-slate-100 truncate"></span>
-                    <span id="peer-status" class="text-[11px] font-semibold petrol-calm-text shrink-0">متصل نشط</span>
+                    <span id="peer-status" class="text-[11px] font-semibold sanad-teal-text shrink-0">متصل نشط</span>
                 </div>
                 <div class="flex items-center gap-2 shrink-0 text-[11px]">
-                    <button type="button" id="auto-speak-toggle-btn" onclick="toggleAutoSpeakIncoming()" class="text-sky-200 hover:text-white font-medium" title="قراءة الرسائل الواردة صوتياً">قراءة تلقائية: إيقاف</button>
-                    <button type="button" onclick="launchCall('audio')" class="text-sky-300 hover:text-white"><i class="fa-solid fa-phone"></i></button>
-                    <button type="button" onclick="launchCall('video')" class="text-sky-200 hover:text-white"><i class="fa-solid fa-video"></i></button>
+                    <button type="button" id="auto-speak-toggle-btn" onclick="toggleAutoSpeakIncoming()" class="text-teal-200 hover:text-white font-medium" title="قراءة الرسائل الواردة صوتياً">قراءة تلقائية: إيقاف</button>
+                    <button type="button" onclick="launchCall('audio')" class="text-teal-300 hover:text-white"><i class="fa-solid fa-phone"></i></button>
+                    <button type="button" onclick="launchCall('video')" class="text-teal-200 hover:text-white"><i class="fa-solid fa-video"></i></button>
                     <button type="button" id="chat-block-btn" onclick="toggleBlockCurrentPeer()" class="text-amber-300 hover:text-amber-200 font-medium">حظر</button>
                     <button type="button" id="chat-clear-btn" onclick="clearThreadMsgs()" class="text-rose-300 hover:text-rose-200 font-medium">مسح</button>
                 </div>
@@ -1122,109 +1150,118 @@ const htmlContent = `<!DOCTYPE html>
 
             <div id="msgs-box" class="flex-1 overflow-y-auto p-3.5 space-y-2.5 custom-scrollbar"></div>
 
-            <div id="reply-preview-bar" class="hidden px-3.5 py-2 bg-[#0e2233] border-t border-sky-800/60 flex items-center justify-between gap-2 text-xs shrink-0">
-                <div class="min-w-0 border-r-2 border-sky-400 pr-2">
-                    <div id="reply-preview-author" class="font-bold text-sky-200 truncate">رد على رسالة</div>
+            <div id="reply-preview-bar" class="hidden px-3.5 py-2 bg-[#0d2432] border-t border-teal-800/60 flex items-center justify-between gap-2 text-xs shrink-0">
+                <div class="min-w-0 border-r-2 border-teal-400 pr-2">
+                    <div id="reply-preview-author" class="font-bold text-teal-200 truncate">رد على رسالة</div>
                     <div id="reply-preview-text" class="text-slate-300 truncate">...</div>
                 </div>
                 <button type="button" onclick="clearReplyTarget()" class="text-slate-400 hover:text-white px-1.5"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <div id="voice-rec-bar" class="hidden px-3.5 py-2 bg-[#102838] border-t border-sky-800/60 flex items-center justify-between gap-2 text-xs shrink-0">
-                <div class="flex items-center gap-2 text-sky-200 font-semibold">
+            <div id="voice-rec-bar" class="hidden px-3.5 py-2 bg-[#0e2a38] border-t border-teal-800/60 flex items-center justify-between gap-2 text-xs shrink-0">
+                <div class="flex items-center gap-2 text-teal-200 font-semibold">
                     <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
                     <span id="voice-rec-label-txt">جاري التسجيل الصوتي...</span>
                     <span id="voice-rec-timer" class="font-mono text-white">00:00</span>
                 </div>
                 <div class="flex items-center gap-1.5">
-                    <button type="button" id="voice-cancel-btn" onclick="cancelVoiceRecording()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded-lg font-semibold">إلغاء</button>
-                    <button type="button" onclick="finishVoiceRecordingAndSend()" class="bg-sky-700 hover:bg-sky-600 text-white px-3 py-1 rounded-lg font-semibold"><i class="fa-solid fa-paper-plane ml-1"></i><span id="voice-send-btn">إرسال</span></button>
+                    <button type="button" id="voice-cancel-btn" onclick="cancelVoiceRecording()" class="bg-[#0e2736] hover:bg-[#14374b] text-slate-200 px-2.5 py-1 rounded-lg font-semibold">إلغاء</button>
+                    <button type="button" onclick="finishVoiceRecordingAndSend()" class="bg-teal-700 hover:bg-teal-600 text-white px-3 py-1 rounded-lg font-semibold"><i class="fa-solid fa-paper-plane ml-1"></i><span id="voice-send-btn">إرسال</span></button>
                 </div>
             </div>
 
-            <div class="p-2.5 bg-[#0d1926] border-t border-slate-800 flex items-end gap-1.5 shrink-0">
-                <input type="file" id="attach-file" class="hidden" onchange="onFilePicked(event)">
-                <button type="button" onclick="document.getElementById('attach-file').click()" title="إرفاق ملف أو صورة" class="text-slate-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 shrink-0"><i class="fa-solid fa-paperclip text-base"></i></button>
-                <button type="button" id="mic-rec-btn" onclick="toggleVoiceRecording()" title="تسجيل صوتي" class="text-sky-200 hover:text-white bg-slate-800/90 hover:bg-slate-700 border border-slate-700 p-2 rounded-xl shrink-0 transition"><i class="fa-solid fa-microphone text-base"></i></button>
-                <textarea id="msg-box-input" rows="1" oninput="autoResizeComposer(this)" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendTextMsg();}" placeholder="اكتب رسالتك أو سجّل صوتك..." class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 sanad-composer-font text-white placeholder-slate-400 focus:outline-none focus:border-sky-700 resize-none max-h-28 overflow-y-auto custom-scrollbar"></textarea>
-                <button type="button" onclick="sendTextMsg()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow shrink-0"><i class="fa-solid fa-paper-plane"></i></button>
+            <div class="p-2.5 bg-[#0b1b26] border-t border-slate-800 flex items-end gap-1.5 shrink-0">
+                <input type="file" id="attach-file" accept="image/*,.pdf,.doc,.docx,.txt,.zip" class="hidden" onchange="onFilePicked(event)">
+                <button type="button" onclick="document.getElementById('attach-file').click()" title="إرفاق ملف أو صورة" class="text-slate-300 hover:text-white p-2 rounded-xl hover:bg-[#0e2736] shrink-0"><i class="fa-solid fa-paperclip text-base"></i></button>
+                <button type="button" id="mic-rec-btn" onclick="toggleVoiceRecording()" title="تسجيل صوتي" class="text-teal-200 hover:text-white bg-[#0e2736] hover:bg-[#14374b] border border-slate-700 p-2 rounded-xl shrink-0 transition"><i class="fa-solid fa-microphone text-base"></i></button>
+                <textarea id="msg-box-input" rows="1" oninput="autoResizeComposer(this)" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendTextMsg();}" placeholder="اكتب رسالتك أو سجّل صوتك..." class="flex-1 bg-[#07131c] border border-slate-800 rounded-xl px-3 py-2 sanad-composer-font text-white placeholder-slate-400 focus:outline-none focus:border-teal-700 resize-none max-h-28 overflow-y-auto custom-scrollbar"></textarea>
+                <button type="button" onclick="sendTextMsg()" class="sanad-primary-btn px-4 py-2.5 rounded-xl text-sm font-semibold shadow shrink-0"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
         </section>
 
         <section id="pane-groups" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
-            <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-3">
+            <div class="bg-[#0b1b26] border border-slate-800 p-4 rounded-2xl space-y-3">
                 <div class="flex items-center justify-between">
                     <h2 id="groups-heading" class="text-sm font-bold sanad-brand-title"><i class="fa-solid fa-users ml-1"></i> مجموعات التواصل</h2>
-                    <span id="groups-count-badge" class="text-[11px] font-mono text-slate-200 bg-slate-800 border border-slate-700 px-2.5 py-0.5 rounded-full">0</span>
+                    <span id="groups-count-badge" class="text-[11px] font-mono text-slate-200 bg-[#0e2736] border border-slate-700 px-2.5 py-0.5 rounded-full">0</span>
                 </div>
-                <input type="text" id="g-name" placeholder="اسم المجموعة" class="w-full bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
-                <input type="text" id="g-members" oninput="normalizeDigitsInInput(this)" placeholder="أعضاء إضافيون (أرقام أو أكواد 88... مفصولة بفاصلة)" class="w-full bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
-                <button type="button" id="create-group-btn" onclick="createSanadGroup()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl text-xs font-semibold">+ إنشاء مجموعة</button>
+                <input type="text" id="g-name" placeholder="اسم المجموعة" class="w-full bg-[#07131c] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                <input type="text" id="g-members" oninput="normalizeDigitsInInput(this)" placeholder="أعضاء إضافيون (أرقام أو أكواد 88... مفصولة بفاصلة)" class="w-full bg-[#07131c] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
+                <button type="button" id="create-group-btn" onclick="createSanadGroup()" class="sanad-primary-btn px-4 py-2 rounded-xl text-xs font-semibold">+ إنشاء مجموعة</button>
             </div>
             <div id="groups-list" class="space-y-2"></div>
         </section>
 
         <section id="pane-accounts" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
-            <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-3">
-                <div class="flex items-center justify-between">
+            <div class="bg-[#0b1b26] border border-slate-800 p-4 rounded-2xl space-y-3">
+                <div class="flex items-center justify-between gap-2 flex-wrap">
                     <h2 id="accounts-heading" class="text-sm font-bold sanad-brand-title">توليد الأكواد الحصرية (88...) وإدارة الحسابات</h2>
-                    <span id="accounts-count-badge" class="text-[11px] font-mono text-slate-200 bg-slate-800 border border-slate-700 px-2.5 py-0.5 rounded-full">1</span>
+                    <span id="accounts-quota-badge" class="text-[11px] font-mono text-teal-200 bg-teal-950/80 border border-teal-800/70 px-2.5 py-0.5 rounded-full">التوليد: 0/2</span>
+                    <span id="accounts-count-badge" class="text-[11px] font-mono text-slate-200 bg-[#0e2736] border border-slate-700 px-2.5 py-0.5 rounded-full">1</span>
                 </div>
-                <p id="accounts-desc-txt" class="text-[11px] text-slate-400">كل كود يبدأ بـ 88 يتم حجزه على الخادم ولا يُعاد استخدامه لغيرك، ويتم حفظه تلقائياً إلى جوالك عند التوليد.</p>
+                <p id="accounts-desc-txt" class="text-[11px] text-slate-400">توليد منضبط (حد 2 كود يدوي في الدورة لمنع العبث) مع إمكانية ربط حتى 10 أرقام/وسائل اتصال والتحقق عبر الإيميل أو SMS أو اختياري.</p>
                 <div class="flex flex-wrap gap-2">
-                    <button type="button" id="gen-88-btn" onclick="generate88DigitCode()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2.5 rounded-xl text-xs font-semibold">+ توليد كود حصري (8 أرقام يبدأ بـ 88)</button>
-                    <button type="button" id="custom-88-btn" onclick="addCustom88OrId()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 px-4 py-2.5 rounded-xl text-xs font-semibold">+ حجز/إدخال كود 88</button>
+                    <button type="button" id="gen-88-btn" onclick="generate88DigitCode()" class="sanad-primary-btn px-4 py-2.5 rounded-xl text-xs font-semibold">+ توليد كود حصري (8 أرقام يبدأ بـ 88)</button>
+                    <button type="button" id="custom-88-btn" onclick="addCustom88OrId()" class="bg-[#0e2736] hover:bg-[#14374b] border border-slate-700 text-slate-100 px-4 py-2.5 rounded-xl text-xs font-semibold">+ حجز/إدخال كود 88</button>
                 </div>
-                <div id="last-generated-banner" class="hidden bg-[#08101a] border border-sky-800/60 rounded-xl p-2.5 flex items-center justify-between gap-2 text-xs">
-                    <span id="last-generated-text" class="font-mono font-semibold text-sky-200"></span>
+                <div id="last-generated-banner" class="hidden bg-[#07131c] border border-teal-800/60 rounded-xl p-2.5 flex items-center justify-between gap-2 text-xs">
+                    <span id="last-generated-text" class="font-mono font-semibold text-teal-200"></span>
                     <div class="flex gap-1.5">
-                        <button type="button" onclick="saveContactToDeviceVcf(lastGeneratedCode, 'سند ' + lastGeneratedCode, true)" class="bg-sky-900 text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold">VCF</button>
-                        <button type="button" onclick="copyStringToClipboard(lastGeneratedCode)" class="bg-[#164e63] text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold">نسخ</button>
+                        <button type="button" onclick="saveContactToDeviceVcf(lastGeneratedCode, 'سند ' + lastGeneratedCode, true)" class="bg-teal-900 text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold">VCF</button>
+                        <button type="button" onclick="copyStringToClipboard(lastGeneratedCode)" class="sanad-primary-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold">نسخ</button>
                     </div>
                 </div>
                 <div id="accounts-list" class="space-y-2 pt-1"></div>
             </div>
 
-            <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-3 text-xs">
-                <div class="flex items-center justify-between">
-                    <h3 id="intl-heading" class="text-sm font-bold text-sky-200"><i class="fa-solid fa-envelope-circle-check ml-1"></i> تفعيل رقم دولي عبر الإيميل (6 أرقام)</h3>
-                    <span class="text-[10px] bg-slate-800 text-slate-300 border border-slate-700 px-2 py-0.5 rounded-full">OTP</span>
+            <div class="bg-[#0b1b26] border border-slate-800 p-4 rounded-2xl space-y-3 text-xs">
+                <div class="flex items-center justify-between gap-2">
+                    <h3 id="intl-heading" class="text-sm font-bold text-teal-200"><i class="fa-solid fa-envelope-circle-check ml-1"></i> تفعيل رقم دولي واختيار وسيلة التحقق (إيميل / SMS / اختياري)</h3>
+                    <span class="text-[10px] bg-[#0e2736] text-teal-200 border border-teal-800/70 px-2 py-0.5 rounded-full">OTP</span>
                 </div>
                 <div class="grid grid-cols-3 gap-2">
-                    <input type="text" id="intl-cc-input" oninput="normalizeDigitsInInput(this)" value="+967" placeholder="+967" class="bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 font-mono text-white text-center">
-                    <input type="text" id="intl-phone-input" oninput="normalizeDigitsInInput(this)" placeholder="رقم الجوال" class="col-span-2 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 font-mono text-white">
+                    <input type="text" id="intl-cc-input" oninput="normalizeDigitsInInput(this)" value="+967" placeholder="+967" class="bg-[#07131c] border border-slate-800 rounded-xl px-3 py-2 font-mono text-white text-center">
+                    <input type="text" id="intl-phone-input" oninput="normalizeDigitsInInput(this)" placeholder="رقم الجوال" class="col-span-2 bg-[#07131c] border border-slate-800 rounded-xl px-3 py-2 font-mono text-white">
                 </div>
-                <input type="email" id="intl-email-input" placeholder="البريد الإلكتروني لاستلام كود التحقق (6 أرقام)" class="w-full bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-white">
-                <button type="button" id="send-otp-btn" onclick="requestSanadVerificationCode()" class="w-full bg-[#164e63] hover:bg-[#1e6078] text-white py-2 px-3 rounded-xl font-semibold">إرسال رمز التحقق (6 أرقام) إلى الإيميل</button>
-                <div id="otp-delivery-box" class="hidden bg-[#08101a] border border-sky-800/60 rounded-xl p-2.5 space-y-2">
-                    <div id="otp-delivery-msg" class="text-[11px] text-sky-200 font-mono"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <select id="intl-delivery-channel" class="bg-[#07131c] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                        <option value="optional">اختياري (إيميل أو SMS حسب المتاح)</option>
+                        <option value="email">عبر البريد الإلكتروني (Email)</option>
+                        <option value="sms">عبر رسالة نصية (SMS على الرقم)</option>
+                        <option value="both">إيميل + SMS معاً</option>
+                    </select>
+                    <input type="email" id="intl-email-input" placeholder="البريد الإلكتروني (اختياري أو لرمز التحقق)" class="bg-[#07131c] border border-slate-800 rounded-xl px-3 py-2 text-white">
+                </div>
+                <button type="button" id="send-otp-btn" onclick="requestSanadVerificationCode()" class="w-full sanad-primary-btn py-2 px-3 rounded-xl font-semibold">إرسال رمز التحقق (6 أرقام)</button>
+                <div id="otp-delivery-box" class="hidden bg-[#07131c] border border-teal-800/60 rounded-xl p-2.5 space-y-2">
+                    <div id="otp-delivery-msg" class="text-[11px] text-teal-200 font-mono"></div>
                     <div class="flex gap-2">
-                        <input type="text" id="otp-code-input" maxlength="6" oninput="normalizeDigitsInInput(this)" placeholder="أدخل الكود المكون من 6 أرقام" class="flex-1 bg-[#0d1926] border border-slate-700 rounded-xl px-3 py-1.5 font-mono text-white">
-                        <button type="button" id="verify-otp-btn" onclick="verifySanadPhoneCode()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-1.5 rounded-xl font-semibold">تأكيد وحفظ</button>
+                        <input type="text" id="otp-code-input" maxlength="6" oninput="normalizeDigitsInInput(this)" placeholder="أدخل الكود المكون من 6 أرقام" class="flex-1 bg-[#0b1b26] border border-slate-700 rounded-xl px-3 py-1.5 font-mono text-white">
+                        <button type="button" id="verify-otp-btn" onclick="verifySanadPhoneCode()" class="sanad-primary-btn px-4 py-1.5 rounded-xl font-semibold">تأكيد وحفظ</button>
                     </div>
                 </div>
             </div>
         </section>
 
         <section id="pane-contacts" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
-            <div class="bg-[#0d1926] border border-slate-800 p-3.5 rounded-2xl space-y-2.5">
+            <div class="bg-[#0b1b26] border border-slate-800 p-3.5 rounded-2xl space-y-2.5">
                 <div class="flex items-center justify-between gap-2 flex-wrap">
                     <h2 id="contacts-heading" class="text-sm font-bold sanad-brand-title">الجهات والأسماء المحفوظة</h2>
                     <div class="flex gap-1.5 flex-wrap">
-                        <button type="button" onclick="importFromDeviceContactsPicker()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sky-200 px-2.5 py-1 rounded-lg text-[11px] font-semibold"><i class="fa-solid fa-mobile-screen-button ml-1"></i><span id="import-contacts-btn-txt">جلب من الجوال</span></button>
-                        <button type="button" onclick="exportAllContactsVcf(true)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sky-200 px-2.5 py-1 rounded-lg text-[11px] font-semibold"><i class="fa-solid fa-address-book ml-1"></i><span id="export-all-vcf-btn-txt">حفظ الكل (.vcf)</span></button>
+                        <button type="button" onclick="importFromDeviceContactsPicker()" class="bg-[#0e2736] hover:bg-[#14374b] border border-slate-700 text-teal-200 px-2.5 py-1 rounded-lg text-[11px] font-semibold"><i class="fa-solid fa-mobile-screen-button ml-1"></i><span id="import-contacts-btn-txt">جلب من الجوال</span></button>
+                        <button type="button" onclick="exportAllContactsVcf(true)" class="bg-[#0e2736] hover:bg-[#14374b] border border-slate-700 text-teal-200 px-2.5 py-1 rounded-lg text-[11px] font-semibold"><i class="fa-solid fa-address-book ml-1"></i><span id="export-all-vcf-btn-txt">حفظ الكل (.vcf)</span></button>
                     </div>
                 </div>
-                <p id="contacts-desc-txt" class="text-[11px] text-slate-400">عند حفظ اسم الشخص يتم تجهيز ملف جهة الاتصال (.vcf) للجوال تلقائياً ويظهر بمؤشر أزرق بترولي هادئ عند نشاط جلسته.</p>
+                <p id="contacts-desc-txt" class="text-[11px] text-slate-400">عند حفظ اسم الشخص يتم تجهيز ملف جهة الاتصال (.vcf) للجوال تلقائياً ويظهر بمؤشر أخضر/بترولي هادئ عند نشاط جلسته.</p>
                 <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="text" id="c-name" placeholder="اسم الشخص" class="bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
-                    <input type="text" id="c-id" oninput="normalizeDigitsInInput(this)" placeholder="كود 88... أو رقم الجوال" class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
-                    <button type="button" id="save-contact-phone-btn" onclick="addContactAndSaveToPhone()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl text-xs font-semibold">حفظ وتنزيل للجوال</button>
+                    <input type="text" id="c-name" placeholder="اسم الشخص" class="bg-[#07131c] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <input type="text" id="c-id" oninput="normalizeDigitsInInput(this)" placeholder="كود 88... أو رقم الجوال" class="flex-1 bg-[#07131c] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
+                    <button type="button" id="save-contact-phone-btn" onclick="addContactAndSaveToPhone()" class="sanad-primary-btn px-4 py-2 rounded-xl text-xs font-semibold">حفظ وتنزيل للجوال</button>
                 </div>
             </div>
             <div id="contacts-list" class="space-y-2"></div>
 
-            <div class="bg-[#0d1926] border border-rose-900/50 p-3.5 rounded-2xl space-y-2">
+            <div class="bg-[#0b1b26] border border-rose-900/50 p-3.5 rounded-2xl space-y-2">
                 <div class="flex items-center justify-between">
                     <h3 id="blocked-heading" class="text-xs font-bold text-rose-300"><i class="fa-solid fa-ban ml-1"></i> قائمة المحظورين</h3>
                     <span id="blocked-count-badge" class="text-[10px] font-mono text-rose-200 bg-rose-950/80 border border-rose-800/60 px-2 py-0.5 rounded-full">0</span>
@@ -1234,50 +1271,50 @@ const htmlContent = `<!DOCTYPE html>
         </section>
 
         <section id="pane-calls" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
-            <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-3 text-center">
+            <div class="bg-[#0b1b26] border border-slate-800 p-4 rounded-2xl space-y-3 text-center">
                 <h2 id="calls-heading" class="text-base font-bold sanad-brand-title">المكالمات الصوتية والمرئية</h2>
                 <p id="calls-sub-heading" class="text-xs text-slate-300">${SYSTEM_SCIENTIFIC_NAME} • تشغيل 24/7</p>
-                <input type="text" id="call-input" oninput="normalizeDigitsInInput(this); onCallDialInput();" onkeydown="if(event.key==='Enter'){event.preventDefault();startDialedCall('audio');}" placeholder="اكتب الكود أو الرقم أو الاسم..." class="w-full max-w-md mx-auto bg-[#08101a] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-center font-mono text-white">
-                <div id="call-resolved-preview" class="text-[11px] text-sky-200 font-semibold min-h-[18px]"></div>
+                <input type="text" id="call-input" oninput="normalizeDigitsInInput(this); onCallDialInput();" onkeydown="if(event.key==='Enter'){event.preventDefault();startDialedCall('audio');}" placeholder="اكتب الكود أو الرقم أو الاسم..." class="w-full max-w-md mx-auto bg-[#07131c] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-center font-mono text-white">
+                <div id="call-resolved-preview" class="text-[11px] text-teal-200 font-semibold min-h-[18px]"></div>
                 <div class="flex gap-3 justify-center pt-1 flex-wrap">
-                    <button type="button" onclick="startDialedCall('audio')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2"><i class="fa-solid fa-phone"></i><span id="audio-call-btn-txt">مكالمة صوتية</span></button>
-                    <button type="button" onclick="startDialedCall('video')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2"><i class="fa-solid fa-video"></i><span id="video-call-btn-txt">مكالمة فيديو</span></button>
+                    <button type="button" onclick="startDialedCall('audio')" class="sanad-primary-btn px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2"><i class="fa-solid fa-phone"></i><span id="audio-call-btn-txt">مكالمة صوتية</span></button>
+                    <button type="button" onclick="startDialedCall('video')" class="bg-[#0e2736] hover:bg-[#14374b] border border-slate-700 text-slate-100 px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2"><i class="fa-solid fa-video"></i><span id="video-call-btn-txt">مكالمة فيديو</span></button>
                 </div>
             </div>
         </section>
 
         <section id="pane-ai" class="sanad-pane hidden flex-1 flex-col p-4 overflow-y-auto custom-scrollbar space-y-3">
-            <div class="bg-gradient-to-br from-[#133144] to-[#0d1926] border border-sky-800/60 p-4 rounded-2xl flex items-center gap-3">
-                <img src="/icon-192.png" alt="سند AI" class="w-14 h-14 rounded-2xl border border-sky-400/35 shrink-0">
+            <div class="bg-gradient-to-br from-[#0f3846] to-[#0b1b26] border border-teal-800/60 p-4 rounded-2xl flex items-center gap-3">
+                <img src="/icon-192.png" alt="سند AI" class="w-14 h-14 rounded-2xl border border-teal-400/35 shrink-0">
                 <div class="space-y-1 min-w-0">
                     <div class="flex items-center justify-between gap-2">
                         <span id="ai-hero-heading" class="text-sm font-bold sanad-brand-title truncate">سند AI • تشغيل 24/7 عالمياً</span>
-                        <span class="text-[10px] font-mono bg-sky-950 text-sky-200 border border-sky-800 px-2 py-0.5 rounded-full shrink-0">v${APP_VERSION}</span>
+                        <span class="text-[10px] font-mono bg-teal-950 text-teal-200 border border-teal-800 px-2 py-0.5 rounded-full shrink-0">v${APP_VERSION}</span>
                     </div>
                     <p id="ai-hero-sub" class="text-xs text-slate-300">${SYSTEM_SCIENTIFIC_NAME}.</p>
                 </div>
             </div>
 
-            <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
+            <div class="bg-[#0b1b26] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
                 <div class="flex items-center justify-between">
                     <h2 id="updates-heading" class="text-sm font-bold sanad-brand-title"><i class="fa-solid fa-cloud-arrow-down ml-1"></i> تحديثات النظام</h2>
-                    <span id="update-ver-badge" class="text-[10px] font-mono bg-slate-800 text-sky-200 border border-slate-700 px-2.5 py-0.5 rounded-full">v${APP_VERSION}</span>
+                    <span id="update-ver-badge" class="text-[10px] font-mono bg-[#0e2736] text-teal-200 border border-slate-700 px-2.5 py-0.5 rounded-full">v${APP_VERSION}</span>
                 </div>
                 <p id="update-status-text" class="text-[11px] text-slate-300">النسخة المثبتة حالياً: v${APP_VERSION} -- يتم فحص التحديثات تلقائياً مع ظهور تنبيه أعلى الشاشة.</p>
                 <div class="flex gap-2 flex-wrap">
-                    <button type="button" id="check-update-btn" onclick="checkForSystemUpdate(true)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-2 rounded-xl font-semibold">فحص التحديث</button>
-                    <button type="button" onclick="applySystemUpdateNow()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl font-semibold"><i class="fa-solid fa-rotate ml-1"></i><span id="apply-update-btn-txt">تحديث النظام الآن</span></button>
+                    <button type="button" id="check-update-btn" onclick="checkForSystemUpdate(true)" class="bg-[#0e2736] hover:bg-[#14374b] border border-slate-700 text-slate-200 px-3 py-2 rounded-xl font-semibold">فحص التحديث</button>
+                    <button type="button" onclick="applySystemUpdateNow()" class="sanad-primary-btn px-4 py-2 rounded-xl font-semibold"><i class="fa-solid fa-rotate ml-1"></i><span id="apply-update-btn-txt">تحديث النظام الآن</span></button>
                 </div>
             </div>
 
-            <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
+            <div class="bg-[#0b1b26] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
                 <div class="flex items-center justify-between gap-2">
-                    <h2 id="radio-heading" class="text-sm font-bold text-sky-200"><i class="fa-solid fa-radio ml-1"></i> إذاعة سند AI • بث ذكي فوري</h2>
-                    <span id="radio-state-badge" class="text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700 px-2.5 py-0.5 rounded-full">متوقف</span>
+                    <h2 id="radio-heading" class="text-sm font-bold text-teal-200"><i class="fa-solid fa-radio ml-1"></i> إذاعة سند AI • بث ذكي فوري</h2>
+                    <span id="radio-state-badge" class="text-[10px] font-mono bg-[#0e2736] text-slate-300 border border-slate-700 px-2.5 py-0.5 rounded-full">متوقف</span>
                 </div>
                 <p id="radio-desc-txt" class="text-[11px] text-slate-400">بث مباشر سريع الاستجابة مدعوم بالذكاء الاصطناعي يدعم MP3 وM4A وMP4 والقرآن الكريم والقنوات الإخبارية.</p>
                 <div class="flex gap-2 flex-wrap">
-                    <select id="radio-station-select" onchange="onRadioStationChanged()" class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <select id="radio-station-select" onchange="onRadioStationChanged()" class="flex-1 bg-[#07131c] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
                         <optgroup label="Sanad AI Radio">
                             <option value="sanad_main|إذاعة سند AI المباشرة|LOCAL_SANAD|sanad">إذاعة سند AI المباشرة</option>
                         </optgroup>
@@ -1292,22 +1329,22 @@ const htmlContent = `<!DOCTYPE html>
                             <option value="news_sky_ar|سكاي نيوز عربية (مباشر)|https://radio.skynewsarabia.com/stream/radio.mp3|news">سكاي نيوز عربية (مباشر)</option>
                         </optgroup>
                     </select>
-                    <button type="button" id="radio-toggle-btn" onclick="toggleSanadRadioFm()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl font-semibold"><i class="fa-solid fa-play ml-1"></i><span>تشغيل الراديو</span></button>
+                    <button type="button" id="radio-toggle-btn" onclick="toggleSanadRadioFm()" class="sanad-primary-btn px-4 py-2 rounded-xl font-semibold"><i class="fa-solid fa-play ml-1"></i><span>تشغيل الراديو</span></button>
                 </div>
-                <div id="radio-ai-host-box" class="bg-[#08101a] border border-slate-800/90 rounded-xl p-2.5 text-[11px] text-slate-300">
+                <div id="radio-ai-host-box" class="bg-[#07131c] border border-slate-800/90 rounded-xl p-2.5 text-[11px] text-slate-300">
                     الراديو في وضع الاستعداد الفوري -- اضغط «تشغيل الراديو» لبدء البث الذكي مباشرة.
                 </div>
             </div>
 
-            <div id="sanad-real-adhan-box" class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
+            <div id="sanad-real-adhan-box" class="bg-[#0b1b26] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
                 <div class="flex items-center justify-between gap-2">
-                    <h2 id="adhan-heading" class="text-sm font-bold text-sky-200"><i class="fa-solid fa-mosque ml-1"></i> القرآن والأذان الحقيقي الآلي</h2>
-                    <span id="real-adhan-city-badge" class="text-[10px] font-mono bg-slate-800 text-sky-200 border border-slate-700 px-2.5 py-0.5 rounded-full">عدن • مكة</span>
+                    <h2 id="adhan-heading" class="text-sm font-bold text-teal-200"><i class="fa-solid fa-mosque ml-1"></i> القرآن والأذان الحقيقي الآلي</h2>
+                    <span id="real-adhan-city-badge" class="text-[10px] font-mono bg-[#0e2736] text-teal-200 border border-slate-700 px-2.5 py-0.5 rounded-full">عدن • مكة</span>
                 </div>
                 <p id="adhan-desc-txt" class="text-[11px] text-slate-400">تشغيل حقيقي للقرآن والأذان مع تقليب آلي حسب الوقت والجمعة والتهجد ورمضان.</p>
 
                 <div class="flex gap-2 flex-wrap items-center">
-                    <select id="real-adhan-city-select" onchange="loadRealPrayerSchedule()" class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <select id="real-adhan-city-select" onchange="loadRealPrayerSchedule()" class="flex-1 bg-[#07131c] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
                         <optgroup label="Yemen">
                             <option value="12.7855,45.0187|4|عدن • مكة">عدن • اليمن</option>
                             <option value="15.3694,44.1910|4|صنعاء • مكة">صنعاء • اليمن</option>
@@ -1323,37 +1360,37 @@ const htmlContent = `<!DOCTYPE html>
                         </optgroup>
                     </select>
 
-                    <label class="flex items-center gap-1.5 bg-[#08101a] border border-slate-800 px-3 py-2 rounded-xl text-[11px] text-slate-200 cursor-pointer">
+                    <label class="flex items-center gap-1.5 bg-[#07131c] border border-slate-800 px-3 py-2 rounded-xl text-[11px] text-slate-200 cursor-pointer">
                         <input type="checkbox" id="real-adhan-auto-switch" onchange="syncRealAdhanAutoStatus()">
                         <span id="auto-switch-lbl">تقليب آلي</span>
                     </label>
                 </div>
 
                 <div class="flex gap-2 flex-wrap">
-                    <button type="button" onclick="triggerRealQuranNow('تشغيل بث القرآن الكريم الحقيقي')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 px-3 py-1.5 rounded-xl text-[11px] font-semibold">
+                    <button type="button" onclick="triggerRealQuranNow('تشغيل بث القرآن الكريم الحقيقي')" class="bg-[#0e2736] hover:bg-[#14374b] border border-slate-700 text-slate-100 px-3 py-1.5 rounded-xl text-[11px] font-semibold">
                         <i class="fa-solid fa-book-open ml-1"></i><span id="quran-now-btn-txt">قرآن حقيقي الآن</span>
                     </button>
-                    <button type="button" onclick="triggerRealAdhanNow('اختبار الأذان الحقيقي')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-xl text-[11px] font-semibold">
+                    <button type="button" onclick="triggerRealAdhanNow('اختبار الأذان الحقيقي')" class="sanad-primary-btn px-3 py-1.5 rounded-xl text-[11px] font-semibold">
                         <i class="fa-solid fa-volume-high ml-1"></i><span id="adhan-now-btn-txt">أذان حقيقي الآن</span>
                     </button>
                 </div>
 
-                <div id="real-prayer-times-box" class="bg-[#08101a] border border-slate-800 rounded-xl p-2.5 text-[11px] text-slate-200 grid grid-cols-2 gap-1.5">
+                <div id="real-prayer-times-box" class="bg-[#07131c] border border-slate-800 rounded-xl p-2.5 text-[11px] text-slate-200 grid grid-cols-2 gap-1.5">
                     <div>جاري جلب مواقيت الصلاة...</div>
                 </div>
 
-                <div id="real-adhan-live-status" class="bg-[#08101a] border border-slate-800 rounded-xl p-2.5 text-[11px] text-sky-200 font-semibold">
+                <div id="real-adhan-live-status" class="bg-[#07131c] border border-slate-800 rounded-xl p-2.5 text-[11px] text-teal-200 font-semibold">
                     النظام جاهز للتشغيل اليدوي أو التلقائي عند دخول أوقات الصلاة.
                 </div>
             </div>
 
-            <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
+            <div class="bg-[#0b1b26] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
                 <div class="flex items-center justify-between gap-2">
-                    <h2 id="marine-heading" class="text-sm font-bold text-sky-200"><i class="fa-solid fa-satellite ml-1"></i> الرصد الجوي والبحري والأقمار الصناعية</h2>
-                    <span id="marine-city-badge" class="text-[10px] font-mono bg-slate-800 text-sky-200 border border-slate-700 px-2.5 py-0.5 rounded-full">باب المندب</span>
+                    <h2 id="marine-heading" class="text-sm font-bold text-teal-200"><i class="fa-solid fa-satellite ml-1"></i> الرصد الجوي والبحري والأقمار الصناعية</h2>
+                    <span id="marine-city-badge" class="text-[10px] font-mono bg-[#0e2736] text-teal-200 border border-slate-700 px-2.5 py-0.5 rounded-full">باب المندب</span>
                 </div>
                 <div class="flex gap-2">
-                    <select id="marine-spot-select" onchange="refreshWeatherAndMarine()" class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <select id="marine-spot-select" onchange="refreshWeatherAndMarine()" class="flex-1 bg-[#07131c] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
                         <optgroup label="Bab al-Mandab & Yemen">
                             <option value="12.5833,43.3333|مضيق باب المندب">مضيق باب المندب</option>
                             <option value="13.3178,43.2431|المخاء • البحر الأحمر">المخاء • البحر الأحمر</option>
@@ -1372,42 +1409,42 @@ const htmlContent = `<!DOCTYPE html>
                             <option value="35.6762,139.6503|طوكيو • خليج طوكيو">طوكيو • خليج طوكيو</option>
                         </optgroup>
                     </select>
-                    <button type="button" id="refresh-marine-btn" onclick="refreshWeatherAndMarine()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3.5 py-2 rounded-xl font-semibold">تحديث</button>
+                    <button type="button" id="refresh-marine-btn" onclick="refreshWeatherAndMarine()" class="sanad-primary-btn px-3.5 py-2 rounded-xl font-semibold">تحديث</button>
                 </div>
-                <div id="marine-summary-box" class="bg-[#08101a] border border-slate-800 rounded-xl p-3 text-[11px] text-slate-200 space-y-1">
+                <div id="marine-summary-box" class="bg-[#07131c] border border-slate-800 rounded-xl p-3 text-[11px] text-slate-200 space-y-1">
                     <div>جاري قراءة بيانات الأقمار الصناعية والطقس والرياح والمد والجزر...</div>
                 </div>
             </div>
 
-            <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-3 text-xs">
+            <div class="bg-[#0b1b26] border border-slate-800 p-4 rounded-2xl space-y-3 text-xs">
                 <div class="flex items-center justify-between">
-                    <h2 id="backup-heading" class="text-sm font-bold text-sky-200"><i class="fa-solid fa-database ml-1"></i> النسخة الاحتياطية وسجل التحصيلات</h2>
-                    <span id="backup-history-badge" class="text-[10px] font-mono text-slate-300 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded-full">0</span>
+                    <h2 id="backup-heading" class="text-sm font-bold text-teal-200"><i class="fa-solid fa-database ml-1"></i> النسخة الاحتياطية وسجل التحصيلات</h2>
+                    <span id="backup-history-badge" class="text-[10px] font-mono text-slate-300 bg-[#0e2736] border border-slate-700 px-2 py-0.5 rounded-full">0</span>
                 </div>
                 <p id="backup-desc-txt" class="text-[11px] text-slate-400">يتم تصدير النسخة الاحتياطية تلقائياً إلى جهازك وتسجيلها في السجل مرتبة من الأحدث للأقدم مع أعداد التحصيلات.</p>
                 <div class="flex gap-2 flex-wrap">
-                    <button type="button" onclick="exportFullBackupJson(true)" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3.5 py-2 rounded-xl font-semibold"><i class="fa-solid fa-file-export ml-1"></i><span id="export-backup-btn-txt">تصدير نسخة احتياطية</span></button>
+                    <button type="button" onclick="exportFullBackupJson(true)" class="sanad-primary-btn px-3.5 py-2 rounded-xl font-semibold"><i class="fa-solid fa-file-export ml-1"></i><span id="export-backup-btn-txt">تصدير نسخة احتياطية</span></button>
                     <input type="file" id="import-backup-file" accept=".json,application/json" class="hidden" onchange="importFullBackupJson(event)">
-                    <button type="button" onclick="document.getElementById('import-backup-file').click()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3.5 py-2 rounded-xl font-semibold"><i class="fa-solid fa-file-import ml-1"></i><span id="import-backup-btn-txt">استيراد نسخة احتياطية</span></button>
+                    <button type="button" onclick="document.getElementById('import-backup-file').click()" class="bg-[#0e2736] hover:bg-[#14374b] border border-slate-700 text-slate-200 px-3.5 py-2 rounded-xl font-semibold"><i class="fa-solid fa-file-import ml-1"></i><span id="import-backup-btn-txt">استيراد نسخة احتياطية</span></button>
                 </div>
                 <div id="backup-history-list" class="space-y-2 pt-1"></div>
             </div>
 
-            <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
+            <div class="bg-[#0b1b26] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
                 <h3 id="ai-assistant-heading" class="text-sm font-bold sanad-brand-title"><i class="fa-solid fa-brain ml-1"></i> مساعد سند AI</h3>
-                <div id="ai-log" class="bg-[#08101a] border border-slate-800 rounded-xl p-3 h-40 overflow-y-auto space-y-2 custom-scrollbar">
+                <div id="ai-log" class="bg-[#07131c] border border-slate-800 rounded-xl p-3 h-40 overflow-y-auto space-y-2 custom-scrollbar">
                     <div class="text-slate-400">مرحباً بك في مساعد سند AI. اسألني وسأرد عليك فوراً.</div>
                 </div>
                 <div class="flex gap-2">
-                    <input type="text" id="ai-q" onkeydown="if(event.key==='Enter')askSanadAI()" placeholder="اسأل مساعد سند AI عن أي شيء..." class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
-                    <button type="button" id="ai-send-btn" onclick="askSanadAI()" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl text-xs font-semibold">إرسال</button>
+                    <input type="text" id="ai-q" onkeydown="if(event.key==='Enter')askSanadAI()" placeholder="اسأل مساعد سند AI عن أي شيء..." class="flex-1 bg-[#07131c] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <button type="button" id="ai-send-btn" onclick="askSanadAI()" class="sanad-primary-btn px-4 py-2 rounded-xl text-xs font-semibold">إرسال</button>
                 </div>
             </div>
         </section>
     </main>
 
-    <nav class="bg-[#0d1926]/95 border-t border-slate-800 px-0.5 py-2 flex justify-around items-center z-20 shrink-0">
-        <a href="#tab-chats" onclick="setPane('chats'); return false;" id="btn-chats" class="relative flex flex-col items-center gap-0.5 text-sky-300 font-bold text-[11px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer">
+    <nav class="bg-[#0b1b26]/95 border-t border-slate-800 px-0.5 py-2 flex justify-around items-center z-20 shrink-0">
+        <a href="#tab-chats" onclick="setPane('chats'); return false;" id="btn-chats" class="relative flex flex-col items-center gap-0.5 text-teal-300 font-bold text-[11px] px-1 py-1 whitespace-nowrap shrink-0 cursor-pointer">
             <span id="nav-chats-badge" class="hidden absolute -top-0.5 -left-1.5 min-w-[16px] h-[16px] px-1 rounded-full bg-rose-600 text-white text-[9px] font-mono font-bold flex items-center justify-center">0</span>
             <i class="fa-solid fa-comments text-sm"></i><span id="nav-lbl-chats">الدردشة</span>
         </a>
@@ -1431,6 +1468,7 @@ const htmlContent = `<!DOCTYPE html>
     <script>
         var activeAcct = 'مستخدم-سند';
         var myAccts = ['مستخدم-سند'];
+        var manual88GeneratedCount = 0;
         var verifiedPhonesMap = {};
         var contacts = [];
         var blockedIdsSet = new Set();
@@ -1595,12 +1633,12 @@ const htmlContent = `<!DOCTYPE html>
                         var iLbl = isEn ? 'Isha' : 'العشاء';
                         var tLbl = isEn ? 'Tahajjud' : 'التهجد';
                         box.innerHTML =
-                            '<div>' + fLbl + ': <b class="text-sky-200">' + toWesternDigits(realPrayerData.Fajr) + '</b></div>' +
-                            '<div>' + dLbl + ': <b class="text-sky-200">' + toWesternDigits(realPrayerData.Dhuhr) + '</b></div>' +
-                            '<div>' + aLbl + ': <b class="text-sky-200">' + toWesternDigits(realPrayerData.Asr) + '</b></div>' +
-                            '<div>' + mLbl + ': <b class="text-sky-200">' + toWesternDigits(realPrayerData.Maghrib) + '</b></div>' +
-                            '<div>' + iLbl + ': <b class="text-sky-200">' + toWesternDigits(realPrayerData.Isha) + '</b></div>' +
-                            '<div>' + tLbl + ': <b class="text-sky-200">' + toWesternDigits(realPrayerData.Lastthird) + '</b></div>';
+                            '<div>' + fLbl + ': <b class="text-teal-200">' + toWesternDigits(realPrayerData.Fajr) + '</b></div>' +
+                            '<div>' + dLbl + ': <b class="text-teal-200">' + toWesternDigits(realPrayerData.Dhuhr) + '</b></div>' +
+                            '<div>' + aLbl + ': <b class="text-teal-200">' + toWesternDigits(realPrayerData.Asr) + '</b></div>' +
+                            '<div>' + mLbl + ': <b class="text-teal-200">' + toWesternDigits(realPrayerData.Maghrib) + '</b></div>' +
+                            '<div>' + iLbl + ': <b class="text-teal-200">' + toWesternDigits(realPrayerData.Isha) + '</b></div>' +
+                            '<div>' + tLbl + ': <b class="text-teal-200">' + toWesternDigits(realPrayerData.Lastthird) + '</b></div>';
                     }
                     checkRealAutoSchedule();
                 })
@@ -1706,6 +1744,12 @@ const htmlContent = `<!DOCTYPE html>
             try {
                 if (!('indexedDB' in window)) return;
                 var req = indexedDB.open('SanadAiOfflineDb', 1);
+                req.onupgradeneeded = function(ev) {
+                    var db = ev.target.result;
+                    if (!db.objectStoreNames.contains('vault')) {
+                        db.createObjectStore('vault');
+                    }
+                };
                 req.onsuccess = function(ev) {
                     var db = ev.target.result;
                     if (!db.objectStoreNames.contains('vault')) return;
@@ -1841,7 +1885,7 @@ const htmlContent = `<!DOCTYPE html>
             var author = m.from === 'me'
                 ? (sanadUiLang === 'en' ? 'You' : 'أنت')
                 : (resolveContactName(m.senderName || currentPeer) || currentPeer);
-            var snippet = m.text ? String(m.text).slice(0, 90) : (m.kind === 'audio' ? (sanadUiLang === 'en' ? 'Voice message' : 'رسالة صوتية') : (m.fileName || 'File'));
+            var snippet = m.text ? String(m.text).slice(0, 90) : (m.kind === 'audio' ? (sanadUiLang === 'en' ? 'Voice message' : 'رسالة صوتية') : (m.kind === 'image' ? (sanadUiLang === 'en' ? 'Image' : 'صورة') : (m.fileName || 'File')));
             activeReplyTarget = { id: m.id, author: author, snippet: snippet };
             var bar = document.getElementById('reply-preview-bar');
             var aEl = document.getElementById('reply-preview-author');
@@ -1890,7 +1934,7 @@ const htmlContent = `<!DOCTYPE html>
             if (btn) {
                 btn.textContent = sanadAutoSpeakIncoming ? dict.autoSpeakOn : dict.autoSpeakOff;
                 btn.className = sanadAutoSpeakIncoming
-                    ? 'text-sky-200 font-bold hover:text-white'
+                    ? 'text-teal-200 font-bold hover:text-white'
                     : 'text-slate-300 hover:text-white font-medium';
             }
         }
@@ -1974,8 +2018,8 @@ const htmlContent = `<!DOCTYPE html>
             if (badge) {
                 badge.textContent = radioPlaying ? dict.radioPlaying : dict.radioStopped;
                 badge.className = radioPlaying
-                    ? 'text-[10px] font-mono bg-sky-900 text-sky-100 border border-sky-600 px-2.5 py-0.5 rounded-full'
-                    : 'text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700 px-2.5 py-0.5 rounded-full';
+                    ? 'text-[10px] font-mono bg-teal-900 text-teal-100 border border-teal-600 px-2.5 py-0.5 rounded-full'
+                    : 'text-[10px] font-mono bg-[#0e2736] text-slate-300 border border-slate-700 px-2.5 py-0.5 rounded-full';
             }
             if (btn) {
                 btn.innerHTML = radioPlaying
@@ -1983,7 +2027,7 @@ const htmlContent = `<!DOCTYPE html>
                     : '<i class="fa-solid fa-play ml-1"></i><span>' + escapeHtml(dict.playRadioBtn) + '</span>';
                 btn.className = radioPlaying
                     ? 'bg-rose-800 hover:bg-rose-700 text-white px-4 py-2 rounded-xl font-semibold'
-                    : 'bg-[#164e63] hover:bg-[#1e6078] text-white px-4 py-2 rounded-xl font-semibold';
+                    : 'sanad-primary-btn px-4 py-2 rounded-xl font-semibold';
             }
             if (!radioPlaying) {
                 setRadioBoxMessage(dict.radioStandbyMsg);
@@ -2183,6 +2227,7 @@ const htmlContent = `<!DOCTYPE html>
                 exportedAt: new Date().toISOString(),
                 activeAcct: activeAcct,
                 myAccts: myAccts.slice(),
+                manual88GeneratedCount: manual88GeneratedCount,
                 verifiedPhones: Object.assign({}, verifiedPhonesMap),
                 contacts: contacts.slice(),
                 blockedIds: Array.from(blockedIdsSet),
@@ -2223,9 +2268,9 @@ const htmlContent = `<!DOCTYPE html>
             box.innerHTML = sorted.map(function(item, idx) {
                 var c = item.counts || {};
                 var orderNum = toWesternDigits(idx + 1);
-                return '<div class="bg-[#08101a] border border-slate-800 rounded-xl p-2.5 space-y-1.5">' +
+                return '<div class="bg-[#07131c] border border-slate-800 rounded-xl p-2.5 space-y-1.5">' +
                     '<div class="flex items-center justify-between gap-2">' +
-                    '<span class="font-bold text-sky-200">#' + orderNum + ' • ' + escapeHtml(item.source) + '</span>' +
+                    '<span class="font-bold text-teal-200">#' + orderNum + ' • ' + escapeHtml(item.source) + '</span>' +
                     '<span class="text-[10px] font-mono text-slate-400">' + escapeHtml(item.createdAt) + '</span>' +
                     '</div>' +
                     '<div class="text-[11px] text-slate-200 flex flex-wrap gap-2">' +
@@ -2236,7 +2281,7 @@ const htmlContent = `<!DOCTYPE html>
                     '<span>• ' + (isEn ? 'Blocked' : 'المحظورون') + ': <b class="text-rose-300">' + toWesternDigits(c.blocked || 0) + '</b></span>' +
                     '</div>' +
                     '<div class="flex justify-end">' +
-                    '<button type="button" onclick="restoreBackupByRecordId(\'' + escapeJsSingle(item.id) + '\')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold">' + (isEn ? 'Restore' : 'استعادة') + '</button>' +
+                    '<button type="button" onclick="restoreBackupByRecordId(\'' + escapeJsSingle(item.id) + '\')" class="sanad-primary-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold">' + (isEn ? 'Restore' : 'استعادة') + '</button>' +
                     '</div></div>';
             }).join('');
         }
@@ -2244,7 +2289,10 @@ const htmlContent = `<!DOCTYPE html>
         function applyBackupSnapshot(data) {
             if (!data || typeof data !== 'object') return;
             if (Array.isArray(data.myAccts) && data.myAccts.length) {
-                myAccts = Array.from(new Set(myAccts.concat(data.myAccts.map(cleanIdValue).filter(Boolean))));
+                myAccts = Array.from(new Set(myAccts.concat(data.myAccts.map(cleanIdValue).filter(Boolean)))).slice(0, MAX_LINKED_NUMBERS_LIMIT);
+            }
+            if (typeof data.manual88GeneratedCount === 'number') {
+                manual88GeneratedCount = Math.min(MAX_MANUAL_88_LIMIT, Math.max(manual88GeneratedCount, data.manual88GeneratedCount));
             }
             if (data.activeAcct) activeAcct = cleanIdValue(data.activeAcct) || activeAcct;
             if (data.verifiedPhones && typeof data.verifiedPhones === 'object') {
@@ -2471,11 +2519,11 @@ const htmlContent = `<!DOCTYPE html>
             var ico = document.getElementById('speaker-icon');
             var btn = document.getElementById('speaker-toggle-btn');
             if (lbl) lbl.textContent = callSpeakerMode ? dict.speakerMode : dict.earpieceMode;
-            if (ico) ico.className = callSpeakerMode ? 'fa-solid fa-volume-high text-sky-300' : 'fa-solid fa-ear-listen text-slate-200';
+            if (ico) ico.className = callSpeakerMode ? 'fa-solid fa-volume-high text-teal-300' : 'fa-solid fa-ear-listen text-slate-200';
             if (btn) {
                 btn.className = callSpeakerMode
-                    ? 'px-3 py-3 rounded-2xl bg-sky-950 hover:bg-sky-900 border border-sky-600/60 text-sky-200 flex items-center gap-1.5 text-xs font-semibold'
-                    : 'px-3 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 flex items-center gap-1.5 text-xs font-semibold';
+                    ? 'px-3 py-3 rounded-2xl bg-teal-950 hover:bg-teal-900 border border-teal-600/60 text-teal-200 flex items-center gap-1.5 text-xs font-semibold'
+                    : 'px-3 py-3 rounded-2xl bg-[#0e2736] hover:bg-[#14374b] border border-slate-700 text-slate-200 flex items-center gap-1.5 text-xs font-semibold';
             }
         }
 
@@ -2649,10 +2697,29 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function generate88DigitCode() {
-            fetch('/api/codes/generate-88', { method: 'POST' })
+            if (manual88GeneratedCount >= MAX_MANUAL_88_LIMIT) {
+                copyStringToClipboard('', sanadUiLang === 'en' ? 'Manual 88 limit reached (2/2)' : 'تم بلوغ الحد المسموح (2/2) لمنع العبث');
+                return;
+            }
+            if (myAccts.length >= MAX_LINKED_NUMBERS_LIMIT) {
+                copyStringToClipboard('', sanadUiLang === 'en' ? 'Max 10 linked numbers/accounts reached' : 'الحد الأقصى 10 أرقام/حسابات مرتبطة');
+                return;
+            }
+            fetch('/api/codes/generate-88', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ actorId: activeAcct })
+            })
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
+                    if (data && data.ok === false) {
+                        copyStringToClipboard('', sanadUiLang === 'en' ? 'Manual 88 limit reached' : 'تم بلوغ حد التوليد المسموح');
+                        return;
+                    }
                     var code = (data && data.code) ? cleanIdValue(data.code) : ('88' + String(Math.floor(100000 + Math.random() * 900000)));
+                    manual88GeneratedCount = (data && typeof data.generatedCount === 'number')
+                        ? data.generatedCount
+                        : Math.min(MAX_MANUAL_88_LIMIT, manual88GeneratedCount + 1);
                     lastGeneratedCode = code;
                     if (myAccts.indexOf(code) === -1) myAccts.unshift(code);
                     activeAcct = code;
@@ -2672,7 +2739,11 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function addCustom88OrId() {
-            var raw = prompt('88...', '88');
+            if (myAccts.length >= MAX_LINKED_NUMBERS_LIMIT) {
+                copyStringToClipboard('', sanadUiLang === 'en' ? 'Max 10 linked numbers/accounts reached' : 'الحد الأقصى 10 أرقام/حسابات مرتبطة');
+                return;
+            }
+            var raw = prompt('أدخل كود 88 أو رقم مرتبط (حتى 10 أرقام):', '88');
             var clean = cleanIdValue(raw);
             if (!clean) return;
             if (myAccts.indexOf(clean) === -1) myAccts.unshift(clean);
@@ -2689,7 +2760,7 @@ const htmlContent = `<!DOCTYPE html>
             var clean = cleanIdValue(id);
             if (!clean) return;
             activeAcct = clean;
-            if (myAccts.indexOf(clean) === -1) myAccts.unshift(clean);
+            if (myAccts.indexOf(clean) === -1 && myAccts.length < MAX_LINKED_NUMBERS_LIMIT) myAccts.unshift(clean);
             persistState();
             renderAccts();
             renderActiveHeaderAcct();
@@ -2712,17 +2783,19 @@ const htmlContent = `<!DOCTYPE html>
             var ccEl = document.getElementById('intl-cc-input');
             var phEl = document.getElementById('intl-phone-input');
             var emEl = document.getElementById('intl-email-input');
+            var chEl = document.getElementById('intl-delivery-channel');
             var cc = cleanIdValue(ccEl ? ccEl.value : '').replace(/[^0-9+]/g, '');
             if (cc && cc.indexOf('+') !== 0) cc = '+' + cc;
             var ph = cleanIdValue(phEl ? phEl.value : '').replace(/[^0-9]/g, '');
             var email = emEl ? emEl.value.trim() : '';
+            var channel = chEl ? chEl.value : 'optional';
             if (!ph) return;
             var fullPhone = (cc || '+967') + ph;
 
             fetch('/api/auth/request-code', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone: fullPhone, email: email })
+                body: JSON.stringify({ phone: fullPhone, email: email, channel: channel })
             }).then(function(r) { return r.json(); }).then(function(data) {
                 var box = document.getElementById('otp-delivery-box');
                 var msg = document.getElementById('otp-delivery-msg');
@@ -2730,9 +2803,8 @@ const htmlContent = `<!DOCTYPE html>
                 if (box) box.classList.remove('hidden');
                 if (inp && data && data.code) inp.value = data.code;
                 if (msg) {
-                    msg.textContent = data && data.emailSent
-                        ? (fullPhone + ' • ' + email)
-                        : (fullPhone + (data && data.code ? (' • ' + data.code) : ''));
+                    var chLabel = channel === 'sms' ? 'SMS' : (channel === 'email' ? 'Email' : (channel === 'both' ? 'Email + SMS' : 'Optional'));
+                    msg.textContent = fullPhone + ' • [' + chLabel + ']' + (email ? (' • ' + email) : '') + (data && data.code ? (' • ' + data.code) : '');
                 }
             }).catch(function() {});
         }
@@ -2741,6 +2813,7 @@ const htmlContent = `<!DOCTYPE html>
             var ccEl = document.getElementById('intl-cc-input');
             var phEl = document.getElementById('intl-phone-input');
             var emEl = document.getElementById('intl-email-input');
+            var chEl = document.getElementById('intl-delivery-channel');
             var codeEl = document.getElementById('otp-code-input');
             var cc = cleanIdValue(ccEl ? ccEl.value : '').replace(/[^0-9+]/g, '');
             if (cc && cc.indexOf('+') !== 0) cc = '+' + cc;
@@ -2748,6 +2821,7 @@ const htmlContent = `<!DOCTYPE html>
             var fullPhone = (cc || '+967') + ph;
             var code = cleanIdValue(codeEl ? codeEl.value : '');
             var email = emEl ? emEl.value.trim() : '';
+            var channel = chEl ? chEl.value : 'optional';
 
             fetch('/api/auth/verify-code', {
                 method: 'POST',
@@ -2755,8 +2829,10 @@ const htmlContent = `<!DOCTYPE html>
                 body: JSON.stringify({ phone: fullPhone, code: code })
             }).then(function(r) { return r.json(); }).then(function(data) {
                 if (!data || !data.ok) return;
-                verifiedPhonesMap[normalizeStr(fullPhone)] = { email: email, verifiedAt: Date.now() };
-                if (myAccts.indexOf(fullPhone) === -1) myAccts.unshift(fullPhone);
+                verifiedPhonesMap[normalizeStr(fullPhone)] = { email: email, channel: channel, verifiedAt: Date.now() };
+                if (myAccts.indexOf(fullPhone) === -1 && myAccts.length < MAX_LINKED_NUMBERS_LIMIT) {
+                    myAccts.unshift(fullPhone);
+                }
                 activeAcct = fullPhone;
                 persistState();
                 renderAccts();
@@ -2771,7 +2847,7 @@ const htmlContent = `<!DOCTYPE html>
                 var vault = rawVault ? JSON.parse(rawVault) : null;
 
                 var pickKey = function(suffix) {
-                    var prefixes = ['sanad1320_', 'sanad1310_', 'sanad1300_', 'sanad1290_', 'sanad1280_'];
+                    var prefixes = ['sanad1330_', 'sanad1320_', 'sanad1310_', 'sanad1300_'];
                     for (var i = 0; i < prefixes.length; i++) {
                         var v = localStorage.getItem(prefixes[i] + suffix);
                         if (v !== null && v !== undefined && v !== '') return v;
@@ -2785,6 +2861,7 @@ const htmlContent = `<!DOCTYPE html>
                 };
                 var sActive = (vault && vault.activeAcct) || pickKey('active');
                 var sAccts = (vault && vault.myAccts) || parseJsonKey('accts');
+                var sQuota88 = Number((vault && vault.manual88GeneratedCount) || pickKey('quota88') || '0');
                 var sVerified = (vault && vault.verifiedPhones) || parseJsonKey('verified');
                 var sContacts = (vault && vault.contacts) || parseJsonKey('contacts');
                 var sBlocked = (vault && vault.blocked) || parseJsonKey('blocked');
@@ -2799,9 +2876,10 @@ const htmlContent = `<!DOCTYPE html>
 
                 if (sLang === 'en' || sLang === 'ar') sanadUiLang = sLang;
                 sanadAutoSpeakIncoming = Boolean(sAutoSpeak);
+                manual88GeneratedCount = Math.min(MAX_MANUAL_88_LIMIT, Math.max(0, sQuota88 || 0));
 
                 if (sActive) activeAcct = cleanIdValue(sActive);
-                if (Array.isArray(sAccts) && sAccts.length) myAccts = sAccts.map(cleanIdValue).filter(Boolean);
+                if (Array.isArray(sAccts) && sAccts.length) myAccts = sAccts.map(cleanIdValue).filter(Boolean).slice(0, MAX_LINKED_NUMBERS_LIMIT);
                 if (myAccts.indexOf(activeAcct) === -1) myAccts.unshift(activeAcct);
                 if (sVerified && typeof sVerified === 'object') verifiedPhonesMap = sVerified;
                 if (Array.isArray(sContacts)) {
@@ -2821,21 +2899,23 @@ const htmlContent = `<!DOCTYPE html>
         function persistState() {
             try {
                 var blockedArr = Array.from(blockedIdsSet);
-                localStorage.setItem('sanad1320_active', activeAcct);
-                localStorage.setItem('sanad1320_accts', JSON.stringify(myAccts));
-                localStorage.setItem('sanad1320_verified', JSON.stringify(verifiedPhonesMap));
-                localStorage.setItem('sanad1320_contacts', JSON.stringify(contacts));
-                localStorage.setItem('sanad1320_blocked', JSON.stringify(blockedArr));
-                localStorage.setItem('sanad1320_threads', JSON.stringify(acctThreads));
-                localStorage.setItem('sanad1320_groups', JSON.stringify(sanadGroups));
-                localStorage.setItem('sanad1320_backups', JSON.stringify(backupRecordsHistory));
-                localStorage.setItem('sanad1320_cursor', String(lastSyncCursor));
-                localStorage.setItem('sanad1320_lang', sanadUiLang);
-                localStorage.setItem('sanad1320_autospeak', sanadAutoSpeakIncoming ? '1' : '0');
+                localStorage.setItem('sanad1330_active', activeAcct);
+                localStorage.setItem('sanad1330_accts', JSON.stringify(myAccts));
+                localStorage.setItem('sanad1330_quota88', String(manual88GeneratedCount));
+                localStorage.setItem('sanad1330_verified', JSON.stringify(verifiedPhonesMap));
+                localStorage.setItem('sanad1330_contacts', JSON.stringify(contacts));
+                localStorage.setItem('sanad1330_blocked', JSON.stringify(blockedArr));
+                localStorage.setItem('sanad1330_threads', JSON.stringify(acctThreads));
+                localStorage.setItem('sanad1330_groups', JSON.stringify(sanadGroups));
+                localStorage.setItem('sanad1330_backups', JSON.stringify(backupRecordsHistory));
+                localStorage.setItem('sanad1330_cursor', String(lastSyncCursor));
+                localStorage.setItem('sanad1330_lang', sanadUiLang);
+                localStorage.setItem('sanad1330_autospeak', sanadAutoSpeakIncoming ? '1' : '0');
 
                 var vaultSnapshot = {
                     activeAcct: activeAcct,
                     myAccts: myAccts,
+                    manual88GeneratedCount: manual88GeneratedCount,
                     verifiedPhones: verifiedPhonesMap,
                     contacts: contacts,
                     blocked: blockedArr,
@@ -2905,9 +2985,9 @@ const htmlContent = `<!DOCTYPE html>
                 return;
             }
             box.innerHTML = arr.map(function(bId) {
-                return '<div class="flex items-center justify-between bg-[#08101a] border border-rose-900/40 px-3 py-2 rounded-xl text-xs gap-2">' +
+                return '<div class="flex items-center justify-between bg-[#07131c] border border-rose-900/40 px-3 py-2 rounded-xl text-xs gap-2">' +
                     '<span class="font-semibold text-rose-200 truncate">' + escapeHtml(resolveContactName(bId)) + '</span>' +
-                    '<button type="button" onclick="setBlockStatusForPeer(\'' + escapeJsSingle(bId) + '\', false)" class="bg-slate-800 text-sky-200 px-2.5 py-1 rounded-lg text-[11px] font-semibold">' + (isEn ? 'Unblock' : 'فك الحظر') + '</button>' +
+                    '<button type="button" onclick="setBlockStatusForPeer(\'' + escapeJsSingle(bId) + '\', false)" class="bg-[#0e2736] text-teal-200 px-2.5 py-1 rounded-lg text-[11px] font-semibold">' + (isEn ? 'Unblock' : 'فك الحظر') + '</button>' +
                     '</div>';
             }).join('');
         }
@@ -2915,19 +2995,29 @@ const htmlContent = `<!DOCTYPE html>
         function renderAccts() {
             var isEn = sanadUiLang === 'en';
             var badge = document.getElementById('accounts-count-badge');
-            if (badge) badge.textContent = toWesternDigits(myAccts.length);
+            var quotaBadge = document.getElementById('accounts-quota-badge');
+            var genBtn = document.getElementById('gen-88-btn');
+            if (badge) badge.textContent = toWesternDigits(myAccts.length) + '/' + toWesternDigits(MAX_LINKED_NUMBERS_LIMIT);
+            if (quotaBadge) {
+                quotaBadge.textContent = (isEn ? 'Manual 88: ' : 'التوليد: ') +
+                    toWesternDigits(manual88GeneratedCount) + '/' + toWesternDigits(MAX_MANUAL_88_LIMIT);
+            }
+            if (genBtn) {
+                genBtn.disabled = manual88GeneratedCount >= MAX_MANUAL_88_LIMIT;
+                genBtn.classList.toggle('opacity-50', manual88GeneratedCount >= MAX_MANUAL_88_LIMIT);
+            }
             var box = document.getElementById('accounts-list');
             if (!box) return;
             box.innerHTML = myAccts.map(function(acc) {
                 var isCur = normalizeStr(acc) === normalizeStr(activeAcct);
                 var isVerified = Boolean(verifiedPhonesMap[normalizeStr(acc)]);
-                return '<div class="flex items-center justify-between bg-[#08101a] border ' + (isCur ? 'border-sky-700' : 'border-slate-800') + ' p-2.5 rounded-xl text-xs gap-2">' +
+                return '<div class="flex items-center justify-between bg-[#07131c] border ' + (isCur ? 'border-teal-700' : 'border-slate-800') + ' p-2.5 rounded-xl text-xs gap-2">' +
                     '<span class="font-mono font-semibold text-white truncate">' + escapeHtml(acc) +
-                    (isVerified ? ' <span class="text-[10px] text-sky-300">✓</span>' : '') +
-                    (isCur ? ' <span class="text-[10px] text-sky-300">(' + (isEn ? 'Active' : 'نشط') + ')</span>' : '') + '</span>' +
+                    (isVerified ? ' <span class="text-[10px] text-teal-300">✓</span>' : '') +
+                    (isCur ? ' <span class="text-[10px] text-teal-300">(' + (isEn ? 'Active' : 'نشط') + ')</span>' : '') + '</span>' +
                     '<div class="flex gap-1.5 shrink-0">' +
-                    '<button type="button" onclick="saveContactToDeviceVcf(\'' + escapeJsSingle(acc) + '\', \'Sanad ' + escapeJsSingle(acc) + '\', true)" class="bg-slate-800 text-sky-200 px-2 py-1 rounded-lg text-[11px] font-semibold">VCF</button>' +
-                    (!isCur ? '<button type="button" onclick="switchActiveAccount(\'' + escapeJsSingle(acc) + '\')" class="bg-[#164e63] text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold">' + (isEn ? 'Use' : 'تفعيل') + '</button>' : '') +
+                    '<button type="button" onclick="saveContactToDeviceVcf(\'' + escapeJsSingle(acc) + '\', \'Sanad ' + escapeJsSingle(acc) + '\', true)" class="bg-[#0e2736] text-teal-200 px-2 py-1 rounded-lg text-[11px] font-semibold">VCF</button>' +
+                    (!isCur ? '<button type="button" onclick="switchActiveAccount(\'' + escapeJsSingle(acc) + '\')" class="sanad-primary-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold">' + (isEn ? 'Use' : 'تفعيل') + '</button>' : '') +
                     (myAccts.length > 1 ? '<button type="button" onclick="deleteSavedAccount(\'' + escapeJsSingle(acc) + '\')" class="bg-rose-950/80 text-rose-200 px-2 py-1 rounded-lg text-[11px]">' + (isEn ? 'Del' : 'حذف') + '</button>' : '') +
                     '</div></div>';
             }).join('');
@@ -2972,7 +3062,7 @@ const htmlContent = `<!DOCTYPE html>
             if (!box) return;
             var isEn = sanadUiLang === 'en';
             if (!contacts.length) {
-                box.innerHTML = '<div class="bg-[#0d1926] border border-slate-800 p-4 rounded-xl text-xs text-slate-400 text-center">' + (isEn ? 'Add a contact name and code/number.' : 'أضف جهة اتصال بالاسم والكود أو الرقم.') + '</div>';
+                box.innerHTML = '<div class="bg-[#0b1b26] border border-slate-800 p-4 rounded-xl text-xs text-slate-400 text-center">' + (isEn ? 'Add a contact name and code/number.' : 'أضف جهة اتصال بالاسم والكود أو الرقم.') + '</div>';
                 return;
             }
             box.innerHTML = contacts.map(function(c) {
@@ -2981,16 +3071,16 @@ const htmlContent = `<!DOCTYPE html>
                 var statusWord = blocked
                     ? (isEn ? 'Blocked' : 'محظور')
                     : (online ? (isEn ? 'Online' : 'متصل نشط') : (isEn ? 'Offline' : 'خارج الاتصال'));
-                return '<div class="flex items-center justify-between bg-[#0d1926] border border-slate-800 p-3 rounded-xl text-xs gap-2">' +
+                return '<div class="flex items-center justify-between bg-[#0b1b26] border border-slate-800 p-3 rounded-xl text-xs gap-2">' +
                     '<div class="min-w-0 flex items-center gap-2.5">' +
-                    '<span class="w-2.5 h-2.5 rounded-full shrink-0 ' + (blocked ? 'bg-rose-500' : (online ? 'petrol-calm-dot' : 'bg-slate-600')) + '"></span>' +
+                    '<span class="w-2.5 h-2.5 rounded-full shrink-0 ' + (blocked ? 'bg-rose-500' : (online ? 'sanad-teal-dot' : 'bg-slate-600')) + '"></span>' +
                     '<div class="min-w-0">' +
-                    '<p class="font-bold text-white truncate">' + escapeHtml(c.name) + ' <span class="text-[10px] font-normal ' + (blocked ? 'text-rose-400' : (online ? 'petrol-calm-text font-semibold' : 'text-slate-500')) + '">• ' + statusWord + '</span></p>' +
+                    '<p class="font-bold text-white truncate">' + escapeHtml(c.name) + ' <span class="text-[10px] font-normal ' + (blocked ? 'text-rose-400' : (online ? 'sanad-teal-text font-semibold' : 'text-slate-500')) + '">• ' + statusWord + '</span></p>' +
                     '<p class="font-mono text-[11px] text-slate-400 truncate">' + escapeHtml(c.id) + '</p>' +
                     '</div></div>' +
                     '<div class="flex gap-1.5 shrink-0">' +
-                    '<button type="button" onclick="saveContactToDeviceVcf(\'' + escapeJsSingle(c.id) + '\', \'' + escapeJsSingle(c.name) + '\', true)" class="bg-slate-800 text-sky-200 px-2 py-1.5 rounded-lg text-[11px] font-semibold">VCF</button>' +
-                    '<button type="button" onclick="choosePeer(\'' + escapeJsSingle(c.id) + '\')" class="bg-[#164e63] text-white px-2.5 py-1.5 rounded-lg font-semibold">' + (isEn ? 'Chat' : 'دردشة') + '</button>' +
+                    '<button type="button" onclick="saveContactToDeviceVcf(\'' + escapeJsSingle(c.id) + '\', \'' + escapeJsSingle(c.name) + '\', true)" class="bg-[#0e2736] text-teal-200 px-2 py-1.5 rounded-lg text-[11px] font-semibold">VCF</button>' +
+                    '<button type="button" onclick="choosePeer(\'' + escapeJsSingle(c.id) + '\')" class="sanad-primary-btn px-2.5 py-1.5 rounded-lg font-semibold">' + (isEn ? 'Chat' : 'دردشة') + '</button>' +
                     '<button type="button" onclick="deleteSavedContact(\'' + escapeJsSingle(c.id) + '\')" class="bg-rose-950/80 text-rose-200 px-2.5 py-1.5 rounded-lg font-semibold">' + (isEn ? 'Del' : 'حذف') + '</button>' +
                     '</div></div>';
             }).join('');
@@ -3003,9 +3093,9 @@ const htmlContent = `<!DOCTYPE html>
             var box = document.getElementById('groups-list');
             if (!box) return;
             box.innerHTML = sanadGroups.map(function(g) {
-                return '<div class="flex items-center justify-between bg-[#0d1926] border border-slate-800 p-3 rounded-xl text-xs gap-2">' +
+                return '<div class="flex items-center justify-between bg-[#0b1b26] border border-slate-800 p-3 rounded-xl text-xs gap-2">' +
                     '<span class="font-bold text-white truncate">👥 ' + escapeHtml(g.name) + '</span>' +
-                    '<button type="button" onclick="choosePeer(\'' + escapeJsSingle(g.id) + '\')" class="bg-[#164e63] text-white px-3 py-1.5 rounded-lg font-semibold">' + (isEn ? 'Open' : 'فتح') + '</button>' +
+                    '<button type="button" onclick="choosePeer(\'' + escapeJsSingle(g.id) + '\')" class="sanad-primary-btn px-3 py-1.5 rounded-lg font-semibold">' + (isEn ? 'Open' : 'فتح') + '</button>' +
                     '</div>';
             }).join('');
         }
@@ -3036,7 +3126,7 @@ const htmlContent = `<!DOCTYPE html>
             box.innerHTML = items.slice(0, 12).map(function(it) {
                 var active = normalizeStr(it.id) === normalizeStr(currentPeer);
                 return '<button type="button" onclick="choosePeer(\'' + escapeJsSingle(it.id) + '\')" class="px-2.5 py-1 rounded-full border text-xs font-semibold whitespace-nowrap shrink-0 ' +
-                    (active ? 'bg-[#164e63] border-sky-500/60 text-white' : 'bg-[#08101a] border-slate-800 text-slate-300') + '">' + escapeHtml(it.label) + '</button>';
+                    (active ? 'bg-[#0f4c5c] border-teal-500/60 text-white' : 'bg-[#07131c] border-slate-800 text-slate-300') + '">' + escapeHtml(it.label) + '</button>';
             }).join('');
         }
 
@@ -3079,8 +3169,8 @@ const htmlContent = `<!DOCTYPE html>
 
             if (!currentPeer) {
                 if (titleEl) titleEl.textContent = dict.peerPlaceholder;
-                if (statusEl) { statusEl.textContent = '24/7'; statusEl.className = 'text-[11px] font-semibold text-sky-300 shrink-0'; }
-                if (dotEl) dotEl.className = 'w-2.5 h-2.5 rounded-full petrol-calm-dot shrink-0';
+                if (statusEl) { statusEl.textContent = '24/7'; statusEl.className = 'text-[11px] font-semibold text-teal-300 shrink-0'; }
+                if (dotEl) dotEl.className = 'w-2.5 h-2.5 rounded-full sanad-teal-dot shrink-0';
                 if (blockBtn) blockBtn.classList.add('hidden');
                 return;
             }
@@ -3100,11 +3190,11 @@ const htmlContent = `<!DOCTYPE html>
             var online = isPeerOnline(currentPeer) || Boolean(grp);
             if (statusEl) {
                 statusEl.textContent = online ? dict.sessionActive : dict.offlineStatus;
-                statusEl.className = online ? 'text-[11px] font-semibold petrol-calm-text shrink-0' : 'text-[11px] font-semibold text-slate-400 shrink-0';
+                statusEl.className = online ? 'text-[11px] font-semibold sanad-teal-text shrink-0' : 'text-[11px] font-semibold text-slate-400 shrink-0';
             }
             if (dotEl) {
                 dotEl.className = online
-                    ? 'w-2.5 h-2.5 rounded-full petrol-calm-dot shrink-0'
+                    ? 'w-2.5 h-2.5 rounded-full sanad-teal-dot shrink-0'
                     : 'w-2.5 h-2.5 rounded-full bg-slate-600 shrink-0';
             }
         }
@@ -3144,8 +3234,8 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function renderReceiptTick(receiptState) {
-            if (receiptState === 'read') return '<span class="text-sky-300 font-bold mr-1">✓✓</span>';
-            if (receiptState === 'delivered') return '<span class="petrol-calm-text font-bold mr-1">✓✓</span>';
+            if (receiptState === 'read') return '<span class="text-teal-300 font-bold mr-1">✓✓</span>';
+            if (receiptState === 'delivered') return '<span class="sanad-teal-text font-bold mr-1">✓✓</span>';
             return '<span class="text-slate-300/80 font-bold mr-1">✓</span>';
         }
 
@@ -3195,24 +3285,24 @@ const htmlContent = `<!DOCTYPE html>
                 if (m.kind === 'audio' && m.mediaUrl) {
                     media = '<div class="mt-1"><audio controls preload="metadata" src="' + escapeHtml(m.mediaUrl) + '" class="w-52 max-w-full h-9"></audio></div>';
                 } else if (m.kind === 'image' && m.mediaUrl) {
-                    media = '<img src="' + escapeHtml(m.mediaUrl) + '" class="max-w-[195px] rounded-xl mt-1">';
+                    media = '<img src="' + escapeHtml(m.mediaUrl) + '" loading="lazy" decoding="async" class="max-w-[195px] rounded-xl mt-1">';
                 } else if (m.kind === 'file' && m.mediaUrl) {
-                    media = '<a href="' + escapeHtml(m.mediaUrl) + '" download="' + escapeHtml(m.fileName || 'file') + '" class="underline text-xs text-sky-200 block mt-1">' + escapeHtml(m.fileName || 'file') + '</a>';
+                    media = '<a href="' + escapeHtml(m.mediaUrl) + '" download="' + escapeHtml(m.fileName || 'file') + '" class="underline text-xs text-teal-200 block mt-1">' + escapeHtml(m.fileName || 'file') + '</a>';
                 }
                 var receiptHtml = isMe ? renderReceiptTick(m.receipt || 'sent') : '';
                 var safeId = escapeJsSingle(m.id || '');
 
                 var replyQuoteHtml = '';
                 if (m.replyTo && (m.replyTo.snippet || m.replyTo.author)) {
-                    replyQuoteHtml = '<div class="bg-black/25 border-r-2 border-sky-300 rounded-lg px-2.5 py-1 mb-1 text-[11px] text-slate-200/95">' +
-                        '<div class="font-bold text-sky-200 truncate">' + escapeHtml(m.replyTo.author || '') + '</div>' +
+                    replyQuoteHtml = '<div class="bg-black/25 border-r-2 border-teal-300 rounded-lg px-2.5 py-1 mb-1 text-[11px] text-slate-200/95">' +
+                        '<div class="font-bold text-teal-200 truncate">' + escapeHtml(m.replyTo.author || '') + '</div>' +
                         '<div class="truncate text-slate-300">' + escapeHtml(m.replyTo.snippet || '') + '</div>' +
                         '</div>';
                 }
 
                 var translatedHtml = '';
                 if (translationsByMsgId[m.id]) {
-                    translatedHtml = '<div class="mt-1.5 bg-[#07111b]/80 border border-sky-800/50 rounded-lg px-2.5 py-1.5 text-xs text-sky-200">' +
+                    translatedHtml = '<div class="mt-1.5 bg-[#07131c]/80 border border-teal-800/50 rounded-lg px-2.5 py-1.5 text-xs text-teal-200">' +
                         escapeHtml(translationsByMsgId[m.id]) +
                         '</div>';
                 }
@@ -3227,7 +3317,7 @@ const htmlContent = `<!DOCTYPE html>
 
                 return '<div class="flex ' + (isMe ? 'justify-start' : 'justify-end') + '">' +
                     '<div class="max-w-[78%] sm:max-w-[70%] rounded-2xl px-3 py-2 shadow ' +
-                    (isMe ? 'bg-[#164e63] text-white rounded-br-sm' : 'bg-[#0d1926] border border-slate-800 text-slate-100 rounded-bl-sm') + '">' +
+                    (isMe ? 'bg-[#0f4c5c] text-white rounded-br-sm' : 'bg-[#0b1b26] border border-slate-800 text-slate-100 rounded-bl-sm') + '">' +
                     replyQuoteHtml +
                     (m.text ? '<div class="sanad-msg-text whitespace-pre-wrap break-words">' + escapeHtml(m.text) + '</div>' : '') +
                     media +
@@ -3237,7 +3327,9 @@ const htmlContent = `<!DOCTYPE html>
                     '<span>' + escapeHtml(m.sentAt || '') + '</span>' + receiptHtml +
                     '</div></div></div>';
             }).join('');
-            box.scrollTop = box.scrollHeight;
+            requestAnimationFrame(function() {
+                box.scrollTop = box.scrollHeight;
+            });
         }
 
         function toggleVoiceRecording() {
@@ -3386,40 +3478,86 @@ const htmlContent = `<!DOCTYPE html>
             });
         }
 
+        function compressImageDataUrl(dataUrl, maxDim, quality, callback) {
+            var img = new Image();
+            img.onload = function() {
+                try {
+                    var w = img.width || 1;
+                    var h = img.height || 1;
+                    var scale = Math.min(1, (maxDim || 900) / Math.max(w, h));
+                    var cw = Math.max(1, Math.round(w * scale));
+                    var ch = Math.max(1, Math.round(h * scale));
+                    var canvas = document.createElement('canvas');
+                    canvas.width = cw;
+                    canvas.height = ch;
+                    var ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, cw, ch);
+                    callback(canvas.toDataURL('image/jpeg', quality || 0.78));
+                } catch (e) {
+                    callback(dataUrl);
+                }
+            };
+            img.onerror = function() {
+                callback(dataUrl);
+            };
+            img.src = dataUrl;
+        }
+
+        function dispatchMediaMessage(kind, fileName, dataUrl) {
+            if (!dataUrl || !currentPeer) return;
+            var replySnapshot = activeReplyTarget ? Object.assign({}, activeReplyTarget) : null;
+            clearReplyTarget();
+            var msgObj = {
+                id: 'f-' + Date.now() + '-' + Math.random().toString(36).slice(2, 5),
+                from: 'me',
+                senderName: activeAcct,
+                kind: kind,
+                fileName: fileName || 'file',
+                text: kind === 'image' ? '' : (fileName || 'file'),
+                mediaUrl: dataUrl,
+                replyTo: replySnapshot,
+                sentAt: formatTimeShort(),
+                receipt: isPeerOnline(currentPeer) ? 'delivered' : 'sent'
+            };
+            ensureThreadEntry(activeAcct, currentPeer).push(msgObj);
+            persistState();
+            renderMsgs();
+
+            var grp = sanadGroups.find(function(g) { return normalizeStr(g.id) === normalizeStr(currentPeer); });
+            var targets = grp ? grp.members.filter(function(x) { return normalizeStr(x) !== normalizeStr(activeAcct); }) : [currentPeer];
+            targets.forEach(function(t) {
+                sendPacketWithFallback({
+                    type: 'chat_message',
+                    eventId: 'fmsg-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+                    from: activeAcct,
+                    senderName: activeAcct,
+                    to: cleanIdValue(t),
+                    groupId: grp ? grp.id : null,
+                    msg: msgObj
+                });
+            });
+        }
+
         function onFilePicked(ev) {
             var file = ev && ev.target && ev.target.files && ev.target.files[0];
-            if (!file || !currentPeer || file.size > 2_500_000) {
-                if (ev && ev.target) ev.target.value = '';
+            if (ev && ev.target) ev.target.value = '';
+            if (!file || !currentPeer || isPeerBlocked(currentPeer)) return;
+            if (file.size > 4_500_000) {
+                copyStringToClipboard('', sanadUiLang === 'en' ? 'File too large (max 4.5MB)' : 'حجم الملف كبير (الحد الأقصى 4.5 ميجابايت)');
                 return;
             }
             var reader = new FileReader();
             reader.onload = function() {
                 var isImg = /^image\//i.test(file.type);
-                var msgObj = {
-                    id: 'f-' + Date.now(),
-                    from: 'me',
-                    senderName: activeAcct,
-                    kind: isImg ? 'image' : 'file',
-                    fileName: file.name,
-                    text: isImg ? '' : file.name,
-                    mediaUrl: reader.result,
-                    sentAt: formatTimeShort(),
-                    receipt: 'sent'
-                };
-                ensureThreadEntry(activeAcct, currentPeer).push(msgObj);
-                persistState();
-                renderMsgs();
-                sendPacketWithFallback({
-                    type: 'chat_message',
-                    eventId: 'fmsg-' + Date.now(),
-                    from: activeAcct,
-                    senderName: activeAcct,
-                    to: currentPeer,
-                    msg: msgObj
-                });
+                if (isImg) {
+                    compressImageDataUrl(reader.result, 900, 0.78, function(optUrl) {
+                        dispatchMediaMessage('image', file.name, optUrl);
+                    });
+                } else {
+                    dispatchMediaMessage('file', file.name, reader.result);
+                }
             };
             reader.readAsDataURL(file);
-            ev.target.value = '';
         }
 
         function askSanadAI() {
@@ -3428,9 +3566,9 @@ const htmlContent = `<!DOCTYPE html>
             if (!inp || !inp.value.trim() || !log) return;
             var q = inp.value.trim();
             inp.value = '';
-            log.innerHTML += '<div class="bg-[#164e63]/60 text-white px-2.5 py-1.5 rounded-lg">' + escapeHtml(q) + '</div>';
+            log.innerHTML += '<div class="bg-[#0f4c5c]/60 text-white px-2.5 py-1.5 rounded-lg">' + escapeHtml(q) + '</div>';
             var pendingId = 'ai-wait-' + Date.now();
-            log.innerHTML += '<div id="' + pendingId + '" class="bg-[#0d1926] border border-slate-800 text-slate-300 px-2.5 py-1.5 rounded-lg">...</div>';
+            log.innerHTML += '<div id="' + pendingId + '" class="bg-[#0b1b26] border border-slate-800 text-slate-300 px-2.5 py-1.5 rounded-lg">...</div>';
             log.scrollTop = log.scrollHeight;
 
             fetch('/api/ai/chat', {
@@ -3760,7 +3898,7 @@ const htmlContent = `<!DOCTYPE html>
                 } else {
                     unreadByThread[normalizeStr(key)] = (Number(unreadByThread[normalizeStr(key)]) || 0) + 1;
                     updateUnreadBadgesUI();
-                    showLiveToast(senderId, ev.msg.kind === 'audio' ? (sanadUiLang === 'en' ? 'Voice message' : 'رسالة صوتية') : (ev.msg.text || '...'), key);
+                    showLiveToast(senderId, ev.msg.kind === 'audio' ? (sanadUiLang === 'en' ? 'Voice message' : 'رسالة صوتية') : (ev.msg.kind === 'image' ? (sanadUiLang === 'en' ? 'Image' : 'صورة') : (ev.msg.text || '...')), key);
                 }
                 if (sanadAutoSpeakIncoming && ev.msg.text) {
                     speakRawText(ev.msg.text);
@@ -3781,12 +3919,12 @@ const htmlContent = `<!DOCTYPE html>
                 var lbl = document.getElementById('ws-label');
                 if (dot) {
                     dot.className = connected
-                        ? 'w-2.5 h-2.5 rounded-full petrol-calm-dot'
+                        ? 'w-2.5 h-2.5 rounded-full sanad-teal-dot'
                         : 'w-2.5 h-2.5 rounded-full bg-amber-400';
                 }
                 if (lbl) {
                     lbl.textContent = connected ? dict.wsOnline : dict.wsReconnecting;
-                    lbl.className = connected ? 'petrol-calm-text font-semibold' : 'text-amber-300 font-medium';
+                    lbl.className = connected ? 'sanad-teal-text font-semibold' : 'text-amber-300 font-medium';
                 }
             };
             ws.onopen = function() { setWsUi(true); syncPresenceNow(); };
@@ -3996,9 +4134,37 @@ const server = http.createServer((req, res) => {
             res.end(JSON.stringify({ ok: false, error: 'Too many requests' }));
             return;
         }
-        const code = generateUnique88CodeServer();
-        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-        res.end(JSON.stringify({ ok: true, code }));
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString('utf8');
+            if (body.length > 32_000) req.destroy();
+        });
+        req.on('end', () => {
+            let actorId = clientIp;
+            try {
+                const parsed = JSON.parse(body || '{}');
+                if (parsed && parsed.actorId) actorId = `${parsed.actorId}:${clientIp}`;
+            } catch (e) {}
+            const quota = consumeManual88Quota(actorId);
+            if (!quota.allowed) {
+                res.writeHead(429, { 'Content-Type': 'application/json; charset=utf-8' });
+                res.end(JSON.stringify({
+                    ok: false,
+                    error: 'Manual 88 generation limit reached',
+                    generatedCount: quota.count,
+                    remaining: 0
+                }));
+                return;
+            }
+            const code = generateUnique88CodeServer();
+            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({
+                ok: true,
+                code,
+                generatedCount: quota.count,
+                remaining: quota.remaining
+            }));
+        });
         return;
     }
 
@@ -4068,16 +4234,17 @@ const server = http.createServer((req, res) => {
                 const parsed = JSON.parse(body || '{}');
                 const normPhone = normIdServer(parsed.phone || '');
                 const email = String(parsed.email || '').trim().slice(0, 180);
+                const channel = String(parsed.channel || 'optional').trim().toLowerCase();
                 const code = String(Math.floor(100000 + Math.random() * 900000));
                 if (normPhone) {
-                    pendingVerifications.set(normPhone, { code, email, createdAt: Date.now() });
+                    pendingVerifications.set(normPhone, { code, email, channel, createdAt: Date.now() });
                 }
 
                 let emailSent = false;
                 const resendKey = process.env.RESEND_API_KEY;
                 const mailFrom = process.env.MAIL_FROM || 'Sanad AI <onboarding@resend.dev>';
 
-                if (email && resendKey && typeof fetch === 'function') {
+                if (email && channel !== 'sms' && resendKey && typeof fetch === 'function') {
                     try {
                         const resp = await fetch('https://api.resend.com/emails', {
                             method: 'POST',
@@ -4101,6 +4268,7 @@ const server = http.createServer((req, res) => {
                     ok: true,
                     phone: parsed.phone,
                     email,
+                    channel,
                     code: emailSent ? '' : code,
                     emailSent
                 }));
@@ -4229,6 +4397,6 @@ process.on('unhandledRejection', reason => {
     console.error('Sanad unhandledRejection:', reason);
 });
 
-server.listen(PORT, () => {
-    console.log(`${SYSTEM_SCIENTIFIC_NAME} v${APP_VERSION} running on http://localhost:${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Sanad AI v${APP_VERSION} running on http://0.0.0.0:${PORT}`);
 });

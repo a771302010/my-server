@@ -1,9 +1,9 @@
 #EXTM3U
 #EXTINF:-1,برومو إذاعة سند AI -- البث المباشر
-https://my-server-t0s5.onrender.com/sanad-radio-promo.mp3
+/sanad-radio-promo.mp3
 #EXTINF:-1,المقطع الثاني -- إذاعة سند
-https://my-server-t0s5.onrender.com/sanad-seg-2.mp3
+/sanad-seg-2.mp3
 #EXTINF:-1,فقرة صوتية M4A -- إذاعة سند AI
-https://my-server-t0s5.onrender.com/sanad-seg-3.m4a
+/sanad-seg-3.m4a
 #EXTINF:-1,حلقة مرئية وصوتية MP4 -- إذاعة سند AI
-https://my-server-t0s5.onrender.com/sanad-seg-4.mp4
+/sanad-seg-4.mp4

@@ -899,6 +899,55 @@ const htmlContent = `<!DOCTYPE html>
                 </div>
             </div>
 
+            <!-- نظام المواقيت والقرآن والأذان الحقيقي الآلي -->
+            <div id="sanad-real-adhan-box" class="bg-[#0d1926] border border-emerald-800/60 p-4 rounded-2xl space-y-2.5 text-xs">
+                <div class="flex items-center justify-between gap-2">
+                    <h2 class="text-sm font-bold text-emerald-300"><i class="fa-solid fa-mosque ml-1"></i> القرآن والأذان الحقيقي الآلي</h2>
+                    <span id="real-adhan-city-badge" class="text-[10px] font-mono bg-emerald-950 text-emerald-200 border border-emerald-800 px-2.5 py-0.5 rounded-full">عدن • مرتبط بمكة</span>
+                </div>
+                <p class="text-[11px] text-slate-400">تشغيل حقيقي للقرآن والأذان (بدون توليد صوتي بالذكاء الاصطناعي) مع تقليب آلي حسب الوقت والجمعة والتهجد ورمضان.</p>
+
+                <div class="flex gap-2 flex-wrap items-center">
+                    <select id="real-adhan-city-select" onchange="loadRealPrayerSchedule()" class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                        <optgroup label="اليمن (مرتبط بتوقيت ومواقيت مكة المكرمة)">
+                            <option value="12.7855,45.0187|4|عدن • مرتبط بمكة">عدن • اليمن (مرتبط بمكة)</option>
+                            <option value="15.3694,44.1910|4|صنعاء • مرتبط بمكة">صنعاء • اليمن (مرتبط بمكة)</option>
+                            <option value="14.5426,49.1242|4|المكلا • مرتبط بمكة">المكلا • اليمن (مرتبط بمكة)</option>
+                            <option value="14.7978,42.9545|4|الحديدة • مرتبط بمكة">الحديدة • اليمن (مرتبط بمكة)</option>
+                        </optgroup>
+                        <optgroup label="الحرمين الشريفين">
+                            <option value="21.4225,39.8262|4|مكة المكرمة">مكة المكرمة (أم القرى)</option>
+                            <option value="24.4672,39.6111|4|المدينة المنورة">المدينة المنورة</option>
+                        </optgroup>
+                        <optgroup label="مصر">
+                            <option value="30.0444,31.2357|5|القاهرة • مصر">القاهرة • مصر</option>
+                        </optgroup>
+                    </select>
+
+                    <label class="flex items-center gap-1.5 bg-[#08101a] border border-slate-800 px-3 py-2 rounded-xl text-[11px] text-slate-200 cursor-pointer">
+                        <input type="checkbox" id="real-adhan-auto-switch" checked onchange="syncRealAdhanAutoStatus()">
+                        <span>تقليب آلي</span>
+                    </label>
+                </div>
+
+                <div class="flex gap-2 flex-wrap">
+                    <button type="button" onclick="triggerRealQuranNow('تشغيل بث القرآن الكريم الحقيقي')" class="bg-emerald-800 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-[11px] font-semibold">
+                        <i class="fa-solid fa-book-open ml-1"></i>قرآن حقيقي الآن
+                    </button>
+                    <button type="button" onclick="triggerRealAdhanNow('اختبار الأذان الحقيقي')" class="bg-[#164e63] hover:bg-[#1e6078] text-white px-3 py-1.5 rounded-xl text-[11px] font-semibold">
+                        <i class="fa-solid fa-volume-high ml-1"></i>أذان حقيقي الآن
+                    </button>
+                </div>
+
+                <div id="real-prayer-times-box" class="bg-[#08101a] border border-slate-800 rounded-xl p-2.5 text-[11px] text-slate-200 grid grid-cols-2 gap-1.5">
+                    <div>جاري جلب مواقيت الصلاة...</div>
+                </div>
+
+                <div id="real-adhan-live-status" class="bg-[#08101a] border border-emerald-900/50 rounded-xl p-2.5 text-[11px] text-emerald-300 font-semibold">
+                    النظام جاهز ويراقب الوقت تلقائياً للتبديل بين القرآن والأذان.
+                </div>
+            </div>
+
             <!-- لوحة الطقس والرياح والمد والجزر مرتبة عالمياً وعربياً -->
             <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
                 <div class="flex items-center justify-between gap-2">
@@ -998,6 +1047,12 @@ const htmlContent = `<!DOCTYPE html>
         var radioSessionSeq = 0;
         var radioStatusTimer = null;
 
+        // مصادر حقيقية (ملف الأذان الحقيقي المرفوع في السيرفر + قناة بث قرآن حقيقي)
+        var REAL_ADHAN_AUDIO_SRC = '/sanad-adhan.mp3';
+        var REAL_QURAN_STREAM_SRC = 'https://stream.radiojar.com/0tpy1h0kxtzuv';
+        var realPrayerData = null;
+        var realLastSlotTriggered = '';
+
         function getSanadSequenceTracks() {
             if (window.SANAD_RADIO_PLAYLIST && Array.isArray(window.SANAD_RADIO_PLAYLIST.tracks) && window.SANAD_RADIO_PLAYLIST.tracks.length) {
                 return window.SANAD_RADIO_PLAYLIST.tracks.slice();
@@ -1009,6 +1064,172 @@ const htmlContent = `<!DOCTYPE html>
                 });
             }
             return list;
+        }
+
+        function parseHhMmToMins(hhmm) {
+            var p = String(hhmm || '').trim().slice(0, 5).split(':');
+            if (p.length < 2) return -1;
+            return (Number(p[0]) * 60) + Number(p[1]);
+        }
+
+        function setRealAdhanStatus(text) {
+            var el = document.getElementById('real-adhan-live-status');
+            if (el) el.textContent = text;
+        }
+
+        function syncRealAdhanAutoStatus() {
+            var chk = document.getElementById('real-adhan-auto-switch');
+            if (chk && chk.checked) {
+                setRealAdhanStatus('التقليب الآلي مفعّل: يتحول تلقائياً للقرآن قبل الأذان وللأذان عند دخول الوقت.');
+                checkRealAutoSchedule();
+            } else {
+                setRealAdhanStatus('التقليب الآلي متوقف حالياً؛ يمكنك التشغيل اليدوي في أي وقت.');
+            }
+        }
+
+        function stopAnyCompetingAudio() {
+            if (typeof stopAllRadioPlayback === 'function') {
+                stopAllRadioPlayback();
+            }
+            var aud = document.getElementById('radio-audio-el');
+            if (aud) {
+                try {
+                    aud.pause();
+                    aud.loop = false;
+                } catch (e) {}
+            }
+        }
+
+        function triggerRealQuranNow(statusMsg) {
+            stopAnyCompetingAudio();
+            var aud = document.getElementById('radio-audio-el');
+            setRealAdhanStatus(statusMsg || 'بث القرآن الكريم الحقيقي قيد التشغيل...');
+            if (aud && REAL_QURAN_STREAM_SRC) {
+                aud.muted = false;
+                aud.volume = 1.0;
+                aud.src = REAL_QURAN_STREAM_SRC;
+                aud.load();
+                aud.play().catch(function() {
+                    setRealAdhanStatus('اضغط مرة أخرى على زر التشغيل لتأكيد الصوت في المتصفح.');
+                });
+            }
+        }
+
+        function triggerRealAdhanNow(prayerLabel) {
+            stopAnyCompetingAudio();
+            var aud = document.getElementById('radio-audio-el');
+            setRealAdhanStatus('الله أكبر • الأذان الحقيقي: ' + (prayerLabel || 'وقت الصلاة'));
+            if (aud && REAL_ADHAN_AUDIO_SRC) {
+                aud.muted = false;
+                aud.volume = 1.0;
+                aud.src = REAL_ADHAN_AUDIO_SRC;
+                aud.load();
+                aud.play().catch(function() {
+                    triggerRealQuranNow('تعذر العثور على ملف الأذان؛ تم تحويل البث إلى القرآن الحقيقي.');
+                });
+            }
+        }
+
+        function loadRealPrayerSchedule() {
+            var sel = document.getElementById('real-adhan-city-select');
+            var badge = document.getElementById('real-adhan-city-badge');
+            var box = document.getElementById('real-prayer-times-box');
+            if (!sel) return;
+
+            var parts = sel.value.split('|');
+            var coords = (parts[0] || '12.7855,45.0187').split(',');
+            var method = parts[1] || '4';
+            var cityTitle = parts[2] || 'عدن';
+            if (badge) badge.textContent = cityTitle;
+
+            var url = 'https://api.aladhan.com/v1/timings?latitude=' + encodeURIComponent(coords[0]) +
+                      '&longitude=' + encodeURIComponent(coords[1]) + '&method=' + encodeURIComponent(method);
+
+            fetch(url)
+                .then(function(r) { return r.json(); })
+                .then(function(res) {
+                    var d = res && res.data ? res.data : null;
+                    var t = d && d.timings ? d.timings : null;
+                    if (!t) return;
+
+                    var isFriday = (new Date().getDay() === 5);
+                    var hijriMonth = (d.date && d.date.hijri && d.date.hijri.month && d.date.hijri.month.number) || 0;
+
+                    realPrayerData = {
+                        Fajr: String(t.Fajr || '').slice(0, 5),
+                        Dhuhr: String(t.Dhuhr || '').slice(0, 5),
+                        Asr: String(t.Asr || '').slice(0, 5),
+                        Maghrib: String(t.Maghrib || '').slice(0, 5),
+                        Isha: String(t.Isha || '').slice(0, 5),
+                        Lastthird: String(t.Lastthird || '').slice(0, 5),
+                        isFriday: isFriday,
+                        isRamadan: (hijriMonth === 9)
+                    };
+
+                    if (box) {
+                        var dhuhrName = isFriday ? 'الجمعة' : 'الظهر';
+                        box.innerHTML =
+                            '<div>الفجر: <b class="text-teal-200">' + toWesternDigits(realPrayerData.Fajr) + '</b></div>' +
+                            '<div>' + dhuhrName + ': <b class="text-teal-200">' + toWesternDigits(realPrayerData.Dhuhr) + '</b></div>' +
+                            '<div>العصر: <b class="text-teal-200">' + toWesternDigits(realPrayerData.Asr) + '</b></div>' +
+                            '<div>المغرب' + (realPrayerData.isRamadan ? ' (إفطار رمضان)' : '') + ': <b class="text-teal-200">' + toWesternDigits(realPrayerData.Maghrib) + '</b></div>' +
+                            '<div>العشاء: <b class="text-teal-200">' + toWesternDigits(realPrayerData.Isha) + '</b></div>' +
+                            '<div>التهجد: <b class="text-emerald-300">' + toWesternDigits(realPrayerData.Lastthird) + '</b></div>';
+                    }
+                    checkRealAutoSchedule();
+                })
+                .catch(function() {
+                    if (box) box.innerHTML = '<div class="col-span-2 text-amber-300">تعذر جلب المواقيت الآن؛ سيعاد المحاولة تلقائياً.</div>';
+                });
+        }
+
+        function checkRealAutoSchedule() {
+            var chk = document.getElementById('real-adhan-auto-switch');
+            if (!chk || !chk.checked || !realPrayerData) return;
+
+            var now = new Date();
+            var nowMins = now.getHours() * 60 + now.getMinutes();
+            var dayStamp = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
+
+            var list = [
+                { key: 'Fajr', label: 'الفجر', mins: parseHhMmToMins(realPrayerData.Fajr) },
+                { key: 'Dhuhr', label: realPrayerData.isFriday ? 'الجمعة' : 'الظهر', mins: parseHhMmToMins(realPrayerData.Dhuhr) },
+                { key: 'Asr', label: 'العصر', mins: parseHhMmToMins(realPrayerData.Asr) },
+                { key: 'Maghrib', label: realPrayerData.isRamadan ? 'المغرب (إفطار رمضان)' : 'المغرب', mins: parseHhMmToMins(realPrayerData.Maghrib) },
+                { key: 'Isha', label: 'العشاء', mins: parseHhMmToMins(realPrayerData.Isha) }
+            ];
+
+            for (var i = 0; i < list.length; i++) {
+                var item = list[i];
+                if (item.mins < 0) continue;
+
+                if (nowMins === item.mins) {
+                    var adhanSlot = dayStamp + '-adhan-' + item.key;
+                    if (realLastSlotTriggered !== adhanSlot) {
+                        realLastSlotTriggered = adhanSlot;
+                        triggerRealAdhanNow(item.label);
+                    }
+                    return;
+                }
+
+                if (nowMins === item.mins - 5) {
+                    var preSlot = dayStamp + '-pre-' + item.key;
+                    if (realLastSlotTriggered !== preSlot) {
+                        realLastSlotTriggered = preSlot;
+                        triggerRealQuranNow('قبل أذان ' + item.label + ' بـ 5 دقائق • تلاوة قرآنية حقيقية');
+                    }
+                    return;
+                }
+            }
+
+            var tahMins = parseHhMmToMins(realPrayerData.Lastthird);
+            if (tahMins >= 0 && nowMins === tahMins) {
+                var tahSlot = dayStamp + '-tahajjud';
+                if (realLastSlotTriggered !== tahSlot) {
+                    realLastSlotTriggered = tahSlot;
+                    triggerRealQuranNow('وقت التهجد (الثلث الأخير من الليل) • بث قرآن حقيقي');
+                }
+            }
         }
 
         var currentPeer = DEFAULT_PEER;
@@ -2966,12 +3187,14 @@ const htmlContent = `<!DOCTYPE html>
             renderBackupHistoryList();
             syncRadioUi();
             refreshWeatherAndMarine();
+            loadRealPrayerSchedule();
             onCallDialInput();
             openSocket();
             syncPresenceNow();
             pollHttpSync();
             checkForSystemUpdate(false);
             setInterval(pollHttpSync, 3500);
+            setInterval(checkRealAutoSchedule, 15000);
             setInterval(function() { checkForSystemUpdate(false); }, 60000);
         });
     </script>

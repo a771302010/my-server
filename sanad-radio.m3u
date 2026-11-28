@@ -1,3 +1,5 @@
 #EXTM3U
-#EXTINF:63,برومو إذاعة راديو سند AI -- البث المباشر
+#EXTINF:-1,برومو إذاعة راديو سند AI -- البث المباشر
 https://my-server-t0s5.onrender.com/sanad-radio-promo.mp3
+#EXTINF:-1,المقطع الثاني -- إذاعة سند
+https://my-server-t0s5.onrender.com/sanad-seg-2.mp3

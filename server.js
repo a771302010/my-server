@@ -4,12 +4,17 @@ const path = require('path');
 const { WebSocketServer } = require('ws');
 const { getIconAssetForRoute } = require('./sanad-icon-assets');
 
-const APP_VERSION = '12.6.8';
+const APP_VERSION = '12.6.9';
 const PORT = process.env.PORT || 3000;
 const ICON_BG_HEX = '#164e63';
 const STATE_FILE_PATH = process.env.SANAD_STATE_FILE || path.join(__dirname, 'sanad-state.json');
 const LOCAL_RADIO_URL = process.env.SANAD_LOCAL_RADIO_URL || '/sanad-radio-promo.mp3';
-const SECOND_RADIO_URL = process.env.SANAD_SECOND_RADIO_URL || '';
+
+// أضف أي مقاطع MP3 إضافية هنا بالترتيب (أو ضع ملفات مثل sanad-seg-2.mp3 في جذر المشروع)
+const SANAD_EXTRA_TRACKS = [
+    // مثال: { id: 'seg2', title: 'فقرة سند الإذاعية', url: '/sanad-seg-2.mp3' },
+    // مثال: { id: 'seg3', title: 'متابعات وثقافة', url: '/sanad-seg-3.mp3' },
+];
 
 function toWesternDigitsServer(str) {
     return String(str === undefined || str === null ? '' : str)
@@ -287,7 +292,7 @@ async function generateAiAssistantReply(promptText) {
         return 'يمكنك تصدير نسخة احتياطية كاملة واستعراض سجل النسخ مرتباً من الأحدث للأقدم مع أعداد التحصيلات (الجهات، الرسائل، الحسابات، المجموعات، والمحظورين) داخل تبويب الذكاء.';
     }
     if (/راديو|اذاعة|fm|قران|سند|اخبار/i.test(q)) {
-        return 'إذاعة سند تضم: إذاعة سند، قنوات القرآن الكريم، والقنوات الإخبارية مع إمكانية متابعة المقطع الإضافي الهادئ بعد البرومو.';
+        return 'إذاعة سند تشغّل البث بشكل متواصل من البداية عند الضغط على تشغيل وتنتقل تلقائياً بين مقاطعها، إلى جانب قنوات القرآن الكريم والقنوات الإخبارية.';
     }
     if (/باب المندب|المخاء|طقس|رياح|مد|جزر|بحر/i.test(q)) {
         return 'لوحة الطقس والرياح والمد والجزر في سند تشمل مضيق باب المندب والمخاء وعدن والحديدة وسواحل ومدن عربية وعالمية مختارة.';
@@ -452,7 +457,7 @@ const htmlContent = `<!DOCTYPE html>
     <script>
         var CLIENT_APP_VERSION = '${APP_VERSION}';
         var SANAD_LOCAL_RADIO_URL = '${LOCAL_RADIO_URL.replace(/'/g, '')}';
-        var SANAD_SECOND_RADIO_URL = '${SECOND_RADIO_URL.replace(/'/g, '')}';
+        var SANAD_SERVER_EXTRA_TRACKS = ${JSON.stringify(SANAD_EXTRA_TRACKS)};
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
@@ -869,7 +874,7 @@ const htmlContent = `<!DOCTYPE html>
                     <h2 class="text-sm font-bold text-amber-300"><i class="fa-solid fa-radio ml-1"></i> إذاعة سند</h2>
                     <span id="radio-state-badge" class="text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700 px-2.5 py-0.5 rounded-full">متوقف</span>
                 </div>
-                <p class="text-[11px] text-slate-400">تضم القائمة: إذاعة سند، القرآن الكريم، والقنوات الإخبارية. اختر القناة وشغّلها أو أوقفها في أي وقت.</p>
+                <p class="text-[11px] text-slate-400">تضم القائمة: إذاعة سند، القرآن الكريم، والقنوات الإخبارية. عند تشغيل إذاعة سند يبدأ البث من البداية ويتواصل تلقائياً عبر مقاطعها.</p>
                 <div class="flex gap-2 flex-wrap">
                     <select id="radio-station-select" onchange="onRadioStationChanged()" class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
                         <optgroup label="إذاعة سند">
@@ -888,10 +893,6 @@ const htmlContent = `<!DOCTYPE html>
                     </select>
                     <button type="button" id="radio-toggle-btn" onclick="toggleSanadRadioFm()" class="bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl font-semibold"><i class="fa-solid fa-play ml-1"></i>تشغيل الراديو</button>
                 </div>
-                <label class="flex items-center gap-2 text-[11px] text-slate-300 cursor-pointer pt-0.5">
-                    <input type="checkbox" id="radio-second-seg-toggle" checked class="rounded border-slate-600 bg-[#08101a] text-teal-500">
-                    <span>تشغيل مقطع ثاني هادئ تلقائياً بعد انتهاء برومو إذاعة سند</span>
-                </label>
                 <div id="radio-ai-host-box" class="bg-[#08101a] border border-slate-800/90 rounded-xl p-2.5 text-[11px] text-teal-200">
                     الراديو في وضع الإيقاف ولن يستهلك أي بيانات حتى تضغط «تشغيل الراديو».
                 </div>
@@ -996,63 +997,20 @@ const htmlContent = `<!DOCTYPE html>
         var radioSessionSeq = 0;
         var radioStatusTimer = null;
 
-        // مشغل هادئ جداً ومريح للأذن للمقطع الثاني بعد البرومو عند عدم وجود ملف صوتي خارجي للمقطع الثاني
-        var calmAmbientPad = {
-            ctx: null,
-            osc1: null,
-            osc2: null,
-            gain: null,
-            active: false,
-            start: function() {
-                this.stop();
-                this.active = true;
-                try {
-                    var AudioCtx = window.AudioContext || window.webkitAudioContext;
-                    if (!AudioCtx) return;
-                    if (!this.ctx) this.ctx = new AudioCtx();
-                    if (this.ctx.state === 'suspended') this.ctx.resume().catch(function() {});
-
-                    var now = this.ctx.currentTime;
-                    var masterGain = this.ctx.createGain();
-                    masterGain.gain.setValueAtTime(0.0001, now);
-                    masterGain.gain.linearRampToValueAtTime(0.012, now + 1.5);
-
-                    var osc1 = this.ctx.createOscillator();
-                    osc1.type = 'sine';
-                    osc1.frequency.setValueAtTime(196.00, now); // G3 هادئ
-
-                    var osc2 = this.ctx.createOscillator();
-                    osc2.type = 'sine';
-                    osc2.frequency.setValueAtTime(293.66, now); // D4 متناغم
-
-                    osc1.connect(masterGain);
-                    osc2.connect(masterGain);
-                    masterGain.connect(this.ctx.destination);
-
-                    osc1.start(now);
-                    osc2.start(now);
-
-                    this.osc1 = osc1;
-                    this.osc2 = osc2;
-                    this.gain = masterGain;
-                } catch (e) {}
-            },
-            stop: function() {
-                this.active = false;
-                try {
-                    if (this.osc1) { this.osc1.stop(); this.osc1.disconnect(); }
-                } catch (e) {}
-                try {
-                    if (this.osc2) { this.osc2.stop(); this.osc2.disconnect(); }
-                } catch (e) {}
-                try {
-                    if (this.gain) { this.gain.disconnect(); }
-                } catch (e) {}
-                this.osc1 = null;
-                this.osc2 = null;
-                this.gain = null;
+        function getSanadSequenceTracks() {
+            var list = [{ id: 'promo', title: 'برومو إذاعة سند', url: SANAD_LOCAL_RADIO_URL || '/sanad-radio-promo.mp3' }];
+            if (window.SANAD_RADIO_PLAYLIST && Array.isArray(window.SANAD_RADIO_PLAYLIST.sanadTracks)) {
+                window.SANAD_RADIO_PLAYLIST.sanadTracks.forEach(function(t) {
+                    if (t && t.url) list.push({ id: t.id || ('tr-' + list.length), title: t.title || ('مقطع ' + list.length), url: t.url });
+                });
             }
-        };
+            if (Array.isArray(SANAD_SERVER_EXTRA_TRACKS)) {
+                SANAD_SERVER_EXTRA_TRACKS.forEach(function(t) {
+                    if (t && t.url) list.push({ id: t.id || ('srv-' + list.length), title: t.title || ('مقطع ' + list.length), url: t.url });
+                });
+            }
+            return list;
+        }
 
         var currentPeer = DEFAULT_PEER;
         var activePane = 'chats';
@@ -1251,7 +1209,6 @@ const htmlContent = `<!DOCTYPE html>
             radioSessionSeq += 1;
             clearTimeout(radioStatusTimer);
             radioStatusTimer = null;
-            calmAmbientPad.stop();
 
             var aud = document.getElementById('radio-audio-el');
             if (aud) {
@@ -1290,45 +1247,50 @@ const htmlContent = `<!DOCTYPE html>
             }
         }
 
-        function startSecondSegmentAfterPromo(sessionId) {
+        function playSanadSequenceFromIndex(tracks, idx, sessionId) {
             if (!radioPlaying || sessionId !== radioSessionSeq) return;
-            var secondToggle = document.getElementById('radio-second-seg-toggle');
-            var secondEnabled = !secondToggle || Boolean(secondToggle.checked);
-            if (!secondEnabled) {
-                setRadioBoxMessage('انتهى برومو إذاعة سند. يمكنك إعادة التشغيل أو اختيار قناة أخرى.');
-                return;
-            }
-
+            if (!Array.isArray(tracks) || !tracks.length) return;
+            var safeIdx = ((idx % tracks.length) + tracks.length) % tracks.length;
+            var tr = tracks[safeIdx];
             var aud = document.getElementById('radio-audio-el');
-            if (SANAD_SECOND_RADIO_URL && aud) {
-                setRadioBoxMessage('إذاعة سند • المقطع الثاني (فاصل مستمر بعد البرومو)');
-                aud.loop = true;
-                aud.onended = null;
-                aud.onerror = function() {
-                    if (!radioPlaying || sessionId !== radioSessionSeq) return;
-                    calmAmbientPad.start();
-                    setRadioBoxMessage('إذاعة سند • فاصل صوتي هادئ بعد البرومو');
-                };
-                try {
-                    aud.pause();
-                    aud.src = SANAD_SECOND_RADIO_URL;
-                    aud.load();
-                    var p = aud.play();
-                    if (p && typeof p.catch === 'function') {
-                        p.catch(function() {
-                            if (!radioPlaying || sessionId !== radioSessionSeq) return;
-                            calmAmbientPad.start();
-                            setRadioBoxMessage('إذاعة سند • فاصل صوتي هادئ بعد البرومو');
-                        });
-                    }
-                } catch (e) {
-                    calmAmbientPad.start();
-                    setRadioBoxMessage('إذاعة سند • فاصل صوتي هادئ بعد البرومو');
+            if (!aud || !tr || !tr.url) return;
+
+            var labelPrefix = 'إذاعة سند (' + toWesternDigits(safeIdx + 1) + '/' + toWesternDigits(tracks.length) + ') • ' + tr.title;
+            setRadioBoxMessage(labelPrefix);
+
+            aud.loop = false;
+            aud.onplaying = function() {
+                if (!radioPlaying || sessionId !== radioSessionSeq) return;
+                setRadioBoxMessage(labelPrefix + ' -- بث متواصل');
+            };
+            aud.onended = function() {
+                if (!radioPlaying || sessionId !== radioSessionSeq) return;
+                // إذا يوجد مقطع إضافي ننتقل إليه؛ وإذا كان البرومو فقط يعود من البداية بسلاسة كراديو متواصل
+                playSanadSequenceFromIndex(tracks, safeIdx + 1, sessionId);
+            };
+            aud.onerror = function() {
+                if (!radioPlaying || sessionId !== radioSessionSeq) return;
+                if (tracks.length > 1) {
+                    playSanadSequenceFromIndex(tracks, safeIdx + 1, sessionId);
+                } else {
+                    setRadioBoxMessage('تعذر تحميل مقطع الإذاعة حالياً؛ يمكنك المحاولة مرة أخرى.');
                 }
-            } else {
-                calmAmbientPad.start();
-                setRadioBoxMessage('إذاعة سند • المقطع الثاني الهادئ يعمل بعد البرومو (بدون تداخل)');
-            }
+            };
+
+            try {
+                aud.pause();
+                aud.muted = false;
+                aud.volume = 1.0;
+                aud.src = tr.url;
+                aud.load();
+                var p = aud.play();
+                if (p && typeof p.catch === 'function') {
+                    p.catch(function() {
+                        if (!radioPlaying || sessionId !== radioSessionSeq) return;
+                        if (tracks.length > 1) playSanadSequenceFromIndex(tracks, safeIdx + 1, sessionId);
+                    });
+                }
+            } catch (e) {}
         }
 
         function applyRadioAudioSource(info) {
@@ -1336,46 +1298,13 @@ const htmlContent = `<!DOCTYPE html>
             var sessionId = radioSessionSeq;
             if (!info || !radioPlaying) return;
 
-            var aud = document.getElementById('radio-audio-el');
-
             if (info.id === 'sanad_main') {
-                setRadioBoxMessage('إذاعة سند • جاري تشغيل البرومو...');
-                var promoUrl = info.url || SANAD_LOCAL_RADIO_URL || '/sanad-radio-promo.mp3';
-                if (!aud || !promoUrl) {
-                    startSecondSegmentAfterPromo(sessionId);
-                    return;
-                }
-                aud.loop = false;
-                aud.onplaying = function() {
-                    if (!radioPlaying || sessionId !== radioSessionSeq) return;
-                    setRadioBoxMessage('إذاعة سند • برومو الإذاعة قيد التشغيل');
-                };
-                aud.onended = function() {
-                    startSecondSegmentAfterPromo(sessionId);
-                };
-                aud.onerror = function() {
-                    if (!radioPlaying || sessionId !== radioSessionSeq) return;
-                    startSecondSegmentAfterPromo(sessionId);
-                };
-                try {
-                    aud.pause();
-                    aud.muted = false;
-                    aud.volume = 1.0;
-                    aud.src = promoUrl;
-                    aud.load();
-                    var p = aud.play();
-                    if (p && typeof p.catch === 'function') {
-                        p.catch(function() {
-                            if (!radioPlaying || sessionId !== radioSessionSeq) return;
-                            startSecondSegmentAfterPromo(sessionId);
-                        });
-                    }
-                } catch (e) {
-                    startSecondSegmentAfterPromo(sessionId);
-                }
+                var tracks = getSanadSequenceTracks();
+                playSanadSequenceFromIndex(tracks, 0, sessionId);
                 return;
             }
 
+            var aud = document.getElementById('radio-audio-el');
             setRadioBoxMessage('جاري الاتصال بالقناة: «' + info.name + '»...');
             radioStatusTimer = setTimeout(function() {
                 if (!radioPlaying || sessionId !== radioSessionSeq) return;
@@ -2000,15 +1929,15 @@ const htmlContent = `<!DOCTYPE html>
                 var rawVault = localStorage.getItem('sanad_persistent_vault_v1');
                 var vault = rawVault ? JSON.parse(rawVault) : null;
 
-                var sActive = (vault && vault.activeAcct) || localStorage.getItem('sanad1268_active') || localStorage.getItem('sanad1267_active') || localStorage.getItem('sanad1266_active');
-                var sAccts = (vault && vault.myAccts) || JSON.parse(localStorage.getItem('sanad1268_accts') || localStorage.getItem('sanad1267_accts') || 'null');
-                var sVerified = (vault && vault.verifiedPhones) || JSON.parse(localStorage.getItem('sanad1268_verified') || localStorage.getItem('sanad1267_verified') || 'null');
-                var sContacts = (vault && vault.contacts) || JSON.parse(localStorage.getItem('sanad1268_contacts') || localStorage.getItem('sanad1267_contacts') || 'null');
-                var sBlocked = (vault && vault.blocked) || JSON.parse(localStorage.getItem('sanad1268_blocked') || localStorage.getItem('sanad1267_blocked') || 'null');
-                var sThreads = (vault && vault.threads) || JSON.parse(localStorage.getItem('sanad1268_threads') || localStorage.getItem('sanad1267_threads') || 'null');
-                var sGroups = (vault && vault.groups) || JSON.parse(localStorage.getItem('sanad1268_groups') || localStorage.getItem('sanad1267_groups') || 'null');
-                var sBackups = (vault && vault.backupHistory) || JSON.parse(localStorage.getItem('sanad1268_backups') || localStorage.getItem('sanad1267_backups') || 'null');
-                var sCursor = Number((vault && vault.cursor) || localStorage.getItem('sanad1268_cursor') || localStorage.getItem('sanad1267_cursor') || '0');
+                var sActive = (vault && vault.activeAcct) || localStorage.getItem('sanad1269_active') || localStorage.getItem('sanad1268_active') || localStorage.getItem('sanad1267_active');
+                var sAccts = (vault && vault.myAccts) || JSON.parse(localStorage.getItem('sanad1269_accts') || localStorage.getItem('sanad1268_accts') || 'null');
+                var sVerified = (vault && vault.verifiedPhones) || JSON.parse(localStorage.getItem('sanad1269_verified') || localStorage.getItem('sanad1268_verified') || 'null');
+                var sContacts = (vault && vault.contacts) || JSON.parse(localStorage.getItem('sanad1269_contacts') || localStorage.getItem('sanad1268_contacts') || 'null');
+                var sBlocked = (vault && vault.blocked) || JSON.parse(localStorage.getItem('sanad1269_blocked') || localStorage.getItem('sanad1268_blocked') || 'null');
+                var sThreads = (vault && vault.threads) || JSON.parse(localStorage.getItem('sanad1269_threads') || localStorage.getItem('sanad1268_threads') || 'null');
+                var sGroups = (vault && vault.groups) || JSON.parse(localStorage.getItem('sanad1269_groups') || localStorage.getItem('sanad1268_groups') || 'null');
+                var sBackups = (vault && vault.backupHistory) || JSON.parse(localStorage.getItem('sanad1269_backups') || localStorage.getItem('sanad1268_backups') || 'null');
+                var sCursor = Number((vault && vault.cursor) || localStorage.getItem('sanad1269_cursor') || localStorage.getItem('sanad1268_cursor') || '0');
 
                 if (sActive) activeAcct = cleanIdValue(sActive);
                 if (Array.isArray(sAccts) && sAccts.length) myAccts = sAccts.map(cleanIdValue).filter(Boolean);
@@ -2027,15 +1956,15 @@ const htmlContent = `<!DOCTYPE html>
         function persistState() {
             try {
                 var blockedArr = Array.from(blockedIdsSet);
-                localStorage.setItem('sanad1268_active', activeAcct);
-                localStorage.setItem('sanad1268_accts', JSON.stringify(myAccts));
-                localStorage.setItem('sanad1268_verified', JSON.stringify(verifiedPhonesMap));
-                localStorage.setItem('sanad1268_contacts', JSON.stringify(contacts));
-                localStorage.setItem('sanad1268_blocked', JSON.stringify(blockedArr));
-                localStorage.setItem('sanad1268_threads', JSON.stringify(acctThreads));
-                localStorage.setItem('sanad1268_groups', JSON.stringify(sanadGroups));
-                localStorage.setItem('sanad1268_backups', JSON.stringify(backupRecordsHistory));
-                localStorage.setItem('sanad1268_cursor', String(lastSyncCursor));
+                localStorage.setItem('sanad1269_active', activeAcct);
+                localStorage.setItem('sanad1269_accts', JSON.stringify(myAccts));
+                localStorage.setItem('sanad1269_verified', JSON.stringify(verifiedPhonesMap));
+                localStorage.setItem('sanad1269_contacts', JSON.stringify(contacts));
+                localStorage.setItem('sanad1269_blocked', JSON.stringify(blockedArr));
+                localStorage.setItem('sanad1269_threads', JSON.stringify(acctThreads));
+                localStorage.setItem('sanad1269_groups', JSON.stringify(sanadGroups));
+                localStorage.setItem('sanad1269_backups', JSON.stringify(backupRecordsHistory));
+                localStorage.setItem('sanad1269_cursor', String(lastSyncCursor));
 
                 localStorage.setItem('sanad_persistent_vault_v1', JSON.stringify({
                     activeAcct: activeAcct,
@@ -3095,8 +3024,10 @@ const server = http.createServer((req, res) => {
         }
     }
 
-    if (pathname === '/sanad-radio-promo.mp3') {
-        const audioPath = path.join(__dirname, 'sanad-radio-promo.mp3');
+    // خدمة ملفات الصوت المحلية المرفوعة بجانب server.js (مثل البرومو أو مقاطع MP3 الإضافية)
+    if (pathname.startsWith('/') && pathname.toLowerCase().endsWith('.mp3')) {
+        const safeName = path.basename(pathname);
+        const audioPath = path.join(__dirname, safeName);
         if (fs.existsSync(audioPath)) {
             const stat = fs.statSync(audioPath);
             res.writeHead(200, {

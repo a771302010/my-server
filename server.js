@@ -49,7 +49,8 @@ function persistServerStateToDisk() {
             blocks: blocksObj,
             reservedCodes: Array.from(reservedCodesSet)
         };
-        fs.writeFileSync(STATE_FILE_PATH, JSON.stringify(snapshot), 'utf8');
+        const serialized = JSON.stringify(snapshot);
+        fs.writeFile(STATE_FILE_PATH, serialized, 'utf8', () => {});
     } catch (e) {}
 }
 
@@ -347,23 +348,23 @@ async function translateTextSmart(text, targetLang) {
 }
 
 const manifestPayload = JSON.stringify({
-  name: `Sanad v${APP_VERSION} - منصة سند للاتصال والذكاء والمعرفة`,
-  short_name: 'سند',
-  description: 'منصة سند للاتصال والذكاء الاصطناعي والثقافة والمعرفة للجميع',
-  start_url: '/',
-  scope: '/',
-  display: 'standalone',
-  orientation: 'portrait',
-  background_color: '#09111b',
-  theme_color: ICON_BG_HEX,
-  dir: 'rtl',
-  lang: 'ar',
-  icons: [
-    { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-    { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
-    { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
-    { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
-  ]
+    name: `Sanad v${APP_VERSION} - منصة سند للاتصال والذكاء والمعرفة`,
+    short_name: 'سند',
+    description: 'منصة سند للاتصال والذكاء الاصطناعي والثقافة والمعرفة للجميع',
+    start_url: '/',
+    scope: '/',
+    display: 'standalone',
+    orientation: 'portrait',
+    background_color: '#09111b',
+    theme_color: ICON_BG_HEX,
+    dir: 'rtl',
+    lang: 'ar',
+    icons: [
+        { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+        { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+        { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+        { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+    ]
 });
 
 const swContent = `const CACHE_NAME = 'sanad-ai-cache-v${APP_VERSION}';
@@ -3167,7 +3168,7 @@ const htmlContent = `<!DOCTYPE html>
             choosePeer(val);
         }
         function clearThreadMsgs() {
-            acctThreads[activeAcct][currentPeer] = [];
+            ensureThreadEntry(activeAcct, currentPeer).length = 0;
             persistState();
             renderMsgs();
         }
@@ -3368,7 +3369,9 @@ const server = http.createServer((req, res) => {
                 const normPhone = normIdServer(parsed.phone || '');
                 const submitted = String(parsed.code || '').trim();
                 const rec = pendingVerifications.get(normPhone);
-                const valid = Boolean((rec && rec.code === submitted) || (submitted && submitted.length === 6));
+                const valid = rec
+                    ? Boolean(rec.code === submitted)
+                    : Boolean(submitted && /^\d{6}$/.test(submitted));
                 if (valid) pendingVerifications.delete(normPhone);
                 res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
                 res.end(JSON.stringify({ ok: valid, phone: parsed.phone }));

@@ -12,8 +12,10 @@ const LOCAL_RADIO_URL = process.env.SANAD_LOCAL_RADIO_URL || '/sanad-radio-promo
 
 // أضف أي مقاطع MP3 إضافية هنا بالترتيب (أو ضع ملفات مثل sanad-seg-2.mp3 في جذر المشروع)
 const SANAD_EXTRA_TRACKS = [
-    // مثال: { id: 'seg2', title: 'فقرة سند الإذاعية', url: '/sanad-seg-2.mp3' },
-    // مثال: { id: 'seg3', title: 'متابعات وثقافة', url: '/sanad-seg-3.mp3' },
+    { id: 'seg2', title: 'المقطع الثاني -- إذاعة سند', url: '/sanad-seg-2.mp3' }
+    // مثال لإضافة مقطع ثالث أو رابع لاحقاً:
+    // { id: 'seg3', title: 'متابعات وثقافة', url: '/sanad-seg-3.mp3' },
+    // { id: 'seg4', title: 'إعلان / خبر عاجل', url: '/sanad-seg-4.mp3' },
 ];
 
 function toWesternDigitsServer(str) {
@@ -365,7 +367,7 @@ const manifestPayload = JSON.stringify({
 });
 
 const swContent = `const CACHE_NAME = 'sanad-ai-cache-v${APP_VERSION}';
-const APP_SHELL = ['/', '/manifest.json', '/icon.svg', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png', '/sanad-radio-playlist.js', '/sanad-radio.m3u', '/sanad-radio-promo.mp3'];
+const APP_SHELL = ['/', '/manifest.json', '/icon.svg', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png', '/sanad-radio-playlist.js', '/sanad-radio.m3u'];
 
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -398,8 +400,7 @@ self.addEventListener('fetch', event => {
     url.pathname === '/icon-512.png' ||
     url.pathname === '/apple-touch-icon.png' ||
     url.pathname === '/sanad-radio-playlist.js' ||
-    url.pathname === '/sanad-radio.m3u' ||
-    url.pathname === '/sanad-radio-promo.mp3'
+    url.pathname === '/sanad-radio.m3u'
   ) {
     event.respondWith(
       fetch(req).then(res => {
@@ -998,12 +999,10 @@ const htmlContent = `<!DOCTYPE html>
         var radioStatusTimer = null;
 
         function getSanadSequenceTracks() {
-            var list = [{ id: 'promo', title: 'برومو إذاعة سند', url: SANAD_LOCAL_RADIO_URL || '/sanad-radio-promo.mp3' }];
-            if (window.SANAD_RADIO_PLAYLIST && Array.isArray(window.SANAD_RADIO_PLAYLIST.sanadTracks)) {
-                window.SANAD_RADIO_PLAYLIST.sanadTracks.forEach(function(t) {
-                    if (t && t.url) list.push({ id: t.id || ('tr-' + list.length), title: t.title || ('مقطع ' + list.length), url: t.url });
-                });
+            if (window.SANAD_RADIO_PLAYLIST && Array.isArray(window.SANAD_RADIO_PLAYLIST.tracks) && window.SANAD_RADIO_PLAYLIST.tracks.length) {
+                return window.SANAD_RADIO_PLAYLIST.tracks.slice();
             }
+            var list = [{ id: 'promo', title: 'برومو إذاعة سند', url: SANAD_LOCAL_RADIO_URL || '/sanad-radio-promo.mp3' }];
             if (Array.isArray(SANAD_SERVER_EXTRA_TRACKS)) {
                 SANAD_SERVER_EXTRA_TRACKS.forEach(function(t) {
                     if (t && t.url) list.push({ id: t.id || ('srv-' + list.length), title: t.title || ('مقطع ' + list.length), url: t.url });
@@ -1265,7 +1264,6 @@ const htmlContent = `<!DOCTYPE html>
             };
             aud.onended = function() {
                 if (!radioPlaying || sessionId !== radioSessionSeq) return;
-                // إذا يوجد مقطع إضافي ننتقل إليه؛ وإذا كان البرومو فقط يعود من البداية بسلاسة كراديو متواصل
                 playSanadSequenceFromIndex(tracks, safeIdx + 1, sessionId);
             };
             aud.onerror = function() {
@@ -3024,7 +3022,6 @@ const server = http.createServer((req, res) => {
         }
     }
 
-    // خدمة ملفات الصوت المحلية المرفوعة بجانب server.js (مثل البرومو أو مقاطع MP3 الإضافية)
     if (pathname.startsWith('/') && pathname.toLowerCase().endsWith('.mp3')) {
         const safeName = path.basename(pathname);
         const audioPath = path.join(__dirname, safeName);

@@ -1,8 +1,15 @@
-const http = require('http'); 
+const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { WebSocketServer } = require('ws');
-let getIconAssetForRoute = () => ({ mimeType: 'image/svg+xml; charset=utf-8', buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128" rx="28" fill="#164e63"/><text x="64" y="82" text-anchor="middle" font-size="56" fill="#ffffff" font-family="sans-serif">س</text></svg>') });
+
+let getIconAssetForRoute = () => ({
+    mimeType: 'image/svg+xml; charset=utf-8',
+    buffer: Buffer.from(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128" rx="28" fill="#164e63"/><text x="64" y="82" text-anchor="middle" font-size="56" fill="#ffffff" font-family="sans-serif">س</text></svg>'
+    )
+});
+
 try {
     const iconMod = require('./sanad-icon-assets');
     if (iconMod && typeof iconMod.getIconAssetForRoute === 'function') {
@@ -18,13 +25,18 @@ const ICON_BG_HEX = '#164e63';
 const STATE_FILE_PATH = process.env.SANAD_STATE_FILE || path.join(__dirname, 'sanad-state.json');
 const LOCAL_RADIO_URL = process.env.SANAD_LOCAL_RADIO_URL || '/sanad-radio-promo.mp3';
 
-// أضف أي مقاطع MP3 إضافية هنا بالترتيب (أو ضع ملفات مثل sanad-seg-2.mp3 في جذر المشروع)
+// أضف أي مقاطع MP3 أو M4A أو MP4 إضافية هنا بالترتيب في جذر المشروع
 const SANAD_EXTRA_TRACKS = [
-    { id: 'seg2', title: 'المقطع الثاني -- إذاعة سند', url: '/sanad-seg-2.mp3' }
-    // مثال لإضافة مقطع ثالث أو رابع لاحقاً:
-    // { id: 'seg3', title: 'متابعات وثقافة', url: '/sanad-seg-3.mp3' },
-    // { id: 'seg4', title: 'إعلان / خبر عاجل', url: '/sanad-seg-4.mp3' },
+    { id: 'seg2', title: 'المقطع الثاني -- إذاعة سند', url: '/sanad-seg-2.mp3' },
+    { id: 'seg3', title: 'فقرة صوتية M4A -- إذاعة سند AI', url: '/sanad-seg-3.m4a' },
+    { id: 'seg4', title: 'حلقة MP4 -- إذاعة سند AI', url: '/sanad-seg-4.mp4' }
 ];
+
+const MEDIA_MIME_TYPES = {
+    '.mp3': 'audio/mpeg',
+    '.m4a': 'audio/mp4',
+    '.mp4': 'video/mp4'
+};
 
 function toWesternDigitsServer(str) {
     return String(str === undefined || str === null ? '' : str)
@@ -120,7 +132,9 @@ function recordSyncEvent(payload) {
     eventCursor += 1;
     const item = Object.assign({}, payload, {
         cursor: eventCursor,
-        eventId: payload.eventId || ('srv-' + eventCursor + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7))
+        eventId:
+            payload.eventId ||
+            ('srv-' + eventCursor + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7))
     });
     syncEvents.push(item);
     if (syncEvents.length > 2000) {
@@ -302,8 +316,8 @@ async function generateAiAssistantReply(promptText) {
     if (/نسخة احتياطية|تصدير|استيراد|تحصيلات/i.test(q)) {
         return 'يمكنك تصدير نسخة احتياطية كاملة واستعراض سجل النسخ مرتباً من الأحدث للأقدم مع أعداد التحصيلات (الجهات، الرسائل، الحسابات، المجموعات، والمحظورين) داخل تبويب الذكاء.';
     }
-    if (/راديو|اذاعة|fm|قران|سند|اخبار/i.test(q)) {
-        return 'إذاعة سند تشغّل البث بشكل متواصل من البداية عند الضغط على تشغيل وتنتقل تلقائياً بين مقاطعها، إلى جانب قنوات القرآن الكريم والقنوات الإخبارية.';
+    if (/راديو|اذاعة|fm|قران|سند|اخبار|mp3|m4a|mp4/i.test(q)) {
+        return 'إذاعة سند تشغّل البث بشكل متواصل وتدعم صيغ MP3 وM4A وMP4 مع انتقال ذكي بين المقاطع، إلى جانب قنوات القرآن الكريم والقنوات الإخبارية.';
     }
     if (/باب المندب|المخاء|طقس|رياح|مد|جزر|بحر/i.test(q)) {
         return 'لوحة الطقس والرياح والمد والجزر في سند تشمل مضيق باب المندب والمخاء وعدن والحديدة وسواحل ومدن عربية وعالمية مختارة.';
@@ -394,11 +408,18 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
+self.addEventListener('message', event => {
+  if (event && event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.pathname.startsWith('/api/') || url.pathname === '/healthz') return;
+  if (req.headers.get('range') || /\\.(mp3|m4a|mp4)$/i.test(url.pathname)) return;
 
   if (
     req.mode === 'navigate' ||
@@ -566,6 +587,8 @@ const htmlContent = `<!DOCTYPE html>
 
     <audio id="remote-audio-el" autoplay playsinline class="hidden"></audio>
     <audio id="radio-audio-el" preload="auto" playsinline class="hidden"></audio>
+    <video id="radio-mp4-el" preload="auto" playsinline class="hidden"></video>
+    <audio id="devotional-audio-el" preload="none" playsinline class="hidden"></audio>
 
     <div id="auto-update-banner" class="hidden bg-gradient-to-r from-teal-900 via-[#164e63] to-teal-900 border-b border-teal-400/50 text-white px-3.5 py-2 flex items-center justify-between gap-2 text-xs z-30 shrink-0">
         <span id="auto-update-banner-text" class="font-semibold truncate">يتوفر تحديث جديد للنظام -- اضغط للتحديث الآن.</span>
@@ -884,7 +907,7 @@ const htmlContent = `<!DOCTYPE html>
                     <h2 class="text-sm font-bold text-amber-300"><i class="fa-solid fa-radio ml-1"></i> إذاعة سند</h2>
                     <span id="radio-state-badge" class="text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700 px-2.5 py-0.5 rounded-full">متوقف</span>
                 </div>
-                <p class="text-[11px] text-slate-400">تضم القائمة: إذاعة سند، القرآن الكريم، والقنوات الإخبارية. عند تشغيل إذاعة سند يبدأ البث من البداية ويتواصل تلقائياً عبر مقاطعها.</p>
+                <p class="text-[11px] text-slate-400">تضم القائمة: إذاعة سند، القرآن الكريم، والقنوات الإخبارية. تدعم MP3 وM4A وMP4 مع انتقال آلي بين المقاطع.</p>
                 <div class="flex gap-2 flex-wrap">
                     <select id="radio-station-select" onchange="onRadioStationChanged()" class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
                         <optgroup label="إذاعة سند">
@@ -914,7 +937,7 @@ const htmlContent = `<!DOCTYPE html>
                     <h2 class="text-sm font-bold text-emerald-300"><i class="fa-solid fa-mosque ml-1"></i> القرآن والأذان الحقيقي الآلي</h2>
                     <span id="real-adhan-city-badge" class="text-[10px] font-mono bg-emerald-950 text-emerald-200 border border-emerald-800 px-2.5 py-0.5 rounded-full">عدن • مرتبط بمكة</span>
                 </div>
-                <p class="text-[11px] text-slate-400">تشغيل حقيقي للقرآن والأذان (بدون توليد صوتي بالذكاء الاصطناعي) مع تقليب آلي حسب الوقت والجمعة والتهجد ورمضان.</p>
+                <p class="text-[11px] text-slate-400">تشغيل حقيقي للقرآن والأذان مع تقليب آلي حسب الوقت والجمعة والتهجد ورمضان.</p>
 
                 <div class="flex gap-2 flex-wrap items-center">
                     <select id="real-adhan-city-select" onchange="loadRealPrayerSchedule()" class="flex-1 bg-[#08101a] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
@@ -934,7 +957,7 @@ const htmlContent = `<!DOCTYPE html>
                     </select>
 
                     <label class="flex items-center gap-1.5 bg-[#08101a] border border-slate-800 px-3 py-2 rounded-xl text-[11px] text-slate-200 cursor-pointer">
-                        <input type="checkbox" id="real-adhan-auto-switch" checked onchange="syncRealAdhanAutoStatus()">
+                        <input type="checkbox" id="real-adhan-auto-switch" onchange="syncRealAdhanAutoStatus()">
                         <span>تقليب آلي</span>
                     </label>
                 </div>
@@ -953,11 +976,11 @@ const htmlContent = `<!DOCTYPE html>
                 </div>
 
                 <div id="real-adhan-live-status" class="bg-[#08101a] border border-emerald-900/50 rounded-xl p-2.5 text-[11px] text-emerald-300 font-semibold">
-                    النظام جاهز ويراقب الوقت تلقائياً للتبديل بين القرآن والأذان.
+                    النظام جاهز للتشغيل اليدوي أو التلقائي عند دخول أوقات الصلاة.
                 </div>
             </div>
 
-            <!-- لوحة الطقس والرياح والمد والجزر مرتبة عالمياً وعربياً -->
+            <!-- لوحة الطقس والرياح والمد والجزر -->
             <div class="bg-[#0d1926] border border-slate-800 p-4 rounded-2xl space-y-2.5 text-xs">
                 <div class="flex items-center justify-between gap-2">
                     <h2 class="text-sm font-bold text-sky-300"><i class="fa-solid fa-wind ml-1"></i> الطقس والرياح والمد والجزر</h2>
@@ -1056,7 +1079,6 @@ const htmlContent = `<!DOCTYPE html>
         var radioSessionSeq = 0;
         var radioStatusTimer = null;
 
-        // مصادر حقيقية (ملف الأذان الحقيقي المرفوع في السيرفر + قناة بث قرآن حقيقي)
         var REAL_ADHAN_AUDIO_SRC = '/sanad-adhan.mp3';
         var REAL_QURAN_STREAM_SRC = 'https://stream.radiojar.com/0tpy1h0kxtzuv';
         var realPrayerData = null;
@@ -1096,44 +1118,51 @@ const htmlContent = `<!DOCTYPE html>
             }
         }
 
-        function stopAnyCompetingAudio() {
-            if (typeof stopAllRadioPlayback === 'function') {
-                stopAllRadioPlayback();
-            }
-            var aud = document.getElementById('radio-audio-el');
-            if (aud) {
+        function stopDevotionalAudio() {
+            var devAud = document.getElementById('devotional-audio-el');
+            if (devAud) {
                 try {
-                    aud.pause();
-                    aud.loop = false;
+                    devAud.pause();
+                    devAud.loop = false;
                 } catch (e) {}
             }
         }
 
         function triggerRealQuranNow(statusMsg) {
-            stopAnyCompetingAudio();
-            var aud = document.getElementById('radio-audio-el');
+            if (radioPlaying && typeof stopRadioOnly === 'function') {
+                radioPlaying = false;
+                stopRadioOnly();
+                syncRadioUi();
+            }
+            var devAud = document.getElementById('devotional-audio-el') || document.getElementById('radio-audio-el');
             setRealAdhanStatus(statusMsg || 'بث القرآن الكريم الحقيقي قيد التشغيل...');
-            if (aud && REAL_QURAN_STREAM_SRC) {
-                aud.muted = false;
-                aud.volume = 1.0;
-                aud.src = REAL_QURAN_STREAM_SRC;
-                aud.load();
-                aud.play().catch(function() {
-                    setRealAdhanStatus('اضغط مرة أخرى على زر التشغيل لتأكيد الصوت في المتصفح.');
+            if (devAud && REAL_QURAN_STREAM_SRC) {
+                devAud.muted = false;
+                devAud.volume = 1.0;
+                devAud.src = REAL_QURAN_STREAM_SRC;
+                devAud.load();
+                devAud.play().then(function() {
+                    setRealAdhanStatus((statusMsg || 'بث القرآن الكريم الحقيقي') + ' -- يعمل الآن');
+                }).catch(function() {
+                    setRealAdhanStatus('اضغط مرة أخرى على زر «قرآن حقيقي الآن» لتأكيد الصوت في المتصفح.');
                 });
             }
         }
 
         function triggerRealAdhanNow(prayerLabel) {
-            stopAnyCompetingAudio();
-            var aud = document.getElementById('radio-audio-el');
+            if (radioPlaying && typeof stopRadioOnly === 'function') {
+                radioPlaying = false;
+                stopRadioOnly();
+                syncRadioUi();
+            }
+            var devAud = document.getElementById('devotional-audio-el') || document.getElementById('radio-audio-el');
             setRealAdhanStatus('الله أكبر • الأذان الحقيقي: ' + (prayerLabel || 'وقت الصلاة'));
-            if (aud && REAL_ADHAN_AUDIO_SRC) {
-                aud.muted = false;
-                aud.volume = 1.0;
-                aud.src = REAL_ADHAN_AUDIO_SRC;
-                aud.load();
-                aud.play().catch(function() {
+            if (devAud && REAL_ADHAN_AUDIO_SRC) {
+                devAud.muted = false;
+                devAud.volume = 1.0;
+                devAud.src = REAL_ADHAN_AUDIO_SRC;
+                devAud.load();
+                devAud.play().catch(function() {
                     triggerRealQuranNow('تعذر العثور على ملف الأذان؛ تم تحويل البث إلى القرآن الحقيقي.');
                 });
             }
@@ -1323,7 +1352,7 @@ const htmlContent = `<!DOCTYPE html>
                 t.textContent = customLabel || 'تم التنفيذ بنجاح';
                 t.classList.remove('hidden');
                 clearTimeout(copyToastTimer);
-                copyToastTimer = setTimeout(function() { t.classList.add('hidden'); }, 2000);
+                copyToastTimer = setTimeout(function() { t.classList.add('hidden'); }, 2200);
             }
         }
 
@@ -1434,7 +1463,7 @@ const htmlContent = `<!DOCTYPE html>
             if (hostBox) hostBox.textContent = msg;
         }
 
-        function stopAllRadioPlayback() {
+        function stopRadioOnly() {
             radioSessionSeq += 1;
             clearTimeout(radioStatusTimer);
             radioStatusTimer = null;
@@ -1448,13 +1477,23 @@ const htmlContent = `<!DOCTYPE html>
                 try {
                     aud.pause();
                     aud.loop = false;
-                    aud.src = '';
-                    aud.load();
                 } catch (e) {}
             }
-            try {
-                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-            } catch (e) {}
+            var vid = document.getElementById('radio-mp4-el');
+            if (vid) {
+                vid.onerror = null;
+                vid.onplaying = null;
+                vid.onended = null;
+                try {
+                    vid.pause();
+                    vid.loop = false;
+                } catch (e) {}
+            }
+        }
+
+        function stopAllRadioPlayback() {
+            stopRadioOnly();
+            stopDevotionalAudio();
         }
 
         function syncRadioUi() {
@@ -1481,48 +1520,56 @@ const htmlContent = `<!DOCTYPE html>
             if (!Array.isArray(tracks) || !tracks.length) return;
             var safeIdx = ((idx % tracks.length) + tracks.length) % tracks.length;
             var tr = tracks[safeIdx];
-            var aud = document.getElementById('radio-audio-el');
-            if (!aud || !tr || !tr.url) return;
+            if (!tr || !tr.url) return;
+
+            var isMp4 = /\.mp4(\?.*)?$/i.test(tr.url);
+            var player = isMp4 ? (document.getElementById('radio-mp4-el') || document.getElementById('radio-audio-el')) : document.getElementById('radio-audio-el');
+            if (!player) return;
 
             var labelPrefix = 'إذاعة سند (' + toWesternDigits(safeIdx + 1) + '/' + toWesternDigits(tracks.length) + ') • ' + tr.title;
             setRadioBoxMessage(labelPrefix);
 
-            aud.loop = false;
-            aud.onplaying = function() {
+            player.loop = false;
+            player.onplaying = function() {
                 if (!radioPlaying || sessionId !== radioSessionSeq) return;
                 setRadioBoxMessage(labelPrefix + ' -- بث متواصل');
             };
-            aud.onended = function() {
+            player.onended = function() {
                 if (!radioPlaying || sessionId !== radioSessionSeq) return;
                 playSanadSequenceFromIndex(tracks, safeIdx + 1, sessionId);
             };
-            aud.onerror = function() {
+            player.onerror = function() {
                 if (!radioPlaying || sessionId !== radioSessionSeq) return;
                 if (tracks.length > 1) {
                     playSanadSequenceFromIndex(tracks, safeIdx + 1, sessionId);
                 } else {
-                    setRadioBoxMessage('تعذر تحميل مقطع الإذاعة حالياً؛ يمكنك المحاولة مرة أخرى.');
+                    setRadioBoxMessage('تعذر تحميل مقطع الإذاعة («' + tr.url + '»)؛ تأكد من وجود ملف الصوت في الجذر.');
                 }
             };
 
             try {
-                aud.pause();
-                aud.muted = false;
-                aud.volume = 1.0;
-                aud.src = tr.url;
-                aud.load();
-                var p = aud.play();
+                player.pause();
+                player.muted = false;
+                player.volume = 1.0;
+                player.src = tr.url;
+                player.load();
+                var p = player.play();
                 if (p && typeof p.catch === 'function') {
                     p.catch(function() {
                         if (!radioPlaying || sessionId !== radioSessionSeq) return;
-                        if (tracks.length > 1) playSanadSequenceFromIndex(tracks, safeIdx + 1, sessionId);
+                        if (tracks.length > 1) {
+                            playSanadSequenceFromIndex(tracks, safeIdx + 1, sessionId);
+                        } else {
+                            setRadioBoxMessage('تعذر بدء التشغيل التلقائي للمقطع؛ اضغط «تشغيل الراديو» مرة أخرى.');
+                        }
                     });
                 }
             } catch (e) {}
         }
 
         function applyRadioAudioSource(info) {
-            stopAllRadioPlayback();
+            stopDevotionalAudio();
+            stopRadioOnly();
             var sessionId = radioSessionSeq;
             if (!info || !radioPlaying) return;
 
@@ -1869,18 +1916,31 @@ const htmlContent = `<!DOCTYPE html>
         }
 
         function requestSystemNotifications() {
+            playChimeSound();
             if (!('Notification' in window)) {
-                return copyStringToClipboard('', 'التنبيهات الصوتية والداخلية مفعّلة');
+                syncNotificationBadge();
+                return copyStringToClipboard('', 'التنبيهات الداخلية مفعّلة في هذا المتصفح');
             }
             if (Notification.permission === 'granted') {
                 syncNotificationBadge();
-                new Notification('سند', { body: 'الإشعارات مفعّلة وجاهزة.' });
-                return;
+                try { new Notification('سند', { body: 'الإشعارات مفعّلة وجاهزة.' }); } catch (e) {}
+                return copyStringToClipboard('', 'إشعارات النظام مفعّلة');
             }
-            Notification.requestPermission().then(function() {
+            if (Notification.permission === 'denied') {
                 syncNotificationBadge();
-                copyStringToClipboard('', 'تم تحديث حالة الإشعارات');
-            }).catch(function() {});
+                return copyStringToClipboard('', 'الإشعارات محظورة من إعدادات المتصفح؛ فعّلها من إعدادات الموقع');
+            }
+            Notification.requestPermission().then(function(perm) {
+                syncNotificationBadge();
+                if (perm === 'granted') {
+                    try { new Notification('سند', { body: 'تم تفعيل إشعارات سند بنجاح.' }); } catch (e) {}
+                    copyStringToClipboard('', 'تم تفعيل الإشعارات بنجاح');
+                } else {
+                    copyStringToClipboard('', 'لم يتم منح إذن الإشعارات');
+                }
+            }).catch(function() {
+                copyStringToClipboard('', 'تعذر طلب صلاحية الإشعارات');
+            });
         }
 
         function triggerSystemNotification(title, body) {
@@ -1914,6 +1974,7 @@ const htmlContent = `<!DOCTYPE html>
                         if (st) st.textContent = 'يتوفر تحديث جديد v' + srvVer + ' -- اضغط «تحديث النظام الآن».';
                     } else if (st && showNotice) {
                         st.textContent = 'النظام على أحدث إصدار (v' + srvVer + ') ويمكنك التحديث في أي وقت.';
+                        copyStringToClipboard('', 'النظام محدّث إلى v' + srvVer);
                     }
                 })
                 .catch(function() {
@@ -1930,6 +1991,11 @@ const htmlContent = `<!DOCTYPE html>
             };
             if ('serviceWorker' in navigator && navigator.serviceWorker.getRegistrations) {
                 navigator.serviceWorker.getRegistrations().then(function(regs) {
+                    regs.forEach(function(r) {
+                        if (r && r.waiting) {
+                            try { r.waiting.postMessage({ type: 'SKIP_WAITING' }); } catch (e) {}
+                        }
+                    });
                     Promise.all(regs.map(function(r) { return r.unregister(); })).then(finishReload).catch(finishReload);
                 }).catch(finishReload);
             } else {
@@ -3282,18 +3348,40 @@ const server = http.createServer((req, res) => {
         }
     }
 
-    if (pathname.startsWith('/') && pathname.toLowerCase().endsWith('.mp3')) {
+    const mediaExt = path.extname(pathname).toLowerCase();
+    if (pathname.startsWith('/') && MEDIA_MIME_TYPES[mediaExt]) {
         const safeName = path.basename(pathname);
-        const audioPath = path.resolve(__dirname, safeName);
+        const mediaPath = path.resolve(__dirname, safeName);
         const baseDir = path.resolve(__dirname) + path.sep;
-        if (audioPath.startsWith(baseDir) && fs.existsSync(audioPath)) {
-            const stat = fs.statSync(audioPath);
+        if (mediaPath.startsWith(baseDir) && fs.existsSync(mediaPath)) {
+            const stat = fs.statSync(mediaPath);
+            const totalSize = stat.size;
+            const mime = MEDIA_MIME_TYPES[mediaExt];
+            const rangeHeader = req.headers.range;
+
+            if (rangeHeader) {
+                const match = /bytes=(\d*)-(\d*)/.exec(rangeHeader);
+                const start = match && match[1] ? parseInt(match[1], 10) : 0;
+                const end = match && match[2] ? parseInt(match[2], 10) : totalSize - 1;
+                if (start <= end && end < totalSize) {
+                    const chunkSize = end - start + 1;
+                    res.writeHead(206, {
+                        'Content-Range': `bytes ${start}-${end}/${totalSize}`,
+                        'Accept-Ranges': 'bytes',
+                        'Content-Length': chunkSize,
+                        'Content-Type': mime
+                    });
+                    fs.createReadStream(mediaPath, { start, end }).pipe(res);
+                    return;
+                }
+            }
+
             res.writeHead(200, {
-                'Content-Type': 'audio/mpeg',
-                'Content-Length': stat.size,
+                'Content-Type': mime,
+                'Content-Length': totalSize,
                 'Accept-Ranges': 'bytes'
             });
-            fs.createReadStream(audioPath).pipe(res);
+            fs.createReadStream(mediaPath).pipe(res);
             return;
         }
     }
@@ -3495,6 +3583,14 @@ wss.on('connection', wsClient => {
         }
         broadcastOnlineUsersWs();
     });
+});
+
+process.on('uncaughtException', err => {
+    console.error('Sanad uncaughtException:', err && err.message ? err.message : err);
+});
+
+process.on('unhandledRejection', reason => {
+    console.error('Sanad unhandledRejection:', reason);
 });
 
 server.listen(PORT, () => {
